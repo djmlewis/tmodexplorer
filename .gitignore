@@ -7,3 +7,4 @@ datafiles/
 rsconnect/
 tmod.rda
 tmodExplorer.Rproj
+.DS_Store
