@@ -233,8 +233,7 @@ moduleDescriptionsForGenes <- function(modsOnly){
   return('')
 }
 
-getGeneExpressionsInModule <-
-  function(mod, actarmcdDay, allExpressionData,topGenes) {
+getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGenes) {
     # protect from empty data
     if (nchar(mod) > 0 &&
         nchar(actarmcdDay) > 0 &&
@@ -288,8 +287,7 @@ getGeneExpressionsInModule <-
     # ))
   }
 
-getExpressionsForModules <-
-  function(mods, actarmcdDay, allExpressionData) {
+getExpressionsForModules <- function(mods, actarmcdDay, allExpressionData) {
     
     if (!is.null(mods) && nrow(mods) > 0) {
 
@@ -337,7 +335,7 @@ getExpressionsForModules <-
   }
 
 
-getModuleValuesForSeries <- function(genesdata,modules,series, ribbon) {
+getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   expressions <- NULL
   if(!is.null(genesdata) && !is.null(modules) && !is.null(series)) {
     expressions <- map_dfr(modules,function(mod){
@@ -348,9 +346,9 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon) {
         mutate(Module = mod) %>%
         select(Module, Gene, one_of(series)) %>%
         gather(key = 'Column', value = 'Value',-c(Module,Gene), convert = FALSE,factor_key = FALSE) %>%
-        mutate(Column = factor(Column, levels = series)) %>%
         select(Column, Module, Gene, Value) %>%
-        ungroup()
+        ungroup() %>%
+        arrange(Column,Module,Gene)
       
       return(exprs)
     })
@@ -366,9 +364,22 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon) {
           SEhi = Mean+SD/sqrt(N)
         ) %>%
         select(Column, Module, Value = Mean, N, SD, SElo, SEhi) %>%
-        ungroup()
-      
+        ungroup() %>%
+        arrange(Column,Module)
     }
+    
+    if(facet == TRUE){
+      expressions <- expressions %>%
+        separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%
+        mutate(Treatment = factor(Treatment, levels = unique(Treatment))) %>%
+        arrange(Treatment,Column,Module)
+    }
+    
+    if(ribbon == "Boxplot"){
+      expressions <- expressions %>%
+      mutate(Column = factor(Column, levels = unique(Column)))
+    }
+      
   }
   return(expressions)
 }

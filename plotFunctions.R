@@ -2,6 +2,7 @@ themeBase <- theme_bw() +
   theme(
     panel.grid = element_blank(),
     axis.title = element_blank(),
+    strip.text = element_text(size = 14),
     axis.text.y = element_text(size = 14),
     axis.text.x = element_text(size = 14),
     legend.title = element_text()
@@ -78,7 +79,7 @@ plotTopGenesInSeries <- function(data2plot, asGenes, selCols,connectPoints,showl
     themeBase
 }
 
-plotModulesInSeries <- function(d,t,l,r){
+plotModulesInSeries <- function(d,t,l,r,f){
   p <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
     p <- ggplot(data = d, mapping = aes(x = Column)) +
@@ -89,11 +90,16 @@ plotModulesInSeries <- function(d,t,l,r){
     if(r == 'Ribbon'){
       p <- p +
         geom_ribbon(mapping = aes(ymin = SElo, ymax = SEhi, fill = Module, group = Module), alpha = 0.2,show.legend=l) +
-        geom_line(aes(y = Value, colour = Module, group = Module),show.legend=l)
-
+        geom_line(aes(y = Value, colour = Module, group = Module),show.legend=l) +
+        scale_x_continuous(breaks = unique(d$Column))
     } else {
       p <- p +
         geom_boxplot(mapping = aes(y = Value, colour = Module, fill = Module), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
+    }
+    
+    if(f == TRUE){
+      p <- p +
+        facet_wrap(~Treatment)
     }
   }
   return(p)

@@ -133,14 +133,16 @@ server <- function(input, output, session) {
     input$buttonPlotModuleSeries
     input$checkboxShowLegendModuleSeries
     input$radioRibbonBoxModuleSeries
+    input$checkboxShowFacetModuleSeries
   },{
-    moduleValues <- getModuleValuesForSeries(allData$data,input$selectModuleForSeries,input$selectColumnForModuleSeries, input$radioRibbonBoxModuleSeries)
+    moduleValues <- getModuleValuesForSeries(allData$data,input$selectModuleForSeries,input$selectColumnForModuleSeries, input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
-    ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,filenameAndColSelected(),input$checkboxShowLegendModuleSeries,input$radioRibbonBoxModuleSeries)
+    ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,filenameAndColSelected(),input$checkboxShowLegendModuleSeries,input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
     output$buttonSavePlotModulesSeries <- downloadPlotPNG(ggplotModulesInSeries,'SelGenesModulesSeries.png')
-    
   })
   
+  observeEvent(input$buttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = allData$colNames)})
+  observeEvent(input$buttonAddAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = mods4Genes())})
 }

@@ -153,11 +153,22 @@ ui <-
               downloadButton('buttonSaveTableModulesSeries', 'Table')
             ),
             inputPanel(
-              selectInput('selectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
-              selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
+              wellPanel(
+                selectInput('selectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
+                actionButton('buttonAddAllColumnsModuleSeries','All')
+              ),
+              wellPanel(
+                selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
+                actionButton('buttonAddAllModulesModuleSeries','All')
+              ),
+              wellPanel(
               actionButton('buttonPlotModuleSeries','Plot Series',style = "background-color: #d4fb78;"),
-              checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
               radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon'))
+              ),
+              wellPanel(
+                checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
+                checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE)
+              )
             ),
             wellPanel(
               plotOutput('plotModuleSeries', height = '600px')
