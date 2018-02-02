@@ -1,0 +1,32 @@
+#
+# (C) DJMLEWIS.EU 2018
+#
+
+library(tools)
+library(shiny)
+library(readr)
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(tmod)
+library(ggplot2)
+
+
+####--------------------------
+options(shiny.maxRequestSize=30*1024^2) 
+
+
+# Define serverside functions 
+source('serverFunctions.R')
+
+# Define plotting functions 
+source('plotFunctions.R')
+
+# Define UI 
+source('GUI.R')
+
+# Define server 
+source('serverSide.R')
+
+# Run the application
+shinyApp(ui = ui, server = server)

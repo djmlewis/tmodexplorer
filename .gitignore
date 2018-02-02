@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+D_unused/
+datafiles/
+rsconnect/
+tmod.rda
+tmodExplorer.Rproj
