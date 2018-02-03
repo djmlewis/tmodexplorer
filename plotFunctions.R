@@ -48,21 +48,19 @@ plotModuleGenes <- function(d,m,t,l) {
   }
 }
 
-plotTopGenesInSeries <- function(data2plot, asGenes, selCols,connectPoints,showlegend,t){
+plotTopGenesInSeries <- function(data2plot, asGenes, connectPoints,showlegend,t, facet){
   if(is.null(data2plot)) return(NULL)
   
   if(asGenes){
     plotData <- data2plot
   } else {
+    # merge gene and probe names if not averaged
     plotData <- data2plot %>%
       mutate(Gene = paste0(Gene,' (',Probe,')')) %>%
       select(-c(Probe))
   }
-  plotData <- plotData %>%
-    gather(key = 'Column', value = 'Value',-Gene, convert = TRUE, factor_key = FALSE) %>%
-    mutate(Column = factor(Column, levels = selCols))
   
-  ggplot(
+  plot <-   ggplot(
     data = plotData,
     mapping = aes(
       x = Column,
@@ -77,6 +75,15 @@ plotTopGenesInSeries <- function(data2plot, asGenes, selCols,connectPoints,showl
     {if(connectPoints){geom_line(show.legend=showlegend)}} +
     ggtitle(paste0('Selected Genes\n',t)) +
     themeBase
+  
+  
+  if(facet == TRUE) {
+    plot <-  plot +
+      scale_x_continuous(breaks = plotData$Column) +
+      facet_wrap(~Treatment) 
+  }
+  
+  return(plot)
 }
 
 plotModulesInSeries <- function(d,t,l,r,f){
@@ -88,10 +95,19 @@ plotModulesInSeries <- function(d,t,l,r,f){
       themeBase
 
     if(r == 'Ribbon'){
-      p <- p +
-        geom_ribbon(mapping = aes(ymin = SElo, ymax = SEhi, fill = Module, group = Module), alpha = 0.2,show.legend=l) +
-        geom_line(aes(y = Value, colour = Module, group = Module),show.legend=l) +
-        scale_x_continuous(breaks = unique(d$Column))
+      if(length(unique(d$Column)) > 1) {
+        p <- p +
+          geom_ribbon(mapping = aes(ymin = SElo, ymax = SEhi, fill = Module, group = Module), alpha = 0.2,show.legend=l) +
+          geom_line(aes(y = Value, colour = Module, group = Module),show.legend=l)
+      } else {# cannot plot lines and ribbons with only 1 point
+        p <- p +
+          geom_point(aes(y = Value, colour = Module, group = Module),show.legend=l)
+      }
+      
+      # if facet_wrap we split column into real x values. If not we have factors. So only add scale_x_continuous to facet_wrap
+      if(f == TRUE) {
+        p <- p +scale_x_continuous(breaks = unique(d$Column))
+      }
     } else {
       p <- p +
         geom_boxplot(mapping = aes(y = Value, colour = Module, fill = Module), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)

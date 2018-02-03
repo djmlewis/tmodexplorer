@@ -13,6 +13,13 @@ server <- function(input, output, session) {
     updateSelectInput(session, 'selectColumn', choices = allData$colNames)
     updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames)
     updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames)
+    updateSelectInput(session, 'selectColumnsForSeries', selected = NULL)
+    
+    output$plotTopGenesSeries <- renderPlot({NULL})
+    output$datatableTopGenesSeries <- renderDataTable({NULL})
+    output$plotModuleSeries <- renderPlot({NULL})
+    output$datatableModuleSeries <- renderDataTable({NULL})
+    
     # based on menu we just update calc max min as the event is not triggered.
     updateExpressionMinMax(input$selectColumn)
     # these do resopnd OK outside this scope but put here for neatness
@@ -47,6 +54,7 @@ server <- function(input, output, session) {
   topGenesGenesAndModules <- reactive({
     input$buttonApplySelection
     isolate({
+      # calculate topGenesGenesAndModules
       geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
       # apply the filters sequentially
       if(input$checkboxSelectKeyword == TRUE){
@@ -62,7 +70,20 @@ server <- function(input, output, session) {
       selectedGenesAndModules(geneslist)
       })
     })
-  
+  observeEvent(
+    topGenesGenesAndModules(),
+    {
+      # these are non-reactive and need a manual reboot
+      output$plotModuleSeries <- renderPlot({NULL})
+      output$datatableModuleSeries <- renderDataTable({NULL})
+      updateSelectInput(session, 'selectColumnForModuleSeries', selected = NULL)
+      updateSelectInput(session, 'selectModuleForSeries', choices = NULL, selected = NULL)
+      
+      output$plotTopGenesSeries <- renderPlot({NULL})
+      output$datatableTopGenesSeries <- renderDataTable({NULL})
+      updateSelectInput(session, 'selectColumnsForSeries', selected = NULL)
+    }
+  )
 
   #################### Top Probes #########################
   # output top genes
@@ -70,25 +91,22 @@ server <- function(input, output, session) {
   output$buttonSaveTableProbes <- downloadTableCSV(topGenesGenesAndModules()[['genes']],'TopGenes.csv')
 
   #################### Top Probes Series #########################
-  # topGenesInSeries <- reactive
   observeEvent(
     {
       input$buttonPlotSeries
-      topGenesGenesAndModules()
-      input$checkboxConnectSeries
-      input$checkboxShowLegendSeries
     },
     {
-      topGenesInSeries <- getTopGenesInSeries(allData$data, topGenesGenesAndModules()[['genes']],input$selectColumnsForSeries, input$checkboxProbesGenes)
+      topGenesInSeries <- getTopGenesInSeries(allData$data, 
+        topGenesGenesAndModules()[['genes']],input$selectColumnsForSeries, input$checkboxProbesGenes,input$checkboxSplitSeries)
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
       output$buttonSaveTableProbesSeries <- downloadTableCSV(topGenesInSeries,'GenesSeries.csv')
       
-      # ggplotTopGenesInSeries <- reactive
       ggplotTopGenesInSeries <-  plotTopGenesInSeries(topGenesInSeries,input$checkboxProbesGenes,
-        input$selectColumnsForSeries,input$checkboxConnectSeries,input$checkboxShowLegendSeries,filenameAndColSelected())
+        input$checkboxConnectSeries,input$checkboxShowLegendSeries,filenameAndColSelected(),input$checkboxSplitSeries)
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
     output$buttonSavePlotProbesSeries <- downloadPlotPNG(ggplotTopGenesInSeries,'GenesSeries.png')
   })
+  observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
   
   
   #################### Genes->Modules #########################
@@ -131,9 +149,6 @@ server <- function(input, output, session) {
   # selectModuleForSeries and selectColumnForModuleSeries are updated above
   observeEvent({
     input$buttonPlotModuleSeries
-    input$checkboxShowLegendModuleSeries
-    input$radioRibbonBoxModuleSeries
-    input$checkboxShowFacetModuleSeries
   },{
     moduleValues <- getModuleValuesForSeries(allData$data,input$selectModuleForSeries,input$selectColumnForModuleSeries, input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
     output$datatableModuleSeries <- renderDataTable({moduleValues})

@@ -132,7 +132,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
   return(NULL)
 }
 
-getTopGenesInSeries <- function(allData, selData,selCols, asGenes) {
+getTopGenesInSeries <- function(allData, selData,selCols, asGenes,facet) {
   if(is.null(allData) || length(selCols) == 0) return(NULL)
   
   if(asGenes == TRUE) {
@@ -140,13 +140,25 @@ getTopGenesInSeries <- function(allData, selData,selCols, asGenes) {
       filter(Gene %in% selData$Gene) %>%
       select(Gene,one_of(selCols)) %>%
       group_by(Gene) %>%
-      summarise_at(vars(one_of(selCols)),mean, na.rm = TRUE)
+      summarise_at(vars(one_of(selCols)),mean, na.rm = TRUE) %>%
+      ungroup()
   } else {
     seriesData <- allData %>%
       filter(Probe %in% selData$Probe) %>%
       select(Probe,Gene,one_of(selCols))
-    
   }
+  
+  seriesData <- seriesData %>%
+    gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE,one_of(selCols))
+    
+  if(facet == TRUE){
+    seriesData <- seriesData %>%
+      separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
+  # } else {
+  #   gather(key = 'Column', value = 'Value',-Gene, convert = TRUE, factor_key = FALSE) %>%
+  #     mutate(Column = factor(Column, levels = selCols))
+  }
+  
   return(seriesData)
 }
 
@@ -346,10 +358,8 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
         mutate(Module = mod) %>%
         select(Module, Gene, one_of(series)) %>%
         gather(key = 'Column', value = 'Value',-c(Module,Gene), convert = FALSE,factor_key = FALSE) %>%
-        select(Column, Module, Gene, Value) %>%
-        ungroup() %>%
-        arrange(Column,Module,Gene)
-      
+        select(Column, Module, Gene, Value)
+
       return(exprs)
     })
 
@@ -364,20 +374,19 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
           SEhi = Mean+SD/sqrt(N)
         ) %>%
         select(Column, Module, Value = Mean, N, SD, SElo, SEhi) %>%
-        ungroup() %>%
-        arrange(Column,Module)
+        ungroup()
     }
     
     if(facet == TRUE){
       expressions <- expressions %>%
-        separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%
-        mutate(Treatment = factor(Treatment, levels = unique(Treatment))) %>%
+        separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
+      if(ribbon == "Boxplot")
+        expressions <- expressions %>%
+        mutate(Column = as.factor(Column)) %>%
         arrange(Treatment,Column,Module)
-    }
-    
-    if(ribbon == "Boxplot"){
+    } else {
       expressions <- expressions %>%
-      mutate(Column = factor(Column, levels = unique(Column)))
+      mutate(Column = factor(Column, levels = series))
     }
       
   }
