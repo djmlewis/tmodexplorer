@@ -102,7 +102,7 @@ server <- function(input, output, session) {
       output$buttonSaveTableProbesSeries <- downloadTableCSV(topGenesInSeries,'GenesSeries.csv')
       
       ggplotTopGenesInSeries <-  plotTopGenesInSeries(topGenesInSeries,input$checkboxProbesGenes,
-        input$checkboxConnectSeries,input$checkboxShowLegendSeries,filenameAndColSelected(),input$checkboxSplitSeries)
+        input$checkboxConnectSeries,input$checkboxShowLegendSeries,filenameAndColSelected(),input$checkboxSplitSeries,input$checkboxShowZeroSeries)
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
     output$buttonSavePlotProbesSeries <- downloadPlotPNG(ggplotTopGenesInSeries,'GenesSeries.png')
   })
@@ -123,7 +123,9 @@ server <- function(input, output, session) {
   output$buttonSaveTableModules <- downloadTableCSV(topGenesGenesAndModules()[['modsOnly']],'Modules.csv')
 
     # draw / save plot
-  ggplotGenesModules <- reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],filenameAndColSelected(),input$checkboxShowLegendGenesModules)})
+  ggplotGenesModules <- 
+    reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],filenameAndColSelected(),
+    input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules)})
   output$plotGenesModules <- renderPlot({ggplotGenesModules()})
   output$buttonSavePlotModules <- downloadPlotPNG(ggplotGenesModules(),'Modules.png')
 
@@ -141,7 +143,8 @@ server <- function(input, output, session) {
   output$datatableModuleGenes <- renderDataTable({expressionsInModule()})
   output$buttonSaveTableModulesGenes <- downloadTableCSV(expressionsInModule(),'ModuleGenes.csv')
 
-  ggplotModuleGenes <- reactive({plotModuleGenes(expressionsInModule(),isolate(input$selectModuleForGenes),filenameAndColSelected(),input$checkboxShowLegendModuleGenes)})
+  ggplotModuleGenes <- reactive({plotModuleGenes(expressionsInModule(),isolate(input$selectModuleForGenes),
+      filenameAndColSelected(),input$checkboxShowLegendModuleGenes, input$checkboxShowZeroModuleGenes)})
   output$plotModuleGenes <- renderPlot({ggplotModuleGenes()})
   output$buttonSavePlotModulesGenes <- downloadPlotPNG(ggplotModuleGenes(),'ModuleGenes.png')
 
@@ -153,7 +156,8 @@ server <- function(input, output, session) {
     moduleValues <- getModuleValuesForSeries(allData$data,input$selectModuleForSeries,input$selectColumnForModuleSeries, input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
-    ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,filenameAndColSelected(),input$checkboxShowLegendModuleSeries,input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
+    ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,filenameAndColSelected(),input$checkboxShowLegendModuleSeries,
+                                input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
     output$buttonSavePlotModulesSeries <- downloadPlotPNG(ggplotModulesInSeries,'SelGenesModulesSeries.png')
   })

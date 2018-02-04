@@ -9,8 +9,8 @@ ui <-
       tabPanel('Load data',
                h4("Select pre-loaded dataset to analyse or upload new dataset"),
                fluidRow(
-                 column(5,
-                        inputPanel(
+                 column(6,
+                        wellPanel(
                           selectInput('selectData', NULL, character(0)),
                           actionButton(
                             'buttonLoadData',
@@ -19,7 +19,7 @@ ui <-
                           )
                         )),
                  column(6,
-                        inputPanel(
+                        wellPanel(
                           textInput(
                             'textInputUploadFileName',
                             label = NULL,
@@ -28,7 +28,7 @@ ui <-
                           fileInput(
                             'fileInputUploadData',
                             label = NULL,
-                            placeholder = 'data.rds & annotation.rds',
+                            placeholder = 'Choose two files named "data.rds" & "annotation.rds"',
                             buttonLabel = 'Upload…',
                             multiple = TRUE,
                             accept = c(".rds")
@@ -95,19 +95,20 @@ ui <-
             ),
             wellPanel(
               fluidRow(
-                column(6,
+                column(1,
+                       wellPanel(
+                         actionButton('buttonPlotSeries','Plot',style = "background-color: #d4fb78;"),
+                         checkboxInput('checkboxSplitSeries', 'Split', value = TRUE),
+                         checkboxInput('checkboxConnectSeries', 'Connect', value = TRUE),
+                         checkboxInput('checkboxShowLegendSeries', 'Legend', value = TRUE),
+                         checkboxInput('checkboxShowZeroSeries', 'Zero ---', value = TRUE)
+                       )),
+                column(8,
                   wellPanel(
                     selectInput('selectColumnsForSeries', label = "Columns", choices = character(0), multiple = TRUE),
                     actionButton('buttonAddAllProbesSeries','All')
                   )
-                ),
-                column(1,
-                  wellPanel(
-                    actionButton('buttonPlotSeries','Plot',style = "background-color: #d4fb78;"),
-                    checkboxInput('checkboxSplitSeries', 'Split', value = TRUE),
-                    checkboxInput('checkboxConnectSeries', 'Connect', value = TRUE),
-                    checkboxInput('checkboxShowLegendSeries', 'Legend', value = TRUE)
-                  ))
+                )
               ),
               plotOutput('plotTopGenesSeries', height = '600px')),
             wellPanel(dataTableOutput('datatableTopGenesSeries'))
@@ -130,7 +131,10 @@ ui <-
             ),
             h4('Expression Values Of Modules Associated With Selected Probes / Genes'),
             wellPanel(
-              checkboxInput('checkboxShowLegendGenesModules', 'Show Legend', value = TRUE),
+              inputPanel(
+                checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = TRUE),
+                checkboxInput('checkboxShowZeroGenesModules', 'Zero ---', value = TRUE)
+              ),
               plotOutput('plotGenesModules', height = '400px')),
             wellPanel(dataTableOutput('datatableSelModulesOnly'))
           ),
@@ -148,7 +152,10 @@ ui <-
               7, selectInput('selectModuleForGenes', NULL, character(0))
             )),
             wellPanel(
-              checkboxInput('checkboxShowLegendModuleGenes', 'Show Legend', value = TRUE),
+              inputPanel(
+                checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = TRUE),
+                checkboxInput('checkboxShowZeroModuleGenes', 'Zero ---', value = TRUE)
+              ),
               plotOutput('plotModuleGenes', height = '600px')),
             wellPanel(dataTableOutput('datatableModuleGenes'))
           ),
@@ -160,26 +167,26 @@ ui <-
               downloadButton('buttonSaveTableModulesSeries', 'Table')
             ),
             fluidRow(
-              column(4,wellPanel(
-                selectInput('selectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
-                actionButton('buttonAddAllColumnsModuleSeries','All')
-              )),
-              column(4,wellPanel(
-                selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
-                actionButton('buttonAddAllModulesModuleSeries','All')
-              )),
               column(1,
+               wellPanel(
+                 actionButton('buttonPlotModuleSeries','Plot',style = "background-color: #d4fb78;"),
+                 radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
+                 checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
+                 checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
+                 checkboxInput('checkboxShowZeroModuleSeries', 'Zero ---', value = TRUE)
+               )
+              ),
+              column(5,
                 wellPanel(
-                  actionButton('buttonPlotModuleSeries','Plot',style = "background-color: #d4fb78;"),
-                  radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
-                  checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
-                  checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE)
+                  selectInput('selectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
+                  actionButton('buttonAddAllColumnsModuleSeries','All')
+              )),
+              column(6,
+                wellPanel(
+                  selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
+                  actionButton('buttonAddAllModulesModuleSeries','All')
                 )
               )
-              # column(2,wellPanel(
-              #   checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
-              #   checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE)
-              # ))
             ),
             wellPanel(
               plotOutput('plotModuleSeries', height = '600px')
