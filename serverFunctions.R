@@ -49,6 +49,9 @@ getNewData <- function(allData, folderNme) {
   folderpath <- paste0('datafiles/', folderNme) #file.choose()
   annotPath <- paste0(folderpath, '/', 'annotation.rds')
   dataPath <- paste0(folderpath, '/', 'data.rds')
+  modPath <- paste0(folderpath, '/', 'modules.rds')
+  modmeanPath <- paste0(folderpath, '/', 'modulesMeans.rds')
+  
   if (file.exists(dataPath) && file.exists(annotPath)) {
     annotation <- read_rds(annotPath) %>%
       select(Probe = X1, Gene = GeneName, Description)
@@ -63,6 +66,12 @@ getNewData <- function(allData, folderNme) {
     # folderpath has stripped the filename with dirname, so strip up to last directory with basename
     allData$folder <- basename(folderpath)
     allData$folderpath <- folderpath
+    
+    # try for modules
+    if (file.exists(modPath) && file.exists(modmeanPath)) {
+      allData$modules <- read_rds(modPath)
+      allData$modulesMeans <- read_rds(modmeanPath)
+    }
     
     return(TRUE)
   } else {showModalFileLoadFailure('')}

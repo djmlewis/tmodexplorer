@@ -10,6 +10,7 @@ library(purrr)
 library(tidyr)
 library(tmod)
 library(ggplot2)
+library(utf8)
 
 
 ####--------------------------
