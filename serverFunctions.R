@@ -24,6 +24,7 @@ getMaxMinValueFromData <- function(alldata,allcols){
   return(list(Min = floor(min(data, na.rm = TRUE)),Max = ceiling(max(data, na.rm = TRUE))))
 }
 
+
 showModalFileLoadFailure <- function(extraMessage){
   showModal(
     modalDialog(
@@ -163,9 +164,6 @@ getTopGenesInSeries <- function(allData, selData,selCols, asGenes,facet) {
   if(facet == TRUE){
     seriesData <- seriesData %>%
       separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
-  # } else {
-  #   gather(key = 'Column', value = 'Value',-Gene, convert = TRUE, factor_key = FALSE) %>%
-  #     mutate(Column = factor(Column, levels = selCols))
   }
   
   return(seriesData)
@@ -207,16 +205,16 @@ getGenesForSearch <- function(geneslist,search,column){
     selGenes <- map_dfr(
       searches,
       function(s){
-        geneslist[grepl(s,geneslist[[column]]),]
+        geneslist[grepl(s,geneslist[[column]], ignore.case = TRUE),]
       }
     )
-    # compact to remove duplicates
-    probes <- unique(selGenes$Probe)
-    selGenes <- geneslist %>%
-      filter(Probe %in% probes)
   } else {
-    selGenes <- geneslist[grepl(search,geneslist[[column]]),]
+    selGenes <- geneslist[grepl(search,geneslist[[column]], ignore.case = TRUE),]
   }
+  selGenes <- selGenes %>%
+    # avoid duplicate Probe
+    distinct(Probe, .keep_all = TRUE)
+  
   return(selGenes)
 }
 
@@ -300,12 +298,6 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
       }
     }
     return(NULL)
-    # return(data.frame(
-    #   Module = NA,
-    #   Gene = NA,
-    #   Value = NA,
-    #   Selected = NA
-    # ))
   }
 
 getExpressionsForModules <- function(mods, actarmcdDay, allExpressionData) {

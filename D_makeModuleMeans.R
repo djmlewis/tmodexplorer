@@ -39,9 +39,9 @@ geneValuesForModules <- function(fname) {
           -Module,
           convert = TRUE,
           factor_key = FALSE
-        ) %>%
-        full_join(modulesAnnot, by = 'Module')
-    })
+        )
+    }) %>%
+    full_join(modulesAnnot, by = 'Module')
   # save the raw gene expressions in modules
   saveRDS(modulesData, file = paste0(fname, 'modules.rds'))
   
