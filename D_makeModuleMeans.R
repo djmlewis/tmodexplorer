@@ -73,7 +73,7 @@ modulesAnnot <- tmod$MODULES %>%
 
 # save the gene expressions for each module for each time point
 
-geneValuesForModules("datafiles/Gent Fluad Limma log2 mean expression/")
-geneValuesForModules("datafiles/Gent Fluad Limma log2 mean FI/")
+geneValuesForModules("datafiles/Gent Boostrix Limma log2 mean Fold Increase from baseline/")
+geneValuesForModules("datafiles/Gent Boostrix Limma log2 mean raw expression/")
 
 
