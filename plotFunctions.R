@@ -99,7 +99,7 @@ plotTopGenesInSeries <- function(data2plot, asGenes, connectPoints,showlegend,t,
   return(plot)
 }
 
-plotModulesInSeries <- function(d,t,l,r,f,z){
+plotModulesInSeries <- function(d,t,l,r,f,z,se){
   p <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
     p <- ggplot(data = d, mapping = aes(x = Column)) +
@@ -114,7 +114,7 @@ plotModulesInSeries <- function(d,t,l,r,f,z){
     if(r == 'Ribbon'){
       if(length(unique(d$Column)) > 1) {
         p <- p +
-          geom_ribbon(mapping = aes(ymin = SElo, ymax = SEhi, fill = Module, group = Module), alpha = 0.2,show.legend=l) +
+          {if(se == TRUE){geom_ribbon(mapping = aes(ymin = SElo, ymax = SEhi, fill = Module, group = Module), alpha = 0.2,show.legend=l)}} +
           geom_line(aes(y = Value, colour = Module, group = Module),show.legend=l)
       } else {# cannot plot lines and ribbons with only 1 point
         p <- p +

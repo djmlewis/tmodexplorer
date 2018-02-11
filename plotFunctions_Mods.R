@@ -27,7 +27,7 @@ plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper){
   return(plot)
 }
 
-plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,facet,showSE){
+plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,facet,showSE,grouper){
   plot <-  NULL
   data2plot <- NULL
   if (!is.null(alldata)) {
@@ -64,9 +64,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         data = data2plot,
         mapping = aes_string(
           x = 'Column',
-          y = yCol,
-          colour = 'Module',
-          fill = 'Module'
+          y = yCol
         )
       ) +
         ggtitle(paste0('Selected Modules\n',t)) +
@@ -74,17 +72,18 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       
       switch (boxRibbon,
         'Boxplot' = {
-          plot <- plot + geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
+          plot <- plot + geom_boxplot(mapping = aes_string(colour = grouper,fill = grouper), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
         },
         'Ribbon' = {
           plot <- plot + 
-            geom_line(mapping = aes_string(group = 'Module'),show.legend=l) +
+            # Ribbon/line aes() does not work with Title which has duplicates, impose Module
+            geom_line(mapping = aes(colour = Module, group = Module),show.legend=l) +
             scale_x_continuous(breaks = data2plot$Column)
           if(showSE == TRUE){
             data4SE <- data2plot %>%
               mutate(ymin = Mean-SE, ymax = Mean+SE)
             plot <- plot +
-              geom_ribbon(data = data4SE, mapping = aes(x = Column, ymin = ymin, ymax = ymax,group = Module), alpha = 0.2,show.legend=l)
+              geom_ribbon(data = data4SE, mapping = aes(x = Column, ymin = ymin, ymax = ymax,fill = Module,group = Module), alpha = 0.2,show.legend=l)
           }
         }
       )

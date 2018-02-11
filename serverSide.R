@@ -157,6 +157,7 @@ server <- function(input, output, session) {
       output$buttonSavePlotProbesSeries <- downloadPlotPNG(ggplotTopGenesInSeries,'GenesSeries.png')
     })
   observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
+  observeEvent(input$buttonRemoveAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = character(0))})
   
   
   #################### Genes->Modules #########################
@@ -207,13 +208,15 @@ server <- function(input, output, session) {
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
     ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
-                                                  input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries)
+                                input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries, input$checkboxShowSEModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
     output$buttonSavePlotModulesSeries <- downloadPlotPNG(ggplotModulesInSeries,'SelGenesModulesSeries.png')
   })
   
   observeEvent(input$buttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = allData$colNames)})
   observeEvent(input$buttonAddAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = mods4Genes())})
+  observeEvent(input$buttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = character(0))})
+  observeEvent(input$buttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = character(0))})
   
   
 #################### Selecting Columns For Modules #########################
@@ -305,9 +308,10 @@ observeEvent({
 },{
   ggplotSelectedModulesSeries <- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
     input$mselectModuleForSeries,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
-    input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,input$mcheckboxShowSEModuleSeries)
+    input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,input$mcheckboxShowSEModuleSeries,
+    input$mradioGroupTitleNameModuleSeries)
   output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
-  output$mbuttonSavePlotModulesSeries <- downloadPlotPNG(ggplotSelectedModulesSeries[[plot]],'SelModulesSeries.png')
+  output$mbuttonSavePlotModulesSeries <- downloadPlotPNG(ggplotSelectedModulesSeries[['plot']],'SelModulesSeries.png')
   output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
   
 })
@@ -315,6 +319,8 @@ observeEvent({
 
 observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
 observeEvent(input$mbuttonAddAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = paste0(topModulesSelected()[['Module']],' (',topModulesSelected()[['Title']],')'))})
+observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
+observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = character(0))})
 
 
 

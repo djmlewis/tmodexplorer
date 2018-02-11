@@ -103,7 +103,8 @@ tabPanel('Load data',
                            column(8,
                                   wellPanel(
                                     selectInput('selectColumnsForSeries', label = "Columns", choices = character(0), multiple = TRUE),
-                                    actionButton('buttonAddAllProbesSeries','All')
+                                    div(actionButton('buttonAddAllProbesSeries','All'),
+                                        actionButton('buttonRemoveAllProbesSeries','None'))
                                   )
                            )
                          ),
@@ -142,13 +143,8 @@ tabPanel('Load data',
                          downloadButton('buttonSavePlotModulesGenes', 'Plot'),
                          downloadButton('buttonSaveTableModulesGenes', 'Table')
                        ),
-                       fluidRow(column(5, h4(
-                         'Expression Values Of Genes In:'
-                       )),
-                       column(
-                         7, selectInput('selectModuleForGenes', NULL, character(0))
-                       )),
                        wellPanel(
+                         selectInput('selectModuleForGenes', 'Expression Values Of Genes In:', character(0), width = '500px'),
                          inputPanel(
                            checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = TRUE),
                            checkboxInput('checkboxShowZeroModuleGenes', 'Zero ---', value = TRUE)
@@ -170,18 +166,21 @@ tabPanel('Load data',
                                   radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
                                   checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
                                   checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
-                                  checkboxInput('checkboxShowZeroModuleSeries', 'Zero ---', value = TRUE)
+                                  checkboxInput('checkboxShowZeroModuleSeries', 'Zero ---', value = TRUE),
+                                  checkboxInput('checkboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE)
                                 )
                          ),
                          column(5,
                                 wellPanel(
                                   selectInput('selectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
-                                  actionButton('buttonAddAllColumnsModuleSeries','All')
+                                  div(actionButton('buttonAddAllColumnsModuleSeries','All'),
+                                  actionButton('buttonRemoveAllColumnsModuleSeries','None'))
                                 )),
                          column(6,
                                 wellPanel(
                                   selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
-                                  actionButton('buttonAddAllModulesModuleSeries','All')
+                                  div(actionButton('buttonAddAllModulesModuleSeries','All'),
+                                  actionButton('buttonRemoveAllModulesModuleSeries','None'))
                                 )
                          )
                        ),
@@ -270,19 +269,22 @@ tabPanel('Explore By Module',
                 checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                 checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = TRUE),
                 checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero ---', value = TRUE),
-                checkboxInput('mcheckboxShowSEModuleSeries', 'S.E.', value = FALSE)
+                checkboxInput('mcheckboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE),
+                radioButtons('mradioGroupTitleNameModuleSeries','Group Boxplot',choices = c('Title','Module'), selected = 'Module')
               )
        ),
        column(5,
               wellPanel(
                 selectInput('mselectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
-                actionButton('mbuttonAddAllColumnsModuleSeries','All')
+                div(actionButton('mbuttonAddAllColumnsModuleSeries','All'),
+                actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))
               )),
        column(6,
               wellPanel(
                 selectInput('mselectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
-                actionButton('mbuttonAddAllModulesModuleSeries','All')
-              )
+                div(actionButton('mbuttonAddAllModulesModuleSeries','All'),
+                actionButton('mbuttonRemoveAllModulesModuleSeries','None'))
+       )
        )
      ),
      wellPanel(plotOutput('mplotModuleSeries', height = '600px')),
