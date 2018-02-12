@@ -2,6 +2,16 @@
 server <- function(input, output, session) {
 # 
 #   #################### Loading data #########################
+#   
+#   
+#   
+  # list local data files on the server
+  updateSelectInput(session, 'selectData', choices = basename(list.dirs(path = 'datafiles', recursive = FALSE)))
+  
+  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL)
+  observeEvent(input$buttonLoadData, {if (getNewData(allData,input$selectData) == TRUE) {updateLoadControls()}})
+  observeEvent(input$fileInputUploadData,{if(loadUploadedData(allData,input$fileInputUploadData,input$textInputUploadFileName)) {updateLoadControls()}})
+  
   updateExpressionMinMax <- function(selCol){
     if(!is.null(selCol)){
       expressionValueRange <- getMaxMinValueFromData(allData$data,c(selCol))#allData$colNames
@@ -19,11 +29,14 @@ server <- function(input, output, session) {
   }
   
   updateLoadControls <- function(){
-    # these must be updated here as they do not observe allData
-    updateSelectInput(session, 'selectColumn', choices = allData$colNames, selected = NULL)
     
-    updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = NULL)
-    updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames)
+    topGenesAndModules(NULL)
+    topModulesSelected(NULL)
+    
+    # these must be updated here as they do not observe allData
+    updateSelectInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))
+    updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
+    updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     
     output$plotTopGenesSeries <- renderPlot({NULL})
     output$datatableTopGenesSeries <- renderDataTable({NULL})
@@ -31,14 +44,14 @@ server <- function(input, output, session) {
     output$datatableModuleSeries <- renderDataTable({NULL})
 
     # modules DO NOT RESPOND. NEED TO FIX
-    updateSelectInput(session, 'mselectColumn', choices = allData$colNames, selected = NULL)
-    updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames)
+    updateSelectInput(session, 'mselectColumn', choices = allData$colNames, selected = character(0))
+    updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     
         
     
     # based on menu we just update calc max min as the event is not triggered.
-    updateExpressionMinMax(input$selectColumn)
-    updateModuleMinMax(input$mselectColumn)
+    updateExpressionMinMax(allData$colNames)
+    updateModuleMinMax(allData$colNames)
     
   }
 
@@ -52,11 +65,6 @@ server <- function(input, output, session) {
   output$textFileNameMods <- renderText({modulesAndFiltersText()})
   
   
-  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL)
-  # list local data files on the server
-  updateSelectInput(session, 'selectData', choices = basename(list.dirs(path = 'datafiles', recursive = FALSE)))
-  observeEvent(input$buttonLoadData, {if (getNewData(allData,input$selectData) == TRUE) {updateLoadControls()}})
-  observeEvent(input$fileInputUploadData,{if(loadUploadedData(allData,input$fileInputUploadData,input$textInputUploadFileName)) {updateLoadControls()}})
 
 
 #################### PROBES #####################
@@ -75,47 +83,54 @@ server <- function(input, output, session) {
     input$buttonResetValuesRangeData,
     {updateExpressionMinMax(allData$colNames)})
   
-  topGenesAndModules <- reactive({
-    input$buttonApplySelection
-    isolate({
-      # calculate topGenesAndModules
-      geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
-      filterText <- ""
-      # apply the filters sequentially
-      if(input$checkboxSelectKeyword == TRUE){
-        geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$radioKeywordColumn)
-        filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
-      }
-      if(input$checkboxSelectValues == TRUE){
-        geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
-        filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
-      }
-      if(input$checkboxSelectRows == TRUE){
-        geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
-        filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
-      }
-      
-      if(!is.null(geneslist)) {
-        if(nchar(filterText) > 0) {
-          dataAndFiltersText(
-            paste0(allData$folder,': ',gsub('_',' ',input$selectColumn),' ',filterText,' ',
-                   ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                   ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
-            ))
-        } else {
-          dataAndFiltersText(
-            paste0(allData$folder,': ',gsub('_',' ',input$selectColumn),' [No filters] ',
-                   ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
-                   ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
-            ))
+  ### topGenesAndModules()
+  topGenesAndModules <- reactiveVal()
+  topGenesAndModules(NULL)
+  observeEvent(
+    input$buttonApplySelection,
+    {
+      isolate({
+        if(!is.null(input$selectColumn)) {
+        # calculate topGenesAndModules()
+          geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
+          filterText <- ""
+          # apply the filters sequentially
+          if(input$checkboxSelectKeyword == TRUE){
+            geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$radioKeywordColumn)
+            filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
+          }
+          if(input$checkboxSelectValues == TRUE){
+            geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
+            filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
+          }
+          if(input$checkboxSelectRows == TRUE){
+            geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
+            filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
+          }
+          
+          if(!is.null(geneslist)) {
+            if(nchar(filterText) > 0) {
+              dataAndFiltersText(
+                paste0(allData$folder,': ',gsub('_',' ',input$selectColumn),' ',filterText,' ',
+                       ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
+                       ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
+                ))
+            } else {
+              dataAndFiltersText(
+                paste0(allData$folder,': ',gsub('_',' ',input$selectColumn),' [No filters] ',
+                       ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
+                       ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
+                ))
+            }
+          } else {
+            dataAndFiltersText("")
+          }
+          # lookup the genes and modules
+          topGenesAndModules(selectedGenesAndModules(geneslist))
         }
-      } else {
-        dataAndFiltersText("")
-      }
-      # lookup the genes and modules
-      selectedGenesAndModules(geneslist)
-    })
-  })
+      })
+    }
+  )
   
   
   
@@ -233,48 +248,53 @@ observeEvent(
   input$mbuttonResetValuesRangeData,
   {updateModuleMinMax(allData$colNames)})
 
-
-topModulesSelected <- reactive({
-  input$mbuttonApplySelection
-  isolate({
-    # calculate topGenesAndModules
-    mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
-    
-    filterText <- ""
-    # apply the filters sequentially
-    if(input$mcheckboxSelectKeyword == TRUE){
-      mods <- getModulesForSearch(mods,input$mtextInputKeyword,input$mradioKeywordColumn)
-      filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
-    }
-    if(input$mcheckboxSelectValues == TRUE){
-      mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
-      filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
-    }
-    if(input$mcheckboxSelectRows == TRUE){
-      mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
-      filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
-    }
-
-    if(!is.null(mods)) {
-      if(nchar(filterText) > 0) {
-        modulesAndFiltersText(
-          paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' [ ',filterText,']',
-                 ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                 ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
-          ))
-      } else {
-        modulesAndFiltersText(
-          paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' [No filters] ',
-                 ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
-                 ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
-          ))
+topModulesSelected <- reactiveVal()
+topModulesSelected(NULL)
+observeEvent(
+  input$mbuttonApplySelection,
+  {
+    isolate({
+      if(!is.null(input$mselectColumn)) {
+      # calculate topGenesAndModules()
+      mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
+      
+      filterText <- ""
+      # apply the filters sequentially
+      if(input$mcheckboxSelectKeyword == TRUE){
+        mods <- getModulesForSearch(mods,input$mtextInputKeyword,input$mradioKeywordColumn)
+        filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
       }
-    } else {
-      modulesAndFiltersText("")
-    }
-    return(mods)
-  })
-})
+      if(input$mcheckboxSelectValues == TRUE){
+        mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
+        filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
+      }
+      if(input$mcheckboxSelectRows == TRUE){
+        mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
+        filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
+      }
+  
+      if(!is.null(mods)) {
+        if(nchar(filterText) > 0) {
+          modulesAndFiltersText(
+            paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' [ ',filterText,']',
+                   ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
+                   ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
+            ))
+        } else {
+          modulesAndFiltersText(
+            paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' [No filters] ',
+                   ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
+                   ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
+            ))
+        }
+      } else {
+        modulesAndFiltersText("")
+      }
+      topModulesSelected(mods)
+      }
+    })
+  }
+)
 
 
 observeEvent(

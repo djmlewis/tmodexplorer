@@ -5,7 +5,7 @@ ui <-
   tabsetPanel(type = 'pills',
 #################### Data Load #########################
 tabPanel('Load data',
-         h4("Select pre-loaded dataset to analyse or upload new dataset"),
+         h4("Select pre-loaded dataset to analyse"),
          fluidRow(
            column(6,
                   wellPanel(
@@ -15,23 +15,24 @@ tabPanel('Load data',
                       label = 'Load',
                       style = "background-color: #d4fb78;"
                     )
-                  )),
-           column(6,
-                  wellPanel(
-                    textInput(
-                      'textInputUploadFileName',
-                      label = NULL,
-                      placeholder = 'Dataset Name'
-                    ),
-                    fileInput(
-                      'fileInputUploadData',
-                      label = NULL,
-                      placeholder = 'Choose two files named "data.rds" & "annotation.rds"',
-                      buttonLabel = 'Upload…',
-                      multiple = TRUE,
-                      accept = c(".rds")
-                    )
-                  ))),
+                  ))
+           # column(6,
+           #        wellPanel(
+           #          textInput(
+           #            'textInputUploadFileName',
+           #            label = NULL,
+           #            placeholder = 'Dataset Name'
+           #          ),
+           #          fileInput(
+           #            'fileInputUploadData',
+           #            label = NULL,
+           #            placeholder = 'Choose two files named "data.rds" & "annotation.rds"',
+           #            buttonLabel = 'Upload…',
+           #            multiple = TRUE,
+           #            accept = c(".rds")
+           #          )
+           #        ))
+           ),
          h3(textOutput('textFileName')),
          dataTableOutput('datatableAll')
 ),
@@ -92,15 +93,15 @@ tabPanel('Load data',
                        ),
                        wellPanel(
                          fluidRow(
-                           column(1,
+                           column(2,
                                   wellPanel(
                                     actionButton('buttonPlotSeries','Plot',style = "background-color: #d4fb78;"),
                                     checkboxInput('checkboxSplitSeries', 'Split', value = TRUE),
                                     checkboxInput('checkboxConnectSeries', 'Connect', value = TRUE),
                                     checkboxInput('checkboxShowLegendSeries', 'Legend', value = TRUE),
-                                    checkboxInput('checkboxShowZeroSeries', 'Zero ---', value = TRUE)
+                                    checkboxInput('checkboxShowZeroSeries', 'Zero', value = TRUE)
                                   )),
-                           column(8,
+                           column(10,
                                   wellPanel(
                                     selectInput('selectColumnsForSeries', label = "Columns", choices = character(0), multiple = TRUE),
                                     div(actionButton('buttonAddAllProbesSeries','All'),
@@ -131,7 +132,7 @@ tabPanel('Load data',
                        wellPanel(
                          inputPanel(
                            checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = TRUE),
-                           checkboxInput('checkboxShowZeroGenesModules', 'Zero ---', value = TRUE)
+                           checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE)
                          ),
                          plotOutput('plotGenesModules', height = '400px')),
                        wellPanel(dataTableOutput('datatableSelModulesOnly'))
@@ -147,7 +148,7 @@ tabPanel('Load data',
                          selectInput('selectModuleForGenes', 'Expression Values Of Genes In:', character(0), width = '500px'),
                          inputPanel(
                            checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = TRUE),
-                           checkboxInput('checkboxShowZeroModuleGenes', 'Zero ---', value = TRUE)
+                           checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE)
                          ),
                          plotOutput('plotModuleGenes', height = '600px')),
                        wellPanel(dataTableOutput('datatableModuleGenes'))
@@ -160,13 +161,13 @@ tabPanel('Load data',
                          downloadButton('buttonSaveTableModulesSeries', 'Table')
                        ),
                        fluidRow(
-                         column(1,
+                         column(2,
                                 wellPanel(
                                   actionButton('buttonPlotModuleSeries','Plot',style = "background-color: #d4fb78;"),
                                   radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
                                   checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
                                   checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
-                                  checkboxInput('checkboxShowZeroModuleSeries', 'Zero ---', value = TRUE),
+                                  checkboxInput('checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
                                   checkboxInput('checkboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE)
                                 )
                          ),
@@ -176,7 +177,7 @@ tabPanel('Load data',
                                   div(actionButton('buttonAddAllColumnsModuleSeries','All'),
                                   actionButton('buttonRemoveAllColumnsModuleSeries','None'))
                                 )),
-                         column(6,
+                         column(5,
                                 wellPanel(
                                   selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
                                   div(actionButton('buttonAddAllModulesModuleSeries','All'),
@@ -249,7 +250,7 @@ tabPanel('Explore By Module',
      wellPanel(
        inputPanel(
          checkboxInput('mcheckboxShowLegendGenesModules', 'Legend', value = TRUE),
-         checkboxInput('mcheckboxShowZeroGenesModules', 'Zero ---', value = TRUE),
+         checkboxInput('mcheckboxShowZeroGenesModules', 'Zero', value = TRUE),
          radioButtons('mradioGroupTitleName','Group By',choices = c('Title','Module'),inline = TRUE)
        ),
        plotOutput('mplotSelectedModules', height = '800px'))
@@ -262,13 +263,13 @@ tabPanel('Explore By Module',
        downloadButton('mbuttonSaveTableModulesSeries', 'Table')
      ),
      fluidRow(
-       column(1,
+       column(2,
               wellPanel(
                 actionButton('mbuttonPlotModuleSeries','Plot',style = "background-color: #d4fb78;"),
                 radioButtons('mradioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
                 checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                 checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = TRUE),
-                checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero ---', value = TRUE),
+                checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
                 checkboxInput('mcheckboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE),
                 radioButtons('mradioGroupTitleNameModuleSeries','Group Boxplot',choices = c('Title','Module'), selected = 'Module')
               )
@@ -279,9 +280,9 @@ tabPanel('Explore By Module',
                 div(actionButton('mbuttonAddAllColumnsModuleSeries','All'),
                 actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))
               )),
-       column(6,
+       column(5,
               wellPanel(
-                selectInput('mselectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
+                selectInput('mselectModuleForSeries', label = 'Selected Modules', character(0), multiple = TRUE),
                 div(actionButton('mbuttonAddAllModulesModuleSeries','All'),
                 actionButton('mbuttonRemoveAllModulesModuleSeries','None'))
        )

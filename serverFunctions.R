@@ -21,7 +21,11 @@ getMaxMinValueFromData <- function(alldata,allcols){
   if(is.null(alldata)) return(c(0,0))
   data <- alldata %>%
     select(one_of(allcols))
-  return(list(Min = floor(min(data, na.rm = TRUE)),Max = ceiling(max(data, na.rm = TRUE))))
+  if(ncol(data)>0) {
+    return(list(Min = floor(min(data, na.rm = TRUE)),Max = ceiling(max(data, na.rm = TRUE))))
+  } else {
+    return(list(Min = 0, Max = 0))
+  }
 }
 
 
