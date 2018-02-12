@@ -33,12 +33,12 @@ tabPanel('Load data',
            #          )
            #        ))
            ),
-         h3(textOutput('textFileName')),
+         h4(textOutput('textFileName')),
          dataTableOutput('datatableAll')
 ),
 # ############## PROBES #################
     tabPanel('Explore By Probe',
-      h3(textOutput('textFileName2')),
+      h4(textOutput('textFileName2')),
        wellPanel(
          tabsetPanel(type = 'pills',
                      #################### Selecting  ################
@@ -87,9 +87,9 @@ tabPanel('Load data',
                      #################### Top Probes Series ################
                      tabPanel(
                        'Probes:Series',
-                       inputPanel(
-                         downloadButton('buttonSaveTableProbesSeries', 'Table'),
-                         downloadButton('buttonSavePlotProbesSeries', 'Plot')
+                       wellPanel(
+                         div(downloadButton('buttonSaveTableProbesSeries', 'Table'),
+                         downloadButton('buttonSavePlotProbesSeries', 'Plot'))
                        ),
                        wellPanel(
                          fluidRow(
@@ -156,9 +156,9 @@ tabPanel('Load data',
                      #################### Modules Series ###################
                      tabPanel(
                        'Modules:Series',
-                       inputPanel(
-                         downloadButton('buttonSavePlotModulesSeries', 'Plot'),
-                         downloadButton('buttonSaveTableModulesSeries', 'Table')
+                       wellPanel(
+                         div(downloadButton('buttonSavePlotModulesSeries', 'Plot'),
+                         downloadButton('buttonSaveTableModulesSeries', 'Table'))
                        ),
                        fluidRow(
                          column(2,
@@ -195,9 +195,9 @@ tabPanel('Load data',
   ),
 ############## MODULES #################
 tabPanel('Explore By Module',
-         h3(textOutput('textFileNameMods')),
+         h4(textOutput('textFileNameMods')),
          tabsetPanel(type = 'pills',
-    #################### Selecting Modules ################
+  #################### Selecting Modules ################
     tabPanel('Select',
     wellPanel(
       actionButton('mbuttonApplySelection','Click To Apply Selections Below',style = "background-color: #d4fb78;"),
@@ -231,20 +231,12 @@ tabPanel('Explore By Module',
       )
     )
    ),
-   #################### Top Modules #######################
+  #################### Top Modules #######################
    tabPanel(
      'Selected Modules',
      wellPanel(
-       downloadButton('mbuttonSaveTableModules', 'Table')
-     ),
-     h4('Selected Modules'),
-     wellPanel(dataTableOutput('mdatatableTopModulesUp'))
-   ),
-   #################### Plot Top Modules #######################
-   tabPanel(
-     'Plot Selected Modules',
-     wellPanel(
-       downloadButton('mbuttonSavePlotModules', 'Plot')
+       div(downloadButton('mbuttonSavePlotModules', 'Plot'),
+       downloadButton('mbuttonSaveTableModules', 'Table'))
      ),
      h4('Expression Values Of Selected Modules'),
      wellPanel(
@@ -253,14 +245,15 @@ tabPanel('Explore By Module',
          checkboxInput('mcheckboxShowZeroGenesModules', 'Zero', value = TRUE),
          radioButtons('mradioGroupTitleName','Group By',choices = c('Title','Module'),inline = TRUE)
        ),
-       plotOutput('mplotSelectedModules', height = '800px'))
+       plotOutput('mplotSelectedModules', height = '800px')),
+     wellPanel(dataTableOutput('mdatatableTopModulesUp'))
    ),
-   #################### Top Modules Series #######################
+  #################### Top Modules Series #######################
    tabPanel(
      'Modules:Series',
-     inputPanel(
-       downloadButton('mbuttonSavePlotModulesSeries', 'Plot'),
-       downloadButton('mbuttonSaveTableModulesSeries', 'Table')
+     wellPanel(
+       div(downloadButton('mbuttonSavePlotModulesSeries', 'Plot'),
+       downloadButton('mbuttonSaveTableModulesSeries', 'Table'))
      ),
      fluidRow(
        column(2,
@@ -292,6 +285,70 @@ tabPanel('Explore By Module',
      wellPanel(dataTableOutput('mdatatableModuleSeries'))
    )
  )
-    )
+    ),
+tabPanel(
+  'ReadMe',
+  h3("Introduction"),
+  p("Version 1.0 beta. © David JM Lewis www.djml.eu 2018. E&OE. This is beta software and is prone to bugs and crashes. 
+Plots and data tables may take some time to appear - be patient! 
+    The more rows you select for plotting the slower it will be. ggplot is not good at providing progress updates."),
+  p("The purpose of this app is just to visualise the expression of genes after immunisation, either alone or when clustered into modules.
+  It depends on the R package tmod 'Feature Set Enrichment Analysis for Metabolomics and Transcriptomics', created by January Weiner 
+    (http://bioinfo.mpiib-berlin.mpg.de/tmod/). I have reverse engineered some aspects of tmod and any errors arising from this are mine. 
+    Consult the tmod documentation for a description of the modules."),
+  p("The transcriptomics datasets are from the BIOVACSAFE project (www.biovacsafe.eu), and were generated by the group of Stefan Kaufmann at MPIIB, 
+Berlin and provided by Jeroen Maertzdorf and January Weiner. 
+    I have generated the probe averages per time point and any errors there are mine. The trials were conducted at the University of Gent by Geert Leroux-Roels"),
+  p("Source files for the shiny app are available at www.github.com/djmlewis/tmodexplorer. The shiny app is online at djmlewis.shinyapps.io/tmodexplorer"),
+  p("Plots can be copied or saved by right-clicking. Plots and data tables can be downloaded by clicking the download button. 
+    The plotting parameters are not sophisticated but the data used to create the plot are in the table below and can be saved and imported into R."),
+  h2("Instructions For Use"),
+  h3('Load Data'),
+  h5("You must load a dataset before doing anything. Some are already uploaded to the server."),
+  p("Select a dataset. Click Load. All existing plots and datatables will be cleared."),
+  h3("Explore By Probe"), 
+  p("The idea is to choose a time point and a treatment, and then sort the probes based on their values (gene expression or fold-increase) in that column, after filtering by keyword search or value."),
+  h4("Select"),
+  p("You must click the green 'Click To Apply Selections Below' button whenever you amend a selection to apply the selection."),
+  p("Pick a column to sort that has the treatment-time combination you want to explore. Sort descending for highest values in top rows. Select Gene Averages to have expressions of individual probes that map to a gene averaged into one row, otherwise it will be one probe per row and genes may repeat."),
+  h5("Filters"),
+  p("Filters are applied left to right - first the keyword search, then the value restriction, finally which rows to include.
+    Keyword search uses regex, with some limitations. Multiple terms can be entered separated by commas and are OR'd. 
+Do not include spaces (especially after the comma) or quotation marks unless you want them included in the search.
+    You can enter partial terms eg interferon finds interferon and interferons. Case is ignored. Commas are interpreted as search term dividers and cannot be 'escaped'.
+Select whether to search gene Description or Gene name."),
+  p("Max/min expression values are pre-entered into the range boxes when selecting a column, using floor/ceil and so may exceed the actual values. 
+Click Column to reset to max/min for selected column, or Data for max/min of whole dataset. 
+Value restrictions apply only to values in the column selected for sort. Restrict rows to have top or bottom rows, or a slice. 
+    Not restricting number of rows will lead to a very slow refresh while plots and datatables are prepared. If there are not enough rows after the previous selections you will get a warning."),
+  h4('Probes'),
+  p("A data table showing the probes / genes (if averaged) that meet the filter settings. Use the search boxes within the table to further restrict the rows for viewing in the table, but this has no effect on other tabs."),
+  h4("Probes:Series"),
+  p("This allows the probes selected on the basis of a single treatment-time column to be plotted for multiple treatment-time columns. 
+Click 'All' to enter all columns, or select one by one from the menu. Click 'None' to clear.
+    The order entered into the box is respected for all boxes like this. Use the cursor to move between selections to add or delete a column at that point."),
+  p("Split: the data are split by treatment using facet_wrap. This works if column names are in the format VVV_TTT where VVV is a treatment name and TTT is an integer value for time point. 
+    The app splits the column name by '_' and facet_wraps by VVV while plotting TTT on the x axis, as a category for box plots or a continuous variable for ribbon plots."),
+  h4("Genes->Modules"),
+  p("This panel lists the selected probes/genes and shows which - if any - modules contain this gene. Some selected genes may not be included in any modules."),
+  h4("Modules"),
+  p("A summary of the values of the individual genes contained in the modules associated with the selected probes/genes is plotted automatically when the treatment-time column selection changes. 
+The number of probes per gene is also shown in the table (N)."),
+  h4("Modules->Genes"),
+  p("This allows an inspection of the modules, one by one, of all the genes they contain. 
+    The menu lists the modules associated with selected genes/probes. As each gene may have several probes a summary boxplot of the expression values of the probes mapping to the genes inside the module selected in the menu is plotted automatically when the selected module changes 
+    Note that a module may contain genes that are not in the selection. Genes within a module that are also in your selection are denoted by the ︎► symbol next to the Y axis, and in the datatable. You may be surprised by how few genes in a module overlap with your selected genes.
+    All boxplots use ggplot geom_boxplot with default values."),
+  h4("Modules:Series"),
+  p("Whereas 'Modules' and 'Modules->Genes' only show the expression values of probes in the one selected treatment-time column, 
+    this panel allows the expression of the associated modules to be plotted for all treatment-time columns. 
+    To avoid delays when selecting options, nothing is plotted or re-plotted until the green 'Plot' button is clicked. 
+Add treatment-time points to the Columns menu. Add Modules to the Modules menu. Split - uses facet_wrap to separate treatments. 
+    Ribbon - plots an x-y line curve of the mean expression for a module, add SE range for the probes/genes using 'Ribbon+SE'."),
+  h3("Explore By Module"),
+  p("The concept is the same as Explore By Probe - read the sections above. However, here the rows are sorted by the mean or median value of the modules, and whole modules are selected using the filters.
+    The modules contain only a fraction of all the genes in the probeset, but this tab allows for an analysis of responses of the modules included in tmod."),
+  br(),br()
+)
   )# top tabset
 )# fluidpage

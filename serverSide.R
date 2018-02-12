@@ -46,8 +46,9 @@ server <- function(input, output, session) {
     # modules DO NOT RESPOND. NEED TO FIX
     updateSelectInput(session, 'mselectColumn', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
+    updateSelectInput(session, 'mselectModuleForSeries', choices = character(0))
     
-        
+    
     
     # based on menu we just update calc max min as the event is not triggered.
     updateExpressionMinMax(allData$colNames)
@@ -276,7 +277,7 @@ observeEvent(
       if(!is.null(mods)) {
         if(nchar(filterText) > 0) {
           modulesAndFiltersText(
-            paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' [ ',filterText,']',
+            paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' ',filterText,' ',
                    ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
                    ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
             ))
