@@ -314,8 +314,7 @@ tabPanel('Explore By Module',
 tabPanel(
   'ReadMe',
   h3("Introduction"),
-  p("Version 1.0 beta. © David JM Lewis www.djml.eu 2018. E&OE. This is beta software and is prone to bugs and crashes. 
-Plots and data tables may take some time to appear - be patient! 
+  p("This is beta software and is prone to bugs and crashes. Plots and data tables may take some time to appear - be patient! 
     The more rows you select for plotting the slower it will be. ggplot is not good at providing progress updates."),
   p("The purpose of this app is just to visualise the expression of genes after immunisation, either alone or when clustered into modules.
   It depends on the R package tmod 'Feature Set Enrichment Analysis for Metabolomics and Transcriptomics', created by January Weiner 
@@ -379,11 +378,16 @@ Add treatment-time points to the Columns menu. Add Modules to the Modules menu. 
   h4("Selected Modules"),
   p("The modules that meet the filter parameters for the selected column are automatically plotted as boxplots for the probes within that module."),
   h4("Modules:Series"),
-  p("Select treatment-time columns and plot modules as a time series, optionally split by treatment. Select which modules to plot using the menus on the right: 
+  p("Select treatment-time columns and plot modules as a time series, optionally split by treatment. Select which modules to plot using the menus underneath: 
     1. The modules selected by the column filter, 2. All module Titles (which group some modules into functional categories) in the dataset, or 3. All modules in the dataset. 
-    Click one of the 'Set As Plotted Modules' buttons to set those modules for the plot. Click 'Plot' after all changes to options."),
-  br(),br()
+    Once you have selected some modules using one of those menus, click the 'Set As Plotted Modules' button to copy those modules to Selected For Plotting. Click 'Plot' after any changes to modules or options to re-draw the plot."),
+  br(),
+  h2("Versions"),
+  p("1.01. Added menus to Explore By Module / Modules:Series to select modules by Title or individually for plotting, in addition to ones selected by filters based on sorted column."),
+  br(),
+  p("© David JM Lewis www.djml.eu 2018. E&OE."),br()
 )
 ##### 
-  )# top tabset
+  ),# top tabset
+h3("Version 1.01 beta 15FEB2018")
 )# fluidpage
