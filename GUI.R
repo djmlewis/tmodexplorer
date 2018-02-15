@@ -2,7 +2,7 @@
 ui <- 
   fluidPage(
 ######################  TABS  #########
-  tabsetPanel(type = 'pills',
+  tabsetPanel(
 #################### Data Load #########################
 tabPanel('Load data',
          h4("Select pre-loaded dataset to analyse"),
@@ -40,7 +40,7 @@ tabPanel('Load data',
     tabPanel('Explore By Probe',
       h4(textOutput('textFileName2')),
        wellPanel(
-         tabsetPanel(type = 'pills',
+         tabsetPanel(
                      #################### Selecting  ################
                      tabPanel('Select',
                               wellPanel(
@@ -196,7 +196,7 @@ tabPanel('Load data',
 ############## MODULES #################
 tabPanel('Explore By Module',
          h4(textOutput('textFileNameMods')),
-         tabsetPanel(type = 'pills',
+         tabsetPanel(
   #################### Selecting Modules ################
     tabPanel('Select',
     wellPanel(
@@ -214,7 +214,7 @@ tabPanel('Explore By Module',
           checkboxInput('mcheckboxSelectKeyword', h5('1. Using regex'), value = FALSE),
           textInput('mtextInputKeyword',NULL),
           h5("Search:"),
-          radioButtons('mradioKeywordColumn',NULL,choices = c('Title','Category','Module'))
+          radioButtons('mradioKeywordColumn',NULL,choices = c('Title','Module'))
         ),
         wellPanel(
           checkboxInput('mcheckboxSelectValues', h5('2. Sorted Column Values Within Range:'), value = FALSE),
@@ -267,18 +267,42 @@ tabPanel('Explore By Module',
                 radioButtons('mradioGroupTitleNameModuleSeries','Group Boxplot',choices = c('Title','Module'), selected = 'Module')
               )
        ),
-       column(5,
+       column(10,
               wellPanel(
-                selectInput('mselectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
+              fluidRow(
+                column(6,
+                selectInput('mselectColumnForModuleSeries', label = 'Columns To Plot', character(0), multiple = TRUE),
                 div(actionButton('mbuttonAddAllColumnsModuleSeries','All'),
-                actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))
-              )),
-       column(5,
+                actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))),
+                
+                column(6,
+                div(style = "color: #008f51;",
+                selectInput('mselectPlottedModuleForSeries', label = 'Modules To Plot', character(0), multiple = TRUE),
+                div(actionButton('mbuttonRemoveAllPlottedModulesModuleSeries','None'))))
+              )
+              ),
+              h4("Select Modules To Plot Using The Menus Below:", style = "color: #008f51;"),
               wellPanel(
-                selectInput('mselectModuleForSeries', label = 'Selected Modules', character(0), multiple = TRUE),
-                div(actionButton('mbuttonAddAllModulesModuleSeries','All'),
-                actionButton('mbuttonRemoveAllModulesModuleSeries','None'))
-       )
+                div(style = "color: #008f51;",
+                fluidRow(
+                  column(4,
+                    selectInput('mselectModuleForSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE),
+                    actionButton('mbuttonSetSelectedModulesAsModuleSeries','Set As Plotted Modules'),
+                    actionButton('mbuttonAddAllModulesModuleSeries','All'),
+                    actionButton('mbuttonRemoveAllModulesModuleSeries','None')
+                  ),
+                  column(4,
+                    selectInput('mselectModuleTitles', label = 'All Titles In The Datset', character(0), multiple = TRUE),
+                    actionButton('mbuttonAddTitles','Set As Plotted Modules'),
+                    actionButton('mbuttonRemoveAllModuleTitles','None')
+                  ),
+                  column(4,
+                    selectInput('mselectModuleAllModules', label = 'All Modules In The Datset', character(0), multiple = TRUE),
+                    actionButton('mbuttonAddAllModules','Set As Plotted Modules'),
+                    actionButton('mbuttonRemoveAllModules','None')
+                  )
+                ))
+              )
        )
      ),
      wellPanel(plotOutput('mplotModuleSeries', height = '600px')),
@@ -286,6 +310,7 @@ tabPanel('Explore By Module',
    )
  )
     ),
+###########   READ ME  ##########
 tabPanel(
   'ReadMe',
   h3("Introduction"),
@@ -328,7 +353,7 @@ Value restrictions apply only to values in the column selected for sort. Restric
 Click 'All' to enter all columns, or select one by one from the menu. Click 'None' to clear.
     The order entered into the box is respected for all boxes like this. Use the cursor to move between selections to add or delete a column at that point."),
   p("Split: the data are split by treatment using facet_wrap. This works if column names are in the format VVV_TTT where VVV is a treatment name and TTT is an integer value for time point. 
-    The app splits the column name by '_' and facet_wraps by VVV while plotting TTT on the x axis, as a category for box plots or a continuous variable for ribbon plots."),
+    The app splits the column name by '_' and facet_wraps by VVV while plotting TTT on the x axis, as a factor for box plots or a continuous variable for ribbon plots."),
   h4("Genes->Modules"),
   p("This panel lists the selected probes/genes and shows which - if any - modules contain this gene. Some selected genes may not be included in any modules."),
   h4("Modules"),
@@ -348,7 +373,17 @@ Add treatment-time points to the Columns menu. Add Modules to the Modules menu. 
   h3("Explore By Module"),
   p("The concept is the same as Explore By Probe - read the sections above. However, here the rows are sorted by the mean or median value of the modules, and whole modules are selected using the filters.
     The modules contain only a fraction of all the genes in the probeset, but this tab allows for an analysis of responses of the modules included in tmod."),
+  h4("Select"),
+  p("Like Explore By Probe above, you select a column containing the trreatment-time combination you want to explore. 
+    Filter using the filters (left to right) and sort ascending or descending - default uses the module means, select to sort by medians if you prefer but the ribbon plots still show means."),
+  h4("Selected Modules"),
+  p("The modules that meet the filter parameters for the selected column are automatically plotted as boxplots for the probes within that module."),
+  h4("Modules:Series"),
+  p("Select treatment-time columns and plot modules as a time series, optionally split by treatment. Select which modules to plot using the menus on the right: 
+    1. The modules selected by the column filter, 2. All module Titles (which group some modules into functional categories) in the dataset, or 3. All modules in the dataset. 
+    Click one of the 'Set As Plotted Modules' buttons to set those modules for the plot. Click 'Plot' after all changes to options."),
   br(),br()
 )
+##### 
   )# top tabset
 )# fluidpage

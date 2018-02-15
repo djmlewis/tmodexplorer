@@ -248,10 +248,7 @@ modules4GeneList <- function(genes2map,genes2mapRanks) {
 
 moduleDescriptionsForGenes <- function(modsOnly){
   if (length(modsOnly) > 0) {
-    return(paste0(modsOnly[['Module']],
-           ' (',
-           modsOnly[['Description']],
-           ')'))
+    return(modsNameTitle(modsOnly[['Module']],modsOnly[['Description']]))
   } 
   return('')
 }

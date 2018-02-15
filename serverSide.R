@@ -3,8 +3,6 @@ server <- function(input, output, session) {
 # 
 #   #################### Loading data #########################
 #   
-#   
-#   
   # list local data files on the server
   updateSelectInput(session, 'selectData', choices = basename(list.dirs(path = 'datafiles', recursive = FALSE)))
   
@@ -47,7 +45,8 @@ server <- function(input, output, session) {
     updateSelectInput(session, 'mselectColumn', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'mselectModuleForSeries', choices = character(0))
-    
+    updateSelectInput(session, 'mselectModuleTitles', choices = sort(unique(allData$modulesMeans[['Title']])))
+    updateSelectInput(session, 'mselectModuleAllModules', choices = sort(unique(modsNameTitle(allData$modulesMeans[['Module']],allData$modulesMeans[['Title']]))))
     
     
     # based on menu we just update calc max min as the event is not triggered.
@@ -304,8 +303,9 @@ observeEvent(
     # these are non-reactive and need a manual reboot
     output$mplotModuleSeries <- renderPlot({NULL})
     output$mdatatableModuleSeries <- renderDataTable({NULL})
-    updateSelectInput(session, 'mselectColumnForModuleSeries', selected = NULL)
-    updateSelectInput(session, 'mselectModuleForSeries', choices = paste0(topModulesSelected()[['Module']],' (',topModulesSelected()[['Title']],')'), selected = NULL)
+    updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))
+    updateSelectInput(session, 'mselectPlottedModuleForSeries', selected = character(0))
+    updateSelectInput(session, 'mselectModuleForSeries', choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]), selected = NULL)
 
   }
 )
@@ -328,7 +328,7 @@ observeEvent({
   input$mbuttonPlotModuleSeries
 },{
   ggplotSelectedModulesSeries <- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
-    input$mselectModuleForSeries,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
+    input$mselectPlottedModuleForSeries,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
     input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,input$mcheckboxShowSEModuleSeries,
     input$mradioGroupTitleNameModuleSeries)
   output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
@@ -339,11 +339,19 @@ observeEvent({
 
 
 observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
-observeEvent(input$mbuttonAddAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = paste0(topModulesSelected()[['Module']],' (',topModulesSelected()[['Title']],')'))})
+observeEvent(input$mbuttonAddAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))})
 observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
 observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = character(0))})
 
+observeEvent(input$mbuttonRemoveAllModuleTitles,{updateSelectInput(session, 'mselectModuleTitles', selected = character(0))})
+observeEvent(input$mbuttonRemoveAllPlottedModulesModuleSeries,{updateSelectInput(session, 'mselectPlottedModuleForSeries', choices = character(0))})
+observeEvent(input$mbuttonRemoveAllModules,{updateSelectInput(session, 'mselectModuleAllModules', choices = character(0))})
 
+observeEvent(input$mbuttonSetSelectedModulesAsModuleSeries,{updateSelectInput(session, 'mselectPlottedModuleForSeries', choices = input$mselectModuleForSeries, selected = input$mselectModuleForSeries)})
+observeEvent(input$mbuttonAddAllModules,{updateSelectInput(session, 'mselectPlottedModuleForSeries', choices = input$mbuttonAddAllModules, selected = input$mbuttonAddAllModules)})
+observeEvent(input$mbuttonAddTitles,{
+  cats <- getModulesForTitles(input$mselectModuleTitles,allData$modulesMeans)
+  updateSelectInput(session, 'mselectPlottedModuleForSeries',selected = cats, choices = cats)})
 
 
 } # <<<<<<<<<<<< end of server do not go below!

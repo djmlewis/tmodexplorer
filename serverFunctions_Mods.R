@@ -1,3 +1,7 @@
+modsNameTitle <- function(mods,titles){
+  return(paste0(mods,' (',titles,')'))
+}
+
 getMaxMinValueFromModulesData <- function(alldata,allcols,medians){
   if(is.null(alldata)) return(c(0,0))
   
@@ -76,4 +80,16 @@ getModulesForValues <- function(mods,Min,Max,asMedians){
       filter(between(Mean,Min,Max))
   }
   return(selGenes)
+}
+
+getModulesForTitles <- function(cats,modsdata) {
+  if(is.null(modsdata) || is.null(cats)) {return(character(0))}
+  mods <- map_dfr(cats,function(cat){
+    modsdata %>%
+    ungroup() %>%
+    filter(Title %in% cat) %>%
+    mutate(Mods = modsNameTitle(Module,Title)) %>%
+    select(Mods)
+  })
+  return(unique(mods$Mods))
 }
