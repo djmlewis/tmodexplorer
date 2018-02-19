@@ -12,6 +12,10 @@ themeBase <- theme_bw() +
 plotGenesModules <- function(d,t,l,z,gg){
   plot <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
+    d <- d %>%
+      filter(!is.na(Value)) %>%
+      mutate(Module = droplevels(Module))
+    
     if(!gg == TRUE){
       ncols <- length(levels(d$Module))
       original.parameters<- par( no.readonly = TRUE )
@@ -49,7 +53,11 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
   plot <- NULL
   if (!is.null(d) && nrow(d) > 0) {
     d <- d %>%
-      filter(!is.na(Value))
+      filter(!is.na(Value)) %>%
+      mutate(Gene = droplevels(Gene))
+    
+    xmax <- max(d$Value,na.rm = TRUE)
+    xmin <- min(d$Value,na.rm = TRUE)
     
     if(gg == TRUE) {
       plot <- ggplot(
@@ -60,7 +68,7 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
           fill = Gene
         )
       ) +
-      geom_text(mapping = aes(label = Selected), y = -Inf, hjust = 0, show.legend=FALSE) +
+      geom_text(mapping = aes(label = Selected, y = xmin), nudge_y = -0.02, hjust = 0, show.legend=FALSE) +
       geom_boxplot(mapping = aes(y = Value),alpha = 0.2, outlier.alpha = 1.0, show.legend=l) +
       coord_flip() +
       ggtitle(paste0('Genes for module ',m,'\n',t)) +
@@ -70,15 +78,15 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
     } else {
-      
       ncols <- length(levels(d$Gene))
       insetv <- -0.16
-      xmax <- max(d$Value,na.rm = TRUE)
       legcols <- (ncols %/% 37) + 1
       original.parameters<- par( no.readonly = TRUE )
-      par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)), las = 2)
+      par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
       plot <-  {
-        boxplot(d$Value ~ d$Gene, col = rainbow(ncols, alpha = 0.2),border = rainbow(ncols), horizontal = TRUE)
+        boxplot(d$Value ~ d$Gene, col = rainbow(ncols, alpha = 0.2),border = rainbow(ncols), pars = list(las = 2),
+                horizontal = TRUE, outline = TRUE)
+        text(y = d$Gene, x = xmin, labels = d$Selected, pos = 2)
         title(paste0('Genes for module ',m,'\n',t))
         if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
         if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(d$Gene), fill = rainbow(ncols, alpha = 0.2), xpd = TRUE)
