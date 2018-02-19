@@ -149,6 +149,8 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
 getTopGenesInSeries <- function(allData, selData,selCols, asGenes,facet) {
   if(is.null(allData) || length(selCols) == 0) return(NULL)
   
+  showNotification("Getting values ... please be patient",id = "getTopGenesInSeries", type = 'message', duration = NULL)
+  
   if(asGenes == TRUE) {
     seriesData <- allData %>%
       filter(Gene %in% selData$Gene) %>%
@@ -170,6 +172,7 @@ getTopGenesInSeries <- function(allData, selData,selCols, asGenes,facet) {
       separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
   }
   
+  removeNotification("getTopGenesInSeries")
   return(seriesData)
 }
 

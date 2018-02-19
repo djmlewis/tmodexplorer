@@ -132,9 +132,10 @@ tabPanel('Load data',
                        wellPanel(
                          inputPanel(
                            checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = TRUE),
-                           checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE)
+                           checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE),
+                           checkboxInput('checkboxGGplotGenesModules', 'Use ggplot2', value = FALSE)
                          ),
-                         plotOutput('plotGenesModules', height = '400px')),
+                         plotOutput('plotGenesModules', height = '800px')),
                        wellPanel(dataTableOutput('datatableSelModulesOnly'))
                      ),
                      #################### Modules->Genes ###################
@@ -148,7 +149,8 @@ tabPanel('Load data',
                          selectInput('selectModuleForGenes', 'Expression Values Of Genes In:', character(0), width = '500px'),
                          inputPanel(
                            checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = TRUE),
-                           checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE)
+                           checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE),
+                           checkboxInput('checkboxGGplotModuleGenes', 'Use ggplot2', value = FALSE)
                          ),
                          plotOutput('plotModuleGenes', height = '600px')),
                        wellPanel(dataTableOutput('datatableModuleGenes'))

@@ -9,50 +9,81 @@ themeBase <- theme_bw() +
   )
 
 
-plotGenesModules <- function(d,t,l,z){
+plotGenesModules <- function(d,t,l,z,gg){
   plot <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
-    plot <-  ggplot(
-      data = d,
-      mapping = aes(
-        x = Module,
-        y = Value,
-        colour = Module,
-        fill = Module
-      )
-    ) +
-      geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
-      ggtitle(paste0('Modules For Selected Genes\n',t)) +
-      themeBase
-    
-    if(z == TRUE) {
-      plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
+    if(!gg == TRUE){
+      ncols <- length(levels(d$Module))
+      original.parameters<- par( no.readonly = TRUE )
+      par(mar = c(3, 8, 4, ifelse(l,8,2)), las = 2)
+      plot <-  {
+        boxplot(d$Value ~ (d$Module), col = rainbow(ncols, alpha = 0.2),border = rainbow(ncols), horizontal = TRUE)
+        title(paste0('Modules For Selected Genes\n',t))
+        if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
+        if(l == TRUE) legend(x = 'topright',horiz = FALSE, inset = c(-0.1,0), legend = levels(d$Module), fill = rainbow(ncols, alpha = 0.2), xpd = TRUE)
+      }
+      par(original.parameters)
+    } else {
+      plot <-  ggplot(
+        data = d,
+        mapping = aes(
+          x = Module,
+          y = Value,
+          colour = Module,
+          fill = Module
+        )
+      ) +
+        geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
+        ggtitle(paste0('Modules For Selected Genes\n',t)) +
+        themeBase
+  
+      if(z == TRUE) {
+        plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
+      }
     }
   }
   return(plot)
 }
 
-plotModuleGenes <- function(d,m,t,l,z) {
+plotModuleGenes <- function(d,m,t,l,z,gg) {
   plot <- NULL
   if (!is.null(d) && nrow(d) > 0) {
     d <- d %>%
       filter(!is.na(Value))
-    plot <- ggplot(
-      data = d,
-      mapping = aes(
-        x = Gene,
-        colour = Gene,
-        fill = Gene
-      )
-    ) +
-    geom_text(mapping = aes(label = Selected), y = -Inf, hjust = 0, show.legend=FALSE) +
-    geom_boxplot(mapping = aes(y = Value),alpha = 0.2, outlier.alpha = 1.0, show.legend=l) +
-    coord_flip() +
-    ggtitle(paste0('Genes for module ',m,'\n',t)) +
-    themeBase
     
-    if(z == TRUE) {
-      plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
+    if(gg == TRUE) {
+      plot <- ggplot(
+        data = d,
+        mapping = aes(
+          x = Gene,
+          colour = Gene,
+          fill = Gene
+        )
+      ) +
+      geom_text(mapping = aes(label = Selected), y = -Inf, hjust = 0, show.legend=FALSE) +
+      geom_boxplot(mapping = aes(y = Value),alpha = 0.2, outlier.alpha = 1.0, show.legend=l) +
+      coord_flip() +
+      ggtitle(paste0('Genes for module ',m,'\n',t)) +
+      themeBase
+      
+      if(z == TRUE) {
+        plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
+      }
+    } else {
+      
+      ncols <- length(levels(d$Gene))
+      insetv <- -0.16
+      xmax <- max(d$Value,na.rm = TRUE)
+      legcols <- (ncols %/% 37) + 1
+      original.parameters<- par( no.readonly = TRUE )
+      par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)), las = 2)
+      plot <-  {
+        boxplot(d$Value ~ d$Gene, col = rainbow(ncols, alpha = 0.2),border = rainbow(ncols), horizontal = TRUE)
+        title(paste0('Genes for module ',m,'\n',t))
+        if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
+        if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(d$Gene), fill = rainbow(ncols, alpha = 0.2), xpd = TRUE)
+      }
+      par(original.parameters)
     }
   }
   return(plot)
@@ -60,6 +91,8 @@ plotModuleGenes <- function(d,m,t,l,z) {
 
 plotTopGenesInSeries <- function(data2plot, asGenes, connectPoints,showlegend,t, facet,showZero){
   if(is.null(data2plot)) return(NULL)
+  showNotification("Creating plot ... please be patient, this may take some time",
+    id = "plotTopGenesInSeries", type = 'message', duration = 5, closeButton = TRUE)
   
   if(asGenes){
     plotData <- data2plot
@@ -95,7 +128,7 @@ plotTopGenesInSeries <- function(data2plot, asGenes, connectPoints,showlegend,t,
       scale_x_continuous(breaks = plotData$Column) +
       facet_wrap(~Treatment) 
   }
-  
+  # removeNotification("plotTopGenesInSeries")
   return(plot)
 }
 
