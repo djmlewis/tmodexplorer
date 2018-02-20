@@ -15,16 +15,21 @@ plotGenesModules <- function(d,t,l,z,gg){
     d <- d %>%
       filter(!is.na(Value)) %>%
       mutate(Module = droplevels(Module))
+    xmax <- max(d$Value,na.rm = TRUE)
+    xmin <- min(d$Value,na.rm = TRUE)
     
     if(!gg == TRUE){
       ncols <- length(levels(d$Module))
+      insetv <- -0.16
+      legcols <- (ncols %/% 37) + 1
       original.parameters<- par( no.readonly = TRUE )
-      par(mar = c(3, 8, 4, ifelse(l,8,2)), las = 2)
+      par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
       plot <-  {
-        boxplot(d$Value ~ (d$Module), col = rainbow(ncols, alpha = 0.2),border = rainbow(ncols), horizontal = TRUE)
+        boxplot(d$Value ~ (d$Module), col = rainbow(ncols, alpha = 0.2),border = rainbow(ncols),  pars = list(las = 2),
+                horizontal = TRUE, outline = TRUE)
         title(paste0('Modules For Selected Genes\n',t))
         if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
-        if(l == TRUE) legend(x = 'topright',horiz = FALSE, inset = c(-0.1,0), legend = levels(d$Module), fill = rainbow(ncols, alpha = 0.2), xpd = TRUE)
+        if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(d$Module), fill = rainbow(ncols, alpha = 0.2), xpd = TRUE)
       }
       par(original.parameters)
     } else {
