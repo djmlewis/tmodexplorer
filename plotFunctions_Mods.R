@@ -55,7 +55,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         data2plot <- data2plot %>%
           arrange(Treatment, Module, Column)
       } else {
-        if(boxRibbon == 'Boxplot') {data2plot <- data2plot %>% mutate(Column = factor(Column, levels = selCol))}
+        data2plot <- data2plot %>% mutate(Column = factor(Column, levels = unique(selCol)))
         data2plot <- data2plot %>%
           arrange(Module, Column)
       }
@@ -77,8 +77,8 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         'Ribbon' = {
           plot <- plot + 
             # Ribbon/line aes() does not work with Title which has duplicates, impose Module
-            geom_line(mapping = aes(colour = Module, group = Module),show.legend=l) +
-            scale_x_continuous(breaks = data2plot$Column)
+            geom_line(mapping = aes(colour = Module, group = Module),show.legend=l)
+          if(facet == TRUE) {plot <- plot + scale_x_continuous(breaks = data2plot$Column)}
           if(showSE == TRUE){
             data4SE <- data2plot %>%
               mutate(ymin = Mean-SE, ymax = Mean+SE)

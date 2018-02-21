@@ -86,7 +86,7 @@ server <- function(input, output, session) {
   warnedAboutProbeRows <- FALSE
   observeEvent(
     input$checkboxSelectRows,
-    {if(warnedAboutProbeRows == FALSE && input$checkboxSelectRows == FALSE) {
+    {if(warnedAboutProbeRows == FALSE && (input$checkboxSelectRows == FALSE || input$numberGenesStart - input$numberGenesEnd > 100)) {
       warnedAboutProbeRows <<- TRUE
       showNotification("If the search returns more than a few hundred rows there will be a long wait!", duration = 5, closeButton = TRUE,
                        id = "notifyRowsProbes", type = "warning")
@@ -179,24 +179,23 @@ server <- function(input, output, session) {
   output$buttonSaveTableProbes <- downloadTableCSV(topGenesAndModules()[['genes']],'TopGenes.csv')
   
   #################### Top Probes Series #########################
+  
   observeEvent(
     {
       input$buttonPlotSeries
     },
     {
-      showNotification("Updating selected probes datatable and series plot ... please be patient",id = "buttonPlotSeries", type = 'message', duration = NULL)
-      topGenesInSeries <- getTopGenesInSeries(allData$data,
-                                              topGenesAndModules()[['genes']],input$selectColumnsForSeries, input$checkboxProbesGenes,input$checkboxSplitSeries)
+      topGenesInSeries <- getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries, 
+                        input$checkboxProbesGenes,input$checkboxSplitSeries)
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
       output$buttonSaveTableProbesSeries <- downloadTableCSV(topGenesInSeries,'GenesSeries.csv')
       
-      ggplotTopGenesInSeries <-  plotTopGenesInSeries(topGenesInSeries,input$checkboxProbesGenes,
-                                                      input$checkboxConnectSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,input$checkboxShowZeroSeries)
+      ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,input$checkboxProbesGenes,
+                                  input$checkboxConnectSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
+                                  input$checkboxShowZeroSeries)
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
-      # output$buttonSavePlotProbesSeries <- downloadPlotPNG(ggplotTopGenesInSeries,'GenesSeries.png')
-      removeNotification("buttonPlotSeries")
-      
     })
+  
   observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
   observeEvent(input$buttonRemoveAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = character(0))})
   
@@ -224,8 +223,7 @@ server <- function(input, output, session) {
     reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],dataAndFiltersText(),
                 input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules,input$checkboxGGplotGenesModules)})
   output$plotGenesModules <- renderPlot({ggplotGenesModules()})
-  output$buttonSavePlotModules <- downloadPlotPNG(ggplotGenesModules(),'Modules.png')
-  
+
   #################### Modules->Genes #########################
   # link the module select to the modules for top genes topGenesAndModules()[['modsOnly']]
   mods4Genes <- reactive({moduleDescriptionsForGenes(geneExpressionsForModules()[['summStats']])})
@@ -244,20 +242,19 @@ server <- function(input, output, session) {
                                 dataAndFiltersText(),input$checkboxShowLegendModuleGenes, input$checkboxShowZeroModuleGenes,
                                 input$checkboxGGplotModuleGenes)})
   output$plotModuleGenes <- renderPlot({ggplotModuleGenes()})
-  output$buttonSavePlotModulesGenes <- downloadPlotPNG(ggplotModuleGenes(),'ModuleGenes.png')
-  
+
   #################### Modules Series #########################
   # selectModuleForSeries and selectColumnForModuleSeries are updated above
   observeEvent({
     input$buttonPlotModuleSeries
   },{
+    output$plotModuleSeries <- renderPlot({NULL})
     moduleValues <- getModuleValuesForSeries(allData$data,input$selectModuleForSeries,input$selectColumnForModuleSeries, input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
     ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
                                 input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries, input$checkboxShowSEModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
-    output$buttonSavePlotModulesSeries <- downloadPlotPNG(ggplotModulesInSeries,'SelGenesModulesSeries.png')
   })
   
   observeEvent(input$buttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = allData$colNames)})
@@ -353,7 +350,6 @@ ggplotSelectedModules <-
   reactive({plotSelectedModules(allData$modules,topModulesSelected(),modulesAndFiltersText(), 
     input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName)})
 output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()})
-output$mbuttonSavePlotModules <- downloadPlotPNG(ggplotSelectedModules(),'SelectedModules.png')
 
 #################### Plot Modules Selected Series #########################
 observeEvent({
@@ -364,7 +360,6 @@ observeEvent({
     input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,input$mcheckboxShowSEModuleSeries,
     input$mradioGroupTitleNameModuleSeries)
   output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
-  output$mbuttonSavePlotModulesSeries <- downloadPlotPNG(ggplotSelectedModulesSeries[['plot']],'SelModulesSeries.png')
   output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
   
 })

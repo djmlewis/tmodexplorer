@@ -102,48 +102,64 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
   return(plot)
 }
 
-plotTopGenesInSeries <- function(data2plot, asGenes, connectPoints,showlegend,t, facet,showZero){
-  if(is.null(data2plot)) return(NULL)
-  showNotification("Creating plot ... please be patient, this may take some time",
-    id = "plotTopGenesInSeries", type = 'message', duration = 5, closeButton = TRUE)
-  
-  if(asGenes){
-    plotData <- data2plot
-  } else {
-    # merge gene and probe names if not averaged
-    plotData <- data2plot %>%
-      mutate(Gene = paste0(Gene,' (',Probe,')')) %>%
-      select(-c(Probe))
+plotTopGenesInSeries <-
+  function(data2plot,
+           asGenes,
+           connectPoints,
+           showlegend,
+           t,
+           facet,
+           showZero) {
+    if (is.null(data2plot))
+      return(NULL)
+    
+    if (asGenes) {
+      plotData <- data2plot
+    } else {
+      # merge gene and probe names if not averaged
+      plotData <- data2plot %>%
+        mutate(Gene = paste0(Gene, ' (', Probe, ')')) %>%
+        select(-c(Probe))
+    }
+    plotData <- plotData %>%
+      mutate(Gene = factor(Gene, levels = unique(Gene)))
+    if (facet == FALSE) {
+      plotData <- plotData %>%
+        mutate(Column = factor(Column, levels = unique(Column)))
+    }
+    
+    plot <-   ggplot(
+      data = plotData,
+      mapping = aes(
+        x = Column,
+        y = Value,
+        colour = Gene,
+        fill = Gene,
+        group = Gene
+      )
+    ) +
+      geom_point(show.legend = showlegend) +
+      {
+        if (connectPoints) {
+          geom_line(show.legend = showlegend)
+        }
+      } +
+      ggtitle(paste0('Selected Genes\n', t)) +
+      themeBase
+    
+    if (showZero == TRUE) {
+      plot <- plot +
+        geom_hline(yintercept = 0.0, linetype = 2)
+    }
+    
+    if (facet == TRUE) {
+      plot <-  plot +
+        scale_x_continuous(breaks = plotData$Column) +
+        facet_wrap( ~ Treatment)
+    }
+    
+    return(plot)
   }
-  
-  plot <-   ggplot(
-    data = plotData,
-    mapping = aes(
-      x = Column,
-      y = Value,
-      colour = Gene,
-      fill = Gene,
-      group = Gene
-    )
-  ) +
-    geom_point(show.legend=showlegend) +
-    {if(connectPoints){geom_line(show.legend=showlegend)}} +
-    ggtitle(paste0('Selected Genes\n',t)) +
-    themeBase
-  
-  if(showZero == TRUE) {
-    plot <- plot +
-      geom_hline(yintercept = 0.0, linetype = 2)
-  }
-  
-  if(facet == TRUE) {
-    plot <-  plot +
-      scale_x_continuous(breaks = plotData$Column) +
-      facet_wrap(~Treatment) 
-  }
-  # removeNotification("plotTopGenesInSeries")
-  return(plot)
-}
 
 plotModulesInSeries <- function(d,t,l,r,f,z,se){
   p <-  NULL

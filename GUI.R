@@ -70,7 +70,8 @@ tabPanel('Load data',
                                   wellPanel(
                                     checkboxInput('checkboxSelectRows', h5('3. Sorted Column Row Numbers'), value = TRUE),
                                     numericInput("numberGenesStart", "From Row:", 0, min = 0, max = 200, step = 5), 
-                                    numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = 200, step = 5)
+                                    numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = 200, step = 5),
+                                    p("More than 100 rows will result in slow response")
                                   )
                                 )
                               )
@@ -78,19 +79,14 @@ tabPanel('Load data',
                      #################### Top Probes #######################
                      tabPanel(
                        'Probes',
-                       wellPanel(
-                         downloadButton('buttonSaveTableProbes', 'Table')
-                       ),
                        h4('Selected Probes / Genes'),
-                       wellPanel(dataTableOutput('datatableTopGenesUp'))
+                       wellPanel(
+                         downloadButton('buttonSaveTableProbes', 'Download Table'),hr(),
+                         dataTableOutput('datatableTopGenesUp'))
                      ),
                      #################### Top Probes Series ################
                      tabPanel(
                        'Probes:Series',
-                       wellPanel(
-                         div(downloadButton('buttonSaveTableProbesSeries', 'Table'),
-                         downloadButton('buttonSavePlotProbesSeries', 'Plot'))
-                       ),
                        wellPanel(
                          fluidRow(
                            column(2,
@@ -110,58 +106,48 @@ tabPanel('Load data',
                            )
                          ),
                          plotOutput('plotTopGenesSeries', height = '600px')),
-                       wellPanel(dataTableOutput('datatableTopGenesSeries'))
+                       wellPanel(
+                         downloadButton('buttonSaveTableProbesSeries', 'Download Table'), hr(), 
+                         dataTableOutput('datatableTopGenesSeries'))
                      ),
                      #################### Genes->Modules ##################
                      tabPanel(
                        'Genes->Modules',
-                       wellPanel(
-                         downloadButton('buttonSaveTableGenesModules', 'Table')
-                       ),
                        h4('Modules Associated With Selected Probes / Genes'),
-                       wellPanel(dataTableOutput('datatableGenesModules'))
+                       wellPanel(
+                         downloadButton('buttonSaveTableGenesModules', 'Download Table'), hr(), dataTableOutput('datatableGenesModules'))
                      ),
                      #################### Modules #########################
                      tabPanel(
                        'Modules',
-                       wellPanel(
-                         downloadButton('buttonSavePlotModules', 'Plot'),
-                         downloadButton('buttonSaveTableModules', 'Table')
-                       ),
                        h4('Expression Values Of Modules Associated With Selected Probes / Genes'),
                        wellPanel(
-                         inputPanel(
-                           checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = TRUE),
-                           checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE),
-                           checkboxInput('checkboxGGplotGenesModules', 'Use ggplot2', value = FALSE)
+                         fluidRow(
+                           column(1,checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = TRUE)),
+                           column(1,checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
+                           column(1,checkboxInput('checkboxGGplotGenesModules', 'Use ggplot2', value = FALSE))
                          ),
                          plotOutput('plotGenesModules', height = '800px')),
-                       wellPanel(dataTableOutput('datatableSelModulesOnly'))
+                       wellPanel(
+                         downloadButton('buttonSaveTableModules', 'Download Table'), hr(), dataTableOutput('datatableSelModulesOnly'))
                      ),
                      #################### Modules->Genes ###################
                      tabPanel(
                        'Module->Genes',
                        wellPanel(
-                         downloadButton('buttonSavePlotModulesGenes', 'Plot'),
-                         downloadButton('buttonSaveTableModulesGenes', 'Table')
-                       ),
-                       wellPanel(
                          selectInput('selectModuleForGenes', 'Expression Values Of Genes In:', character(0), width = '500px'),
-                         inputPanel(
-                           checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = TRUE),
-                           checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE),
-                           checkboxInput('checkboxGGplotModuleGenes', 'Use ggplot2', value = FALSE)
+                         fluidRow(
+                           column(1,checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = TRUE)),
+                           column(1,checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
+                           column(1,checkboxInput('checkboxGGplotModuleGenes', 'Use ggplot2', value = FALSE))
                          ),
                          plotOutput('plotModuleGenes', height = '600px')),
-                       wellPanel(dataTableOutput('datatableModuleGenes'))
+                       wellPanel(
+                         downloadButton('buttonSaveTableModulesGenes', 'Download Table'), hr(), dataTableOutput('datatableModuleGenes'))
                      ),
                      #################### Modules Series ###################
                      tabPanel(
                        'Modules:Series',
-                       wellPanel(
-                         div(downloadButton('buttonSavePlotModulesSeries', 'Plot'),
-                         downloadButton('buttonSaveTableModulesSeries', 'Table'))
-                       ),
                        fluidRow(
                          column(2,
                                 wellPanel(
@@ -190,7 +176,8 @@ tabPanel('Load data',
                        wellPanel(
                          plotOutput('plotModuleSeries', height = '600px')
                        ),
-                       wellPanel(dataTableOutput('datatableModuleSeries'))
+                       wellPanel(
+                         downloadButton('buttonSaveTableModulesSeries', 'Download Table'), hr(), dataTableOutput('datatableModuleSeries'))
                      )
          ) # tabset Panel in explore by probe
        )# wellPanel
@@ -236,10 +223,6 @@ tabPanel('Explore By Module',
   #################### Top Modules #######################
    tabPanel(
      'Selected Modules',
-     wellPanel(
-       div(downloadButton('mbuttonSavePlotModules', 'Plot'),
-       downloadButton('mbuttonSaveTableModules', 'Table'))
-     ),
      h4('Expression Values Of Selected Modules'),
      wellPanel(
        inputPanel(
@@ -248,15 +231,12 @@ tabPanel('Explore By Module',
          radioButtons('mradioGroupTitleName','Group By',choices = c('Title','Module'),inline = TRUE)
        ),
        plotOutput('mplotSelectedModules', height = '800px')),
-     wellPanel(dataTableOutput('mdatatableTopModulesUp'))
+     wellPanel(
+       downloadButton('mbuttonSaveTableModules', 'Download Table'), hr(), dataTableOutput('mdatatableTopModulesUp'))
    ),
   #################### Top Modules Series #######################
    tabPanel(
      'Modules:Series',
-     wellPanel(
-       div(downloadButton('mbuttonSavePlotModulesSeries', 'Plot'),
-       downloadButton('mbuttonSaveTableModulesSeries', 'Table'))
-     ),
      fluidRow(
        column(2,
               wellPanel(
@@ -308,7 +288,8 @@ tabPanel('Explore By Module',
        )
      ),
      wellPanel(plotOutput('mplotModuleSeries', height = '600px')),
-     wellPanel(dataTableOutput('mdatatableModuleSeries'))
+     wellPanel(
+       downloadButton('mbuttonSaveTableModulesSeries', 'Download Table'), hr(), dataTableOutput('mdatatableModuleSeries'))
    )
  )
     ),
@@ -326,7 +307,7 @@ tabPanel(
 Berlin and provided by Jeroen Maertzdorf and January Weiner. 
     I have generated the probe averages per time point and any errors there are mine. The trials were conducted at the University of Gent by Geert Leroux-Roels"),
   p("Source files for the shiny app are available at www.github.com/djmlewis/tmodexplorer. The shiny app is online at djmlewis.shinyapps.io/tmodexplorer"),
-  p("Plots can be copied or saved by right-clicking. Plots and data tables can be downloaded by clicking the download button. 
+  p("Plots can be copied or saved by right-clicking. Data tables can be downloaded by clicking the download button. 
     The plotting parameters are not sophisticated but the data used to create the plot are in the table below and can be saved and imported into R."),
   h2("Instructions For Use"),
   h3('Load Data'),
