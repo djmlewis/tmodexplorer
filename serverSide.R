@@ -176,7 +176,8 @@ server <- function(input, output, session) {
     removeNotification("datatableTopGenesUp")
     t
   })
-  output$buttonSaveTableProbes <- downloadTableCSV(topGenesAndModules()[['genes']],'TopGenes.csv')
+  output$buttonSaveTableProbes <- downloadTableCSV(topGenesAndModules()[['genes']],'TopGenes_')
+  output$buttonSaveListProbes <- downloadGeneList(topGenesAndModules()[['genes']][['Gene']],'TopGenesList_')
   
   #################### Top Probes Series #########################
   
@@ -188,7 +189,7 @@ server <- function(input, output, session) {
       topGenesInSeries <- getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries, 
                         input$checkboxProbesGenes,input$checkboxSplitSeries)
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
-      output$buttonSaveTableProbesSeries <- downloadTableCSV(topGenesInSeries,'GenesSeries.csv')
+      output$buttonSaveTableProbesSeries <- downloadTableCSV(topGenesInSeries,'GenesSeries_')
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,input$checkboxProbesGenes,
                                   input$checkboxConnectSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
@@ -208,7 +209,7 @@ server <- function(input, output, session) {
     removeNotification("datatableGenesModules")
     t
   })
-  output$buttonSaveTableGenesModules <- downloadTableCSV(topGenesAndModules()[['modules']],'TopGenesModules.csv')
+  output$buttonSaveTableGenesModules <- downloadTableCSV(topGenesAndModules()[['modules']],'TopGenesModules_')
   
   #################### Modules #########################
   # get the individual gene values for boxplot and the summ stats of the modules
@@ -216,7 +217,7 @@ server <- function(input, output, session) {
     getExpressionsForModules(topGenesAndModules()[['modsOnly']],input$selectColumn,allData$data)})
   # draw / save table
   output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['summStats']]})
-  output$buttonSaveTableModules <- downloadTableCSV(topGenesAndModules()[['modsOnly']],'Modules.csv')
+  output$buttonSaveTableModules <- downloadTableCSV(topGenesAndModules()[['modsOnly']],'Modules_')
   
   # draw / save plot
   ggplotGenesModules <-
@@ -236,7 +237,7 @@ server <- function(input, output, session) {
                                                               allData$data,topGenesAndModules()[['genes']])})
   # redraw the table of gene expressions for the module selected
   output$datatableModuleGenes <- renderDataTable({expressionsInModule()})
-  output$buttonSaveTableModulesGenes <- downloadTableCSV(expressionsInModule(),'ModuleGenes.csv')
+  output$buttonSaveTableModulesGenes <- downloadTableCSV(expressionsInModule(),'ModuleGenes_')
   
   ggplotModuleGenes <- reactive({plotModuleGenes(expressionsInModule(),isolate(input$selectModuleForGenes),
                                 dataAndFiltersText(),input$checkboxShowLegendModuleGenes, input$checkboxShowZeroModuleGenes,
@@ -343,12 +344,12 @@ observeEvent(
 #################### Top Modules Selected #########################
 # output top genes
 output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()})
-output$mbuttonSaveTableModules <- downloadTableCSV(topModulesSelected(),'TopModules.csv')
+output$mbuttonSaveTableModules <- downloadTableCSV(topModulesSelected(),'TopModules_')
 
 #################### Plot Modules Selected #########################
 ggplotSelectedModules <-
   reactive({plotSelectedModules(allData$modules,topModulesSelected(),modulesAndFiltersText(), 
-    input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName)})
+    input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName,input$mcheckboxGGplotGenesModules)})
 output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()})
 
 #################### Plot Modules Selected Series #########################

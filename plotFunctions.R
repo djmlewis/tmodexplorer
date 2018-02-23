@@ -8,6 +8,26 @@ themeBase <- theme_bw() +
     legend.title = element_text()
   )
 
+plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
+  
+  ncols <- length(levels(x))
+  colpal <- rainbow(ncols, alpha = 0.2)
+  bordpal <- rainbow(ncols)
+  insetv <- -0.16
+  legcols <- (ncols %/% 37) + 1
+  
+
+  original.parameters<- par( no.readonly = TRUE )
+  par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
+  plot <-  {
+    boxplot(y ~ x, col = colpal,border = bordpal, pars = list(las = 2), horizontal = TRUE, outline = TRUE)
+    if(!is.null(s)) text(y = x, x = xmin, labels = s, pos = 2)
+    title(t)
+    if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
+    if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(x), fill = colpal, xpd = TRUE)
+  }
+  par(original.parameters)
+}
 
 plotGenesModules <- function(d,t,l,z,gg){
   plot <-  NULL
@@ -18,20 +38,8 @@ plotGenesModules <- function(d,t,l,z,gg){
     xmax <- max(d$Value,na.rm = TRUE)
     xmin <- min(d$Value,na.rm = TRUE)
     
-    if(!gg == TRUE){
-      ncols <- length(levels(d$Module))
-      insetv <- -0.16
-      legcols <- (ncols %/% 37) + 1
-      original.parameters<- par( no.readonly = TRUE )
-      par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
-      plot <-  {
-        boxplot(d$Value ~ (d$Module), col = rainbow(ncols, alpha = 0.2),border = rainbow(ncols),  pars = list(las = 2),
-                horizontal = TRUE, outline = TRUE)
-        title(paste0('Modules For Selected Genes\n',t))
-        if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
-        if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(d$Module), fill = rainbow(ncols, alpha = 0.2), xpd = TRUE)
-      }
-      par(original.parameters)
+    if(gg == FALSE){
+      plot <- plotBaseBoxplot(d$Module,d$Value,NULL,paste0('Modules For Selected Genes\n',t),z,l,xmax,xmin)
     } else {
       plot <-  ggplot(
         data = d,
@@ -53,6 +61,7 @@ plotGenesModules <- function(d,t,l,z,gg){
   }
   return(plot)
 }
+
 
 plotModuleGenes <- function(d,m,t,l,z,gg) {
   plot <- NULL
@@ -83,20 +92,7 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
     } else {
-      ncols <- length(levels(d$Gene))
-      insetv <- -0.16
-      legcols <- (ncols %/% 37) + 1
-      original.parameters<- par( no.readonly = TRUE )
-      par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
-      plot <-  {
-        boxplot(d$Value ~ d$Gene, col = rainbow(ncols, alpha = 0.2),border = rainbow(ncols), pars = list(las = 2),
-                horizontal = TRUE, outline = TRUE)
-        text(y = d$Gene, x = xmin, labels = d$Selected, pos = 2)
-        title(paste0('Genes for module ',m,'\n',t))
-        if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
-        if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(d$Gene), fill = rainbow(ncols, alpha = 0.2), xpd = TRUE)
-      }
-      par(original.parameters)
+      plot <- plotBaseBoxplot(d$Gene,d$Value,d$Selected,paste0('Genes for module ',m,'\n',t),z,l,xmax,xmin)
     }
   }
   return(plot)
@@ -202,13 +198,22 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se){
 }
 
 
+downloadGeneList <- function(list,fname){
+  fname <- paste0(fname,date(),'_.txt')
+  downloadHandler(fname,function(file) {
+    write_lines(paste(unique(list), collapse = ','), file)
+  })
+}
+
 downloadTableCSV <- function(table2save,fname){
+  fname <- paste0(fname,date(),'_.csv')
   downloadHandler(fname,function(file) {
     write.csv(table2save, file, row.names = FALSE)})
 }
 
 downloadPlotPNG <- function(plot2save,fname){
-    downloadHandler(fname,function(file) {
+  fname <- paste0(fname,date(),'_.png')
+  downloadHandler(fname,function(file) {
     ggsave(file, plot = plot2save, device = 'png', width = 400, height = 300, units = 'mm')
   })
 }

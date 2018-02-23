@@ -1,27 +1,36 @@
-plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper){
+plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
   plot <-  NULL
   if (!is.null(selmod) && nrow(selmod) > 0 && !is.null(moddata)) {
     data2plot <- moddata %>%
-      filter(Module %in% unique(selmod$Module), Column %in% unique(selmod$Column)) %>%
-      #arrange in order
-      mutate(Module = factor(Module, levels = rev(unique(selmod$Module))))
-
-    plot <-  ggplot(
-      data = data2plot,
-      mapping = aes_string(
-        x = 'Module',
-        y = 'Value',
-        colour = grouper,
-        fill = grouper
-      )
-    ) +
-      geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
-      geom_point(data = selmod, mapping = aes(x = Module, y=Mean),show.legend=FALSE, shape = 4) +
-      ggtitle(paste0('Selected Modules\n',t)) +
-      themeBase
+      filter(Module %in% unique(selmod$Module), Column %in% unique(selmod$Column))
     
-    if(z == TRUE) {
-      plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
+    if(gg == FALSE) {
+      xmax <- max(data2plot$Value,na.rm = TRUE)
+      xmin <- min(data2plot$Value,na.rm = TRUE)
+      data2plot[[grouper]] <- gsub(' ','\n', data2plot[[grouper]])
+      data2plot[[grouper]] <- factor(data2plot[[grouper]], levels = unique(data2plot[[grouper]]))
+      selmod <- selmod %>% select_at(c(grouper,'Mean'))
+      selmod[[grouper]] <- as.factor(selmod[[grouper]])
+      plot <- plotBaseBoxplot(as.factor(data2plot[[grouper]]),data2plot$Value,NULL,paste0('Selected Modules\n',t),z,l,xmax,xmin)
+    } else {
+
+        plot <-  ggplot(
+        data = data2plot,
+        mapping = aes_string(
+          x = grouper, #'Module',
+          y = 'Value',
+          colour = grouper,
+          fill = grouper
+        )
+      ) +
+        geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
+        geom_point(data = selmod, mapping = aes_string(x = grouper, y='Mean'),show.legend=FALSE, shape = 4) +
+        ggtitle(paste0('Selected Modules\n',t)) +
+        themeBase
+  
+      if(z == TRUE) {
+        plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
+      }
     }
   }
   return(plot)
