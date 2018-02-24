@@ -1,6 +1,19 @@
 
 server <- function(input, output, session) {
-# 
+  #   #################### Initial Setup #########################
+  
+  
+  hideTab(inputId = "navbarTop", target = "Explore By Probe")
+  hideTab(inputId = "navbarTop", target = "Explore By Module")
+  hideTab(inputId = "navProbe", target = "Selected Probes")
+  hideTab(inputId = "navProbe", target = "Probes:Series")
+  hideTab(inputId = "navProbe", target = "Genes->Modules")
+  hideTab(inputId = "navProbe", target = "Modules")
+  hideTab(inputId = "navProbe", target = "Module->Genes")
+  hideTab(inputId = "navProbe", target = "Modules:Series")
+  hideTab(inputId = "navModule", target = "Selected Modules")
+  hideTab(inputId = "navModule", target = "Modules:Series")
+  
 #   #################### Loading data #########################
 #   
   # list local data files on the server
@@ -31,6 +44,18 @@ server <- function(input, output, session) {
     topGenesAndModules(NULL)
     topModulesSelected(NULL)
     
+    # show hide the nav tabs
+    showTab(inputId = "navbarTop", target = "Explore By Probe")
+    showTab(inputId = "navbarTop", target = "Explore By Module")
+    hideTab(inputId = "navProbe", target = "Selected Probes")
+    hideTab(inputId = "navProbe", target = "Probes:Series")
+    hideTab(inputId = "navProbe", target = "Genes->Modules")
+    hideTab(inputId = "navProbe", target = "Modules")
+    hideTab(inputId = "navProbe", target = "Module->Genes")
+    hideTab(inputId = "navProbe", target = "Modules:Series")
+    hideTab(inputId = "navModule", target = "Selected Modules")
+    hideTab(inputId = "navModule", target = "Modules:Series")
+    
     # these must be updated here as they do not observe allData
     updateSelectInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
@@ -47,7 +72,6 @@ server <- function(input, output, session) {
     updateSelectInput(session, 'mselectModuleForSeries', choices = character(0))
     updateSelectInput(session, 'mselectModuleTitles', choices = sort(unique(allData$modulesMeans[['Title']])))
     updateSelectInput(session, 'mselectModuleAllModules', choices = sort(unique(modsNameTitle(allData$modulesMeans[['Module']],allData$modulesMeans[['Title']]))))
-    
     
     # based on menu we just update calc max min as the event is not triggered.
     updateExpressionMinMax(allData$colNames)
@@ -142,6 +166,13 @@ server <- function(input, output, session) {
           # lookup the genes and modules
           topGenesAndModules(selectedGenesAndModules(geneslist))
           removeNotification("notifyApplySelectionProbes")
+          # show the tabs
+          showTab(inputId = "navProbe", target = "Selected Probes")
+          showTab(inputId = "navProbe", target = "Probes:Series")
+          showTab(inputId = "navProbe", target = "Genes->Modules")
+          showTab(inputId = "navProbe", target = "Module->Genes")
+          showTab(inputId = "navProbe", target = "Modules")
+          showTab(inputId = "navProbe", target = "Modules:Series")
           
         }
       })
@@ -177,7 +208,8 @@ server <- function(input, output, session) {
     t
   })
   output$buttonSaveTableProbes <- downloadTableCSV(topGenesAndModules()[['genes']],'TopGenes_')
-  output$buttonSaveListProbes <- downloadGeneList(topGenesAndModules()[['genes']][['Gene']],'TopGenesList_')
+  output$buttonSaveListGenes <- downloadGeneList(topGenesAndModules()[['genes']][['Gene']],'TopGenesList_')
+  output$buttonSaveListProbes <- downloadGeneList(topGenesAndModules()[['genes']][['Probe']],'TopProbesList_')
   
   #################### Top Probes Series #########################
   
@@ -285,42 +317,45 @@ observeEvent(
   {
     isolate({
       if(!is.null(input$mselectColumn)) {
-      # calculate topGenesAndModules()
-      mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
-      
-      filterText <- ""
-      # apply the filters sequentially
-      if(input$mcheckboxSelectKeyword == TRUE){
-        mods <- getModulesForSearch(mods,input$mtextInputKeyword,input$mradioKeywordColumn)
-        filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
-      }
-      if(input$mcheckboxSelectValues == TRUE){
-        mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
-        filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
-      }
-      if(input$mcheckboxSelectRows == TRUE){
-        mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
-        filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
-      }
-  
-      if(!is.null(mods)) {
-        if(nchar(filterText) > 0) {
-          modulesAndFiltersText(
-            paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' ',filterText,' ',
-                   ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                   ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
-            ))
-        } else {
-          modulesAndFiltersText(
-            paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' [No filters] ',
-                   ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
-                   ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
-            ))
+        # calculate topGenesAndModules()
+        mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
+        
+        filterText <- ""
+        # apply the filters sequentially
+        if(input$mcheckboxSelectKeyword == TRUE){
+          mods <- getModulesForSearch(mods,input$mtextInputKeyword,input$mradioKeywordColumn)
+          filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
         }
-      } else {
-        modulesAndFiltersText("")
-      }
-      topModulesSelected(mods)
+        if(input$mcheckboxSelectValues == TRUE){
+          mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
+          filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
+        }
+        if(input$mcheckboxSelectRows == TRUE){
+          mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
+          filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
+        }
+    
+        if(!is.null(mods)) {
+          if(nchar(filterText) > 0) {
+            modulesAndFiltersText(
+              paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' ',filterText,' ',
+                     ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
+                     ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
+              ))
+          } else {
+            modulesAndFiltersText(
+              paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' [No filters] ',
+                     ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
+                     ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
+              ))
+          }
+        } else {
+          modulesAndFiltersText("")
+        }
+        topModulesSelected(mods)
+        # show tabs
+        showTab(inputId = "navModule", target = "Selected Modules")
+        showTab(inputId = "navModule", target = "Modules:Series")
       }
     })
   }
