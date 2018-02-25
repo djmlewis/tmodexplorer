@@ -131,8 +131,6 @@ server <- function(input, output, session) {
     input$checkboxSelectRows,
     {if(warnedAboutProbeRows == FALSE && (input$checkboxSelectRows == FALSE || input$numberGenesStart - input$numberGenesEnd > 100)) {
       warnedAboutProbeRows <<- TRUE
-      showNotification("If the search returns more than a few hundred rows there will be a long wait!", duration = 5, closeButton = TRUE,
-                       id = "notifyRowsProbes", type = "warning")
     }})
   
   
@@ -145,9 +143,8 @@ server <- function(input, output, session) {
     {
       isolate({
         if(!is.null(input$selectColumn)) {
-          showNotification("Applying selection, please be patient", duration = NULL, closeButton = FALSE,
-                           id = "notifyApplySelectionProbes", type = "message")
-        # calculate topGenesAndModules()
+
+          # calculate topGenesAndModules()
           geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
           filterText <- ""
           # apply the filters sequentially
@@ -181,10 +178,10 @@ server <- function(input, output, session) {
           } else {
             dataAndFiltersText("")
           }
-          showNotification("Applying changes ... please be patient",id = "notifyApplySelectionProbes", type = 'message', duration = NULL)
-          # lookup the genes and modules
+
+          ############ lookup the genes and modules
           topGenesAndModules(selectedGenesAndModules(geneslist))
-          removeNotification("notifyApplySelectionProbes")
+          
           # show the tabs
           showTab(inputId = "navProbe", target = "Selected Probes")
           showTab(inputId = "navProbe", target = "Probes:Series")
@@ -203,7 +200,6 @@ server <- function(input, output, session) {
   observeEvent(
     topGenesAndModules(),
     {
-      showNotification("Updating plots & tables ... please be patient",id = "topGenesAndModules", type = 'message', duration = NULL)
       # these are non-reactive and need a manual reboot
       output$plotModuleSeries <- renderPlot({NULL})
       output$datatableModuleSeries <- renderDataTable({NULL})
@@ -213,7 +209,6 @@ server <- function(input, output, session) {
       output$plotTopGenesSeries <- renderPlot({NULL})
       output$datatableTopGenesSeries <- renderDataTable({NULL})
       updateSelectInput(session, 'selectColumnsForSeries', selected = NULL)
-      removeNotification("topGenesAndModules")
     }
   )
   
@@ -221,10 +216,7 @@ server <- function(input, output, session) {
   #################### Top Probes #########################
   # output top genes
   output$datatableTopGenesUp <- renderDataTable({
-    showNotification("Updating selected probes datatable ... please be patient",id = "datatableTopGenesUp", type = 'message', duration = NULL)
-    t <- topGenesAndModules()[['genes']]
-    removeNotification("datatableTopGenesUp")
-    t
+    topGenesAndModules()[['genes']]
   })
   uniquer <- function(){
     v <- sub('\\.','',as.character(as.numeric(Sys.time())))
@@ -260,10 +252,7 @@ server <- function(input, output, session) {
   #################### Genes->Modules #########################
   # output assoc modules
   output$datatableGenesModules <- renderDataTable({
-    showNotification("Updating selected probes datatable ... please be patient",id = "datatableGenesModules", type = 'message', duration = NULL)
-    t <- topGenesAndModules()[['modules']]
-    removeNotification("datatableGenesModules")
-    t
+    topGenesAndModules()[['modules']]
   })
   output$buttonSaveTableGenesModules <- downloadTableCSV(topGenesAndModules()[['modules']],'TopGenesModules_')
   

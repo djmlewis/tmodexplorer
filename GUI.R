@@ -1,11 +1,12 @@
-# Define UI
+# Define UI  
 ui <- 
-  navbarPage('tmodExplorer', id = 'navbarTop', position = "fixed-top", theme = "theme.css",
+  navbarPage('tmodExplorer', id = 'navbarTop', position = "fixed-top", theme = "theme.css", windowTitle = 'tmodExplorer',
+             header = tags$style(type="text/css", "body {padding-top: 70px;}"),inverse = TRUE,
   ######################  TABS  #########
     # tabsetPanel(
   #################### Data Load #########################
   tabPanel('Load data', id = 'Load data',
-           br(),br(),br(),
+           
            # shinythemes::themeSelector(),  # <--- Add this somewhere in the UI
            h4("Select pre-loaded dataset to analyse and click 'Load'"),
            fluidRow(
@@ -40,7 +41,7 @@ ui <-
   ),
   # ############## PROBES #################
       tabPanel('Explore By Probe', id = 'Explore By Probe',
-       br(),br(),br(),
+       
         h4(textOutput('textFileName2')),
          wellPanel(
            navbarPage('Probe', id = 'navProbe',
@@ -193,7 +194,7 @@ ui <-
     ),
   ############## MODULES #################
   tabPanel('Explore By Module', id = 'Explore By Module',
-           br(),br(),br(),
+           
            h4(textOutput('textFileNameMods')),
     navbarPage('Module', id = 'navModule',
       #################### Selecting Modules ################
@@ -306,7 +307,7 @@ ui <-
       ),
   ###########   READ ME  ##########
   tabPanel('ReadMe', id = 'ReadMe', icon = icon('info-circle'),
-    br(),br(),br(),
+    
     h3("Introduction"),
     p("This is beta software and is prone to bugs and crashes. Plots and data tables may take some time to appear - be patient! 
       The more rows you select for plotting the slower it will be. ggplot is not good at providing progress updates."),
@@ -382,7 +383,7 @@ ui <-
     p("© David JM Lewis www.djml.eu 2018. E&OE."),br()
   ),
   tabPanel('Password', id = 'Password',
-           br(),br(),br(),br(),
+           br(),
            wellPanel(
              fluidRow(
                column(3,passwordInput('password', 'Enter Password To Access Database')),
