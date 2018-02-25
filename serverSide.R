@@ -1,8 +1,14 @@
 
 server <- function(input, output, session) {
   #   #################### Initial Setup #########################
+  is_local <- Sys.getenv('SHINY_PORT') == ""
   
-  
+  if(is_local == FALSE) {
+    hideTab(inputId = "navbarTop", target = "Load data")
+    hideTab(inputId = "navbarTop", target = "ReadMe")
+  } else {
+    hideTab(inputId = "navbarTop", target = "Password")
+  }
   hideTab(inputId = "navbarTop", target = "Explore By Probe")
   hideTab(inputId = "navbarTop", target = "Explore By Module")
   hideTab(inputId = "navProbe", target = "Selected Probes")
@@ -13,6 +19,17 @@ server <- function(input, output, session) {
   hideTab(inputId = "navProbe", target = "Modules:Series")
   hideTab(inputId = "navModule", target = "Selected Modules")
   hideTab(inputId = "navModule", target = "Modules:Series")
+  
+#   #################### Password #########################
+  password <- read_lines('pwd.txt')
+  observeEvent(input$buttonPassword, {
+    if (input$password == password) {
+      showTab(inputId = "navbarTop", target = "Load data")
+      showTab(inputId = "navbarTop", target = "ReadMe")
+      hideTab(inputId = "navbarTop", target = "Password")
+    }
+    })
+  
   
 #   #################### Loading data #########################
 #   
@@ -47,9 +64,11 @@ server <- function(input, output, session) {
     # show hide the nav tabs
     showTab(inputId = "navbarTop", target = "Explore By Probe")
     showTab(inputId = "navbarTop", target = "Explore By Module")
+    showTab(inputId = "navProbe", target = "Select")
     hideTab(inputId = "navProbe", target = "Selected Probes")
     hideTab(inputId = "navProbe", target = "Probes:Series")
     hideTab(inputId = "navProbe", target = "Genes->Modules")
+    showTab(inputId = "navProbe", target = "Select")
     hideTab(inputId = "navProbe", target = "Modules")
     hideTab(inputId = "navProbe", target = "Module->Genes")
     hideTab(inputId = "navProbe", target = "Modules:Series")
@@ -207,9 +226,14 @@ server <- function(input, output, session) {
     removeNotification("datatableTopGenesUp")
     t
   })
+  uniquer <- function(){
+    v <- sub('\\.','',as.character(as.numeric(Sys.time())))
+    print(v)
+    return(v)
+  }
   output$buttonSaveTableProbes <- downloadTableCSV(topGenesAndModules()[['genes']],'TopGenes_')
-  output$buttonSaveListGenes <- downloadGeneList(topGenesAndModules()[['genes']][['Gene']],'TopGenesList_')
-  output$buttonSaveListProbes <- downloadGeneList(topGenesAndModules()[['genes']][['Probe']],'TopProbesList_')
+  output$buttonSaveListGenes <- downloadGeneList(topGenesAndModules()[['genes']][['Gene']],paste0('TopGenesList_',uniquer()))
+  output$buttonSaveListProbes <- downloadGeneList(topGenesAndModules()[['genes']][['Probe']],paste0('TopProbesList_',uniquer()))
   
   #################### Top Probes Series #########################
   
@@ -225,7 +249,7 @@ server <- function(input, output, session) {
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,input$checkboxProbesGenes,
                                   input$checkboxConnectSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
-                                  input$checkboxShowZeroSeries)
+                                  input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries)
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
     })
   

@@ -98,16 +98,14 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
   return(plot)
 }
 
-plotTopGenesInSeries <-
-  function(data2plot,
+plotTopGenesInSeries <- function(data2plot,
            asGenes,
            connectPoints,
            showlegend,
            t,
            facet,
-           showZero) {
-    if (is.null(data2plot))
-      return(NULL)
+           showZero,pointsBoxes) {
+    if (is.null(data2plot)) return(NULL)
     
     if (asGenes) {
       plotData <- data2plot
@@ -124,30 +122,18 @@ plotTopGenesInSeries <-
         mutate(Column = factor(Column, levels = unique(Column)))
     }
     
-    plot <-   ggplot(
-      data = plotData,
-      mapping = aes(
-        x = Column,
-        y = Value,
-        colour = Gene,
-        fill = Gene,
-        group = Gene
-      )
-    ) +
-      geom_point(show.legend = showlegend) +
-      {
-        if (connectPoints) {
-          geom_line(show.legend = showlegend)
-        }
-      } +
+      plot <-   ggplot(data = plotData) +
+      {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.2, outlier.alpha = 1.0, show.legend = showlegend)}} +
+      {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.2, outlier.alpha = 1.0, show.legend = FALSE)}} +
+      {if(pointsBoxes == 'Points'){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), show.legend = showlegend)}} +
+      {if (pointsBoxes == 'Points' && connectPoints) {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), show.legend = showlegend)}} +
       ggtitle(paste0('Selected Genes\n', t)) +
       themeBase
-    
+
     if (showZero == TRUE) {
-      plot <- plot +
-        geom_hline(yintercept = 0.0, linetype = 2)
+      plot <- plot + geom_hline(yintercept = 0.0, linetype = 2)
     }
-    
+
     if (facet == TRUE) {
       plot <-  plot +
         scale_x_continuous(breaks = plotData$Column) +
@@ -199,20 +185,20 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se){
 
 
 downloadGeneList <- function(list,fname){
-  fname <- paste0(fname,date(),'_.txt')
+  fname <- paste0(fname,'_.txt')
   downloadHandler(fname,function(file) {
     write_lines(paste(unique(list), collapse = ','), file)
   })
 }
 
 downloadTableCSV <- function(table2save,fname){
-  fname <- paste0(fname,date(),'_.csv')
+  fname <- paste0(fname,'_.csv')
   downloadHandler(fname,function(file) {
     write.csv(table2save, file, row.names = FALSE)})
 }
 
 downloadPlotPNG <- function(plot2save,fname){
-  fname <- paste0(fname,date(),'_.png')
+  fname <- paste0(fname,'_.png')
   downloadHandler(fname,function(file) {
     ggsave(file, plot = plot2save, device = 'png', width = 400, height = 300, units = 'mm')
   })

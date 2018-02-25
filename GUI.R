@@ -1,13 +1,13 @@
 # Define UI
 ui <- 
-  navbarPage('tmodexplorer v1.1b', id = 'navbarTop', position = "fixed-top", theme = "theme.css",
+  navbarPage('tmodExplorer', id = 'navbarTop', position = "fixed-top", theme = "theme.css",
   ######################  TABS  #########
     # tabsetPanel(
   #################### Data Load #########################
-  tabPanel('Load data',
+  tabPanel('Load data', id = 'Load data',
            br(),br(),br(),
            # shinythemes::themeSelector(),  # <--- Add this somewhere in the UI
-           h4("Select pre-loaded dataset to analyse"),
+           h4("Select pre-loaded dataset to analyse and click 'Load'"),
            fluidRow(
              column(6,
                     wellPanel(
@@ -46,42 +46,45 @@ ui <-
            navbarPage('Probe', id = 'navProbe',
                        #################### Selecting  ################
                        tabPanel('Select',
+                                h4('Choose a treatment and timepoint column from the menu below. Apply some filters and click button to apply'),
                                 wellPanel(
                                   actionButton('buttonApplySelection','Click To Apply Selections Below',class = "btn-primary"),
-                                  p(),
-                                  inputPanel(
-                                    selectInput('selectColumn', 'Column To Sort:', character(0), width = 400, selectize = F),
-                                    checkboxInput('checkboxDescending', 'Sort Descending', value = TRUE),
-                                    checkboxInput('checkboxProbesGenes', 'Gene Averages', value = FALSE)
+                                  hr(),
+                                  fluidRow(
+                                    column(2,selectInput('selectColumn', 'Column To Sort:', character(0), width = 400, selectize = F)),
+                                    column(1,checkboxInput('checkboxDescending', 'Sort Descending', value = TRUE)),
+                                    column(1,checkboxInput('checkboxProbesGenes', 'Gene Averages', value = FALSE))
                                   ),
-                                  h4('Filter probes by a combination of:'),
-                                  h6('Selected filters are applied in order left to right'),
-                                  inputPanel(
-                                    wellPanel(
-                                      checkboxInput('checkboxSelectKeyword', h5('1. Using regex'), value = FALSE),
-                                      textInput('textInputKeyword',NULL),
-                                      h5("Search:"),
-                                      radioButtons('radioKeywordColumn',NULL,choices = c('Description','Gene'))
-                                    ),
-                                    wellPanel(
-                                      checkboxInput('checkboxSelectValues', h5('2. Sorted Column Values Within Range:'), value = FALSE),
-                                      numericInput("numberExpressionMin", "Lowest:", value = 0), 
-                                      numericInput("numberExpressionMax", "Highest:", value = 0),
-                                      actionButton('buttonResetValuesRangeCol','Column'),
-                                      actionButton('buttonResetValuesRangeData','Data')
-                                    ),
-                                    wellPanel(
-                                      checkboxInput('checkboxSelectRows', h5('3. Sorted Column Row Numbers'), value = TRUE),
-                                      numericInput("numberGenesStart", "From Row:", 0, min = 0, max = 200, step = 5), 
-                                      numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = 200, step = 5),
-                                      p("More than 100 rows will result in slow response")
+                                  wellPanel(
+                                    h4('Filter probes by a combination of:'),
+                                    h6('Selected filters are applied in order left to right'),
+                                    fluidRow(
+                                      column(4,wellPanel(
+                                        h4(checkboxInput('checkboxSelectKeyword', '1. Using regex', value = FALSE)),
+                                        textInput('textInputKeyword',NULL),
+                                        h4("Search:"),
+                                        radioButtons('radioKeywordColumn',NULL,choices = c('Description','Gene'))
+                                      )),
+                                      column(4,wellPanel(
+                                        h4(checkboxInput('checkboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
+                                        numericInput("numberExpressionMin", "Lowest:", value = 0), 
+                                        numericInput("numberExpressionMax", "Highest:", value = 0),
+                                        actionButton('buttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
+                                        actionButton('buttonResetValuesRangeData','Data', class = 'btn-outline-primary')
+                                      )),
+                                      column(4,wellPanel(
+                                        h4(checkboxInput('checkboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
+                                        numericInput("numberGenesStart", "From Row:", 0, min = 0, max = 200, step = 5), 
+                                        numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = 200, step = 5),
+                                        p("More than 100 rows will result in slow response")
+                                      ))
                                     )
                                   )
                                 )
                        ),
                        #################### Top Probes #######################
                        tabPanel('Selected Probes', id = 'Selected Probes',
-                         h4('Selected Probes / Genes'),
+                         h4('Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
                          wellPanel(
                           div(downloadButton('buttonSaveTableProbes', 'Download Table'),
                           downloadButton('buttonSaveListGenes', 'Download Gene List'),
@@ -91,12 +94,15 @@ ui <-
                        ),
                        #################### Top Probes Series ################
                        tabPanel('Probes:Series', id = 'Probes:Series',
+                        h4('Plot Time Course Of Probes Or Genes Meeting The Filters, By Treatment-Time Column'),
                          wellPanel(
+                           h5("Select Some Treatment-Timepoint Columns And Click Plot"),
                            fluidRow(
                              column(2,
                                     wellPanel(
                                       actionButton('buttonPlotSeries','Plot',class = "btn-primary"),
                                       checkboxInput('checkboxSplitSeries', 'Split', value = TRUE),
+                                      radioButtons('radioBoxLineProbesSeries',NULL, choices = c('Points','Boxplot')),
                                       checkboxInput('checkboxConnectSeries', 'Connect', value = TRUE),
                                       checkboxInput('checkboxShowLegendSeries', 'Legend', value = TRUE),
                                       checkboxInput('checkboxShowZeroSeries', 'Zero', value = TRUE)
@@ -135,7 +141,8 @@ ui <-
                        ),
                        #################### Modules->Genes ###################
                        tabPanel('Module->Genes',id = 'Module->Genes',
-                         wellPanel(
+                          h4('Select A Module From The Menu To View Values Of Its Genes'),
+                          wellPanel(
                            selectInput('selectModuleForGenes', 'Expression Values Of Genes In:', character(0), width = '500px'),
                            fluidRow(
                              column(1,checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = TRUE)),
@@ -148,7 +155,9 @@ ui <-
                        ),
                        #################### Modules Series ###################
                        tabPanel('Modules:Series',id = 'Modules:Series',
-                         fluidRow(
+                        h4('Plot Time Course Of Modules Associated With Selected Probes / Genes'),
+                        h5('Select Some Treatment-Timepoint Columns And Modules, And Click Plot'),
+                        fluidRow(
                            column(2,
                                   wellPanel(
                                     actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary"),
@@ -210,8 +219,8 @@ ui <-
             checkboxInput('mcheckboxSelectValues', h5('2. Sorted Column Values Within Range:'), value = FALSE),
             numericInput("mnumberExpressionMin", "Lowest:", value = 0), 
             numericInput("mnumberExpressionMax", "Highest:", value = 0),
-            actionButton('mbuttonResetValuesRangeCol','Column'),
-            actionButton('mbuttonResetValuesRangeData','Data')
+            actionButton('mbuttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
+            actionButton('mbuttonResetValuesRangeData','Data', class = 'btn-outline-primary')
           ),
           wellPanel(
             checkboxInput('mcheckboxSelectRows', h5('3. Sorted Column Row Numbers'), value = TRUE),
@@ -265,7 +274,7 @@ ui <-
                   div(actionButton('mbuttonRemoveAllPlottedModulesModuleSeries','None'))))
                 )
                 ),
-                h4("Select Modules To Plot Using The Menus Below:", style = "color:#728c11;"),
+                h4("Select Modules To Plot Using One Of The Menus Below:", style = "color:#728c11;"),
                 wellPanel(
                   div(style = "color:#728c11;",
                   fluidRow(
@@ -296,8 +305,7 @@ ui <-
    )
       ),
   ###########   READ ME  ##########
-  tabPanel(
-    'ReadMe',
+  tabPanel('ReadMe', id = 'ReadMe', icon = icon('info-circle'),
     br(),br(),br(),
     h3("Introduction"),
     p("This is beta software and is prone to bugs and crashes. Plots and data tables may take some time to appear - be patient! 
@@ -373,11 +381,21 @@ ui <-
     br(),
     p("© David JM Lewis www.djml.eu 2018. E&OE."),br()
   ),
+  tabPanel('Password', id = 'Password',
+           br(),br(),br(),br(),
+           wellPanel(
+             fluidRow(
+               column(3,passwordInput('password', 'Enter Password To Access Database')),
+               column(1,actionButton('buttonPassword','Enter',class = "btn-primary"))
+             )
+           )
+  ),
   ##### 
     # ),# top tabset
-  div(align = 'center',
-    p("Version 1.1 beta 15FEB2018"),
-    img(src = 'biovacsafe.png'),
-    img(src = 'eei.png')
-  )
+  hr(),
+  fluidRow(
+    column(4,h4("Version 1.1 beta 25FEB2018", style = "color: #888888;")),
+    column(8, div(align = 'right',img(src = 'biovacsafe.png'),img(src = 'eei.png')))
+  ),
+  hr()
   )# navpage top
