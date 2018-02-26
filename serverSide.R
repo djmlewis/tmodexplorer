@@ -103,7 +103,7 @@ server <- function(input, output, session) {
   filtersText <- reactiveVal(value = "")
   output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
   output$textFileName <- renderText({allData$folder})
-  output$textFileName2 <- renderText({dataAndFiltersText()})
+  output$textFileName2 <- renderText({filtersText()})
 
   modulesAndFiltersText <- reactiveVal(value = "")
   output$textFileNameMods <- renderText({modulesAndFiltersText()})
@@ -410,13 +410,13 @@ observeEvent(
         if(!is.null(mods)) {
           if(nchar(filterText) > 0) {
             modulesAndFiltersText(
-              paste0(allData$folder,': ',input$mselectColumn,' ',filterText,' ',
+              paste0(input$mselectColumn,' ',filterText,' ',
                      ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
                      ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
               ))
           } else {
             modulesAndFiltersText(
-              paste0(allData$folder,': ',input$mselectColumn,' [No filters] ',
+              paste0(input$mselectColumn,' [No filters] ',
                      ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
                      ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
               ))

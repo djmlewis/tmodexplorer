@@ -1,13 +1,13 @@
 # Define UI  
 ui <- 
   navbarPage('tmodExplorer', id = 'navbarTop', position = "fixed-top", theme = "theme.css", windowTitle = 'tmodExplorer',
-             header = tags$style(type="text/css", "body {padding-top: 70px;}"),inverse = TRUE,
+             inverse = TRUE,
+             header = tagList(tags$style(type="text/css", "body {padding-top: 70px;}"), h4(align = 'center', textOutput('textFileName'))),
   ######################  TABS  #########
     # tabsetPanel(
   #################### Data Load #########################
   tabPanel('Load data', id = 'Load data',
-           
-           # shinythemes::themeSelector(),  # <--- Add this somewhere in the UI
+        wellPanel(
            h4("Select pre-loaded dataset to analyse and click 'Load'"),
            fluidRow(
              column(6,
@@ -36,19 +36,18 @@ ui <-
              #          )
              #        ))
              ),
-           h4(textOutput('textFileName')),
            dataTableOutput('datatableAll')
+        )
   ),
   # ############## PROBES #################
       tabPanel('Explore By Probe', id = 'Explore By Probe',
-       
-        h4(textOutput('textFileName2')),
          wellPanel(
-           navbarPage('Probe', id = 'navProbe',
+           navbarPage('Probe', id = 'navProbe', header = h4(align = 'center', textOutput('textFileName2')),
                        #################### Selecting  ################
                        tabPanel('Select',
-                                h4('Choose a treatment and timepoint column from the menu below. Apply some filters and click button to apply'),
                                 wellPanel(
+                                  h4('Choose a treatment and timepoint column from the menu below'),
+                                  h5("Apply some filters and click button to apply"),
                                   actionButton('buttonApplySelection','Click To Apply Selections Below',class = "btn-primary"),
                                   hr(),
                                   fluidRow(
@@ -85,9 +84,9 @@ ui <-
                        ),
                        #################### Top Probes #######################
                        tabPanel('Selected Probes', id = 'Selected Probes',
-                         h4('Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
                          wellPanel(
-                          div(downloadButton('buttonSaveTableProbes', 'Download Table'),
+                           h4('Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
+                           div(downloadButton('buttonSaveTableProbes', 'Download Table'),
                           downloadButton('buttonSaveListGenes', 'Download Gene List'),
                           downloadButton('buttonSaveListProbes', 'Download Probe List')),
                          hr(),
@@ -95,8 +94,8 @@ ui <-
                        ),
                        #################### Top Probes Series ################
                        tabPanel('Probes:Series', id = 'Probes:Series',
-                        h4('Plot Time Course Of Probes Or Genes Meeting The Filters, By Treatment-Time Column'),
                          wellPanel(
+                           h4('Plot Time Course Of Probes Or Genes Meeting The Filters, By Treatment-Time Column'),
                            h5("Select Some Treatment-Timepoint Columns And Click Plot"),
                            fluidRow(
                              column(2,
@@ -123,14 +122,14 @@ ui <-
                        ),
                        #################### Genes->Modules ##################
                        tabPanel('Genes->Modules', id = 'Genes->Modules',
-                         h4('Modules Associated With Selected Probes / Genes'),
                          wellPanel(
+                           h4('Modules Associated With Selected Probes / Genes'),
                            downloadButton('buttonSaveTableGenesModules', 'Download Table'), hr(), dataTableOutput('datatableGenesModules'))
                        ),
                        #################### Modules #########################
                        tabPanel('Modules', id = 'Modules',
-                         h4('Expression Values Of Modules Associated With Selected Probes / Genes'),
                          wellPanel(
+                           h4('Expression Values Of Modules Associated With Selected Probes / Genes'),
                            fluidRow(
                              column(2,checkboxInput('checkboxShowPsuedoModuleGenesModules', 'Selected As Module', value = TRUE)),
                              column(1,checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = TRUE)),
@@ -143,9 +142,9 @@ ui <-
                        ),
                        #################### Modules->Genes ###################
                        tabPanel('Module->Genes',id = 'Module->Genes',
-                          h4('Select A Module From The Menu To View Values Of Its Genes'),
                           wellPanel(
-                           selectInput('selectModuleForGenes', 'Expression Values Of Genes In:', character(0), width = '500px'),
+                            h4('Select A Module From The Menu To View Values Of Its Genes'),
+                            selectInput('selectModuleForGenes', 'Expression Values Of Genes In:', character(0), width = '500px'),
                            fluidRow(
                              column(1,checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = TRUE)),
                              column(1,checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
@@ -157,48 +156,47 @@ ui <-
                        ),
                        #################### Modules Series ###################
                        tabPanel('Modules:Series',id = 'Modules:Series',
-                        h4('Plot Time Course Of Modules Associated With Selected Probes / Genes'),
-                        h5('Select Some Treatment-Timepoint Columns And Modules, And Click Plot'),
-                        fluidRow(
-                           column(2,
-                                  wellPanel(
-                                    actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary"),
-                                    radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
-                                    checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
-                                    checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
-                                    checkboxInput('checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
-                                    checkboxInput('checkboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE),
-                                    checkboxInput('checkboxShowPseudoModuleModuleSeries', 'Selected As Module', value = TRUE)
-                                  )
+                        wellPanel(
+                          h4('Plot Time Course Of Modules Associated With Selected Probes / Genes'),
+                          h5('Select Some Treatment-Timepoint Columns And Modules, And Click Plot'),
+                          fluidRow(
+                             column(2,
+                                    wellPanel(
+                                      actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary"),
+                                      radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
+                                      checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
+                                      checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
+                                      checkboxInput('checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
+                                      checkboxInput('checkboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE),
+                                      checkboxInput('checkboxShowPseudoModuleModuleSeries', 'Selected As Module', value = TRUE)
+                                    )
+                             ),
+                             column(5,
+                                    wellPanel(
+                                      selectInput('selectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
+                                      div(actionButton('buttonAddAllColumnsModuleSeries','All', class="btn-outline-primary"),
+                                      actionButton('buttonRemoveAllColumnsModuleSeries','None'))
+                                    )),
+                             column(5,
+                                    wellPanel(
+                                      selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
+                                      div(actionButton('buttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
+                                      actionButton('buttonRemoveAllModulesModuleSeries','None'))
+                                    )
+                             )
                            ),
-                           column(5,
-                                  wellPanel(
-                                    selectInput('selectColumnForModuleSeries', label = 'Columns', character(0), multiple = TRUE),
-                                    div(actionButton('buttonAddAllColumnsModuleSeries','All', class="btn-outline-primary"),
-                                    actionButton('buttonRemoveAllColumnsModuleSeries','None'))
-                                  )),
-                           column(5,
-                                  wellPanel(
-                                    selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
-                                    div(actionButton('buttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
-                                    actionButton('buttonRemoveAllModulesModuleSeries','None'))
-                                  )
-                           )
-                         ),
                          wellPanel(
                            plotOutput('plotModuleSeries', height = '600px')
                          ),
                          wellPanel(
                            downloadButton('buttonSaveTableModulesSeries', 'Download Table'), hr(), dataTableOutput('datatableModuleSeries'))
-                       )
+                       ))
            ) # tabset Panel in explore by probe
          )# wellPanel
     ),
   ############## MODULES #################
   tabPanel('Explore By Module', id = 'Explore By Module',
-           
-           h4(textOutput('textFileNameMods')),
-    navbarPage('Module', id = 'navModule',
+    navbarPage('Module', id = 'navModule', header = h4(align = 'center', textOutput('textFileNameMods')),
       #################### Selecting Modules ################
       tabPanel('Select',
       wellPanel(
@@ -236,74 +234,79 @@ ui <-
     #################### Top Modules #######################
      tabPanel(
        'Selected Modules', id = 'Selected Modules',
-       h4('Expression Values Of Selected Modules'),
        wellPanel(
-         inputPanel(
-           checkboxInput('mcheckboxShowLegendGenesModules', 'Legend', value = TRUE),
-           checkboxInput('mcheckboxShowZeroGenesModules', 'Zero', value = TRUE),
-           checkboxInput('mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE),
-           radioButtons('mradioGroupTitleName','Group By',choices = c('Title','Module'),inline = TRUE)
+         h4('Expression Values Of Selected Modules'),
+         fluidRow(
+           column(1,checkboxInput('mcheckboxShowLegendGenesModules', 'Legend', value = TRUE)),
+           column(1,checkboxInput('mcheckboxShowZeroGenesModules', 'Zero', value = TRUE)),
+           column(1,checkboxInput('mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
+           column(4,radioButtons('mradioGroupTitleName','Group By',choices = c('Title','Module'),inline = TRUE))
          ),
          plotOutput('mplotSelectedModules', height = '800px')),
        wellPanel(
-         downloadButton('mbuttonSaveTableModules', 'Download Table'), hr(), dataTableOutput('mdatatableTopModulesUp'))
+         downloadButton('mbuttonSaveTableModules', 'Download Table'), hr(), 
+         dataTableOutput('mdatatableTopModulesUp'))
      ),
     #################### Top Modules Series #######################
      tabPanel(
        'Modules:Series', id = 'Modules:Series',
-       fluidRow(
-         column(2,
-                wellPanel(
-                  actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-primary"),
-                  radioButtons('mradioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
-                  checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
-                  checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = TRUE),
-                  checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
-                  checkboxInput('mcheckboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE),
-                  radioButtons('mradioGroupTitleNameModuleSeries','Group Boxplot',choices = c('Title','Module'), selected = 'Module')
-                )
-         ),
-         column(10,
-                wellPanel(
-                fluidRow(
-                  column(6,
-                  selectInput('mselectColumnForModuleSeries', label = 'Columns To Plot', character(0), multiple = TRUE),
-                  div(actionButton('mbuttonAddAllColumnsModuleSeries','All', class="btn-outline-primary"),
-                  actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))),
-                  
-                  column(6,
-                  div(style = "color:#728c11;",
-                  selectInput('mselectPlottedModuleForSeries', label = 'Modules To Plot', character(0), multiple = TRUE),
-                  div(actionButton('mbuttonRemoveAllPlottedModulesModuleSeries','None'))))
-                )
-                ),
-                h4("Select Modules To Plot Using One Of The Menus Below:", style = "color:#728c11;"),
-                wellPanel(
-                  div(style = "color:#728c11;",
-                  fluidRow(
-                    column(4,
-                      selectInput('mselectModuleForSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE),
-                      actionButton('mbuttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
-                      actionButton('mbuttonRemoveAllModulesModuleSeries','None'),
-                      actionButton('mbuttonSetSelectedModulesAsModuleSeries','Copy To Modules To Plot', class="btn-primary")
-                    ),
-                    column(4,
-                      selectInput('mselectModuleTitles', label = 'All Titles In The Datset', character(0), multiple = TRUE),
-                      actionButton('mbuttonRemoveAllModuleTitles','None'),
-                      actionButton('mbuttonAddTitles','Copy To Modules To Plot', class="btn-primary")
-                    ),
-                    column(4,
-                      selectInput('mselectModuleAllModules', label = 'All Modules In The Datset', character(0), multiple = TRUE),
-                      actionButton('mbuttonRemoveAllModules','None'),
-                      actionButton('mbuttonAddAllModules','Copy To Modules To Plot', class="btn-primary")
-                    )
-                  ))
-                )
-         )
-       ),
-       wellPanel(plotOutput('mplotModuleSeries', height = '600px')),
        wellPanel(
-         downloadButton('mbuttonSaveTableModulesSeries', 'Download Table'), hr(), dataTableOutput('mdatatableModuleSeries'))
+         h4("Plot Time Course Of Modules"),
+         fluidRow(
+           column(2,
+                  wellPanel(
+                    actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-primary"),
+                    radioButtons('mradioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
+                    checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
+                    checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = TRUE),
+                    checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
+                    checkboxInput('mcheckboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE),
+                    radioButtons('mradioGroupTitleNameModuleSeries','Group Boxplot',choices = c('Title','Module'), selected = 'Module')
+                  )
+           ),
+           column(10,
+                  wellPanel(
+                  fluidRow(
+                    column(6,
+                    selectInput('mselectColumnForModuleSeries', label = 'Columns To Plot', character(0), multiple = TRUE),
+                    div(actionButton('mbuttonAddAllColumnsModuleSeries','All', class="btn-outline-primary"),
+                    actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))),
+                    
+                    column(6,
+                    div(style = "color:#728c11;",
+                    selectInput('mselectPlottedModuleForSeries', label = 'Modules To Plot', character(0), multiple = TRUE),
+                    div(actionButton('mbuttonRemoveAllPlottedModulesModuleSeries','None'))))
+                  )
+                  ),
+                  h4("Select Modules To Plot Using One Of The Menus Below:", style = "color:#728c11;"),
+                  wellPanel(
+                    div(style = "color:#728c11;",
+                    fluidRow(
+                      column(4,
+                        selectInput('mselectModuleForSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE),
+                        actionButton('mbuttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
+                        actionButton('mbuttonRemoveAllModulesModuleSeries','None'),
+                        actionButton('mbuttonSetSelectedModulesAsModuleSeries','Copy To Modules To Plot', class="btn-primary")
+                      ),
+                      column(4,
+                        selectInput('mselectModuleTitles', label = 'All Titles In The Datset', character(0), multiple = TRUE),
+                        actionButton('mbuttonRemoveAllModuleTitles','None'),
+                        actionButton('mbuttonAddTitles','Copy To Modules To Plot', class="btn-primary")
+                      ),
+                      column(4,
+                        selectInput('mselectModuleAllModules', label = 'All Modules In The Datset', character(0), multiple = TRUE),
+                        actionButton('mbuttonRemoveAllModules','None'),
+                        actionButton('mbuttonAddAllModules','Copy To Modules To Plot', class="btn-primary")
+                      )
+                    ))
+                  )
+                )
+              ),
+         plotOutput('mplotModuleSeries', height = '600px')
+       ),
+       wellPanel(
+         downloadButton('mbuttonSaveTableModulesSeries', 'Download Table'), hr(), 
+         dataTableOutput('mdatatableModuleSeries'))
      )
    )
       ),
