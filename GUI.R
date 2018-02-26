@@ -132,6 +132,7 @@ ui <-
                          h4('Expression Values Of Modules Associated With Selected Probes / Genes'),
                          wellPanel(
                            fluidRow(
+                             column(2,checkboxInput('checkboxShowPsuedoModuleGenesModules', 'Selected As Module', value = TRUE)),
                              column(1,checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = TRUE)),
                              column(1,checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
                              column(1,checkboxInput('checkboxGGplotGenesModules', 'ggplot2', value = FALSE))
@@ -166,7 +167,8 @@ ui <-
                                     checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
                                     checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = TRUE),
                                     checkboxInput('checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
-                                    checkboxInput('checkboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE)
+                                    checkboxInput('checkboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE),
+                                    checkboxInput('checkboxShowPseudoModuleModuleSeries', 'Selected As Module', value = TRUE)
                                   )
                            ),
                            column(5,

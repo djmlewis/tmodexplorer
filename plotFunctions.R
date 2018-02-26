@@ -99,7 +99,7 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
 }
 
 plotTopGenesInSeries <- function(data2plot,
-           asGenes,
+           #asGenes,
            connectPoints,
            showlegend,
            t,
@@ -107,6 +107,9 @@ plotTopGenesInSeries <- function(data2plot,
            showZero,pointsBoxes) {
     if (is.null(data2plot)) return(NULL)
     
+  # asGenes  detect whether it really is as genes based on the selData: if that lacks column Probe then it is
+  asGenes <- ('Probe' %in% names(data2plot) == FALSE)
+  
     if (asGenes) {
       plotData <- data2plot
     } else {
@@ -127,7 +130,7 @@ plotTopGenesInSeries <- function(data2plot,
       {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.2, outlier.alpha = 1.0, show.legend = FALSE)}} +
       {if(pointsBoxes == 'Points'){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), show.legend = showlegend)}} +
       {if (pointsBoxes == 'Points' && connectPoints) {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), show.legend = showlegend)}} +
-      ggtitle(paste0('Selected Genes\n', t)) +
+      ggtitle(paste0('Selected ',ifelse(asGenes,'Genes','Probes'),'\n', t)) +
       themeBase
 
     if (showZero == TRUE) {
@@ -147,7 +150,7 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se){
   p <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
     p <- ggplot(data = d, mapping = aes(x = Column)) +
-      ggtitle(paste0('Modules For Selected Genes\n',t)) +
+      ggtitle(paste0('Modules For Selected Genes / Probes\n',t)) +
       themeBase
     
     if(z == TRUE) {
@@ -169,7 +172,7 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se){
       if(f == TRUE) {
         p <- p +scale_x_continuous(breaks = unique(d$Column))
       }
-    } else {
+    } else { # boxplot
       p <- p +
         geom_boxplot(mapping = aes(y = Value, colour = Module, fill = Module), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
     }
@@ -183,6 +186,59 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se){
   return(p)
 }
 
+
+getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facetted,boxRibbon,moduleValues) {
+  topGenesInSeries <- getTopGenesInSeries(allData,topGenes,selCols, facetted) %>%
+    # need to add a psuedo module
+    mutate(Module = 'Selected')
+  # drop probe if we have it
+  if('Probe' %in% names(topGenesInSeries) == TRUE) {
+    topGenesInSeries <- topGenesInSeries %>%
+      select(-Probe)
+  }
+  # dont factor if it is facetted and a ribbon, always factor boxplots 
+  if(facetted == TRUE && boxRibbon == "Boxplot") {
+    topGenesInSeries <- topGenesInSeries %>%
+      mutate(Column = as.factor(Column))
+  } 
+  if(facetted == FALSE) { #and when unfacetted
+    topGenesInSeries <- topGenesInSeries %>%
+      mutate(Column = factor(Column, levels = selCols))
+  }
+  
+  if(boxRibbon == "Ribbon") {
+    # this is horrible because we have already split the Column and so have to group_by and Select accordingly
+    if(facetted == TRUE) {
+      topGenesInSeries <- topGenesInSeries %>%
+        group_by(Treatment, Column,Module)
+    } else {
+      topGenesInSeries <- topGenesInSeries %>%
+        group_by(Column,Module)
+    }
+    topGenesInSeries <- topGenesInSeries %>%
+      summarise(
+        N = n(),
+        SD = sd(Value,na.rm = TRUE),
+        Mean = mean(Value,na.rm = TRUE),
+        SElo = Mean-SD/sqrt(N),
+        SEhi = Mean+SD/sqrt(N)
+      ) %>%
+      ungroup()
+    # horrible again
+    if(facetted == TRUE) {
+      topGenesInSeries <- topGenesInSeries %>%
+        select(Treatment, Column, Module, Value = Mean, N, SD, SElo, SEhi)
+    } else {
+      topGenesInSeries <- topGenesInSeries %>%
+        select(Column, Module, Value = Mean, N, SD, SElo, SEhi)
+    }
+  }
+  
+  # join our psuedo module to the others
+  moduleValues <- moduleValues %>%
+    bind_rows(topGenesInSeries)
+  return(moduleValues)
+}
 
 downloadGeneList <- function(list,fname){
   fname <- paste0(fname,'_.txt')

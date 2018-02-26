@@ -100,6 +100,7 @@ server <- function(input, output, session) {
 
   # these do resopnd OK outside this scope but put here for neatness
   dataAndFiltersText <- reactiveVal(value = "")
+  filtersText <- reactiveVal(value = "")
   output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
   output$textFileName <- renderText({allData$folder})
   output$textFileName2 <- renderText({dataAndFiltersText()})
@@ -163,19 +164,21 @@ server <- function(input, output, session) {
           
           if(!is.null(geneslist)) {
             if(nchar(filterText) > 0) {
-              dataAndFiltersText(
-                paste0(allData$folder,': ',gsub('_',' ',input$selectColumn),' ',filterText,' ',
+              filtersText(
+                paste0(input$selectColumn,' ',filterText,' ',
                        ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
                        ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
                 ))
+              dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
             } else {
-              dataAndFiltersText(
-                paste0(allData$folder,': ',gsub('_',' ',input$selectColumn),' [No filters] ',
-                       ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
-                       ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
-                ))
+              filtersText(input$selectColumn,' [No filters] ',
+                          ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
+                          ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
+              )
+              dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
             }
           } else {
+            filtersText("")
             dataAndFiltersText("")
           }
 
@@ -219,27 +222,24 @@ server <- function(input, output, session) {
     topGenesAndModules()[['genes']]
   })
   uniquer <- function(){
-    v <- sub('\\.','',as.character(as.numeric(Sys.time())))
-    print(v)
-    return(v)
+    sub('\\.','',as.character(as.numeric(Sys.time())))
   }
   output$buttonSaveTableProbes <- downloadTableCSV(topGenesAndModules()[['genes']],'TopGenes_')
   output$buttonSaveListGenes <- downloadGeneList(topGenesAndModules()[['genes']][['Gene']],paste0('TopGenesList_',uniquer()))
   output$buttonSaveListProbes <- downloadGeneList(topGenesAndModules()[['genes']][['Probe']],paste0('TopProbesList_',uniquer()))
   
   #################### Top Probes Series #########################
-  
   observeEvent(
     {
       input$buttonPlotSeries
     },
     {
       topGenesInSeries <- getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries, 
-                        input$checkboxProbesGenes,input$checkboxSplitSeries)
+                        input$checkboxSplitSeries)
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
       output$buttonSaveTableProbesSeries <- downloadTableCSV(topGenesInSeries,'GenesSeries_')
       
-      ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,input$checkboxProbesGenes,
+      ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
                                   input$checkboxConnectSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
                                   input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries)
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
@@ -259,7 +259,7 @@ server <- function(input, output, session) {
   #################### Modules #########################
   # get the individual gene values for boxplot and the summ stats of the modules
   geneExpressionsForModules <- reactive({
-    getExpressionsForModules(topGenesAndModules()[['modsOnly']],input$selectColumn,allData$data)})
+    getExpressionsForModules(topGenesAndModules(),input$selectColumn,allData$data, input$checkboxShowPsuedoModuleGenesModules,filtersText())})
   # draw / save table
   output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['summStats']]})
   output$buttonSaveTableModules <- downloadTableCSV(topGenesAndModules()[['modsOnly']],'Modules_')
@@ -295,11 +295,70 @@ server <- function(input, output, session) {
     input$buttonPlotModuleSeries
   },{
     output$plotModuleSeries <- renderPlot({NULL})
-    moduleValues <- getModuleValuesForSeries(allData$data,input$selectModuleForSeries,input$selectColumnForModuleSeries, input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
+    moduleValues <- getModuleValuesForSeries(allData$data,
+      input$selectModuleForSeries,input$selectColumnForModuleSeries, 
+      input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
+
+    if(!is.null(moduleValues) && input$checkboxShowPseudoModuleModuleSeries == TRUE) {
+      moduleValues <- getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
+                            input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
+                            input$radioRibbonBoxModuleSeries,moduleValues)
+     #    getTopGenesInSeries(allData$data,
+     #    topGenesAndModules()[['genes']],input$selectColumnForModuleSeries, input$checkboxShowFacetModuleSeries) %>%
+     #    # need to add a psuedo module
+     #    mutate(Module = 'Selected')
+     #  # drop probe if we have it
+     #  if('Probe' %in% names(topGenesInSeries) == TRUE) {
+     #    topGenesInSeries <- topGenesInSeries %>%
+     #      select(-Probe)
+     #  }
+     #  # dont factor if it is facetted and a ribbon, always factor boxplots 
+     #  if(input$checkboxShowFacetModuleSeries == TRUE && input$radioRibbonBoxModuleSeries == "Boxplot") {
+     #    topGenesInSeries <- topGenesInSeries %>%
+     #      mutate(Column = as.factor(Column))
+     #  } 
+     #  if(input$checkboxShowFacetModuleSeries == FALSE) { #and when unfacetted
+     #    topGenesInSeries <- topGenesInSeries %>%
+     #      mutate(Column = factor(Column, levels = input$selectColumnForModuleSeries))
+     #  }
+     # 
+     #  if(input$radioRibbonBoxModuleSeries == "Ribbon") {
+     #    # this is horrible because we have already split the Column and so have to group_by and Select accordingly
+     #    if(input$checkboxShowFacetModuleSeries == TRUE) {
+     #      topGenesInSeries <- topGenesInSeries %>%
+     #        group_by(Treatment, Column,Module)
+     #    } else {
+     #      topGenesInSeries <- topGenesInSeries %>%
+     #        group_by(Column,Module)
+     #    }
+     #    topGenesInSeries <- topGenesInSeries %>%
+     #      summarise(
+     #        N = n(),
+     #        SD = sd(Value,na.rm = TRUE),
+     #        Mean = mean(Value,na.rm = TRUE),
+     #        SElo = Mean-SD/sqrt(N),
+     #        SEhi = Mean+SD/sqrt(N)
+     #      ) %>%
+     #      ungroup()
+     #    # horrible again
+     #    if(input$checkboxShowFacetModuleSeries == TRUE) {
+     #      topGenesInSeries <- topGenesInSeries %>%
+     #        select(Treatment, Column, Module, Value = Mean, N, SD, SElo, SEhi)
+     #    } else {
+     #      topGenesInSeries <- topGenesInSeries %>%
+     #        select(Column, Module, Value = Mean, N, SD, SElo, SEhi)
+     #    }
+     #  }
+     #  
+     # # join our psuedo module to the others
+     #  moduleValues <- moduleValues %>%
+     #    bind_rows(topGenesInSeries)
+    }
+    
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
     ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
-                                input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries, input$checkboxShowSEModuleSeries)
+        input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries, input$checkboxShowSEModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
   })
   
@@ -351,13 +410,13 @@ observeEvent(
         if(!is.null(mods)) {
           if(nchar(filterText) > 0) {
             modulesAndFiltersText(
-              paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' ',filterText,' ',
+              paste0(allData$folder,': ',input$mselectColumn,' ',filterText,' ',
                      ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
                      ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
               ))
           } else {
             modulesAndFiltersText(
-              paste0(allData$folder,': ',gsub('_',' ',input$mselectColumn),' [No filters] ',
+              paste0(allData$folder,': ',input$mselectColumn,' [No filters] ',
                      ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
                      ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
               ))

@@ -146,9 +146,11 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
   return(NULL)
 }
 
-getTopGenesInSeries <- function(allData, selData,selCols, asGenes,facet) {
+getTopGenesInSeries <- function(allData, selData,selCols, facet) {
   if(is.null(allData) || length(selCols) == 0) return(NULL)
   
+  # asGenes: detect whether it really is as genes based on the selData: if that lacks column Probe then it is
+  asGenes <- ('Probe' %in% names(selData) == FALSE)
   if(asGenes == TRUE) {
     seriesData <- allData %>%
       filter(Gene %in% selData$Gene) %>%
@@ -248,6 +250,10 @@ modules4GeneList <- function(genes2map,genes2mapRanks) {
 
 moduleDescriptionsForGenes <- function(modsOnly){
   if (length(modsOnly) > 0) {
+    # remove the row with Selected as module as it has no genes! Its a pseudo module
+    modsOnly <- modsOnly %>%
+      filter(Module != 'Selected')
+    
     return(modsNameTitle(modsOnly[['Module']],modsOnly[['Description']]))
   } 
   return('')
@@ -261,15 +267,17 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
         nrow(allExpressionData) > 0 &&
         !is.null(topGenes))
     {
+      # extract just the module name from the name-description
       selModName <- sub(' .*$', '', mod)
       actarmDayExpressionData <- allExpressionData %>%
-        select(matches(actarmcdDay), Gene)
+        select(matches(actarmcdDay), Gene, Probe)
       
       if (ncol(actarmDayExpressionData) > 1) {
         genesInMod <- tmod::getModuleMembers(selModName)[[selModName]]
         genesExpression <- map_dfr(genesInMod, function(gene) {
           exprV <- actarmDayExpressionData %>%
             filter(Gene == gene)
+          
           # if gene is in module but not our data we get numeric(0) returned on filter, so swap for NA
           if (nrow(exprV) > 0) {
             df <-
@@ -277,6 +285,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
                 Module = selModName,
                 Gene = gene,
                 Value = exprV[[actarmcdDay]],
+                Probe = exprV[['Probe']],
                 stringsAsFactors = FALSE
               )
             return(df)
@@ -286,6 +295,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
               Module = selModName,
               Gene = gene,
               Value = NA,
+              Probe = NA,
               stringsAsFactors = FALSE
             )
           )
@@ -295,27 +305,27 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
           arrange(Value) %>%
           mutate(Gene = factor(Gene, levels = unique(Gene)),
                  Selected = ifelse(Gene %in% selgenes,"►",""))
+
         return(genesExpression)
       }
     }
     return(NULL)
   }
 
-getExpressionsForModules <- function(mods, actarmcdDay, allExpressionData) {
+getExpressionsForModules <- function(topgenesmods, actarmcdDay, allExpressionData, addPseudoModule, filters) {
     
-    if (!is.null(mods) && nrow(mods) > 0) {
+    if (!is.null(topgenesmods) && nrow(topgenesmods[['modsOnly']]) > 0 && nrow(topgenesmods[['genes']]) > 0) {
 
       actarmDayExpressionData <- allExpressionData %>%
         select(Value = matches(paste0('^', actarmcdDay, '$')), Gene)
       # Extract unique mod names
 
-      modsUnique <- unique(mods$Module)
+      modsUnique <- unique(topgenesmods[['modsOnly']][['Module']])
 
       # get a named list, name is the module and values are gene names
       modsWithGenes <- tmod::getModuleMembers(modsUnique)
 
       modsExprns <- map_dfr(modsUnique, function(mod) {
-
         rowsForGenes <- actarmDayExpressionData %>%
           # lookup the genes in the list corresponding to mod name
           filter(Gene %in% modsWithGenes[[mod]]) %>%
@@ -326,6 +336,14 @@ getExpressionsForModules <- function(mods, actarmcdDay, allExpressionData) {
           select(Value, Module, Description)
       })
 
+      if(addPseudoModule == TRUE) {
+        # lookup the value of probes in our selected genes for the actamDay which are in topgenesmods[['genes']]
+        # just keep Value and give Gene and description a pseudo name, then rowbind
+        selecteGeneExpr <- topgenesmods[['genes']][['Value']]
+        modsExprns <- modsExprns %>%
+          bind_rows(data.frame(Value = selecteGeneExpr, Module = "Selected", Description = filters, stringsAsFactors = FALSE))
+      }
+      
       modsSummStats <- modsExprns %>%
         group_by(Module, Description) %>%
         summarise(
@@ -343,6 +361,7 @@ getExpressionsForModules <- function(mods, actarmcdDay, allExpressionData) {
       modsExprns <- modsExprns %>%
         mutate(Module = factor(Module, levels = rev(modsSummStats$Module))) # rev as we flip_coords()
       result <- list(expressions = modsExprns, summStats = modsSummStats)
+
       return(result)
     }
     return(list(expressions = NULL, summStats = NULL))
@@ -392,5 +411,7 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
     }
       
   }
+  
+
   return(expressions)
 }
