@@ -247,6 +247,14 @@ downloadGeneList <- function(list,fname){
   })
 }
 
+downloadTopModuleList <- function(list,fname){
+  fname <- paste0(fname,'_.txt')
+  downloadHandler(fname,function(file) {
+    write_lines(paste("yo", collapse = ','), file)
+    # write_lines(paste(unique(list), collapse = ','), file)
+  })
+}
+
 downloadTableCSV <- function(table2save,fname){
   fname <- paste0(fname,'_.csv')
   downloadHandler(fname,function(file) {

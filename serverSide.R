@@ -102,11 +102,11 @@ server <- function(input, output, session) {
   dataAndFiltersText <- reactiveVal(value = "")
   filtersText <- reactiveVal(value = "")
   output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
-  output$textFileName <- renderText({allData$folder})
-  output$textFileName2 <- renderText({filtersText()})
+  output$textFileName <- renderText({paste0("📂 ",allData$folder)})
+  output$textFileName2 <- renderText({paste0("🔎 ",filtersText())})
 
   modulesAndFiltersText <- reactiveVal(value = "")
-  output$textFileNameMods <- renderText({modulesAndFiltersText()})
+  output$textFileNameMods <- renderText({paste0("🔎 ",modulesAndFiltersText())})
   
   
 
@@ -171,10 +171,7 @@ server <- function(input, output, session) {
                 ))
               dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
             } else {
-              filtersText(input$selectColumn,' [No filters] ',
-                          ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
-                          ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
-              )
+              filtersText(paste0(input$selectColumn,' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
               dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
             }
           } else {
@@ -303,56 +300,6 @@ server <- function(input, output, session) {
       moduleValues <- getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
                             input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
                             input$radioRibbonBoxModuleSeries,moduleValues)
-     #    getTopGenesInSeries(allData$data,
-     #    topGenesAndModules()[['genes']],input$selectColumnForModuleSeries, input$checkboxShowFacetModuleSeries) %>%
-     #    # need to add a psuedo module
-     #    mutate(Module = 'Selected')
-     #  # drop probe if we have it
-     #  if('Probe' %in% names(topGenesInSeries) == TRUE) {
-     #    topGenesInSeries <- topGenesInSeries %>%
-     #      select(-Probe)
-     #  }
-     #  # dont factor if it is facetted and a ribbon, always factor boxplots 
-     #  if(input$checkboxShowFacetModuleSeries == TRUE && input$radioRibbonBoxModuleSeries == "Boxplot") {
-     #    topGenesInSeries <- topGenesInSeries %>%
-     #      mutate(Column = as.factor(Column))
-     #  } 
-     #  if(input$checkboxShowFacetModuleSeries == FALSE) { #and when unfacetted
-     #    topGenesInSeries <- topGenesInSeries %>%
-     #      mutate(Column = factor(Column, levels = input$selectColumnForModuleSeries))
-     #  }
-     # 
-     #  if(input$radioRibbonBoxModuleSeries == "Ribbon") {
-     #    # this is horrible because we have already split the Column and so have to group_by and Select accordingly
-     #    if(input$checkboxShowFacetModuleSeries == TRUE) {
-     #      topGenesInSeries <- topGenesInSeries %>%
-     #        group_by(Treatment, Column,Module)
-     #    } else {
-     #      topGenesInSeries <- topGenesInSeries %>%
-     #        group_by(Column,Module)
-     #    }
-     #    topGenesInSeries <- topGenesInSeries %>%
-     #      summarise(
-     #        N = n(),
-     #        SD = sd(Value,na.rm = TRUE),
-     #        Mean = mean(Value,na.rm = TRUE),
-     #        SElo = Mean-SD/sqrt(N),
-     #        SEhi = Mean+SD/sqrt(N)
-     #      ) %>%
-     #      ungroup()
-     #    # horrible again
-     #    if(input$checkboxShowFacetModuleSeries == TRUE) {
-     #      topGenesInSeries <- topGenesInSeries %>%
-     #        select(Treatment, Column, Module, Value = Mean, N, SD, SElo, SEhi)
-     #    } else {
-     #      topGenesInSeries <- topGenesInSeries %>%
-     #        select(Column, Module, Value = Mean, N, SD, SElo, SEhi)
-     #    }
-     #  }
-     #  
-     # # join our psuedo module to the others
-     #  moduleValues <- moduleValues %>%
-     #    bind_rows(topGenesInSeries)
     }
     
     output$datatableModuleSeries <- renderDataTable({moduleValues})
@@ -452,6 +399,7 @@ observeEvent(
 # output top genes
 output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()})
 output$mbuttonSaveTableModules <- downloadTableCSV(topModulesSelected(),'TopModules_')
+output$mbuttonSaveListTopModules <- downloadTableCSV(topModulesSelected(),'TopModules_')
 
 #################### Plot Modules Selected #########################
 ggplotSelectedModules <-
@@ -463,30 +411,35 @@ output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()})
 observeEvent({
   input$mbuttonPlotModuleSeries
 },{
-  ggplotSelectedModulesSeries <- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
-    input$mselectPlottedModuleForSeries,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
-    input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,input$mcheckboxShowSEModuleSeries,
-    input$mradioGroupTitleNameModuleSeries)
-  output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
-  output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
-  
+  # which modules 'Modules Selected By Filters','All Titles In The Datset', 'All Modules In The Datset
+  mods2plot <- 
+    switch (input$radioModulesModulesSeries,
+          'Modules Selected By Filters' = {mods2plot <- input$mselectModuleForSeries},
+          'All Titles In The Datset' = {mods2plot <- getModulesForTitles(input$mselectModuleTitles,allData$modulesMeans)},
+          'All Modules In The Datset' = {mods2plot <- input$mselectModuleAllModules},
+          {NULL}
+    )
+  if(is.null(mods2plot) || is.null(input$mselectColumnForModuleSeries)) {
+    showNotification("Both Column and Modules must be defined", type = "error", duration = 3)
+  } else {
+    ggplotSelectedModulesSeries <- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
+      mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
+      input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
+      input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries)
+    output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
+    output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
+  }
 })
 
 
 observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
-observeEvent(input$mbuttonAddAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))})
 observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
+
+observeEvent(input$mbuttonAddAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))})
 observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = character(0))})
 
 observeEvent(input$mbuttonRemoveAllModuleTitles,{updateSelectInput(session, 'mselectModuleTitles', selected = character(0))})
-observeEvent(input$mbuttonRemoveAllPlottedModulesModuleSeries,{updateSelectInput(session, 'mselectPlottedModuleForSeries', choices = character(0))})
-observeEvent(input$mbuttonRemoveAllModules,{updateSelectInput(session, 'mselectModuleAllModules', choices = character(0))})
 
-observeEvent(input$mbuttonSetSelectedModulesAsModuleSeries,{updateSelectInput(session, 'mselectPlottedModuleForSeries', choices = input$mselectModuleForSeries, selected = input$mselectModuleForSeries)})
-observeEvent(input$mbuttonAddAllModules,{updateSelectInput(session, 'mselectPlottedModuleForSeries', choices = input$mbuttonAddAllModules, selected = input$mbuttonAddAllModules)})
-observeEvent(input$mbuttonAddTitles,{
-  cats <- getModulesForTitles(input$mselectModuleTitles,allData$modulesMeans)
-  updateSelectInput(session, 'mselectPlottedModuleForSeries',selected = cats, choices = cats)})
+observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleAllModules', choices = character(0))})
 
-
-} # <<<<<<<<<<<< end of server do not go below!
+} # end of server

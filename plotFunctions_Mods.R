@@ -40,6 +40,8 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
   plot <-  NULL
   data2plot <- NULL
   if (!is.null(alldata)) {
+    showNotification("Please wait for plot output…", type = 'message', duration = 3)
+    
     # strip out the titles
     mods <- sub(' .*$', '', selmod)
 
