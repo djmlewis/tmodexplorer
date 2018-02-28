@@ -252,8 +252,10 @@ ui <-
          plotOutput('mplotSelectedModules', height = '800px')),
        wellPanel(
          div(downloadButton('mbuttonSaveTableModules', 'Download Table'),
-             downloadButton('mbuttonSaveListTopModules', 'Download Modules List')
-             ), hr(), 
+             downloadButton('mbuttonSaveListTopModules', 'Download Modules List'),
+             downloadButton('mbuttonSaveListTopModuleTitles', 'Download Titles List'),
+             downloadButton('mbuttonSaveListTopModuleCategory', 'Download Categories List')
+         ), hr(), 
          dataTableOutput('mdatatableTopModulesUp'))
      ),
     #################### Top Modules Series #######################
@@ -316,12 +318,13 @@ ui <-
         includeHTML("help.html")
   ),
   tabPanel('Password', id = 'Password',
-           br(),
+           h4('Please enter the password you have been given to access tmodExplorer'),
            wellPanel(
              fluidRow(
                column(3,passwordInput('password', 'Enter Password To Access Database')),
                column(1,actionButton('buttonPassword','Enter',class = "btn-primary"))
-             )
+             ),
+             p("Please contact d.j.lewis@surrey.ac.uk to request a password")
            )
   ),
   ##### 

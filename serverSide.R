@@ -3,7 +3,7 @@ server <- function(input, output, session) {
   #   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
   
-  if(is_local == FALSE) {
+  if(is_local == TRUE) {
     hideTab(inputId = "navbarTop", target = "Load data")
     hideTab(inputId = "navbarTop", target = "ReadMe")
   } else {
@@ -21,7 +21,7 @@ server <- function(input, output, session) {
   hideTab(inputId = "navModule", target = "Modules:Series")
   
 #   #################### Password #########################
-  password <- read_lines('pwd.txt')
+  password <- read_rds("p")
   observeEvent(input$buttonPassword, {
     if (input$password == password) {
       showTab(inputId = "navbarTop", target = "Load data")
@@ -99,15 +99,14 @@ server <- function(input, output, session) {
   }
 
   # these do resopnd OK outside this scope but put here for neatness
-  dataAndFiltersText <- reactiveVal(value = "")
-  filtersText <- reactiveVal(value = "")
-  output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
-  output$textFileName <- renderText({paste0("📂 ",allData$folder)})
-  output$textFileName2 <- renderText({paste0("🔎 ",filtersText())})
+dataAndFiltersText <- reactiveVal(value = "")
+filtersText <- reactiveVal(value = "")
+modulesAndFiltersText <- reactiveVal(value = "")
+output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
+output$textFileName <- renderText({allData$folder})
+output$textFileName2 <- renderText({filtersText()})
+output$textFileNameMods <- renderText({modulesAndFiltersText()})
 
-  modulesAndFiltersText <- reactiveVal(value = "")
-  output$textFileNameMods <- renderText({paste0("🔎 ",modulesAndFiltersText())})
-  
   
 
 
@@ -142,56 +141,57 @@ server <- function(input, output, session) {
   observeEvent(
     input$buttonApplySelection,
     {
-      isolate({
         if(!is.null(input$selectColumn)) {
-
-          # calculate topGenesAndModules()
-          geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
-          filterText <- ""
-          # apply the filters sequentially
-          if(input$checkboxSelectKeyword == TRUE){
-            geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$radioKeywordColumn)
-            filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
-          }
-          if(input$checkboxSelectValues == TRUE){
-            geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
-            filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
-          }
-          if(input$checkboxSelectRows == TRUE){
-            geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
-            filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
-          }
-          
-          if(!is.null(geneslist)) {
-            if(nchar(filterText) > 0) {
-              filtersText(
-                paste0(input$selectColumn,' ',filterText,' ',
-                       ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                       ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
-                ))
-              dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+          if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE) {
+            showModal(modalDialog(
+              title = "Too Many Rows","You must have at least one filter selected or it will try to return and plot over 65,000 rows."))
             } else {
-              filtersText(paste0(input$selectColumn,' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
-              dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+              # calculate topGenesAndModules()
+              geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
+              filterText <- ""
+              # apply the filters sequentially
+              if(input$checkboxSelectKeyword == TRUE){
+                geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$radioKeywordColumn)
+                filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
+              }
+              if(input$checkboxSelectValues == TRUE){
+                geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
+                filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
+              }
+              if(input$checkboxSelectRows == TRUE){
+                geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
+                filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
+              }
+              
+              if(!is.null(geneslist)) {
+                if(nchar(filterText) > 0) {
+                  filtersText(
+                    paste0(input$selectColumn,' ',filterText,' ',
+                           ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
+                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
+                    ))
+                  dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+                } else {
+                  filtersText(paste0(input$selectColumn,' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
+                  dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+                }
+              } else {
+                filtersText("")
+                dataAndFiltersText("")
+              }
+    
+              ############ lookup the genes and modules
+              topGenesAndModules(selectedGenesAndModules(geneslist))
+              
+              # show the tabs
+              showTab(inputId = "navProbe", target = "Selected Probes")
+              showTab(inputId = "navProbe", target = "Probes:Series")
+              showTab(inputId = "navProbe", target = "Genes->Modules")
+              showTab(inputId = "navProbe", target = "Module->Genes")
+              showTab(inputId = "navProbe", target = "Modules")
+              showTab(inputId = "navProbe", target = "Modules:Series")
             }
-          } else {
-            filtersText("")
-            dataAndFiltersText("")
-          }
-
-          ############ lookup the genes and modules
-          topGenesAndModules(selectedGenesAndModules(geneslist))
-          
-          # show the tabs
-          showTab(inputId = "navProbe", target = "Selected Probes")
-          showTab(inputId = "navProbe", target = "Probes:Series")
-          showTab(inputId = "navProbe", target = "Genes->Modules")
-          showTab(inputId = "navProbe", target = "Module->Genes")
-          showTab(inputId = "navProbe", target = "Modules")
-          showTab(inputId = "navProbe", target = "Modules:Series")
-          
-        }
-      })
+      }
     }
   )
   
@@ -337,44 +337,50 @@ observeEvent(
     isolate({
       if(!is.null(input$mselectColumn)) {
         # calculate topGenesAndModules()
-        mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
-        
-        filterText <- ""
-        # apply the filters sequentially
-        if(input$mcheckboxSelectKeyword == TRUE){
-          mods <- getModulesForSearch(mods,input$mtextInputKeyword,input$mradioKeywordColumn)
-          filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
-        }
-        if(input$mcheckboxSelectValues == TRUE){
-          mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
-          filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
-        }
-        if(input$mcheckboxSelectRows == TRUE){
-          mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
-          filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
-        }
-    
-        if(!is.null(mods)) {
-          if(nchar(filterText) > 0) {
-            modulesAndFiltersText(
-              paste0(input$mselectColumn,' ',filterText,' ',
-                     ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                     ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
-              ))
-          } else {
-            modulesAndFiltersText(
-              paste0(input$mselectColumn,' [No filters] ',
-                     ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
-                     ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
-              ))
-          }
+        if(input$mcheckboxSelectKeyword == FALSE && input$mcheckboxSelectValues == FALSE && input$mcheckboxSelectRows == FALSE) {
+          showModal(modalDialog(
+            title = "Too Many Modules","You must have at least one filter selected or it will try to return and plot over 600 modules."))
         } else {
-          modulesAndFiltersText("")
+          mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
+          
+          filterText <- ""
+          # apply the filters sequentially
+          if(input$mcheckboxSelectKeyword == TRUE){
+            mods <- getModulesForSearch(mods,input$mtextInputKeyword,input$mradioKeywordColumn)
+            filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
+          }
+          if(input$mcheckboxSelectValues == TRUE){
+            mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
+            filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
+          }
+          if(input$mcheckboxSelectRows == TRUE){
+            mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
+            filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
+          }
+      
+          if(!is.null(mods)) {
+            if(nchar(filterText) > 0) {
+              modulesAndFiltersText(
+                paste0(input$mselectColumn,' ',filterText,' ',
+                       ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
+                       ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
+                ))
+            } else {
+              modulesAndFiltersText(
+                paste0(input$mselectColumn,' [No filters] ',
+                       ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
+                       ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
+                ))
+            }
+          } else {
+            modulesAndFiltersText("")
+          }
+          print(mods)
+          topModulesSelected(mods)
+          # show tabs
+          showTab(inputId = "navModule", target = "Selected Modules")
+          showTab(inputId = "navModule", target = "Modules:Series")
         }
-        topModulesSelected(mods)
-        # show tabs
-        showTab(inputId = "navModule", target = "Selected Modules")
-        showTab(inputId = "navModule", target = "Modules:Series")
       }
     })
   }
@@ -399,7 +405,9 @@ observeEvent(
 # output top genes
 output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()})
 output$mbuttonSaveTableModules <- downloadTableCSV(topModulesSelected(),'TopModules_')
-output$mbuttonSaveListTopModules <- downloadTableCSV(topModulesSelected(),'TopModules_')
+output$mbuttonSaveListTopModules <- downloadTopModuleList(topModulesSelected()[['Module']],'TopModulesList_')
+output$mbuttonSaveListTopModuleTitles <- downloadTopModuleList(topModulesSelected()[['Title']],'TopModulesTitlesList_')
+output$mbuttonSaveListTopModuleCategory <- downloadTopModuleList(topModulesSelected()[['Category']],'TopModulesCategoriesList_')
 
 #################### Plot Modules Selected #########################
 ggplotSelectedModules <-
