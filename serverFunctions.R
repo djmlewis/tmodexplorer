@@ -58,9 +58,12 @@ getNewData <- function(allData, folderNme) {
   modmeanPath <- paste0(folderpath, '/', 'modulesMeans.rds')
   
   if (file.exists(dataPath) && file.exists(annotPath)) {
-    annotation <- read_rds(annotPath) %>%
-      select(Probe = X1, Gene = GeneName, Description)
+    annotation <- read_rds(annotPath)
+    allData$annot <- select(annotation,GeneName, SystematicName,Description,ProbeName)
     
+    annotation <- annotation %>%
+      select(Probe = X1, Gene = GeneName, Description)
+
     allData$data <- read_rds(dataPath) %>%
       rename(Probe = X1) %>%
       full_join(annotation, by = 'Probe')
@@ -259,6 +262,10 @@ moduleDescriptionsForGenes <- function(modsOnly){
   return('')
 }
 
+modNameFromMenuTitle <-  function(title) {
+  return(sub(' .*$', '', title))
+}
+
 getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGenes) {
     # protect from empty data
     if (nchar(mod) > 0 &&
@@ -268,7 +275,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
         !is.null(topGenes))
     {
       # extract just the module name from the name-description
-      selModName <- sub(' .*$', '', mod)
+      selModName <- modNameFromMenuTitle(mod)
       actarmDayExpressionData <- allExpressionData %>%
         select(matches(actarmcdDay), Gene, Probe)
       
@@ -414,4 +421,11 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   
 
   return(expressions)
+}
+
+lookupGenesProbes <- function(gene,annot) {
+  if(is.null(gene) || is.null(annot)) return(NULL)
+  probes <- annot %>%
+    filter(grepl(gene,GeneName, ignore.case = TRUE))
+  return(probes)
 }

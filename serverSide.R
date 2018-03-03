@@ -3,23 +3,28 @@ server <- function(input, output, session) {
   #   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
   
+  # initial hidden setup
   if(is_local == TRUE) {
     hideTab(inputId = "navbarTop", target = "Load data")
     hideTab(inputId = "navbarTop", target = "ReadMe")
   } else {
     hideTab(inputId = "navbarTop", target = "Password")
   }
+  # hide the explores until load
   hideTab(inputId = "navbarTop", target = "Explore By Probe")
   hideTab(inputId = "navbarTop", target = "Explore By Module")
+  # hide the post-select tabs until selected
+  # by probe
   hideTab(inputId = "navProbe", target = "Selected Probes")
   hideTab(inputId = "navProbe", target = "Probes:Series")
   hideTab(inputId = "navProbe", target = "Genes->Modules")
   hideTab(inputId = "navProbe", target = "Modules")
   hideTab(inputId = "navProbe", target = "Module->Genes")
   hideTab(inputId = "navProbe", target = "Modules:Series")
+  
   hideTab(inputId = "navModule", target = "Selected Modules")
   hideTab(inputId = "navModule", target = "Modules:Series")
-  
+
 #   #################### Password #########################
   password <- read_rds("p")
   observeEvent(input$buttonPassword, {
@@ -36,7 +41,7 @@ server <- function(input, output, session) {
   # list local data files on the server
   updateSelectInput(session, 'selectData', choices = basename(list.dirs(path = 'datafiles', recursive = FALSE)))
   
-  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL)
+  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, annot = NULL)
   observeEvent(input$buttonLoadData, {if (getNewData(allData,input$selectData) == TRUE) {updateLoadControls()}})
   observeEvent(input$fileInputUploadData,{if(loadUploadedData(allData,input$fileInputUploadData,input$textInputUploadFileName)) {updateLoadControls()}})
   
@@ -61,20 +66,22 @@ server <- function(input, output, session) {
     topGenesAndModules(NULL)
     topModulesSelected(NULL)
     
-    # show hide the nav tabs
+    # show hide the nav tabs to reflect we have loaded data, rehide any needing rehiding post select
     showTab(inputId = "navbarTop", target = "Explore By Probe")
     showTab(inputId = "navbarTop", target = "Explore By Module")
-    showTab(inputId = "navProbe", target = "Select")
+    
+    showTab(inputId = "navProbe", target = "Select Probes")
     hideTab(inputId = "navProbe", target = "Selected Probes")
     hideTab(inputId = "navProbe", target = "Probes:Series")
     hideTab(inputId = "navProbe", target = "Genes->Modules")
-    showTab(inputId = "navProbe", target = "Select")
     hideTab(inputId = "navProbe", target = "Modules")
     hideTab(inputId = "navProbe", target = "Module->Genes")
     hideTab(inputId = "navProbe", target = "Modules:Series")
+    
+    showTab(inputId = "navModule", target = "Select Modules")
     hideTab(inputId = "navModule", target = "Selected Modules")
     hideTab(inputId = "navModule", target = "Modules:Series")
-    
+
     # these must be updated here as they do not observe allData
     updateSelectInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
@@ -88,7 +95,7 @@ server <- function(input, output, session) {
     # modules DO NOT RESPOND. NEED TO FIX
     updateSelectInput(session, 'mselectColumn', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
-    updateSelectInput(session, 'mselectModuleForSeries', choices = character(0))
+    updateSelectInput(session, 'mselectPlotModulesInSeries', choices = character(0))
     updateSelectInput(session, 'mselectModuleTitles', choices = sort(unique(allData$modulesMeans[['Title']])))
     updateSelectInput(session, 'mselectModuleAllModules', choices = sort(unique(modsNameTitle(allData$modulesMeans[['Module']],allData$modulesMeans[['Title']]))))
     
@@ -183,12 +190,12 @@ output$textFileNameMods <- renderText({modulesAndFiltersText()})
               ############ lookup the genes and modules
               topGenesAndModules(selectedGenesAndModules(geneslist))
               
-              # show the tabs
+              # show the tabs as we have selecetd probes
               showTab(inputId = "navProbe", target = "Selected Probes")
               showTab(inputId = "navProbe", target = "Probes:Series")
               showTab(inputId = "navProbe", target = "Genes->Modules")
-              showTab(inputId = "navProbe", target = "Module->Genes")
               showTab(inputId = "navProbe", target = "Modules")
+              showTab(inputId = "navProbe", target = "Module->Genes")
               showTab(inputId = "navProbe", target = "Modules:Series")
             }
       }
@@ -203,12 +210,12 @@ output$textFileNameMods <- renderText({modulesAndFiltersText()})
       # these are non-reactive and need a manual reboot
       output$plotModuleSeries <- renderPlot({NULL})
       output$datatableModuleSeries <- renderDataTable({NULL})
-      updateSelectInput(session, 'selectColumnForModuleSeries', selected = NULL)
-      updateSelectInput(session, 'selectModuleForSeries', choices = NULL, selected = NULL)
+      updateSelectInput(session, 'selectColumnForModuleSeries')
+      updateSelectInput(session, 'selectModuleForSeries', choices = character(0))
       
       output$plotTopGenesSeries <- renderPlot({NULL})
       output$datatableTopGenesSeries <- renderDataTable({NULL})
-      updateSelectInput(session, 'selectColumnsForSeries', selected = NULL)
+      updateSelectInput(session, 'selectColumnsForSeries')
     }
   )
   
@@ -314,6 +321,20 @@ output$textFileNameMods <- renderText({modulesAndFiltersText()})
   observeEvent(input$buttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = character(0))})
   observeEvent(input$buttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = character(0))})
   
+  #################### Gene Lookup #########################
+  observeEvent({
+    input$buttonGeneLookup
+  },{
+    selgenes <- lookupGenesProbes(input$textInputGeneLookup, allData$annot)
+    output$datatableGeneLookup <- renderDataTable({selgenes})
+  })
+  observeEvent({
+    input$buttonGeneLookupNone
+  },{
+    updateTextInput(session, 'textInputGeneLookup', value = "")
+    output$datatableGeneLookup <- renderDataTable({NULL})
+  })
+  
   
 #################### Selecting Columns For Modules #########################
 # selecting By Module
@@ -375,9 +396,9 @@ observeEvent(
           } else {
             modulesAndFiltersText("")
           }
-          print(mods)
+
           topModulesSelected(mods)
-          # show tabs
+          # show tabs as we have selected modules
           showTab(inputId = "navModule", target = "Selected Modules")
           showTab(inputId = "navModule", target = "Modules:Series")
         }
@@ -387,6 +408,7 @@ observeEvent(
 )
 
 
+#################### Selected Modules #########################
 observeEvent(
   topModulesSelected(),
   {
@@ -394,14 +416,11 @@ observeEvent(
     output$mplotModuleSeries <- renderPlot({NULL})
     output$mdatatableModuleSeries <- renderDataTable({NULL})
     updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))
-    updateSelectInput(session, 'mselectPlottedModuleForSeries', selected = character(0))
-    updateSelectInput(session, 'mselectModuleForSeries', choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]), selected = NULL)
+    updateSelectInput(session, 'mselectPlotModulesInSeries',choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']])) #choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']])
 
   }
 )
 
-
-#################### Top Modules Selected #########################
 # output top genes
 output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()})
 output$mbuttonSaveTableModules <- downloadTableCSV(topModulesSelected(),'TopModules_')
@@ -422,7 +441,7 @@ observeEvent({
   # which modules 'Modules Selected By Filters','All Titles In The Datset', 'All Modules In The Datset
   mods2plot <- 
     switch (input$radioModulesModulesSeries,
-          'Modules Selected By Filters' = {mods2plot <- input$mselectModuleForSeries},
+          'Modules Selected By Filters' = {mods2plot <- input$mselectPlotModulesInSeries},
           'All Titles In The Datset' = {mods2plot <- getModulesForTitles(input$mselectModuleTitles,allData$modulesMeans)},
           'All Modules In The Datset' = {mods2plot <- input$mselectModuleAllModules},
           {NULL}
@@ -443,11 +462,22 @@ observeEvent({
 observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
 observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
 
-observeEvent(input$mbuttonAddAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))})
-observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleForSeries', selected = character(0))})
+observeEvent(input$mbuttonAddAllModuleSeries,{updateSelectInput(session, 'mselectPlotModulesInSeries', selected = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))}) # modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))
+observeEvent(input$mbuttonRemoveAllModuleSeries,{updateSelectInput(session, 'mselectPlotModulesInSeries',selected = character(0))})
 
 observeEvent(input$mbuttonRemoveAllModuleTitles,{updateSelectInput(session, 'mselectModuleTitles', selected = character(0))})
+output$mbuttonSaveListTopModuleTitlesSeries <- downloadTopModuleList(input$mselectModuleTitles,'TopModulesCategoriesSeriesList_')
 
-observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleAllModules', choices = character(0))})
+observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleAllModules', selected = character(0))})
+output$mbuttonSaveListTopModulesSeries <- downloadTopModuleList(modNameFromMenuTitle(input$mselectModuleAllModules),'TopModulesSeriesList_')
 
+#################### Modules Lookup #########################
+
+output$mdatatableModuleLookup <- 
+  renderDataTable({
+    select(allData$modulesMeans,Module,Title,Category) %>%
+    distinct() %>%
+    arrange(Module)})
+
+#################### End Of Server #########################
 } # end of server
