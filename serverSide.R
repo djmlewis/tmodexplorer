@@ -4,7 +4,7 @@ server <- function(input, output, session) {
   is_local <- Sys.getenv('SHINY_PORT') == ""
   
   # initial hidden setup
-  if(is_local == TRUE) {
+  if(is_local == FALSE) {
     hideTab(inputId = "navbarTop", target = "Load data")
     hideTab(inputId = "navbarTop", target = "ReadMe")
   } else {
@@ -13,25 +13,14 @@ server <- function(input, output, session) {
   # hide the explores until load
   hideTab(inputId = "navbarTop", target = "Explore By Probe")
   hideTab(inputId = "navbarTop", target = "Explore By Module")
-  # hide the post-select tabs until selected
-  # by probe
-  hideTab(inputId = "navProbe", target = "Selected Probes")
-  hideTab(inputId = "navProbe", target = "Probes:Series")
-  hideTab(inputId = "navProbe", target = "Genes->Modules")
-  hideTab(inputId = "navProbe", target = "Modules")
-  hideTab(inputId = "navProbe", target = "Module->Genes")
-  hideTab(inputId = "navProbe", target = "Modules:Series")
-  
-  hideTab(inputId = "navModule", target = "Selected Modules")
-  hideTab(inputId = "navModule", target = "Modules:Series")
 
 #   #################### Password #########################
   password <- read_rds("p")
   observeEvent(input$buttonPassword, {
     if (input$password == password) {
-      showTab(inputId = "navbarTop", target = "Load data")
-      showTab(inputId = "navbarTop", target = "ReadMe")
       hideTab(inputId = "navbarTop", target = "Password")
+      showTab(inputId = "navbarTop", target = "Load data", select = TRUE)
+      showTab(inputId = "navbarTop", target = "ReadMe")
     }
     })
   
@@ -63,14 +52,12 @@ server <- function(input, output, session) {
   
   updateLoadControls <- function(){
     
-    topGenesAndModules(NULL)
-    topModulesSelected(NULL)
-    
     # show hide the nav tabs to reflect we have loaded data, rehide any needing rehiding post select
     showTab(inputId = "navbarTop", target = "Explore By Probe")
     showTab(inputId = "navbarTop", target = "Explore By Module")
     
-    showTab(inputId = "navProbe", target = "Select Probes")
+    # we may have been on a different pane so re-select Select
+    updateNavbarPage(session,'navProbe',selected = 'Select Probe')
     hideTab(inputId = "navProbe", target = "Selected Probes")
     hideTab(inputId = "navProbe", target = "Probes:Series")
     hideTab(inputId = "navProbe", target = "Genes->Modules")
@@ -78,14 +65,22 @@ server <- function(input, output, session) {
     hideTab(inputId = "navProbe", target = "Module->Genes")
     hideTab(inputId = "navProbe", target = "Modules:Series")
     
-    showTab(inputId = "navModule", target = "Select Modules")
+    # we may have been on a different pane so re-select Select
+    updateNavbarPage(session,'navModule',selected = 'Select Modules')
     hideTab(inputId = "navModule", target = "Selected Modules")
     hideTab(inputId = "navModule", target = "Modules:Series")
 
+    topGenesAndModules(NULL)
+    topModulesSelected(NULL)
+    
+    
     # these must be updated here as they do not observe allData
     updateSelectInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
+    
+    modulesAndFiltersText("")
+    filtersText("")
     
     output$plotTopGenesSeries <- renderPlot({NULL})
     output$datatableTopGenesSeries <- renderDataTable({NULL})
@@ -110,9 +105,11 @@ dataAndFiltersText <- reactiveVal(value = "")
 filtersText <- reactiveVal(value = "")
 modulesAndFiltersText <- reactiveVal(value = "")
 output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
-output$textFileName <- renderText({allData$folder})
-output$textFileName2 <- renderText({filtersText()})
-output$textFileNameMods <- renderText({modulesAndFiltersText()})
+output$textDataName <- renderText({allData$folder})
+output$textDataNameProbes <- renderText({allData$folder})
+output$textDataNameMods <- renderText({allData$folder})
+output$textFiltersProbes <- renderText({filtersText()})
+output$textFiltersMods <- renderText({modulesAndFiltersText()})
 
   
 
@@ -153,6 +150,14 @@ output$textFileNameMods <- renderText({modulesAndFiltersText()})
             showModal(modalDialog(
               title = "Too Many Rows","You must have at least one filter selected or it will try to return and plot over 65,000 rows."))
             } else {
+              # show the tabs as we have selected probes
+              showTab(inputId = "navProbe", target = "Selected Probes")
+              showTab(inputId = "navProbe", target = "Probes:Series")
+              showTab(inputId = "navProbe", target = "Genes->Modules")
+              showTab(inputId = "navProbe", target = "Modules")
+              showTab(inputId = "navProbe", target = "Module->Genes")
+              showTab(inputId = "navProbe", target = "Modules:Series")
+              
               # calculate topGenesAndModules()
               geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
               filterText <- ""
@@ -190,13 +195,6 @@ output$textFileNameMods <- renderText({modulesAndFiltersText()})
               ############ lookup the genes and modules
               topGenesAndModules(selectedGenesAndModules(geneslist))
               
-              # show the tabs as we have selecetd probes
-              showTab(inputId = "navProbe", target = "Selected Probes")
-              showTab(inputId = "navProbe", target = "Probes:Series")
-              showTab(inputId = "navProbe", target = "Genes->Modules")
-              showTab(inputId = "navProbe", target = "Modules")
-              showTab(inputId = "navProbe", target = "Module->Genes")
-              showTab(inputId = "navProbe", target = "Modules:Series")
             }
       }
     }
@@ -208,14 +206,13 @@ output$textFileNameMods <- renderText({modulesAndFiltersText()})
     topGenesAndModules(),
     {
       # these are non-reactive and need a manual reboot
-      output$plotModuleSeries <- renderPlot({NULL})
-      output$datatableModuleSeries <- renderDataTable({NULL})
-      updateSelectInput(session, 'selectColumnForModuleSeries')
-      updateSelectInput(session, 'selectModuleForSeries', choices = character(0))
-      
-      output$plotTopGenesSeries <- renderPlot({NULL})
-      output$datatableTopGenesSeries <- renderDataTable({NULL})
-      updateSelectInput(session, 'selectColumnsForSeries')
+      # output$plotModuleSeries <- renderPlot({NULL})
+      # output$datatableModuleSeries <- renderDataTable({NULL})
+      # updateSelectInput(session, 'selectColumnForModuleSeries')
+      # 
+      # output$plotTopGenesSeries <- renderPlot({NULL})
+      # output$datatableTopGenesSeries <- renderDataTable({NULL})
+      # updateSelectInput(session, 'selectColumnsForSeries')
     }
   )
   
@@ -362,6 +359,10 @@ observeEvent(
           showModal(modalDialog(
             title = "Too Many Modules","You must have at least one filter selected or it will try to return and plot over 600 modules."))
         } else {
+          # show tabs as we have selected modules
+          showTab(inputId = "navModule", target = "Selected Modules")
+          showTab(inputId = "navModule", target = "Modules:Series")
+          
           mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
           
           filterText <- ""
@@ -398,9 +399,6 @@ observeEvent(
           }
 
           topModulesSelected(mods)
-          # show tabs as we have selected modules
-          showTab(inputId = "navModule", target = "Selected Modules")
-          showTab(inputId = "navModule", target = "Modules:Series")
         }
       }
     })
