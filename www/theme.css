@@ -1089,7 +1089,7 @@ textarea {
   line-height: inherit;
 }
 a {
-  color: #a9d019;
+  color: #52650c;
   text-decoration: none;
 }
 a:hover,
@@ -1178,7 +1178,7 @@ h6,
   font-family: "Ubuntu", Tahoma, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500;
   line-height: 1.1;
-  color: inherit;
+  color: #52650c;
 }
 h1 small,
 h2 small,
