@@ -1,6 +1,7 @@
 plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
   plot <-  NULL
   if (!is.null(selmod) && nrow(selmod) > 0 && !is.null(moddata)) {
+    
     data2plot <- moddata %>%
       filter(Module %in% unique(selmod$Module), Column %in% unique(selmod$Column))
     
@@ -36,12 +37,13 @@ plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
   return(plot)
 }
 
-plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,facet,showSE,grouper){
+plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,facet,showSE,grouper,xgrid,point){
   plot <-  NULL
   data2plot <- NULL
   if (!is.null(alldata)) {
     showNotification("Please wait for plot output…", type = 'message', duration = 3)
     
+
     # strip out the titles
     mods <- sub(' .*$', '', selmod)
 
@@ -62,7 +64,9 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       if(facet == TRUE) {
         data2plot <- data2plot %>%
           separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
-        if(boxRibbon == 'Boxplot') {data2plot <- data2plot %>% mutate(Column = as.factor(Column))}
+        if(boxRibbon == 'Boxplot') {
+          data2plot <- data2plot %>% mutate(Column = as.factor(Column))
+          }
         data2plot <- data2plot %>%
           arrange(Treatment, Module, Column)
       } else {
@@ -89,6 +93,9 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
           plot <- plot + 
             # Ribbon/line aes() does not work with Title which has duplicates, impose Module
             geom_line(mapping = aes(colour = Module, group = Module),show.legend=l)
+          
+          if(point == TRUE) {plot <-  plot + geom_point(mapping = aes(colour = Module, group = Module),show.legend=FALSE)}
+          
           if(facet == TRUE) {plot <- plot + scale_x_continuous(breaks = data2plot$Column)}
           if(showSE == TRUE){
             data4SE <- data2plot %>%
@@ -102,10 +109,25 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       if(z == TRUE) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
-      
       if(facet == TRUE) {
         plot <- plot + facet_wrap(~Treatment)
       }
+      
+      if(xgrid == TRUE && boxRibbon == 'Ribbon' && facet == TRUE) {
+        plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5)
+      }
+      
+      sortCol <- sub(" .*","",t) #t aways starts with VACCINE_DAY
+      if (facet == TRUE) {
+        sortCol <- as.numeric(unlist(str_split(sortCol, "_"))[2])
+        if (boxRibbon == 'Boxplot') {
+          sortCol <- factor(sortCol, levels = levels(data2plot$Column))
+        }
+      } else {
+        sortCol <- factor(sortCol, levels = levels(data2plot$Column))
+      }
+      plot <- plot + 
+      geom_text(mapping = aes(label = "▲", y = -Inf, x = sortCol, size = 3), hjust = 0.5, vjust = 0, show.legend=FALSE)
     }
   }
   return(list(plot = plot, table = data2plot))

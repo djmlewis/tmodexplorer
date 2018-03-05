@@ -208,6 +208,11 @@ getGenesForSearch <- function(geneslist,search,column){
   # ignore an empty search
   if(search == "") return(geneslist)
   # do the search
+  # strip spaces from genes and probes
+  if((column == "Gene" || column == "Probe") && grepl(' ',search)) {
+    showNotification("Spaces have been stripped", type = 'warning')
+    search <- gsub(" ","",search)
+  }
   if(grepl(',',search)) {
     # multiple search
     searches <- unlist(strsplit(search,','))
@@ -225,6 +230,52 @@ getGenesForSearch <- function(geneslist,search,column){
     distinct(Probe, .keep_all = TRUE)
   
   return(selGenes)
+}
+
+lookupGenesProbes <- function(gene,annot) {
+  if(is.null(gene) || is.null(annot)) return(NULL)
+  if(grepl(' ',gene)) {
+    showNotification("Spaces have been stripped", type = 'warning')
+    gene <- gsub(" ","",gene)
+  }
+  if(grepl(',',gene)) {
+    # multiple search
+    gene <- unlist(strsplit(gene,','))
+  }
+  probes <- 
+    map_dfr(gene,function(g){
+      filter(annot,grepl(g,annot$GeneName, ignore.case = TRUE))
+    }) %>%
+    select(GeneName,SystematicName,ProbeName,Description)
+  return(probes)
+}
+
+lookupModules <- function(mods2find,modmeans) {
+  if(is.null(mods2find) || is.null(modmeans)) return(NULL)
+  if(grepl(' ',mods2find)) {
+    showNotification("Spaces have been stripped", type = 'warning')
+    mods2find <- gsub(" ","",mods2find)
+  }
+  if(grepl(',',mods2find)) {
+    # multiple search
+    mods2find <- unlist(strsplit(mods2find,','))
+  }
+  modmeans <- select(modmeans,Module,Title,Category)
+  mods <- 
+    map_dfr(mods2find,function(m){
+      filter(modmeans,grepl(m,Module, ignore.case = TRUE)) #grepl(m,modmeans$Module, ignore.case = TRUE)
+    }) %>%
+    distinct() %>%
+    arrange(Module)
+
+  l <- getModuleMembers(mods$Module)
+  d <- map_dfr(names(l),function(mod) {
+    df <- data.frame(Module = mod, Gene = paste(l[[mod]], collapse = ", "), stringsAsFactors = FALSE)
+  })
+  mods <- full_join(mods,d,by = "Module")
+  
+  
+  return(mods)
 }
 
 modules4GeneList <- function(genes2map,genes2mapRanks) {
@@ -423,9 +474,3 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   return(expressions)
 }
 
-lookupGenesProbes <- function(gene,annot) {
-  if(is.null(gene) || is.null(annot)) return(NULL)
-  probes <- annot %>%
-    filter(grepl(gene,GeneName, ignore.case = TRUE))
-  return(probes)
-}

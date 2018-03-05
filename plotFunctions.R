@@ -9,7 +9,7 @@ themeBase <- theme_bw() +
   )
 
 plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
-  
+
   ncols <- length(levels(x))
   colpal <- rainbow(ncols, alpha = 0.2)
   bordpal <- rainbow(ncols)
@@ -106,7 +106,9 @@ plotTopGenesInSeries <- function(data2plot,
            facet,
            showZero,pointsBoxes) {
     if (is.null(data2plot)) return(NULL)
-    
+  
+  showNotification("Please wait for plot output…", type = 'message', duration = 3)
+  
   # asGenes  detect whether it really is as genes based on the selData: if that lacks column Probe then it is
   asGenes <- ('Probe' %in% names(data2plot) == FALSE)
   
@@ -149,6 +151,8 @@ plotTopGenesInSeries <- function(data2plot,
 plotModulesInSeries <- function(d,t,l,r,f,z,se){
   p <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
+    showNotification("Please wait for plot output…", type = 'message', duration = 3)
+
     p <- ggplot(data = d, mapping = aes(x = Column)) +
       ggtitle(paste0('Modules For Selected Genes / Probes\n',t)) +
       themeBase

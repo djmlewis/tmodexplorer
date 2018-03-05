@@ -26,7 +26,8 @@
     changes over time in comparison with the predefined modules in tmod.
     Other search options allow you to identify genes by their title or
     category, and then follow these genes and the modules that contain
-    them over time. <br>
+    them over time.<br>
+    <br>
     There is also an option to go straight to exploring by modules, in
     which case you just select tmod modules and observe their response
     over time. Modules can be selected in the the same way as individual
@@ -40,6 +41,8 @@
     cluster new modules?<br>
     <br>
     This is beta software and is prone to bugs and crashes. <b><em>Plots
+
+
 
 
         and data tables may take some time to appear - be patient!</em></b>
@@ -56,9 +59,13 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     have reverse engineered some aspects of tmod and any errors arising
     from this are mine. Consult the <a
       href="https://doi.org/10.7287/peerj.preprints.2420v1/supp-2"
-      target="_blank">tmod documentation</a> for a description of the
-    modules.The transcriptomics datasets are from the BIOVACSAFE project
-    (<a href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+      target="_blank">tmod documentation</a> or <a
+      href="https://d3amtssd1tejdt.cloudfront.net/2016/2420/1/tmod.pdf"
+      target="_blank">vignette</a> for a description of the modules.The
+    transcriptomics datasets are from the BIOVACSAFE project (<a
+      href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
+
 
 
 
@@ -84,6 +91,8 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     <h1>The Datasets</h1>
     <p>The preloaded datasets come in two versions: fold-increase in the
       log2 expression values (by subtraction of the log2 values), <i>always
+
+
 
         from day 0</i> <i>baseline</i> (in Surrey day -1 is calculated
       as a time point preceding day 0); and raw log2 expression values.
@@ -166,9 +175,13 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
 
 
 
+
+
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
+
 
 
 
@@ -198,15 +211,19 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       and I have set a block on this.</i><br>
     <h5>Regex - keyword search<br>
     </h5>
-    "Regex" is a keyword free-text search that uses regex, with some
+    "Regex" is a keyword, free-text search that uses regex, with some
     limitations. In tmodExplorer multiple terms can be entered into the
     box separated by commas and are OR'd (search returns as many of
     those terms as it can find, treating each term separately). Do not
     include spaces (especially after the comma) or quotation marks
-    unless you want them included in the search. Regex is "literal" so
-    if you type "B cell" it is going to look for "B cell" - including
-    the ". You can enter partial terms e.g. interferon finds interferon
-    and interferons, as regex looks for those characters anywhere.
+    unless you want them included in the search. Spaces will be
+    stripped-out automatically for you in <i>Gene</i> and <i>Probe</i>
+    name searches, so you can easily paste in lists copied from tables.
+    For <i>Description</i> searches the spaces are left in so beware:
+    regex is "literal" so if you type <tt>"B cell"</tt> it is going to
+    look for <tt>"B cell"</tt> - including the <tt>""</tt>. You can
+    enter partial terms e.g. interferon finds interferon and
+    interferons, as regex looks for those characters anywhere.
     Upper/lower case is ignored. Commas are interpreted as search term
     dividers and cannot be 'escaped'. Beware including <a
       href="https://regexr.com" target="_blank">special regex characters</a>
@@ -214,19 +231,19 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     or probe ID. Probe is least useful as they are not very standardised
     between datasets.<br>
     <br>
-    Regex actually ignores the selected column and any values - it just
-    finds rows in the data set that match the search. However, those
-    rows will be sorted in order of the value in the "Selected Column",
-    and filtered on these values. You may want to switch off the <b>Sorted
-
-      Column Row Numbers</b> when using regex as it may reduce the
-    number of hits you would have found. However, beware returning
-    hundreds of probes as the app will freeze for a long time. Consider
-    setting some <b>Sorted Column Values</b> limits instead. You can
-    also <b>paste saved search lists</b> into the regex box that you
-    downloaded from the <b>Selected Probes tab</b> - be sure to match
-    Gene and Probe Name. This allows fairly easy repetition of searches
-    across datasets.&nbsp;
+    Regex search actually ignores the selected column and any values -
+    it just finds rows in the data set that match the search. However,
+    those rows will be sorted in order of the value in the "Selected
+    Column", and filtered on these values. You may want to switch off
+    the <b>Sorted Column Row Numbers</b> when using regex as it may
+    reduce the number of free-text hits you would have found. However,
+    beware returning hundreds of rows as the app will freeze for a long
+    time. Consider setting some <b>Sorted Column Values</b> limits. You
+    can also <b>paste saved search lists</b> into the regex box that
+    you downloaded from the <b>Selected Probes tab</b>, or copied from
+    one of the <b>Lookup</b> tables - be sure to match Gene and Probe
+    Name. <b>This allows fairly easy repetition of searches across
+      datasets</b>.&nbsp;
     <h5>Sorted Column Values</h5>
     Max/min expression values will be pre-entered for you into the range
     boxes when selecting a column, using floor() and ceil() and so will
@@ -344,10 +361,12 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     <p>Enter a gene name or partial string and click <b>Lookup</b> to
       see a table of matching genes. The search uses <b>regex</b>, so
       see the entries above about filtering by keyword for issues with
-      regex. Only one gene name can be entered. Alternatively, leave the
-      box empty and click <b>Lookup</b> to list all 65k genes. A list
-      of probes with their descriptions is shown. The search boxes above
-      / below the table can also be used.<br>
+      regex. Spaces will always be stripped from this search as Gene
+      Names cannot have spaces. Multiple gene names can be entered
+      separated by commas. Alternatively, leave the box empty and click
+      <b>Lookup</b> to list all 65k genes. A list of probes with their
+      descriptions is shown. The search boxes above / below the table
+      can also be used.<br>
     </p>
     <h3> </h3>
     <h2><a name="Explore_By_Module_tab"></a> Explore By Module tab<br>
@@ -375,16 +394,18 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     <br>
     <b>Regex</b> searches either the <b>Title</b> (which is a
     description of the module, e.g. "plasma cells") or <b>Module</b>
-    name (its designation e.g. DC.M4.11). You may want to switch off the
-    <b>Sorted Column Row Numbers</b> when using regex as it may reduce
-    the number of hits you would have found. However, beware returning
-    600 modules as the app will freeze for a long time. Consider setting
-    some <b>Sorted Column Values</b> limits instead - this will be
-    based on values in the selected sort column. You can also <b>paste
-      saved search lists</b> into the regex box that you downloaded from
-    the <b>Selected Modules tab</b> - be sure to match Title and Module
-    Name. This allows fairly easy repetition of searches across
-    datasets.<br>
+    name (its designation e.g. DC.M4.11). Spaces will automatically be
+    stripped from Module searches but retained for Title searches. <br>
+    <br>
+    You may want to switch off the <b>Sorted Column Row Numbers</b>
+    when using regex as it may reduce the number of hits you would have
+    found. However, beware returning 600 modules as the app will freeze
+    for a long time. Consider setting some <b>Sorted Column Values</b>
+    limits instead - this will be based on values in the selected sort
+    column. You can also <b>paste saved search lists</b> into the regex
+    box that you downloaded from the <b>Selected Modules tab</b> - be
+    sure to match Title and Module Name. This allows fairly easy
+    repetition of searches across datasets.<br>
     <br>
     You must click the <b>Apply Selections</b> button to perform the
     selection or after any changes to options. Clicking the button
@@ -429,10 +450,18 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     Click <b>Plot</b> button to create the plot and data table, and
     after any changes to module/column selections or options.<br>
     <h3>Module Lookup tab</h3>
-    <p>A list of all the modules with their titles and descriptions is
-      shown. The search boxes above / below the table can be used to
-      identify specific modules.<br>
-    </p>
+    <p>Enter a module name (e.g. <tt>DC.M4.1)</tt> or partial string
+      (e.g. <tt>DC.M4</tt>) and click <b>Lookup</b> to see a table of
+      matching modules. The search uses <b>regex</b>, so see the
+      entries above about filtering by keyword for issues with regex.
+      Spaces will always be stripped from this search as Module Names
+      cannot have spaces. Multiple module names can be entered separated
+      by commas. Alternatively, leave the box empty and click <b>Lookup</b>
+      to list all modules. The search boxes above / below the table can
+      also be used. A list of modules with their descriptions and
+      associated genes is shown. These gene lists can be copied and
+      directly pasted into the regex search boxes that accept Gene
+      Names, spaces will be stripped for you. </p>
     <h2>Acknowledgements</h2>
     tmodExplorer is written in R: R Core Team (2017). R: A language and
     environment for statistical computing. R Foundation for Statistical

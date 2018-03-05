@@ -1,6 +1,6 @@
 
 server <- function(input, output, session) {
-  #   #################### Initial Setup #########################
+#   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
   
   # initial hidden setup
@@ -28,7 +28,7 @@ server <- function(input, output, session) {
 #   #################### Loading data #########################
 #   
   # list local data files on the server
-  updateSelectInput(session, 'selectData', choices = basename(list.dirs(path = 'datafiles', recursive = FALSE)))
+  updateSelectInput(session, 'selectData', choices = sort(basename(list.dirs(path = 'datafiles', recursive = FALSE))))
   
   allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, annot = NULL)
   observeEvent(input$buttonLoadData, {if (getNewData(allData,input$selectData) == TRUE) {updateLoadControls()}})
@@ -196,6 +196,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
               topGenesAndModules(selectedGenesAndModules(geneslist))
               
             }
+        } else {
+        showNotification("A column to sort must always be selected, even if just filtering by regex", type = 'error')
       }
     }
   )
@@ -206,13 +208,13 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     topGenesAndModules(),
     {
       # these are non-reactive and need a manual reboot
-      # output$plotModuleSeries <- renderPlot({NULL})
-      # output$datatableModuleSeries <- renderDataTable({NULL})
-      # updateSelectInput(session, 'selectColumnForModuleSeries')
-      # 
-      # output$plotTopGenesSeries <- renderPlot({NULL})
-      # output$datatableTopGenesSeries <- renderDataTable({NULL})
-      # updateSelectInput(session, 'selectColumnsForSeries')
+      output$plotModuleSeries <- renderPlot({NULL})
+      output$datatableModuleSeries <- renderDataTable({NULL})
+      updateSelectInput(session, 'selectColumnForModuleSeries')
+
+      output$plotTopGenesSeries <- renderPlot({NULL})
+      output$datatableTopGenesSeries <- renderDataTable({NULL})
+      updateSelectInput(session, 'selectColumnsForSeries')
     }
   )
   
@@ -318,7 +320,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   observeEvent(input$buttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = character(0))})
   observeEvent(input$buttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = character(0))})
   
-  #################### Gene Lookup #########################
+  #################### Gene Lookup
   observeEvent({
     input$buttonGeneLookup
   },{
@@ -331,10 +333,11 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     updateTextInput(session, 'textInputGeneLookup', value = "")
     output$datatableGeneLookup <- renderDataTable({NULL})
   })
+
   
-  
-#################### Selecting Columns For Modules #########################
-# selecting By Module
+
+#################### MODULES ####################  
+  #################### Selecting Modules ####
 
 observeEvent(
   {input$mselectColumn
@@ -400,13 +403,15 @@ observeEvent(
 
           topModulesSelected(mods)
         }
+      } else {
+        showNotification("A column to sort must always be selected, even if just filtering by regex", type = 'error')
       }
     })
   }
 )
 
 
-#################### Selected Modules #########################
+  #################### Selected Modules #########################
 observeEvent(
   topModulesSelected(),
   {
@@ -426,13 +431,13 @@ output$mbuttonSaveListTopModules <- downloadTopModuleList(topModulesSelected()[[
 output$mbuttonSaveListTopModuleTitles <- downloadTopModuleList(topModulesSelected()[['Title']],'TopModulesTitlesList_')
 output$mbuttonSaveListTopModuleCategory <- downloadTopModuleList(topModulesSelected()[['Category']],'TopModulesCategoriesList_')
 
-#################### Plot Modules Selected #########################
+  #################### Plot Modules Selected #########################
 ggplotSelectedModules <-
   reactive({plotSelectedModules(allData$modules,topModulesSelected(),modulesAndFiltersText(), 
     input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName,input$mcheckboxGGplotGenesModules)})
 output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()})
 
-#################### Plot Modules Selected Series #########################
+  #################### Plot Modules Selected Series #########################
 observeEvent({
   input$mbuttonPlotModuleSeries
 },{
@@ -450,7 +455,8 @@ observeEvent({
     ggplotSelectedModulesSeries <- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
       mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
       input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
-      input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries)
+      input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
+      input$mcheckboxShowPointsSeries)
     output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
   }
@@ -469,13 +475,20 @@ output$mbuttonSaveListTopModuleTitlesSeries <- downloadTopModuleList(input$msele
 observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleAllModules', selected = character(0))})
 output$mbuttonSaveListTopModulesSeries <- downloadTopModuleList(modNameFromMenuTitle(input$mselectModuleAllModules),'TopModulesSeriesList_')
 
-#################### Modules Lookup #########################
+  #################### Modules Lookup #########################
+observeEvent({
+  input$mbuttonModLookup
+},{
+  selmods <- lookupModules(input$mtextInputModLookup, allData$modulesMeans)
+  output$mdatatableModuleLookup <- renderDataTable({selmods})
+})
 
-output$mdatatableModuleLookup <- 
-  renderDataTable({
-    select(allData$modulesMeans,Module,Title,Category) %>%
-    distinct() %>%
-    arrange(Module)})
+observeEvent({
+  input$mbuttonModLookupNone
+},{
+  updateTextInput(session, 'mtextInputModLookup', value = "")
+  output$mdatatableModuleLookup <- renderDataTable({NULL})
+})
 
-#################### End Of Server #########################
+  #################### End Of Server #########################
 } # end of server

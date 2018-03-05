@@ -40,6 +40,11 @@ getModulesForSearch <- function(modslist,search,column){
   if(is.null(modslist) || is.null(search)) return(NULL)
   # ignore an empty search
   if(search == "") return(modslist)
+  
+  if(column == "Module" && grepl(' ',search)) {
+    showNotification("Spaces have been stripped", type = 'warning')
+    search <- gsub(" ","",search)
+  }
   # do the search
   if(grepl(',',search)) {
     # multiple search
