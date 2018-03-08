@@ -46,6 +46,8 @@
 
 
 
+
+
         and data tables may take some time to appear - be patient!</em></b>
     The more rows you select for plotting the slower it will be. ggplot2
     is not good at providing progress updates - so it may look like
@@ -65,6 +67,8 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       target="_blank">vignette</a> for a description of the modules.The
     transcriptomics datasets are from the BIOVACSAFE project (<a
       href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
+
 
 
 
@@ -93,6 +97,8 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     <h1>The Datasets</h1>
     <p>The preloaded datasets come in two versions: fold-increase in the
       log2 expression values (by subtraction of the log2 values), <i>always
+
+
 
 
 
@@ -173,8 +179,12 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     combination you want to explore. The "column" is the basic unit for
     tmodExplorer - it combines a treatment and a time point, e.g.
     "Boostrix_7" contains mean values on day 7 for participants who
-    received Boostrix. All data sets are based on these columns.<br>
+    received Boostrix. All data sets are based on these columns. Time
+    series plots will indicate the sorted column with <font
+      color="#ff0000">▼▲</font>.<br>
     <b>Sort descending</b> for highest values in top rows. Select <b>Gene
+
+
 
 
 
@@ -184,6 +194,8 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
+
 
 
 
@@ -298,9 +310,9 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     and TTT is an integer value for time point. The app splits the
     column name by '_' and facet_wraps by VVV while plotting TTT on the
     x axis as a continuous variable.<br>
-    <b>Points / Boxplot</b>: XY graph of individual probes / genes, or a
+    <b>Lines / Boxplot</b>: XY graph of individual probes / genes, or a
     boxplot summarising values when genes are averaged.<br>
-    <b>Connect Points</b>: Appears if Points is selected and adds lines.<br>
+    <b>Points</b>, <b>Gridlines</b>: show/hide.<br>
     <b>Legend</b> and <b>Zero</b>: show/hide these features.<br>
     <b>Plot button</b>: click this to draw the plot, and again after
     changing any options.<br>
@@ -354,10 +366,9 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       Modules</b> menu. Use <b>All</b> or <b>None</b> buttons to add
     all, or clear selections. Various plot options exist:<br>
     <b>Boxplot</b> summarises the expression values of probes within the
-    module, while <b>Ribbon</b> plots a line graph of the mean
-    expression of probes in the modules.<b> </b><b>Ribbon+SE</b>
-    appears when <b>Ribbon</b> is selected allowing an SEM ribbon to be
-    added.<br>
+    module, while <b>Lines</b> plots a line graph of the mean
+    expression of probes in the modules.<b> SEM</b> appears when <b>Lines</b>
+    is selected allowing an SEM ribbon to be added.<br>
     <b>Split</b> - uses facet_wrap to separate treatments into different
     panels. <br>
     Options to show / hide the <b>legend</b> and <b>zero</b> line
@@ -395,7 +406,8 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     highest expression values in top rows. See the Select tab for
     description of how to use <b>regex</b>, <b>Sorted Column Values</b>
     and <b>Sorted Column Row Numbers</b>. Here it is the mean or median
-    expression of the module being sorted. <br>
+    expression of the module being sorted. Time series plots will
+    indicate the sorted column with <font color="#ff0000">▼▲</font>.<br>
     <br>
     <b>Regex</b> searches either the <b>Title</b> (which is a
     description of the module, e.g. "plasma cells") or <b>Module</b>
@@ -446,10 +458,10 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     box.<br>
     Various plot options are available:<br>
     <b>Boxplot</b> plots a summary of the probe expressions in the
-    modules, whereas <b>Ribbon&nbsp; </b>plots the module mean
-    expression and reveals Ribbon+SE to include an SEM ribbon. <b>Split</b>
-    plots each treatment in its own panel, and <b>legend</b> and <b>zero</b>
-    line can be shown or hidden. <br>
+    modules, whereas <b>Lines&nbsp; </b>plots the module mean
+    expression and reveals <b>SEM</b><b></b> to include an SEM ribbon.
+    <b>Split</b> plots each treatment in its own panel, and <b>legend</b>
+    and <b>zero</b> line can be shown or hidden. <br>
     The bars can be coloured by individual modules when <b>Module</b>
     is selected, or by category <b>Title</b>.<br>
     Click <b>Plot</b> button to create the plot and data table, and

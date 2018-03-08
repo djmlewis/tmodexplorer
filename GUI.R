@@ -86,8 +86,9 @@ ui <-
              wellPanel(
                h4('Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
                div(downloadButton('buttonSaveTableProbes', 'Download Table'),
-              downloadButton('buttonSaveListGenes', 'Download Gene List'),
-              downloadButton('buttonSaveListProbes', 'Download Probe List')),
+                downloadButton('buttonSaveListGenes', 'Download Gene List'),
+                downloadButton('buttonSaveListProbes', 'Download Probe List')
+              ),
              hr(),
                dataTableOutput('datatableTopGenesUp'))
            ),
@@ -100,13 +101,16 @@ ui <-
                  column(2,
                         wellPanel(
                           actionButton('buttonPlotSeries','Plot',class = "btn-primary"),
+                          radioButtons('radioBoxLineProbesSeries',NULL, choices = c('Lines','Boxplot')),
                           checkboxInput('checkboxSplitSeries', 'Split', value = TRUE),
-                          radioButtons('radioBoxLineProbesSeries',NULL, choices = c('Points','Boxplot')),
-                          conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Points'",
-                            checkboxInput('checkboxConnectSeries', 'Connect Points', value = TRUE)
-                          ),
                           checkboxInput('checkboxShowLegendSeries', 'Legend', value = FALSE),
-                          checkboxInput('checkboxShowZeroSeries', 'Zero', value = TRUE)
+                          checkboxInput('checkboxShowZeroSeries', 'Zero', value = TRUE),
+                          conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",
+                            strong(p("Lines options:")),
+                            conditionalPanel(condition = "input.checkboxSplitSeries == true",
+                              checkboxInput('checkboxShowGridSeries', 'X gridlines', value = TRUE)),
+                            checkboxInput('checkboxShowPointsSeries', 'Points', value = FALSE)
+                          )
                         )),
                  column(10,
                         wellPanel(
@@ -164,14 +168,17 @@ ui <-
                  column(2,
                         wellPanel(
                           actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary"),
-                          radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
-                          conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Ribbon'",
-                            checkboxInput('checkboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE)
-                          ),
+                          radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Lines')),
                           checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
                           checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = FALSE),
-                          checkboxInput('checkboxShowZeroModuleSeries', 'Zero', value = TRUE)
-                          
+                          checkboxInput('checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
+                          conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",
+                           strong(p("Lines options:")),
+                           conditionalPanel(condition = "input.checkboxShowFacetModuleSeries == true",
+                            checkboxInput('checkboxShowGridModuleSeries', 'X gridlines', value = TRUE)),
+                           checkboxInput('checkboxShowPointsModuleSeries', 'Points', value = FALSE),
+                           checkboxInput('checkboxShowSEModuleSeries', 'SEM', value = FALSE)
+                          )
                         )
                  ),
                  column(5,
@@ -295,15 +302,16 @@ ui <-
            column(2,
                   wellPanel(
                     actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-primary"),
-                    radioButtons('mradioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Ribbon')),
+                    radioButtons('mradioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Lines')),
                     checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                     checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = FALSE),
                     checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
-                    conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Ribbon'",
-                      strong(p("Ribbon options:")),
-                      checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE),
+                    conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
+                      strong(p("Lines options:")),
+                      conditionalPanel(condition = "mcheckboxShowFacetModuleSeries == true",
+                        checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE)),
                       checkboxInput('mcheckboxShowPointsSeries', 'Points', value = FALSE),
-                      checkboxInput('mcheckboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE)
+                      checkboxInput('mcheckboxShowSEModuleSeries', 'SEM', value = FALSE)
                     ),
                     conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Boxplot'",
                       radioButtons('mradioGroupTitleNameModuleSeries','Group Boxplot',choices = c('Title','Module'), selected = 'Module')
@@ -370,6 +378,6 @@ ui <-
   ##### 
     # ),# top tabset
   hr(),
-  div(align = 'right', img(align = 'left', src = 'surrey.png'),img( src = 'biovacsafe.png'),img(src = 'eei.png')),
+  div(img(src = 'surrey.png'), img(src = 'mpiib.png'), img(src = 'ugent.png'),img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')),
   hr()
   )# navpage top

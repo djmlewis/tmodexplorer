@@ -246,8 +246,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
       output$buttonSaveTableProbesSeries <- downloadTableCSV(topGenesInSeries,'GenesSeries_')
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
-                                  input$checkboxConnectSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
-                                  input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes)
+        input$checkboxShowPointsSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
+        input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
     })
   
@@ -314,7 +314,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
     ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
-        input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries, input$checkboxShowSEModuleSeries)
+        input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
+        input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
   })
   

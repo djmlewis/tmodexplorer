@@ -50,7 +50,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       'Boxplot' = {
         dataset <- 'modules'
         yCol <- 'Value'},
-      'Ribbon' = {
+      'Lines' = {
         dataset <- 'modulesMeans'
         yCol = 'Mean'}
     )
@@ -88,9 +88,9 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         'Boxplot' = {
           plot <- plot + geom_boxplot(mapping = aes_string(colour = grouper,fill = grouper), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
         },
-        'Ribbon' = {
+        'Lines' = {
           plot <- plot + 
-            # Ribbon/line aes() does not work with Title which has duplicates, impose Module
+            # Lines/line aes() does not work with Title which has duplicates, impose Module
             geom_line(mapping = aes(colour = Module, group = Module),show.legend=l)
           
           if(point == TRUE) {plot <-  plot + geom_point(mapping = aes(colour = Module, group = Module),show.legend=l)}
@@ -112,7 +112,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         plot <- plot + facet_wrap(~Treatment)
       }
       
-      if(xgrid == TRUE && boxRibbon == 'Ribbon' && facet == TRUE) {
+      if(xgrid == TRUE && boxRibbon == 'Lines' && facet == TRUE) {
         plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
       }
       

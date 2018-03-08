@@ -110,12 +110,11 @@ makeSortColDF <- function(sortCol,facet) {
 }
 
 plotTopGenesInSeries <- function(data2plot,
-           #asGenes,
-           connectPoints,
+           showPoints,
            showlegend,
            t,
            facet,
-           showZero,pointsBoxes,sortCol) {
+           showZero,pointsBoxes,sortCol,xgrid) {
     if (is.null(data2plot)) return(NULL)
   
   showNotification("Please wait for plot output…", type = 'message', duration = 3)
@@ -143,8 +142,8 @@ plotTopGenesInSeries <- function(data2plot,
     plot <-   ggplot(data = plotData) +
       {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.2, outlier.alpha = 1.0, show.legend = showlegend)}} +
       {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.2, outlier.alpha = 1.0, show.legend = FALSE)}} +
-      {if(pointsBoxes == 'Points'){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), show.legend = showlegend)}} +
-      {if (pointsBoxes == 'Points' && connectPoints) {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), show.legend = showlegend)}} +
+      {if (pointsBoxes == 'Lines') {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), show.legend = showlegend)}} +
+      {if(pointsBoxes == 'Lines' && showPoints){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), show.legend = showlegend)}} +
       ggtitle(paste0('Selected ',ifelse(asGenes,'Genes','Probes'),'\n', t)) +
       themeBase
 
@@ -158,6 +157,10 @@ plotTopGenesInSeries <- function(data2plot,
         facet_wrap( ~ Treatment)
     }
     
+    if(xgrid == TRUE && pointsBoxes == 'Lines' && facet == TRUE) {
+      plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+    }
+    
     #sortCol - VACCINE_DAY
     sortColDF <- makeSortColDF(sortCol,facet)# data.frame(Column = sortCol)
     plot <- plot + 
@@ -168,7 +171,7 @@ plotTopGenesInSeries <- function(data2plot,
     return(plot)
   }
 
-plotModulesInSeries <- function(d,t,l,r,f,z,se){
+plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
   p <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
     showNotification("Please wait for plot output…", type = 'message', duration = 3)
@@ -182,10 +185,11 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se){
         geom_hline(yintercept = 0.0, linetype = 2)
     }
     
-    if(r == 'Ribbon'){
+    if(r == 'Lines'){
       if(length(unique(d$Column)) > 1) {
         p <- p +
-          {if(se == TRUE){geom_ribbon(mapping = aes(ymin = SElo, ymax = SEhi, fill = Module, group = Module), alpha = 0.2,show.legend=l)}} +
+        {if(se == TRUE){geom_ribbon(mapping = aes(ymin = SElo, ymax = SEhi, fill = Module, group = Module), alpha = 0.2,show.legend=l)}} +
+        {if(pp == TRUE){geom_point(aes(y = Value, colour = Module, group = Module),show.legend=l)}} +
           geom_line(aes(y = Value, colour = Module, group = Module),show.legend=l)
       } else {# cannot plot lines and ribbons with only 1 point
         p <- p +
@@ -201,11 +205,21 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se){
         geom_boxplot(mapping = aes(y = Value, colour = Module, fill = Module), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
     }
     
-    
     if(f == TRUE){
       p <- p +
         facet_wrap(~Treatment)
     }
+    
+    #sortCol - VACCINE_DAY
+    sortColDF <- makeSortColDF(sC,f)
+    p <- p + 
+      geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 6, hjust = 0.5, vjust = 1, show.legend=FALSE) +
+      geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 6, hjust = 0.5, vjust = 0, show.legend=FALSE)
+    
+    if(xg == TRUE && r == 'Lines' && f == TRUE) {
+      p <- p + geom_vline(xintercept = unique(d$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+    }
+    
   }
   return(p)
 }
@@ -230,7 +244,7 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
       mutate(Column = factor(Column, levels = selCols))
   }
   
-  if(boxRibbon == "Ribbon") {
+  if(boxRibbon == "Lines") {
     # this is horrible because we have already split the Column and so have to group_by and Select accordingly
     if(facetted == TRUE) {
       topGenesInSeries <- topGenesInSeries %>%

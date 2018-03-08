@@ -442,7 +442,7 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
       return(exprs)
     })
 
-    if(ribbon == "Ribbon") {
+    if(ribbon == "Lines") {
       expressions <- expressions %>%
         group_by(Column,Module) %>%
         summarise(
