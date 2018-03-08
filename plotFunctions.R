@@ -98,15 +98,25 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
   return(plot)
 }
 
-makeSortColDF <- function(sortCol,facet) {
+addSortColPlot <- function(sortCol,facet,plot,ll) {
   if(facet == TRUE) {
     # we have a Treatment and Column 
+    dy = as.integer(unlist(str_split(sortCol, "_"))[2])
+    # levels returns NULL if the facet is lines using integers
+    if(!is.null(ll)) {
+      dy = factor(dy, levels = ll)
+    }
     sortColDF <- data.frame(Treatment = unlist(str_split(sortCol, "_"))[1], 
-                            Column = as.integer(unlist(str_split(sortCol, "_"))[2]))
+                            Column = dy)
   } else {
     sortColDF <- data.frame(Column = sortCol)
   }
-  return(sortColDF)
+  
+  plot <- plot + 
+    geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 6, hjust = 0.5, vjust = 1, show.legend=FALSE) +
+    geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 6, hjust = 0.5, vjust = 0, show.legend=FALSE)
+  
+  return(plot)
 }
 
 plotTopGenesInSeries <- function(data2plot,
@@ -162,12 +172,10 @@ plotTopGenesInSeries <- function(data2plot,
     }
     
     #sortCol - VACCINE_DAY
-    sortColDF <- makeSortColDF(sortCol,facet)# data.frame(Column = sortCol)
-    plot <- plot + 
-      geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 6, hjust = 0.5, vjust = 1, show.legend=FALSE) +
-      geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 6, hjust = 0.5, vjust = 0, show.legend=FALSE)
-    
-
+    if (sortCol %in% data2plot$Column || (facet == TRUE &&(unlist(str_split(sortCol, "_"))[1] %in% unique(data2plot$Treatment) &&
+          unlist(str_split(sortCol, "_"))[2] %in% unique(data2plot$Column)))) {
+      plot <- addSortColPlot(sortCol,facet,plot,levels(data2plot$Column))
+    }
     return(plot)
   }
 
@@ -211,11 +219,10 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
     }
     
     #sortCol - VACCINE_DAY
-    sortColDF <- makeSortColDF(sC,f)
-    p <- p + 
-      geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 6, hjust = 0.5, vjust = 1, show.legend=FALSE) +
-      geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 6, hjust = 0.5, vjust = 0, show.legend=FALSE)
-    
+    if (sC %in% d$Column || (f == TRUE &&(unlist(str_split(sC, "_"))[1] %in% unique(d$Treatment) &&
+          unlist(str_split(sC, "_"))[2] %in% unique(d$Column)))) {
+      p <- addSortColPlot(sC,f,p,levels(d$Column))
+    }
     if(xg == TRUE && r == 'Lines' && f == TRUE) {
       p <- p + geom_vline(xintercept = unique(d$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
     }

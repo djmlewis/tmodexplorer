@@ -59,6 +59,13 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       filter(Module %in% mods, Column %in% selCol)
 
     if(nrow(data2plot)>0) { # clicking Plot without endtering columns
+      
+      # merge module and title if group by module
+      # if(grouper =='Module') {
+      #   data2plot <- data2plot %>%
+      #     mutate(Module = paste0(Module,' (',Title,')'))
+      # }
+      
 
       if(facet == TRUE) {
         data2plot <- data2plot %>%
@@ -116,11 +123,9 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
       }
       
-      #sortCol - VACCINE_DAY
-      sortColDF <- makeSortColDF(sortCol,facet)# data.frame(Column = sortCol)
-      plot <- plot + 
-        geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 6, hjust = 0.5, vjust = 1, show.legend=FALSE) +
-        geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 6, hjust = 0.5, vjust = 0, show.legend=FALSE)
+      if(sortCol %in% selCol) {
+        plot <- addSortColPlot(sortCol,facet,plot,levels(data2plot$Column))
+      }
     }
   }
   return(list(plot = plot, table = data2plot))

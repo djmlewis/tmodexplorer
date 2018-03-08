@@ -28,10 +28,13 @@ server <- function(input, output, session) {
 #   #################### Loading data #########################
 #   
   # list local data files on the server
-  updateSelectInput(session, 'selectData', choices = sort(basename(list.dirs(path = 'datafiles', recursive = FALSE))))
+  files <- sort(basename(list.dirs(path = 'datafiles', recursive = FALSE)))
+  updateSelectInput(session, 'selectDataFI', choices = files[grepl("Fold", files)])
+  updateSelectInput(session, 'selectDataRAW', choices = files[!grepl("Fold", files)])
   
   allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, annot = NULL)
-  observeEvent(input$buttonLoadData, {if (getNewData(allData,input$selectData) == TRUE) {updateLoadControls()}})
+  observeEvent(input$buttonLoadDataFI, {if (getNewData(allData,input$selectDataFI) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
+  observeEvent(input$buttonLoadDataRAW, {if (getNewData(allData,input$selectDataRAW) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
   observeEvent(input$fileInputUploadData,{if(loadUploadedData(allData,input$fileInputUploadData,input$textInputUploadFileName)) {updateLoadControls()}})
   
   updateExpressionMinMax <- function(selCol){

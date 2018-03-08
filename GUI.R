@@ -18,8 +18,18 @@ ui <-
   tabPanel('Load data',
     h3("Select pre-loaded dataset to analyse and click 'Load'"),
     fluidRow(
-      column(6,selectInput('selectData', NULL, character(0), width = '100%')),
-      column(1,actionButton('buttonLoadData',label = 'Load',class = "btn-primary"))
+    column(6,
+        wellPanel(
+          fluidRow(
+            column(10,selectInput('selectDataFI', "Fold Increase From Baseline", character(0), width = '100%')),
+            column(2,actionButton('buttonLoadDataFI',label = 'Load FI',class = "btn-primary"))
+      ))),
+    column(6,
+      wellPanel(
+        fluidRow(
+        column(10,selectInput('selectDataRAW', "Raw Expression", character(0), width = '100%')),
+        column(2,actionButton('buttonLoadDataRAW',label = 'Load Raw',class = "btn-primary"))
+      )))
     ),
     h4(align = 'center', textOutput('textDataName')),
     dataTableOutput('datatableAll')
@@ -378,6 +388,6 @@ ui <-
   ##### 
     # ),# top tabset
   hr(),
-  div(img(src = 'surrey.png'), img(src = 'mpiib.png'), img(src = 'ugent.png'),img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')),
+  div(img(src = 'surrey.png'), img(src = 'ugent.png'), img(src = 'mpiib.png'),img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')),
   hr()
   )# navpage top

@@ -430,6 +430,7 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   expressions <- NULL
   if(!is.null(genesdata) && !is.null(modules) && !is.null(series)) {
     expressions <- map_dfr(modules,function(mod){
+      # strip the treatment in () from module name
       modcode <- sub(' .*$', '', mod)
       genesInMod <- tmod::getModuleMembers(modcode)[[modcode]]
       exprs <- genesdata %>%
