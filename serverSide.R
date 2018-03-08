@@ -142,6 +142,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   ### topGenesAndModules()
   topGenesAndModules <- reactiveVal()
   topGenesAndModules(NULL)
+  sortCol_Probes <- NULL
   observeEvent(
     input$buttonApplySelection,
     {
@@ -157,6 +158,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
               showTab(inputId = "navProbe", target = "Modules")
               showTab(inputId = "navProbe", target = "Module->Genes")
               showTab(inputId = "navProbe", target = "Modules:Series")
+              
+              sortCol_Probes <<- input$selectColumn # note <<- as in isolate()
               
               # calculate topGenesAndModules()
               geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
@@ -244,7 +247,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
                                   input$checkboxConnectSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
-                                  input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries)
+                                  input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes)
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
     })
   
@@ -352,10 +355,12 @@ observeEvent(
 
 topModulesSelected <- reactiveVal()
 topModulesSelected(NULL)
+sortCol_Mods <- NULL
+
 observeEvent(
   input$mbuttonApplySelection,
   {
-    isolate({
+    {
       if(!is.null(input$mselectColumn)) {
         # calculate topGenesAndModules()
         if(input$mcheckboxSelectKeyword == FALSE && input$mcheckboxSelectValues == FALSE && input$mcheckboxSelectRows == FALSE) {
@@ -365,6 +370,8 @@ observeEvent(
           # show tabs as we have selected modules
           showTab(inputId = "navModule", target = "Selected Modules")
           showTab(inputId = "navModule", target = "Modules:Series")
+          
+          sortCol_Mods <<- input$mselectColumn # note <<-
           
           mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
           
@@ -406,7 +413,7 @@ observeEvent(
       } else {
         showNotification("A column to sort must always be selected, even if just filtering by regex", type = 'error')
       }
-    })
+    }
   }
 )
 
@@ -456,7 +463,7 @@ observeEvent({
       mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
       input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
       input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
-      input$mcheckboxShowPointsSeries)
+      input$mcheckboxShowPointsSeries,sortCol_Mods)
     output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
   }

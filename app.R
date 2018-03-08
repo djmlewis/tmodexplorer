@@ -11,6 +11,7 @@ library(tidyr)
 library(tmod)
 library(ggplot2)
 library(utf8)
+library(stringr)
 library(shinythemes)
 
 ####--------------------------

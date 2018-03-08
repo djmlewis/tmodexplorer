@@ -31,14 +31,14 @@ ui <-
            #################### Selecting  ################
            tabPanel('Select Probe',
                     wellPanel(
-                      wellPanel(
+                      # wellPanel(
                         h4("Select a treatment - time column to sort probe values and display responses"),
                         fluidRow(
-                          column(6,selectInput('selectColumn', 'Column To Sort & Display', character(0), width = 400, selectize = F)),
+                          column(6,selectInput('selectColumn', NULL, character(0), width = 400, selectize = F)),
                           column(3,checkboxInput('checkboxDescending', 'Sort Descending', value = TRUE)),
                           column(3,checkboxInput('checkboxProbesGenes', 'Gene Averages', value = FALSE))
-                        )
-                      ),
+                        ),
+                      # ),
                       conditionalPanel(condition = "input.selectColumn != null",
                       h4(align = 'center','Filter probes by a combination of options below. Selected filters are applied in order left to right'),
                       fluidRow(
@@ -220,14 +220,14 @@ ui <-
       #################### Selecting Modules ################
       tabPanel('Select Modules',
       wellPanel(
-        wellPanel(
+        # wellPanel(
           h4("Select a treatment - time column to sort module values and display responses"),
           fluidRow(
-            column(6, selectInput('mselectColumn', 'Column To Sort', character(0), width = 400, selectize = F)),
+            column(6, selectInput('mselectColumn', NULL, character(0), width = 400, selectize = F)),
             column(3,checkboxInput('mcheckboxDescending', 'Sort Descending', value = TRUE)),
             column(3,checkboxInput('mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
-          )
-        ),
+          ),
+        # ),
         conditionalPanel(condition = "input.mselectColumn != null",
         h4(align = 'center','Filter modules by a combination of options below. Selected filters are applied in order left to right'),
         fluidRow(
@@ -300,9 +300,10 @@ ui <-
                     checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = FALSE),
                     checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
                     conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Ribbon'",
-                     checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE),
-                     checkboxInput('mcheckboxShowPointsSeries', 'Points', value = FALSE),
-                     checkboxInput('mcheckboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE)
+                      strong(p("Ribbon options:")),
+                      checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE),
+                      checkboxInput('mcheckboxShowPointsSeries', 'Points', value = FALSE),
+                      checkboxInput('mcheckboxShowSEModuleSeries', 'Ribbon+SE', value = FALSE)
                     ),
                     conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Boxplot'",
                       radioButtons('mradioGroupTitleNameModuleSeries','Group Boxplot',choices = c('Title','Module'), selected = 'Module')
@@ -369,6 +370,6 @@ ui <-
   ##### 
     # ),# top tabset
   hr(),
-  div(align = 'right',img(src = 'biovacsafe.png'),img(src = 'eei.png')),
+  div(align = 'right', img(align = 'left', src = 'surrey.png'),img( src = 'biovacsafe.png'),img(src = 'eei.png')),
   hr()
   )# navpage top

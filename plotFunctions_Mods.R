@@ -37,13 +37,12 @@ plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
   return(plot)
 }
 
-plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,facet,showSE,grouper,xgrid,point){
+plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,facet,showSE,grouper,xgrid,point,sortCol){
   plot <-  NULL
   data2plot <- NULL
   if (!is.null(alldata)) {
     showNotification("Please wait for plot output…", type = 'message', duration = 3)
     
-
     # strip out the titles
     mods <- sub(' .*$', '', selmod)
 
@@ -58,7 +57,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
     
     data2plot <- alldata[[dataset]]%>%
       filter(Module %in% mods, Column %in% selCol)
-    
+
     if(nrow(data2plot)>0) { # clicking Plot without endtering columns
 
       if(facet == TRUE) {
@@ -94,7 +93,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
             # Ribbon/line aes() does not work with Title which has duplicates, impose Module
             geom_line(mapping = aes(colour = Module, group = Module),show.legend=l)
           
-          if(point == TRUE) {plot <-  plot + geom_point(mapping = aes(colour = Module, group = Module),show.legend=FALSE)}
+          if(point == TRUE) {plot <-  plot + geom_point(mapping = aes(colour = Module, group = Module),show.legend=l)}
           
           if(facet == TRUE) {plot <- plot + scale_x_continuous(breaks = data2plot$Column)}
           if(showSE == TRUE){
@@ -107,27 +106,21 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       )
 
       if(z == TRUE) {
-        plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
+        plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2, show.legend = FALSE)
       }
       if(facet == TRUE) {
         plot <- plot + facet_wrap(~Treatment)
       }
       
       if(xgrid == TRUE && boxRibbon == 'Ribbon' && facet == TRUE) {
-        plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5)
+        plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
       }
       
-      sortCol <- sub(" .*","",t) #t aways starts with VACCINE_DAY
-      if (facet == TRUE) {
-        sortCol <- as.numeric(unlist(str_split(sortCol, "_"))[2])
-        if (boxRibbon == 'Boxplot') {
-          sortCol <- factor(sortCol, levels = levels(data2plot$Column))
-        }
-      } else {
-        sortCol <- factor(sortCol, levels = levels(data2plot$Column))
-      }
+      #sortCol - VACCINE_DAY
+      sortColDF <- makeSortColDF(sortCol,facet)# data.frame(Column = sortCol)
       plot <- plot + 
-      geom_text(mapping = aes(label = "▲", y = -Inf, x = sortCol, size = 3), hjust = 0.5, vjust = 0, show.legend=FALSE)
+        geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 6, hjust = 0.5, vjust = 1, show.legend=FALSE) +
+        geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 6, hjust = 0.5, vjust = 0, show.legend=FALSE)
     }
   }
   return(list(plot = plot, table = data2plot))

@@ -98,13 +98,24 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
   return(plot)
 }
 
+makeSortColDF <- function(sortCol,facet) {
+  if(facet == TRUE) {
+    # we have a Treatment and Column 
+    sortColDF <- data.frame(Treatment = unlist(str_split(sortCol, "_"))[1], 
+                            Column = as.integer(unlist(str_split(sortCol, "_"))[2]))
+  } else {
+    sortColDF <- data.frame(Column = sortCol)
+  }
+  return(sortColDF)
+}
+
 plotTopGenesInSeries <- function(data2plot,
            #asGenes,
            connectPoints,
            showlegend,
            t,
            facet,
-           showZero,pointsBoxes) {
+           showZero,pointsBoxes,sortCol) {
     if (is.null(data2plot)) return(NULL)
   
   showNotification("Please wait for plot output…", type = 'message', duration = 3)
@@ -120,14 +131,16 @@ plotTopGenesInSeries <- function(data2plot,
         mutate(Gene = paste0(Gene, ' (', Probe, ')')) %>%
         select(-c(Probe))
     }
+  
     plotData <- plotData %>%
       mutate(Gene = factor(Gene, levels = unique(Gene)))
-    if (facet == FALSE) {
+    
+    if(facet == FALSE) {
       plotData <- plotData %>%
         mutate(Column = factor(Column, levels = unique(Column)))
     }
     
-      plot <-   ggplot(data = plotData) +
+    plot <-   ggplot(data = plotData) +
       {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.2, outlier.alpha = 1.0, show.legend = showlegend)}} +
       {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.2, outlier.alpha = 1.0, show.legend = FALSE)}} +
       {if(pointsBoxes == 'Points'){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), show.legend = showlegend)}} +
@@ -145,6 +158,13 @@ plotTopGenesInSeries <- function(data2plot,
         facet_wrap( ~ Treatment)
     }
     
+    #sortCol - VACCINE_DAY
+    sortColDF <- makeSortColDF(sortCol,facet)# data.frame(Column = sortCol)
+    plot <- plot + 
+      geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 6, hjust = 0.5, vjust = 1, show.legend=FALSE) +
+      geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 6, hjust = 0.5, vjust = 0, show.legend=FALSE)
+    
+
     return(plot)
   }
 
