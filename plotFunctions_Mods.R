@@ -59,13 +59,6 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       filter(Module %in% mods, Column %in% selCol)
 
     if(nrow(data2plot)>0) { # clicking Plot without endtering columns
-      
-      # merge module and title if group by module
-      # if(grouper =='Module') {
-      #   data2plot <- data2plot %>%
-      #     mutate(Module = paste0(Module,' (',Title,')'))
-      # }
-      
 
       if(facet == TRUE) {
         data2plot <- data2plot %>%

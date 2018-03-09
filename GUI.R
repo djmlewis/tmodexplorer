@@ -21,13 +21,13 @@ ui <-
     column(6,
         wellPanel(
           fluidRow(
-            column(10,selectInput('selectDataFI', "Fold Increase From Baseline", character(0), width = '100%')),
+            column(10,selectInput('selectDataFI', "Fold Increase From Baseline", character(0))),
             column(2,actionButton('buttonLoadDataFI',label = 'Load FI',class = "btn-primary"))
       ))),
     column(6,
       wellPanel(
         fluidRow(
-        column(10,selectInput('selectDataRAW', "Raw Expression", character(0), width = '100%')),
+        column(10,selectInput('selectDataRAW', "Raw Expression", character(0))),
         column(2,actionButton('buttonLoadDataRAW',label = 'Load Raw',class = "btn-primary"))
       )))
     ),
@@ -95,9 +95,10 @@ ui <-
            tabPanel('Selected Probes',
              wellPanel(
                h4('Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
-               div(downloadButton('buttonSaveTableProbes', 'Download Table'),
-                downloadButton('buttonSaveListGenes', 'Download Gene List'),
-                downloadButton('buttonSaveListProbes', 'Download Probe List')
+               div(
+                downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Download Table'),
+                downloadButton(class="btn-outline-primary",'buttonSaveListGenes', 'Download Gene List'),
+                downloadButton(class="btn-outline-primary",'buttonSaveListProbes', 'Download Probe List')
               ),
              hr(),
                dataTableOutput('datatableTopGenesUp'))
@@ -132,14 +133,14 @@ ui <-
                ),
                plotOutput('plotTopGenesSeries', height = '600px')),
              wellPanel(
-               downloadButton('buttonSaveTableProbesSeries', 'Download Table'), hr(), 
+               downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Download Table'), hr(), 
                dataTableOutput('datatableTopGenesSeries'))
            ),
            #################### Genes->Modules ##################
            tabPanel('Genes->Modules',
              wellPanel(
                h4('Modules Associated With Selected Probes or Genes'),
-               downloadButton('buttonSaveTableGenesModules', 'Download Table'), hr(), dataTableOutput('datatableGenesModules'))
+               downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Download Table'), hr(), dataTableOutput('datatableGenesModules'))
            ),
            #################### Modules #########################
            tabPanel('Modules',
@@ -153,7 +154,9 @@ ui <-
                ),
                plotOutput('plotGenesModules', height = '800px')),
              wellPanel(
-               downloadButton('buttonSaveTableModules', 'Download Table'), hr(), dataTableOutput('datatableSelModulesOnly'))
+               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Download Table'),
+               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Download Raw Data'), hr(), 
+               dataTableOutput('datatableSelModulesOnly'))
            ),
            #################### Modules->Genes ###################
            tabPanel('Module->Genes',
@@ -167,7 +170,7 @@ ui <-
                ),
                plotOutput('plotModuleGenes', height = '600px')),
              wellPanel(
-               downloadButton('buttonSaveTableModulesGenes', 'Download Table'), hr(), dataTableOutput('datatableModuleGenes'))
+               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Download Table'), hr(), dataTableOutput('datatableModuleGenes'))
            ),
            #################### Modules Series ###################
            tabPanel('Modules:Series',
@@ -212,18 +215,19 @@ ui <-
                plotOutput('plotModuleSeries', height = '600px')
              ),
              wellPanel(
-               downloadButton('buttonSaveTableModulesSeries', 'Download Table'), hr(), dataTableOutput('datatableModuleSeries'))
+               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Download Table'), hr(),
+               dataTableOutput('datatableModuleSeries'))
            )),
           #################### Gene Lookup ###################
           tabPanel('Gene Lookup',
             wellPanel(
               h4("Enter a gene name or partial name and click Lookup"),
-              h5("Use commas to separate multiple genes"),
+              h5("Use commas to separate multiple genes. Alternatively, leave box empty and click Lookup to return all genes, then use search boxes above/below table to search"),
               fluidRow(
                 column(8,textInput('textInputGeneLookup',NULL)),
                 column(4,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-primary"),actionButton("buttonGeneLookupNone", "Clear")))
               ),
-              h6("Alternatively, leave box empty and click Lookup to return all genes, then use search boxes above/below table to search"),
+              downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Download Table'), hr(), 
               dataTableOutput('datatableGeneLookup')
             )
           )
@@ -297,10 +301,10 @@ ui <-
          ),
          plotOutput('mplotSelectedModules', height = '800px')),
        wellPanel(
-         div(downloadButton('mbuttonSaveTableModules', 'Download Table'),
-             downloadButton('mbuttonSaveListTopModules', 'Download Modules List'),
-             downloadButton('mbuttonSaveListTopModuleTitles', 'Download Titles List'),
-             downloadButton('mbuttonSaveListTopModuleCategory', 'Download Categories List')
+         div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Download Table'),
+             downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModules', 'Download Modules List'),
+             downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModuleTitles', 'Download Titles List'),
+             downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModuleCategory', 'Download Categories List')
          ), hr(), 
          dataTableOutput('mdatatableTopModulesUp'))
      ),
@@ -346,12 +350,12 @@ ui <-
                       wellPanel(
                         selectInput('mselectModuleTitles', label = ('Titles In Datset'), character(0), multiple = TRUE),
                         actionButton('mbuttonRemoveAllModuleTitles','None'),
-                        downloadButton('mbuttonSaveListTopModuleTitlesSeries', 'Download Titles List')
+                        downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModuleTitlesSeries', 'Download Titles List')
                       ),
                       wellPanel(
                         selectInput('mselectModuleAllModules', label = ('Modules In Datset'), character(0), multiple = TRUE),
                         actionButton('mbuttonRemoveAllModulesModuleSeries','None'),
-                        downloadButton('mbuttonSaveListTopModulesSeries', 'Download Modules List')
+                        downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModulesSeries', 'Download Modules List')
                       )
                     ),
                     choiceValues = list('Modules Selected By Filters','All Titles In The Datset', 'All Modules In The Datset')
@@ -362,20 +366,20 @@ ui <-
          plotOutput('mplotModuleSeries', height = '600px')
        ),
        wellPanel(
-         downloadButton('mbuttonSaveTableModulesSeries', 'Download Table'), hr(), 
+         downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Download Table'), hr(), 
          dataTableOutput('mdatatableModuleSeries'))
      ),
     #################### Module Lookup #######################
     tabPanel('Module Lookup',
       wellPanel(
        h5("Enter a module name and click Lookup"),
-       h6("Use commas to separate multiple modules"),
+       h6("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search"),
        fluidRow(
          column(8,textInput('mtextInputModLookup',NULL)),
          column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-primary"),
                       actionButton("mbuttonModLookupNone", "Clear")))
        ),
-       h6("Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search"),
+       downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Download Table'), hr(), 
        dataTableOutput('mdatatableModuleLookup')
       )
     )

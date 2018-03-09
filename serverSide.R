@@ -227,43 +227,59 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   
   #################### Top Probes #########################
   # output top genes
-  output$datatableTopGenesUp <- renderDataTable({
-    topGenesAndModules()[['genes']]
-  })
-  uniquer <- function(){
-    sub('\\.','',as.character(as.numeric(Sys.time())))
+  output$datatableTopGenesUp <- renderDataTable({topGenesAndModules()[['genes']]})
+  dataFilterStr <- function(t) {
+    switch (t,
+      'g' = return(paste0(allData$folder,'\n# ',filtersText())),
+      'm' = return(paste0(allData$folder,'\n# ',modulesAndFiltersText()))
+    )
   }
-  output$buttonSaveTableProbes <- downloadTableCSV(topGenesAndModules()[['genes']],'TopGenes_')
-  output$buttonSaveListGenes <- downloadGeneList(topGenesAndModules()[['genes']][['Gene']],paste0('TopGenesList_',uniquer()))
-  output$buttonSaveListProbes <- downloadGeneList(topGenesAndModules()[['genes']][['Probe']],paste0('TopProbesList_',uniquer()))
   
+  output$buttonSaveTableProbes <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.csv")},
+    content = function(file) {write.csv(topGenesAndModules()[['genes']], file, row.names = FALSE)})
+  
+  output$buttonSaveListGenes <- downloadHandler(filename = function(){paste0("Selected Genes.txt")},
+   content = function(file) {write_lines(paste0(paste(unique(topGenesAndModules()[['genes']][['Gene']]), collapse = ','),'\n\n# ',dataFilterStr('g')), file)})
+  
+  output$buttonSaveListProbes <- downloadHandler(filename = function(){paste0("Selected Probes.txt")},
+    content = function(file) {write_lines(paste0(paste(unique(topGenesAndModules()[['genes']][['Probe']]), collapse = ','),'\n\n# ',dataFilterStr('g')), file)})
+  
+
   #################### Top Probes Series #########################
+  topGenesInSeries <- NULL
   observeEvent(
     {
       input$buttonPlotSeries
     },
     {
-      topGenesInSeries <- getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries, 
+      # MUST USE <<- to affect the external topGenesInSeries
+      topGenesInSeries <<- getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries, 
                         input$checkboxSplitSeries)
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
-      output$buttonSaveTableProbesSeries <- downloadTableCSV(topGenesInSeries,'GenesSeries_')
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
         input$checkboxShowPointsSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
         input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
+      
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
     })
   
   observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
   observeEvent(input$buttonRemoveAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = character(0))})
   
+  output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Probes-Genes Series.csv")},
+                                                  content = function(file) {write.csv(topGenesInSeries, file, row.names = FALSE)})
   
+
   #################### Genes->Modules #########################
   # output assoc modules
   output$datatableGenesModules <- renderDataTable({
     topGenesAndModules()[['modules']]
   })
-  output$buttonSaveTableGenesModules <- downloadTableCSV(topGenesAndModules()[['modules']],'TopGenesModules_')
+
+  output$buttonSaveTableGenesModules <- downloadHandler(filename = function(){paste0("Selected Genes -> Modules.csv")},
+     content = function(file) {write.csv(topGenesAndModules()[['modules']], file, row.names = FALSE)})
+  
   
   #################### Modules #########################
   # get the individual gene values for boxplot and the summ stats of the modules
@@ -271,7 +287,10 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     getExpressionsForModules(topGenesAndModules(),input$selectColumn,allData$data, input$checkboxShowPsuedoModuleGenesModules,filtersText())})
   # draw / save table
   output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['summStats']]})
-  output$buttonSaveTableModules <- downloadTableCSV(topGenesAndModules()[['modsOnly']],'Modules_')
+  output$buttonSaveTableModulesSummary <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Summary.csv")},
+    content = function(file) {write.csv(geneExpressionsForModules()[['summStats']], file, row.names = FALSE)})
+  output$buttonSaveTableModulesRaw <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Raw.csv")},
+    content = function(file) {write.csv(geneExpressionsForModules()[['expressions']], file, row.names = FALSE)})
   
   # draw / save plot
   ggplotGenesModules <-
@@ -291,7 +310,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
                                                               allData$data,topGenesAndModules()[['genes']])})
   # redraw the table of gene expressions for the module selected
   output$datatableModuleGenes <- renderDataTable({expressionsInModule()})
-  output$buttonSaveTableModulesGenes <- downloadTableCSV(expressionsInModule(),'ModuleGenes_')
+  output$buttonSaveTableModulesGenes <- downloadHandler(filename = function(){paste0("Selected Genes-",input$selectModuleForGenes,"-Genes.csv")},
+     content = function(file) {write.csv(expressionsInModule(), file, row.names = FALSE)})
   
   ggplotModuleGenes <- reactive({plotModuleGenes(expressionsInModule(),isolate(input$selectModuleForGenes),
                                 dataAndFiltersText(),input$checkboxShowLegendModuleGenes, input$checkboxShowZeroModuleGenes,
@@ -300,6 +320,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
 
   #################### Modules Series #########################
   # selectModuleForSeries and selectColumnForModuleSeries are updated above
+  moduleValues <- NULL
   observeEvent({
     input$buttonPlotModuleSeries
   },{
@@ -309,7 +330,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
       input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
 
     if(!is.null(moduleValues) && input$checkboxShowPseudoModuleModuleSeries == TRUE) {
-      moduleValues <- getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
+      # MUST USE <<- to affect the external moduleValues
+      moduleValues <<- getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
                             input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
                             input$radioRibbonBoxModuleSeries,moduleValues)
     }
@@ -321,18 +343,22 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
         input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
   })
+  output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
+    content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
   
   observeEvent(input$buttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = allData$colNames)})
   observeEvent(input$buttonAddAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = mods4Genes())})
   observeEvent(input$buttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = character(0))})
   observeEvent(input$buttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = character(0))})
   
-  #################### Gene Lookup
+  ############################## Gene Lookup ###########
+  lookedupGenes <- NULL
   observeEvent({
     input$buttonGeneLookup
   },{
-    selgenes <- lookupGenesProbes(input$textInputGeneLookup, allData$annot)
-    output$datatableGeneLookup <- renderDataTable({selgenes})
+    # <<-
+    lookedupGenes <<- lookupGenesProbes(input$textInputGeneLookup, allData$annot)
+    output$datatableGeneLookup <- renderDataTable({lookedupGenes})
   })
   observeEvent({
     input$buttonGeneLookupNone
@@ -341,6 +367,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     output$datatableGeneLookup <- renderDataTable({NULL})
   })
 
+  output$buttonSaveTableGeneLookup <- downloadHandler(filename = function(){paste0("Gene Lookup.csv")},
+   content = function(file) {write.csv(lookedupGenes, file, row.names = FALSE)})
   
 
 #################### MODULES ####################  
@@ -437,10 +465,18 @@ observeEvent(
 
 # output top genes
 output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()})
-output$mbuttonSaveTableModules <- downloadTableCSV(topModulesSelected(),'TopModules_')
-output$mbuttonSaveListTopModules <- downloadTopModuleList(topModulesSelected()[['Module']],'TopModulesList_')
-output$mbuttonSaveListTopModuleTitles <- downloadTopModuleList(topModulesSelected()[['Title']],'TopModulesTitlesList_')
-output$mbuttonSaveListTopModuleCategory <- downloadTopModuleList(topModulesSelected()[['Category']],'TopModulesCategoriesList_')
+output$mbuttonSaveTableModules <- downloadHandler(filename = function(){paste0("Selected By Modules.csv")},
+  content = function(file) {write.csv(topModulesSelected(), file, row.names = FALSE)})
+
+
+output$mbuttonSaveListTopModules <- downloadHandler(filename = function(){paste0("Selected By Modules-Modules.txt")},
+  content = function(file) {write_lines(paste0(paste(unique(topModulesSelected()[['Module']]), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
+output$mbuttonSaveListTopModuleTitles <- downloadHandler(filename = function(){paste0("Selected By Modules-Titles.txt")},
+  content = function(file) {write_lines(paste0(paste(unique(topModulesSelected()[['Title']]), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
+output$mbuttonSaveListTopModuleCategory <- downloadHandler(filename = function(){paste0("Selected By Modules-Categories.txt")},
+  content = function(file) {write_lines(paste0(paste(unique(topModulesSelected()[['Category']]), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
+
+
 
   #################### Plot Modules Selected #########################
 ggplotSelectedModules <-
@@ -449,6 +485,8 @@ ggplotSelectedModules <-
 output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()})
 
   #################### Plot Modules Selected Series #########################
+
+ggplotSelectedModulesSeries <- NULL
 observeEvent({
   input$mbuttonPlotModuleSeries
 },{
@@ -463,7 +501,8 @@ observeEvent({
   if(is.null(mods2plot) || is.null(input$mselectColumnForModuleSeries)) {
     showNotification("Both Column and Modules must be defined", type = "error", duration = 3)
   } else {
-    ggplotSelectedModulesSeries <- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
+    # MUST USE <<-
+    ggplotSelectedModulesSeries <<- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
       mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
       input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
       input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
@@ -481,17 +520,27 @@ observeEvent(input$mbuttonAddAllModuleSeries,{updateSelectInput(session, 'mselec
 observeEvent(input$mbuttonRemoveAllModuleSeries,{updateSelectInput(session, 'mselectPlotModulesInSeries',selected = character(0))})
 
 observeEvent(input$mbuttonRemoveAllModuleTitles,{updateSelectInput(session, 'mselectModuleTitles', selected = character(0))})
-output$mbuttonSaveListTopModuleTitlesSeries <- downloadTopModuleList(input$mselectModuleTitles,'TopModulesCategoriesSeriesList_')
 
 observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'mselectModuleAllModules', selected = character(0))})
-output$mbuttonSaveListTopModulesSeries <- downloadTopModuleList(modNameFromMenuTitle(input$mselectModuleAllModules),'TopModulesSeriesList_')
+
+
+output$mbuttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected By Modules Series.csv")},
+  content = function(file) {write.csv(ggplotSelectedModulesSeries[['table']], file, row.names = FALSE)})
+
+output$mbuttonSaveListTopModuleTitlesSeries <- downloadHandler(filename = function(){paste0("Selected By Modules Titles For Series.txt")},
+ content = function(file) {write_lines(paste0(paste(unique(input$mselectModuleTitles), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
+output$mbuttonSaveListTopModulesSeries <- downloadHandler(filename = function(){paste0("Selected By Modules For Series.txt")},
+  content = function(file) {write_lines(paste0(paste(unique(modNameFromMenuTitle(input$mselectModuleAllModules)), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
+
 
   #################### Modules Lookup #########################
+lookedupMods <- NULL
 observeEvent({
   input$mbuttonModLookup
 },{
-  selmods <- lookupModules(input$mtextInputModLookup, allData$modulesMeans)
-  output$mdatatableModuleLookup <- renderDataTable({selmods})
+  # use <<-
+  lookedupMods <<- lookupModules(input$mtextInputModLookup, allData$modulesMeans)
+  output$mdatatableModuleLookup <- renderDataTable({lookedupMods})
 })
 
 observeEvent({
@@ -500,6 +549,9 @@ observeEvent({
   updateTextInput(session, 'mtextInputModLookup', value = "")
   output$mdatatableModuleLookup <- renderDataTable({NULL})
 })
+
+output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){paste0("Module Lookup.csv")},
+  content = function(file) {write.csv(lookedupMods, file, row.names = FALSE)})
 
   #################### End Of Server #########################
 } # end of server

@@ -247,36 +247,15 @@ lookupGenesProbes <- function(gene,annot) {
       filter(annot,grepl(g,annot$GeneName, ignore.case = TRUE))
     }) %>%
     select(GeneName,SystematicName,ProbeName,Description)
+  
+  if(nrow(probes) == 0) {
+    showNotification("No genes found", type = 'error')
+    return(NULL)
+  }
+  
   return(probes)
 }
 
-lookupModules <- function(mods2find,modmeans) {
-  if(is.null(mods2find) || is.null(modmeans)) return(NULL)
-  if(grepl(' ',mods2find)) {
-    showNotification("Spaces have been stripped", type = 'warning')
-    mods2find <- gsub(" ","",mods2find)
-  }
-  if(grepl(',',mods2find)) {
-    # multiple search
-    mods2find <- unlist(strsplit(mods2find,','))
-  }
-  modmeans <- select(modmeans,Module,Title,Category)
-  mods <- 
-    map_dfr(mods2find,function(m){
-      filter(modmeans,grepl(m,Module, ignore.case = TRUE)) #grepl(m,modmeans$Module, ignore.case = TRUE)
-    }) %>%
-    distinct() %>%
-    arrange(Module)
-
-  l <- getModuleMembers(mods$Module)
-  d <- map_dfr(names(l),function(mod) {
-    df <- data.frame(Module = mod, Gene = paste(l[[mod]], collapse = ", "), stringsAsFactors = FALSE)
-  })
-  mods <- full_join(mods,d,by = "Module")
-  
-  
-  return(mods)
-}
 
 modules4GeneList <- function(genes2map,genes2mapRanks) {
   # protect from empty data

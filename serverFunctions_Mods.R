@@ -98,3 +98,38 @@ getModulesForTitles <- function(cats,modsdata) {
   })
   return(unique(mods$Mods))
 }
+
+lookupModules <- function(mods2find,modmeans) {
+  if(is.null(mods2find) || is.null(modmeans)) return(NULL)
+  if(grepl(' ',mods2find)) {
+    showNotification("Spaces have been stripped", type = 'warning')
+    mods2find <- gsub(" ","",mods2find)
+  }
+  if(grepl(',',mods2find)) {
+    # multiple search
+    mods2find <- unlist(strsplit(mods2find,','))
+  }
+  modmeans <- select(modmeans,Module,Title,Category)
+  mods <- 
+    map_dfr(mods2find,function(m){
+      filter(modmeans,grepl(m,Module, ignore.case = TRUE)) #grepl(m,modmeans$Module, ignore.case = TRUE)
+    }) %>%
+    distinct() %>%
+    arrange(Module)
+  
+  l <- getModuleMembers(mods$Module)
+  if(length(l) == 0) {
+    showNotification("No modules found", type = 'error')
+    return(NULL)
+  }
+  
+  d <- map_dfr(names(l),function(mod) {
+    df <- data.frame(Module = mod, Gene = paste(l[[mod]], collapse = ", "), stringsAsFactors = FALSE)
+  })
+
+  mods <- full_join(mods,d,by = "Module")
+  
+  
+  return(mods)
+}
+

@@ -285,29 +285,3 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
   return(moduleValues)
 }
 
-downloadGeneList <- function(list,fname){
-  fname <- paste0(fname,'_.txt')
-  downloadHandler(fname,function(file) {
-    write_lines(paste(unique(list), collapse = ','), file)
-  })
-}
-
-downloadTopModuleList <- function(list,fname){
-  fname <- paste0(fname,'_.txt')
-  downloadHandler(fname,function(file) {
-    write_lines(paste(unique(list), collapse = ','), file)
-  })
-}
-
-downloadTableCSV <- function(table2save,fname){
-  fname <- paste0(fname,'_.csv')
-  downloadHandler(fname,function(file) {
-    write.csv(table2save, file, row.names = FALSE)})
-}
-
-downloadPlotPNG <- function(plot2save,fname){
-  fname <- paste0(fname,'_.png')
-  downloadHandler(fname,function(file) {
-    ggsave(file, plot = plot2save, device = 'png', width = 400, height = 300, units = 'mm')
-  })
-}
