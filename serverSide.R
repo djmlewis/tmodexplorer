@@ -1,5 +1,6 @@
 
 server <- function(input, output, session) {
+  
 #   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
   
@@ -14,6 +15,7 @@ server <- function(input, output, session) {
   hideTab(inputId = "navbarTop", target = "Explore By Probe")
   hideTab(inputId = "navbarTop", target = "Explore By Module")
 
+  
 #   #################### Password #########################
   password <- read_rds("p")
   observeEvent(input$buttonPassword, {

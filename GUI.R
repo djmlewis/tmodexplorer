@@ -133,7 +133,8 @@ ui <-
                ),
                plotOutput('plotTopGenesSeries', height = '600px')),
              wellPanel(
-               downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Download Table'), hr(), 
+               conditionalPanel(condition = "output.datatableTopGenesSeries != null",
+                  downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Download Table')), hr(), 
                dataTableOutput('datatableTopGenesSeries'))
            ),
            #################### Genes->Modules ##################
@@ -215,7 +216,8 @@ ui <-
                plotOutput('plotModuleSeries', height = '600px')
              ),
              wellPanel(
-               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Download Table'), hr(),
+               conditionalPanel(condition = "output.datatableModuleSeries != null",
+                downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Download Table')), hr(),
                dataTableOutput('datatableModuleSeries'))
            )),
           #################### Gene Lookup ###################
@@ -227,7 +229,8 @@ ui <-
                 column(8,textInput('textInputGeneLookup',NULL)),
                 column(4,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-primary"),actionButton("buttonGeneLookupNone", "Clear")))
               ),
-              downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Download Table'), hr(), 
+              conditionalPanel(condition = "output.datatableGeneLookup != null",
+                downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Download Table')), hr(), 
               dataTableOutput('datatableGeneLookup')
             )
           )
@@ -322,7 +325,7 @@ ui <-
                     checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
                     conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
                       strong(p("Lines options:")),
-                      conditionalPanel(condition = "mcheckboxShowFacetModuleSeries == true",
+                      conditionalPanel(condition = "input.mcheckboxShowFacetModuleSeries == true",
                         checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE)),
                       checkboxInput('mcheckboxShowPointsSeries', 'Points', value = FALSE),
                       checkboxInput('mcheckboxShowSEModuleSeries', 'SEM', value = FALSE)
@@ -366,7 +369,8 @@ ui <-
          plotOutput('mplotModuleSeries', height = '600px')
        ),
        wellPanel(
-         downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Download Table'), hr(), 
+         conditionalPanel(condition = "output.mdatatableModuleSeries != null",
+          downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Download Table')), hr(), 
          dataTableOutput('mdatatableModuleSeries'))
      ),
     #################### Module Lookup #######################
@@ -379,7 +383,8 @@ ui <-
          column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-primary"),
                       actionButton("mbuttonModLookupNone", "Clear")))
        ),
-       downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Download Table'), hr(), 
+       conditionalPanel(condition = "output.mdatatableModuleLookup != null",
+        downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Download Table')), hr(), 
        dataTableOutput('mdatatableModuleLookup')
       )
     )
@@ -392,6 +397,6 @@ ui <-
   ##### 
     # ),# top tabset
   hr(),
-  div(img(src = 'surrey.png'), img(src = 'ugent.png'), img(src = 'mpiib.png'),img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')),
+  div( img(src = 'surrey.png'), img(src = 'ugent.png'), img(src = 'mpiib.png'),img(src = 'icl.png'), img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')),
   hr()
   )# navpage top
