@@ -1,6 +1,7 @@
 themeBase <- theme_bw() + 
   theme(
     panel.grid = element_blank(),
+    strip.background = element_rect(fill = "#f8ffeb"),
     axis.title = element_blank(),
     strip.text = element_text(size = 14),
     axis.text.y = element_text(size = 14),
@@ -49,14 +50,14 @@ plotGenesModules <- function(d,t,l,z,gg){
           colour = Module,
           fill = Module
         )
-      ) +
-        geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
-        ggtitle(paste0('Modules For Selected Genes\n',t)) +
-        themeBase
-  
+      )
       if(z == TRUE) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
+      plot <-  plot +
+        geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
+        ggtitle(paste0('Modules For Selected Genes\n',t)) +
+        themeBase
     }
   }
   return(plot)

@@ -39,6 +39,12 @@ server <- function(input, output, session) {
   observeEvent(input$buttonLoadDataRAW, {if (getNewData(allData,input$selectDataRAW) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
   observeEvent(input$fileInputUploadData,{if(loadUploadedData(allData,input$fileInputUploadData,input$textInputUploadFileName)) {updateLoadControls()}})
   
+  output$buttonsavedatatableAll <- downloadHandler(filename = function(){paste0(allData$folder,".csv")},
+    content = function(file) {write.csv(allData$data, file, row.names = FALSE)})
+  
+  output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
+  
+  
   updateExpressionMinMax <- function(selCol){
     if(!is.null(selCol)){
       expressionValueRange <- getMaxMinValueFromData(allData$data,c(selCol))#allData$colNames
@@ -91,6 +97,10 @@ server <- function(input, output, session) {
     output$datatableTopGenesSeries <- renderDataTable({NULL})
     output$plotModuleSeries <- renderPlot({NULL})
     output$datatableModuleSeries <- renderDataTable({NULL})
+    output$mdatatableModuleLookup <- renderDataTable({NULL})
+    output$datatableGeneLookup <- renderDataTable({NULL})
+    
+    
 
     # modules DO NOT RESPOND. NEED TO FIX
     updateSelectInput(session, 'mselectColumn', choices = allData$colNames, selected = character(0))
@@ -109,7 +119,6 @@ server <- function(input, output, session) {
 dataAndFiltersText <- reactiveVal(value = "")
 filtersText <- reactiveVal(value = "")
 modulesAndFiltersText <- reactiveVal(value = "")
-output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
 output$textDataName <- renderText({allData$folder})
 output$textDataNameProbes <- renderText({allData$folder})
 output$textDataNameMods <- renderText({allData$folder})
@@ -264,6 +273,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
         input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
       
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
+      output$plotTopGenesSeriesSIZE <- renderUI({plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight))})
+        
     })
   
   observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
@@ -299,7 +310,9 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],dataAndFiltersText(),
                 input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules,input$checkboxGGplotGenesModules)})
   output$plotGenesModules <- renderPlot({ggplotGenesModules()})
-
+  output$plotGenesModulesSIZE <- renderUI({plotOutput("plotGenesModules", height = input$numberPlotGenesModulesSIZEheight)})
+  
+  #function() {session$clientData$output_datatableSelModulesOnly_width }
   #################### Modules->Genes #########################
   # link the module select to the modules for top genes topGenesAndModules()[['modsOnly']]
   mods4Genes <- reactive({moduleDescriptionsForGenes(geneExpressionsForModules()[['summStats']])})
@@ -319,7 +332,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
                                 dataAndFiltersText(),input$checkboxShowLegendModuleGenes, input$checkboxShowZeroModuleGenes,
                                 input$checkboxGGplotModuleGenes)})
   output$plotModuleGenes <- renderPlot({ggplotModuleGenes()})
-
+  output$plotModuleGenesSIZE <- renderUI({plotOutput("plotModuleGenes", height = input$numberPlotModuleGenesSIZEheight)})
+  
   #################### Modules Series #########################
   # selectModuleForSeries and selectColumnForModuleSeries are updated above
   moduleValues <- NULL
@@ -344,6 +358,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
         input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
         input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
+    output$plotModuleSeriesSIZE <- renderUI({plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight))})
+    
   })
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
     content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
@@ -485,6 +501,7 @@ ggplotSelectedModules <-
   reactive({plotSelectedModules(allData$modules,topModulesSelected(),modulesAndFiltersText(), 
     input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName,input$mcheckboxGGplotGenesModules)})
 output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()})
+output$mplotSelectedModulesSIZE <- renderUI({plotOutput("mplotSelectedModules", height = input$numbermplotSelectedModulesSIZEheight)})
 
   #################### Plot Modules Selected Series #########################
 
@@ -510,6 +527,7 @@ observeEvent({
       input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
       input$mcheckboxShowPointsSeries,sortCol_Mods)
     output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
+    output$mplotModuleSeriesSIZE <- renderUI({plotOutput("mplotModuleSeries", height = isolate(input$numbermplotModuleSeriesSIZEheight))})
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
   }
 })
