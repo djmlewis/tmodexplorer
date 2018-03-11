@@ -114,8 +114,8 @@ addSortColPlot <- function(sortCol,facet,plot,ll) {
   }
   
   plot <- plot + 
-    geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 6, hjust = 0.5, vjust = 1, show.legend=FALSE) +
-    geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 6, hjust = 0.5, vjust = 0, show.legend=FALSE)
+    geom_text(data = sortColDF, mapping = aes(x = Column),label = "▼", color = 'red', y = Inf, size = 5, hjust = 0.5, vjust = 1, show.legend=FALSE) +
+    geom_text(data = sortColDF, mapping = aes(x = Column),label = "▲", color = 'red', y = -Inf, size = 5, hjust = 0.5, vjust = 0, show.legend=FALSE)
   
   return(plot)
 }

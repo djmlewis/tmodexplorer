@@ -22,13 +22,13 @@ ui <-
         wellPanel(style = "background-color: #feffee;",
           fluidRow(
             column(10,selectInput('selectDataFI', "Fold Increase From Baseline", character(0))),
-            column(2,actionButton('buttonLoadDataFI',label = 'Load FI',class = "btn-primary"))
+            column(2,actionButton('buttonLoadDataFI',label = 'Load',class = "btn-primary"))
       ))),
     column(6,
       wellPanel(style = "background-color: #feffee;",
         fluidRow(
         column(10,selectInput('selectDataRAW', "Raw Expression", character(0))),
-        column(2,actionButton('buttonLoadDataRAW',label = 'Load Raw',class = "btn-primary"))
+        column(2,actionButton('buttonLoadDataRAW',label = 'Load',class = "btn-primary"))
       )))
     ),
     h4(align = 'center', textOutput('textDataName')),
@@ -362,13 +362,10 @@ ui <-
                                                           checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE)),
                                          checkboxInput('mcheckboxShowPointsSeries', 'Points', value = FALSE),
                                          checkboxInput('mcheckboxShowSEModuleSeries', 'SEM', value = FALSE)
-                          ),
-                        conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Boxplot'",
-                                         radioButtons('mradioGroupTitleNameModuleSeries','Group Boxplot',choices = c('Title','Module'), selected = 'Module')
-                        )
+                          )
                       ),
                     column(6,
-                    checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
+                    radioButtons('mradioGroupTitleNameModuleSeries','Group By:',choices = c('Title','Module'), selected = 'Module'),                    checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                     checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = FALSE),
                     checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
                     sliderInput("numbermplotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2000)

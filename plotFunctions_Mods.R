@@ -75,7 +75,6 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       }
       
       plot <-  ggplot(
-        data = data2plot,
         mapping = aes_string(
           x = 'Column',
           y = yCol
@@ -84,36 +83,43 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         ggtitle(paste0('Selected Modules\n',t)) +
         themeBase
       
+      
+      
       switch (boxRibbon,
         'Boxplot' = {
-          plot <- plot + geom_boxplot(mapping = aes_string(colour = grouper,fill = grouper), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
+          plot <- plot + geom_boxplot(data = data2plot, mapping = aes_string(colour = grouper,fill = grouper), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
         },
         'Lines' = {
+          # ModuleMeans is ordered by Module so we have to recalculate
+          if(grouper == 'Title') {
+            data2plot <- data2plot %>%
+              group_by(Title,Treatment,Column) %>%
+              summarise_if(is.numeric,mean)
+          }
           plot <- plot + 
-            # Lines/line aes() does not work with Title which has duplicates, impose Module
-            geom_line(mapping = aes(colour = Module, group = Module),show.legend=l)
+            geom_line(data = data2plot, mapping = aes_string(colour = grouper, group = grouper),show.legend=l)
           
-          if(point == TRUE) {plot <-  plot + geom_point(mapping = aes(colour = Module, group = Module),show.legend=l)}
+          if(point == TRUE) {plot <-  plot + geom_point(data = data2plot,mapping = aes_string(colour = grouper, group = grouper),show.legend=l)}
           
           if(facet == TRUE) {plot <- plot + scale_x_continuous(breaks = data2plot$Column)}
           if(showSE == TRUE){
             data4SE <- data2plot %>%
               mutate(ymin = Mean-SE, ymax = Mean+SE)
             plot <- plot +
-              geom_ribbon(data = data4SE, mapping = aes(x = Column, ymin = ymin, ymax = ymax,fill = Module,group = Module), alpha = 0.2,show.legend=l)
+              geom_ribbon(data = data4SE, mapping = aes_string(x = 'Column', ymin = 'ymin', ymax = 'ymax',fill = grouper,group = grouper), alpha = 0.2,show.legend=l)
           }
         }
       )
 
       if(z == TRUE) {
-        plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2, show.legend = FALSE)
+        plot <-  plot + geom_hline(data = data2plot, yintercept = 0.0, linetype = 2, show.legend = FALSE)
       }
       if(facet == TRUE) {
         plot <- plot + facet_wrap(~Treatment)
       }
       
       if(xgrid == TRUE && boxRibbon == 'Lines' && facet == TRUE) {
-        plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+        plot <- plot + geom_vline(data = data2plot, xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
       }
       
       if(sortCol %in% selCol) {
