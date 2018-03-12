@@ -63,6 +63,17 @@ plotGenesModules <- function(d,t,l,z,gg){
   return(plot)
 }
 
+plotDataTable <- function(data2plot) {
+  plot <-  NULL
+  if (!is.null(data2plot) && nrow(data2plot) > 0) {
+    th <- ttheme_default(
+      core=list(bg_params = list(fill = c('#feffee','white'), col=NA)),
+      colhead=list(bg_params = list(fill = c('#d0e862'), col=NA))
+    )
+    plot <- tableGrob(data2plot, rows = NULL, theme = th)
+  }
+  return(plot)
+}
 
 plotModuleGenes <- function(d,m,t,l,z,gg) {
   plot <- NULL

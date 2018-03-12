@@ -165,15 +165,18 @@ ui <-
                  column(1,checkboxInput('checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
                  column(3,checkboxInput('checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE)),
                  column(1,
+                        # numericInput("w",NULL, value = 12),
                         sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2000)
                  )
                ),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotGenesModulesSIZE"))
                ),
+                # plotOutput("plotGenesModulesTable"),
                downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Download Table'),
-               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Download Raw Data'),
-              hr(),
+             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Download Raw Data'),
+             downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Download Table As PNG'),
+             hr(),
                dataTableOutput('datatableSelModulesOnly')),
            #################### Modules->Genes ###################
            tabPanel('Module->Genes',

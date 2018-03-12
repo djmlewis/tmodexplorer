@@ -305,12 +305,25 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   output$buttonSaveTableModulesRaw <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Raw.csv")},
     content = function(file) {write.csv(geneExpressionsForModules()[['expressions']], file, row.names = FALSE)})
   
+  output$buttonSaveTableModulesSummaryPlot <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Table.png")},
+          content = function(file) {
+            t <- plotDataTable(geneExpressionsForModules()[['summStats']])
+            h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
+            w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
+            png(file, height = h*1.8, width = w*10.9, units = 'mm', res = 300, bg = "transparent")
+            grid.newpage()
+            grid.draw(t)
+            dev.off()
+        })
+  
   # draw / save plot
   ggplotGenesModules <-
     reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],dataAndFiltersText(),
                 input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules,input$checkboxGGplotGenesModules)})
   output$plotGenesModules <- renderPlot({ggplotGenesModules()})
+  # output$plotGenesModulesTable <- renderPlot({grid.draw(plotDataTable(geneExpressionsForModules()[['summStats']]))})
   output$plotGenesModulesSIZE <- renderUI({plotOutput("plotGenesModules", height = input$numberPlotGenesModulesSIZEheight)})
+  
   
   #function() {session$clientData$output_datatableSelModulesOnly_width }
   #################### Modules->Genes #########################
