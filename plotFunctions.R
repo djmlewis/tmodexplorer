@@ -21,8 +21,10 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
   original.parameters<- par( no.readonly = TRUE )
   par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
   plot <-  {
-    boxplot(y ~ x, col = colpal,border = bordpal, pars = list(las = 2), horizontal = TRUE, outline = TRUE)
-    if(!is.null(s)) text(y = x, x = xmin, labels = s, pos = 2)
+    # to force a zero line we have to set ylim to 0 as needed
+    ymin <- ifelse(z == TRUE, min(min(y),0),min(y) )
+    boxplot(y ~ x, col = colpal,border = bordpal, pars = list(las = 2), horizontal = TRUE, outline = TRUE, ylim = c(ymin,max(y)))
+    if(!is.null(s)) text(y = x, x = min(ymin,xmin), labels = s, pos = 2)
     title(t)
     if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
     if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(x), fill = colpal, xpd = TRUE)
@@ -78,7 +80,7 @@ plotDataTable <- function(data2plot,file, widthFactor) {
     t <- tableGrob(data2plot, rows = NULL, theme = th)
     h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
     w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
-    print(absolute.size(widthDetails(t)))
+
     png(file, height = h*1.8, width = w*widthFactor, units = 'mm', res = 300, bg = "transparent")
     grid.newpage()
     grid.draw(t)
