@@ -239,6 +239,9 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   #################### Top Probes #########################
   # output top genes
   output$datatableTopGenesUp <- renderDataTable({topGenesAndModules()[['genes']]})
+  output$buttonSaveTableTopGenesUpPlot <- downloadHandler(filename = function(){paste0("Selected By Modules.png")},
+    content = function(file) {plotDataTable(topGenesAndModules()[['genes']](),file)})
+  
   dataFilterStr <- function(t) {
     switch (t,
       'g' = return(paste0(allData$folder,'\n# ',filtersText())),
@@ -307,13 +310,14 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   
   output$buttonSaveTableModulesSummaryPlot <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Table.png")},
           content = function(file) {
-            t <- plotDataTable(geneExpressionsForModules()[['summStats']])
-            h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
-            w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
-            png(file, height = h*1.8, width = w*10.9, units = 'mm', res = 300, bg = "transparent")
-            grid.newpage()
-            grid.draw(t)
-            dev.off()
+            # t <- 
+              plotDataTable(geneExpressionsForModules()[['summStats']],file)
+            # h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
+            # w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
+            # png(file, height = h*1.8, width = w*10.9, units = 'mm', res = 300, bg = "transparent")
+            # grid.newpage()
+            # grid.draw(t)
+            # dev.off()
         })
   
   # draw / save plot
@@ -496,6 +500,8 @@ observeEvent(
 
 # output top genes
 output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()})
+output$buttonSaveTableTopModulesUpPlot <- downloadHandler(filename = function(){paste0("Selected By Modules.png")},
+  content = function(file) {plotDataTable(topModulesSelected(),file)})
 output$mbuttonSaveTableModules <- downloadHandler(filename = function(){paste0("Selected By Modules.csv")},
   content = function(file) {write.csv(topModulesSelected(), file, row.names = FALSE)})
 

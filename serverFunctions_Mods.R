@@ -29,7 +29,7 @@ getSortedModulesForVaccDay <- function(data, colN, descend, asMedians) {
     data4VaccDay <- data4VaccDay %>%
       ungroup() %>%
       mutate(Rank = 1:nrow(data4VaccDay)) %>%
-      select(Rank, everything())
+      select(Rank, Module, Title, Category, everything())
     
     return(data4VaccDay)
   }

@@ -100,9 +100,10 @@ ui <-
                h4('Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
                div(
                 downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Download Table'),
-                downloadButton(class="btn-outline-primary",'buttonSaveListGenes', 'Download Gene List'),
-                downloadButton(class="btn-outline-primary",'buttonSaveListProbes', 'Download Probe List')
-                ),
+                downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Download Table As PNG'),
+                downloadButton(class="btn-info",'buttonSaveListGenes', 'Download Gene List'),
+                downloadButton(class="btn-info",'buttonSaveListProbes', 'Download Probe List')
+               ),
              hr(),
                dataTableOutput('datatableTopGenesUp')
            ),
@@ -333,18 +334,17 @@ ui <-
            column(1,checkboxInput('mcheckboxShowZeroGenesModules', 'Zero', value = TRUE)),
            column(1,checkboxInput('mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
            column(4,radioButtons('mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
-           column(1,sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 800, min = 300, step = 50, ticks = FALSE, max = 2000))
+           column(1,sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2000))
          ),
          wellPanel(style = "background-color: #FFFFFF;",
                    uiOutput("mplotSelectedModulesSIZE")
-                   # plotOutput('mplotSelectedModules', height = '800px')
           )
          ),
-
          div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Download Table'),
-             downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModules', 'Download Modules List'),
-             downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModuleTitles', 'Download Titles List'),
-             downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModuleCategory', 'Download Categories List')
+             downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Download Table As PNG'),
+             downloadButton(class="btn-info",'mbuttonSaveListTopModules', 'Download Modules List'),
+             downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitles', 'Download Titles List'),
+             downloadButton(class="btn-info",'mbuttonSaveListTopModuleCategory', 'Download Categories List')
          ), hr(), 
          dataTableOutput('mdatatableTopModulesUp')
      ),
@@ -393,12 +393,12 @@ ui <-
                       wellPanel(style = "background-color: #feffee;",
                         selectInput('mselectModuleTitles', label = ('Titles In Datset'), character(0), multiple = TRUE),
                         actionButton('mbuttonRemoveAllModuleTitles','None'),
-                        downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModuleTitlesSeries', 'Download Titles List')
+                        downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Download Titles List')
                       ),
                       wellPanel(style = "background-color: #feffee;",
                         selectInput('mselectModuleAllModules', label = ('Modules In Datset'), character(0), multiple = TRUE),
                         actionButton('mbuttonRemoveAllModulesModuleSeries','None'),
-                        downloadButton(class="btn-outline-primary",'mbuttonSaveListTopModulesSeries', 'Download Modules List')
+                        downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Download Modules List')
                       )
                     ),
                     choiceValues = list('Modules Selected By Filters','All Titles In The Datset', 'All Modules In The Datset')
