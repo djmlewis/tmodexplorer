@@ -63,7 +63,7 @@ plotGenesModules <- function(d,t,l,z,gg){
   return(plot)
 }
 
-plotDataTable <- function(data2plot,file) {
+plotDataTable <- function(data2plot,file, widthFactor) {
   # plot <-  NULL
   if (is.null(data2plot) || nrow(data2plot) < 1) {
     png(file)
@@ -78,7 +78,7 @@ plotDataTable <- function(data2plot,file) {
     t <- tableGrob(data2plot, rows = NULL, theme = th)
     h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
     w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
-    png(file, height = h*1.8, width = w*10.9, units = 'mm', res = 300, bg = "transparent")
+    png(file, height = h*1.8, width = w*widthFactor, units = 'mm', res = 300, bg = "transparent")
     grid.newpage()
     grid.draw(t)
     dev.off()

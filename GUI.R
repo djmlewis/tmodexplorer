@@ -90,7 +90,7 @@ ui <-
                             )
                           )
                         ),
-                      div(align = 'center',actionButton('buttonApplySelection','Apply Selections',class = "btn-primary"))
+                      fluidRow(column(4),column(4,actionButton('buttonApplySelection','Apply Selections',class = "btn-primary btn-block")),column(4))
                     )
                     )
            ),
@@ -113,11 +113,11 @@ ui <-
                h4('Time Course Of Probes Or Genes Meeting The Filters, By Treatment-Time Column'),
                h5("Select Some Treatment-Timepoint Columns And Click Plot"),
                fluidRow(
-                 column(2,
+                 column(3,
                         wellPanel(style = "background-color: #feffee;",
-                          fluidRow(
+                        actionButton('buttonPlotSeries','Plot',class = "btn-primary btn-block"),
+                        fluidRow(
                             column(6,
-                                   actionButton('buttonPlotSeries','Plot',class = "btn-primary"),
                                    radioButtons('radioBoxLineProbesSeries',NULL, choices = c('Lines','Boxplot')),
                                    conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",
                                     strong(p("Lines options:")),
@@ -134,7 +134,7 @@ ui <-
                               # numericInput("numberPlotTopGenesSeriesSIZEheight", "Plot Height", value = 600, min = 300, step = 50)
                             ))
                         )),
-                 column(10,
+                 column(9,
                         wellPanel(style = "background-color: #feffee;",
                           selectInput('selectColumnsForSeries', label = "Click In Box To Select Columns", choices = character(0), multiple = TRUE),
                           div(actionButton('buttonAddAllProbesSeries','All', class="btn-outline-primary"),
@@ -208,9 +208,9 @@ ui <-
               fluidRow(
                  column(2,
                         wellPanel(style = "background-color: #feffee;",
+                        actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary btn-block"),
                         fluidRow(
                           column(6,
-                          actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary"),
                           radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Lines')),
                           conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",
                                            strong(p("Lines options:")),
@@ -321,7 +321,7 @@ ui <-
           )
         )# right column wells
         ),
-        div(align = 'center',actionButton('mbuttonApplySelection','Apply Selections',class = "btn-primary"))
+        fluidRow(column(4),column(4,actionButton('mbuttonApplySelection','Apply Selections',class = "btn-primary btn-block")),column(4))
         )
       )
      ),
@@ -355,9 +355,9 @@ ui <-
          fluidRow(
            column(3,
                   wellPanel(style = "background-color: #feffee;",
+                    actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-primary btn-block"),
                     fluidRow(
                       column(6,
-                        actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-primary"),
                         radioButtons('mradioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Lines')),
                         conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
                                          strong(p("Lines options:")),
