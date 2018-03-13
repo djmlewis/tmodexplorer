@@ -72,12 +72,13 @@ plotDataTable <- function(data2plot,file, widthFactor) {
     dev.off()
   } else {
     th <- ttheme_default(
-      core=list(bg_params = list(fill = c('#feffee','white'), col=NA)),
-      colhead=list(bg_params = list(fill = c('#d0e862'), col=NA))
+      core=list(bg_params = list(fill = c('#feffee','white'), col=NA),fg_params=list(hjust=0, x=0.1)),
+      colhead=list(bg_params = list(fill = c('#d0e862'), col=NA),fg_params=list(hjust=0, x=0.1))
     )
     t <- tableGrob(data2plot, rows = NULL, theme = th)
     h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
     w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
+    print(absolute.size(widthDetails(t)))
     png(file, height = h*1.8, width = w*widthFactor, units = 'mm', res = 300, bg = "transparent")
     grid.newpage()
     grid.draw(t)
