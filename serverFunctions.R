@@ -58,7 +58,9 @@ getNewData <- function(allData, folderNme) {
   modmeanPath <- paste0(folderpath, '/', 'modulesMeans.rds')
   
   if (file.exists(dataPath) && file.exists(annotPath)) {
-    annotation <- read_rds(annotPath)
+    showNotification("Please wait for data to load…", type = 'message', duration = 3)
+
+        annotation <- read_rds(annotPath)
     allData$annot <- select(annotation,GeneName, SystematicName,Description,ProbeName)
     
     annotation <- annotation %>%
@@ -270,11 +272,11 @@ modules4GeneList <- function(genes2map,genes2mapRanks) {
           return(tmod$MODULES[tmod$MODULES$ID == mod,][['Category']])
         })
         return(data.frame(Rank = generank,Gene = gene,Module = mods,
-                          Description = modDescriptions, 
+                          Title = modDescriptions, 
                           Category = modCats, 
                           stringsAsFactors = FALSE))
       }
-      return(data.frame(Rank = generank,Gene = gene,Module = c(''),Description = c(''), Category = '', stringsAsFactors = FALSE))
+      return(data.frame(Rank = generank,Gene = gene,Module = c(''),Title = c(''), Category = '', stringsAsFactors = FALSE))
     })
     return(geneMods)
   }
@@ -287,7 +289,7 @@ moduleDescriptionsForGenes <- function(modsOnly){
     modsOnly <- modsOnly %>%
       filter(Module != 'Selected')
     
-    return(modsNameTitle(modsOnly[['Module']],modsOnly[['Description']]))
+    return(modsNameTitle(modsOnly[['Module']],modsOnly[['Title']]))
   } 
   return('')
 }
@@ -304,7 +306,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
         nrow(allExpressionData) > 0 &&
         !is.null(topGenes))
     {
-      # extract just the module name from the name-description
+      # extract just the module name from the name-Title
       selModName <- modNameFromMenuTitle(mod)
       actarmDayExpressionData <- allExpressionData %>%
         select(matches(actarmcdDay), Gene, Probe)
@@ -367,29 +369,29 @@ getExpressionsForModules <- function(topgenesmods, actarmcdDay, allExpressionDat
           # lookup the genes in the list corresponding to mod name
           filter(Gene %in% modsWithGenes[[mod]]) %>%
           mutate(Module = mod,
-                 Description = map_chr(Module, function(m) {
+                 Title = map_chr(Module, function(m) {
                    tmod$MODULES[tmod$MODULES$ID == mod, ][['Title']]
                  })) %>%
-          select(Value, Module, Description)
+          select(Value, Module, Title)
       })
 
       if(addPseudoModule == TRUE) {
         # lookup the value of probes in our selected genes for the actamDay which are in topgenesmods[['genes']]
-        # just keep Value and give Gene and description a pseudo name, then rowbind
+        # just keep Value and give Gene and Title a pseudo name, then rowbind
         selecteGeneExpr <- topgenesmods[['genes']][['Value']]
         modsExprns <- modsExprns %>%
-          bind_rows(data.frame(Value = selecteGeneExpr, Module = "Selected", Description = filters, stringsAsFactors = FALSE))
+          bind_rows(data.frame(Value = selecteGeneExpr, Module = "Selected", Title = "Selected", stringsAsFactors = FALSE))
       }
       
       modsSummStats <- modsExprns %>%
-        group_by(Module, Description) %>%
+        group_by(Module, Title) %>%
         summarise(
           Median = median(Value, na.rm = TRUE),
           Mean = mean(Value, na.rm = TRUE),
           SD = sd(Value, na.rm = TRUE),
           N = n()
         ) %>%
-        select(Module, Description, everything()) %>%
+        select(Module, Title, everything()) %>%
         arrange(desc(Median)) %>%
         ungroup() %>%
         as.data.frame()

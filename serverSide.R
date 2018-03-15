@@ -165,7 +165,9 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
             showModal(modalDialog(
               title = "Too Many Rows","You must have at least one filter selected or it will try to return and plot over 65,000 rows."))
             } else {
-              # show the tabs as we have selected probes
+              showNotification("Please wait for filters to be applied…", type = 'message', duration = 3)
+
+                            # show the tabs as we have selected probes
               showTab(inputId = "navProbe", target = "Selected Probes")
               showTab(inputId = "navProbe", target = "Probes:Series")
               showTab(inputId = "navProbe", target = "Genes->Modules")
@@ -240,7 +242,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   # output top genes
   output$datatableTopGenesUp <- renderDataTable({topGenesAndModules()[['genes']]})
   output$buttonSaveTableTopGenesUpPlot <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.png")},
-    content = function(file) {plotDataTable(topGenesAndModules()[['genes']],file,25)})
+    content = function(file) {plotDataTable(topGenesAndModules()[['genes']],file,35)})
   
   dataFilterStr <- function(t) {
     switch (t,
@@ -277,7 +279,9 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
       
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
       output$plotTopGenesSeriesSIZE <- renderUI({plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight))})
-        
+      output$buttonPNGplotTopGenesSeries <- downloadHandler(filename = function(){paste0("Selected Genes As Series.png")},
+        content = function(file) {plotPlotPNG(ggplotTopGenesInSeries,file,session$clientData[["output_plotTopGenesSeries_height"]],session$clientData[["output_plotTopGenesSeries_width"]])})
+      
     })
   
   observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
@@ -309,15 +313,19 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     content = function(file) {write.csv(geneExpressionsForModules()[['expressions']], file, row.names = FALSE)})
   
   output$buttonSaveTableModulesSummaryPlot <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Table.png")},
-          content = function(file) {plotDataTable(geneExpressionsForModules()[['summStats']],file,10.9)
-        })
+    content = function(file) {plotDataTable(geneExpressionsForModules()[['summStats']],file,10.9)})
+  output$buttonSaveTableModulesSummaryListPlot <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Table.png")},
+    content = function(file) {plotDataTable(select(geneExpressionsForModules()[['summStats']],Module,Title),file,20)})
   
   # draw / save plot
   ggplotGenesModules <-
     reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],dataAndFiltersText(),
-                input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules,input$checkboxGGplotGenesModules)})
+                input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules,input$checkboxGGplotGenesModules,
+                input$radioGroupProbeModulesBy)})
   output$plotGenesModules <- renderPlot({ggplotGenesModules()})
   output$plotGenesModulesSIZE <- renderUI({plotOutput("plotGenesModules", height = input$numberPlotGenesModulesSIZEheight)})
+  output$buttonPNGplotGenesModules <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes.png")},
+    content = function(file) {plotPlotPNG(ggplotGenesModules(),file,session$clientData[["output_plotGenesModules_height"]],session$clientData[["output_plotGenesModules_width"]])})
   
   
   #################### Modules->Genes #########################
@@ -340,10 +348,13 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
                                 input$checkboxGGplotModuleGenes)})
   output$plotModuleGenes <- renderPlot({ggplotModuleGenes()})
   output$plotModuleGenesSIZE <- renderUI({plotOutput("plotModuleGenes", height = input$numberPlotModuleGenesSIZEheight)})
+  output$buttonPNGplotModuleGenes <- downloadHandler(filename = function(){paste0("Selected Genes-",input$selectModuleForGenes,".png")},
+     content = function(file) {plotPlotPNG(ggplotModuleGenes(),file,session$clientData[["output_plotModuleGenes_height"]],session$clientData[["output_plotModuleGenes_width"]])})
   
   #################### Modules Series #########################
   # selectModuleForSeries and selectColumnForModuleSeries are updated above
   moduleValues <- NULL
+  ggplotModulesInSeries <-NULL
   observeEvent({
     input$buttonPlotModuleSeries
   },{
@@ -361,13 +372,17 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
-    ggplotModulesInSeries <-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
+    ggplotModulesInSeries <<-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
         input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
         input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
     output$plotModuleSeriesSIZE <- renderUI({plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight))})
     
   })
+  output$buttonPNGplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.png")},
+    content = function(file) {plotPlotPNG(ggplotModulesInSeries,file,session$clientData[["output_plotModuleSeries_height"]],session$clientData[["output_plotModuleSeries_width"]])})
+  
+  
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
     content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
   
@@ -424,6 +439,7 @@ observeEvent(
           showModal(modalDialog(
             title = "Too Many Modules","You must have at least one filter selected or it will try to return and plot over 600 modules."))
         } else {
+          showNotification("Please wait for filters to be applied…", type = 'message', duration = 3)
           # show tabs as we have selected modules
           showTab(inputId = "navModule", target = "Selected Modules")
           showTab(inputId = "navModule", target = "Modules:Series")
@@ -492,6 +508,9 @@ observeEvent(
 output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()})
 output$buttonSaveTableTopModulesUpPlot <- downloadHandler(filename = function(){paste0("Selected By Modules.png")},
   content = function(file) {plotDataTable(topModulesSelected(),file,10.9)})
+output$buttonSaveTableTopModulesUOnlypPlot <- downloadHandler(filename = function(){paste0("Selected By Modules.png")},
+  content = function(file) {plotDataTable(select(topModulesSelected(),Rank:Category),file,10.9)})
+
 output$mbuttonSaveTableModules <- downloadHandler(filename = function(){paste0("Selected By Modules.csv")},
   content = function(file) {write.csv(topModulesSelected(), file, row.names = FALSE)})
 
@@ -511,6 +530,8 @@ ggplotSelectedModules <-
     input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName,input$mcheckboxGGplotGenesModules)})
 output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()})
 output$mplotSelectedModulesSIZE <- renderUI({plotOutput("mplotSelectedModules", height = input$numbermplotSelectedModulesSIZEheight)})
+output$buttonPNGmplotSelectedModules <- downloadHandler(filename = function(){paste0("Selected Modules.png")},
+  content = function(file) {plotPlotPNG(ggplotSelectedModules(),file,session$clientData[["output_mplotSelectedModules_height"]],session$clientData[["output_mplotSelectedModules_width"]])})
 
   #################### Plot Modules Selected Series #########################
 
@@ -540,6 +561,8 @@ observeEvent({
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
   }
 })
+output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Modules Series.png")},
+  content = function(file) {plotPlotPNG(ggplotSelectedModulesSeries[['plot']],file,session$clientData[["output_mplotModuleSeries_height"]],session$clientData[["output_mplotModuleSeries_width"]])})
 
 
 observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})

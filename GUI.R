@@ -130,9 +130,10 @@ ui <-
                               checkboxInput('checkboxSplitSeries', 'Split', value = TRUE),
                               checkboxInput('checkboxShowLegendSeries', 'Legend', value = FALSE),
                               checkboxInput('checkboxShowZeroSeries', 'Zero', value = TRUE),
-                              span(style = "background: green;", sliderInput("numberPlotTopGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2000))
-                              # numericInput("numberPlotTopGenesSeriesSIZEheight", "Plot Height", value = 600, min = 300, step = 50)
-                            ))
+                              span(style = "background: green;", sliderInput("numberPlotTopGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500))
+                            )),
+                        conditionalPanel(condition = "output.plotTopGenesSeries != null",
+                        downloadButton(class="btn-warning btn-block",'buttonPNGplotTopGenesSeries', 'Download Plot As PNG'))
                         )),
                  column(9,
                         wellPanel(style = "background-color: #feffee;",
@@ -163,20 +164,20 @@ ui <-
                fluidRow(
                  column(1,checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
                  column(1,checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
+                 column(2,checkboxInput('checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE)),
+                 column(2,radioButtons('radioGroupProbeModulesBy','Group By',choices = c('Module','Title'),inline = TRUE)),
                  column(1,checkboxInput('checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
-                 column(3,checkboxInput('checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE)),
-                 column(1,
-                        # numericInput("w",NULL, value = 12),
-                        sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2000)
-                 )
+                 column(1,sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
+                 column(2,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'Download Plot As PNG'))
+                )
                ),
                wellPanel(style = "background-color: #FFFFFF;",
-                uiOutput("plotGenesModulesSIZE"))
+                uiOutput("plotGenesModulesSIZE")
                ),
-                # plotOutput("plotGenesModulesTable"),
-               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Download Table'),
+             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Download Table'),
              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Download Raw Data'),
              downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Download Table As PNG'),
+             downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryListPlot', 'Download Modules List As PNG'),
              hr(),
                dataTableOutput('datatableSelModulesOnly')),
            #################### Modules->Genes ###################
@@ -188,9 +189,9 @@ ui <-
                  column(1,checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
                  column(1,checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
                  column(1,checkboxInput('checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
-                 column(1,
-                        sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2000)
-                 )
+                 column(1,sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
+                 column(2,downloadButton(class="btn-warning btn-block",'buttonPNGplotModuleGenes', 'Download Plot As PNG'))
+                 
                ),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotModuleGenesSIZE"))
@@ -206,7 +207,7 @@ ui <-
               h4('Time Course Of Modules Associated With Selected Probes / Genes'),
               h5('Select Some Treatment-Timepoint Columns And Modules, And Click Plot'),
               fluidRow(
-                 column(2,
+                 column(3,
                         wellPanel(style = "background-color: #feffee;",
                         actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary btn-block"),
                         fluidRow(
@@ -224,11 +225,14 @@ ui <-
                                  checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
                                  checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = FALSE),
                                  checkboxInput('checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
-                                 sliderInput("numberPlotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2000)
+                                 sliderInput("numberPlotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500)
                           )
-                        ))
+                        ),
+                        conditionalPanel(condition = "output.plotModuleSeries != null",
+                        downloadButton(class="btn-warning btn-block",'buttonPNGplotModuleSeries', 'Download Plot As PNG'))
+                      )
                  ),
-                 column(5,
+                 column(4,
                         wellPanel(style = "background-color: #feffee;",
                           selectInput('selectColumnForModuleSeries', label = 'Click In Box To Select Columns', character(0), multiple = TRUE),
                           div(actionButton('buttonAddAllColumnsModuleSeries','All', class="btn-outline-primary"),
@@ -247,7 +251,6 @@ ui <-
                ),
              wellPanel(style = "background-color: #FFFFFF;",
                        uiOutput("plotModuleSeriesSIZE")
-             # plotOutput('plotModuleSeries', height = '600px')
              ),
                conditionalPanel(condition = "output.datatableModuleSeries != null",
                 downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Download Table')),
@@ -332,9 +335,10 @@ ui <-
          fluidRow(
            column(1,checkboxInput('mcheckboxShowLegendGenesModules', 'Legend', value = FALSE)),
            column(1,checkboxInput('mcheckboxShowZeroGenesModules', 'Zero', value = TRUE)),
+           column(3,radioButtons('mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
            column(1,checkboxInput('mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
-           column(4,radioButtons('mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
-           column(1,sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2000))
+           column(1,sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500)),
+           column(2,downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'Download Plot As PNG'))
          ),
          wellPanel(style = "background-color: #FFFFFF;",
                    uiOutput("mplotSelectedModulesSIZE")
@@ -342,6 +346,7 @@ ui <-
          ),
          div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Download Table'),
              downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Download Table As PNG'),
+             downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Download Modules List As PNG'),
              downloadButton(class="btn-info",'mbuttonSaveListTopModules', 'Download Modules List'),
              downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitles', 'Download Titles List'),
              downloadButton(class="btn-info",'mbuttonSaveListTopModuleCategory', 'Download Categories List')
@@ -371,8 +376,10 @@ ui <-
                     radioButtons('mradioGroupTitleNameModuleSeries','Group By:',choices = c('Title','Module'), selected = 'Module'),                    checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                     checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = FALSE),
                     checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
-                    sliderInput("numbermplotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2000)
-                    ))
+                    sliderInput("numbermplotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500)
+                    )),
+                    conditionalPanel(condition = "output.mplotModuleSeries != null",
+                      downloadButton(class="btn-warning btn-block",'buttonPNGmplotModuleSeries', 'Download Plot As PNG'))
                   )
            ),
            column(9,
@@ -390,12 +397,12 @@ ui <-
                         actionButton('mbuttonAddAllModuleSeries','All', class="btn-outline-primary"),
                         actionButton('mbuttonRemoveAllModuleSeries','None')
                       ),
-                      wellPanel(style = "background-color: #feffee;",
+                      wellPanel(style = "background-color: #f8ffeb;",
                         selectInput('mselectModuleTitles', label = ('Titles In Datset'), character(0), multiple = TRUE),
                         actionButton('mbuttonRemoveAllModuleTitles','None'),
                         downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Download Titles List')
                       ),
-                      wellPanel(style = "background-color: #feffee;",
+                      wellPanel(style = "background-color: #f8ffeb;",
                         selectInput('mselectModuleAllModules', label = ('Modules In Datset'), character(0), multiple = TRUE),
                         actionButton('mbuttonRemoveAllModulesModuleSeries','None'),
                         downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Download Modules List')

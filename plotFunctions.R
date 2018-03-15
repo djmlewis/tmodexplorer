@@ -20,7 +20,7 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
 
   original.parameters<- par( no.readonly = TRUE )
   par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
-  plot <-  {
+  {
     # to force a zero line we have to set ylim to 0 as needed
     ymin <- ifelse(z == TRUE, min(min(y),0),min(y) )
     boxplot(y ~ x, col = colpal,border = bordpal, pars = list(las = 2), horizontal = TRUE, outline = TRUE, ylim = c(ymin,max(y)))
@@ -29,28 +29,32 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
     if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
     if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(x), fill = colpal, xpd = TRUE)
   }
+  plot <- recordPlot()
   par(original.parameters)
+  # actually the return is unusable. Plotting happens at once
+  return(plot)
 }
 
-plotGenesModules <- function(d,t,l,z,gg){
+plotGenesModules <- function(d,t,l,z,gg,grouper){
   plot <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
     d <- d %>%
       filter(!is.na(Value)) %>%
-      mutate(Module = droplevels(Module))
+      mutate(Module = droplevels(Module), 
+             Title = as.factor(gsub(" ","\n",Title)))
     xmax <- max(d$Value,na.rm = TRUE)
     xmin <- min(d$Value,na.rm = TRUE)
     
     if(gg == FALSE){
-      plot <- plotBaseBoxplot(d$Module,d$Value,NULL,paste0('Modules For Selected Genes\n',t),z,l,xmax,xmin)
+      plot <- plotBaseBoxplot(d[[grouper]],d$Value,NULL,paste0('Modules For Selected Genes\n',t),z,l,xmax,xmin)
     } else {
       plot <-  ggplot(
         data = d,
-        mapping = aes(
-          x = Module,
-          y = Value,
-          colour = Module,
-          fill = Module
+        mapping = aes_string(
+          x = grouper,
+          y = "Value",
+          colour = grouper,
+          fill = grouper
         )
       )
       if(z == TRUE) {
@@ -65,29 +69,6 @@ plotGenesModules <- function(d,t,l,z,gg){
   return(plot)
 }
 
-plotDataTable <- function(data2plot,file, widthFactor) {
-  # plot <-  NULL
-  if (is.null(data2plot) || nrow(data2plot) < 1) {
-    png(file)
-    grid.newpage()
-    grid.text("No Modules Matched")
-    dev.off()
-  } else {
-    th <- ttheme_default(
-      core=list(bg_params = list(fill = c('#feffee','white'), col=NA),fg_params=list(hjust=0, x=0.1)),
-      colhead=list(bg_params = list(fill = c('#d0e862'), col=NA),fg_params=list(hjust=0, x=0.1))
-    )
-    t <- tableGrob(data2plot, rows = NULL, theme = th)
-    h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
-    w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
-
-    png(file, height = h*1.8, width = w*widthFactor, units = 'mm', res = 300, bg = "transparent")
-    grid.newpage()
-    grid.draw(t)
-    dev.off()
-    
-  }
-}
 
 plotModuleGenes <- function(d,m,t,l,z,gg) {
   plot <- NULL
@@ -311,3 +292,41 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
   return(moduleValues)
 }
 
+plotDataTable <- function(data2plot,file, widthFactor) {
+  # plot <-  NULL
+  if (is.null(data2plot) || nrow(data2plot) < 1) {
+    png(file)
+    grid.newpage()
+    grid.text("No Modules Matched")
+    dev.off()
+  } else {
+    th <- ttheme_default(
+      core=list(bg_params = list(fill = c('#feffee','white'), col=NA),fg_params=list(hjust=0, x=0.1)),
+      colhead=list(bg_params = list(fill = c('#d0e862'), col=NA),fg_params=list(hjust=0, x=0.1))
+    )
+    t <- tableGrob(data2plot, rows = NULL, theme = th)
+    h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
+    w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
+    
+    png(file, height = h*1.8, width = w*widthFactor, units = 'mm', res = 300, bg = "transparent")
+    grid.newpage()
+    grid.draw(t)
+    dev.off()
+    
+  }
+}
+
+plotPlotPNG <- function(plot2plot,file, h,w) {
+  if (is.null(plot2plot)) {
+    png(file)
+    grid.newpage()
+    grid.text("Nothing To Plot")
+    dev.off()
+  } else {
+    # default res seems to be 72, so we have to scale-up the h,w to get higher resolution
+    png(file, height = h*300/72, width = w*300/72, res = 300, units = 'px', bg = "white")
+    print(plot2plot)
+    dev.off()
+    
+  }
+}
