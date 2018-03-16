@@ -15,6 +15,7 @@
 
 
 
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
     probes or genes values present in the array as they are on that time
     point in persons who received that vaccine. So you may have the
@@ -56,6 +57,7 @@
 
 
 
+
     software depends on the R package tmod '<cite>Feature Set Enrichment
       Analysis for Metabolomics and Transcriptomics</cite>' (<a
 href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf"
@@ -68,6 +70,7 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       target="_blank">vignette</a> for a description of the modules.The
     transcriptomics datasets are from the BIOVACSAFE project (<a
       href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
 
 
 
@@ -111,28 +114,32 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       and can be saved and imported into R for re-plotting. Some tables
       can be saved as PNG files to incorporate with plots as graphics.<br>
     </p>
-    <h4>Identifying data on plots by clicking on points<br>
+    <h4>Identifying data on line plots by hovering over points<br>
     </h4>
-    <p>When data are plotted as <b>Lines</b> the individual data series
-      can be identified by clicking on a <b>point</b> (or where a point
-      would be plotted if you are not displaying Points). Clicking on
-      line segments between points does nothing. A notification window
-      will appear displaying the data for this point, which can be
-      copied. It will disappear after 20 seconds, or be updated if a new
-      point is clicked.<br>
+    <p>When data are plotted as <b>Lines</b> it is sometimes difficult
+      to identify the individual data series by colour. They can be
+      identified by hovering the mouse cursor over a <b>point</b> (or
+      where a point would be plotted if you are not displaying points).
+      Hovering over line segments between points does nothing. A
+      notification window will appear displaying the data for this
+      point, which can be copied. It will disappear after 15 seconds, or
+      be updated if a new point is selected. If lines are bunched then
+      use the slider above the plot to increase the height.<br>
     </p>
     <p> </p>
     <h3>Data Tables<br>
     </h3>
-    Data tables can be searched using the box above (whole table search)
-    or individual boxes below each column, and downloaded as a csv file
-    suitable for opening in Excel or R by clicking the ⤓ Table button. A
-    PNG image of the datatable can also be downloaded in some cases by
-    clicking the button "⤓ Table as PNG". This can be pasted onto
-    graphics. It is very tricky to calculate the width correctly using
-    grid.table, so the image may be clipped.<br>
+    The entire data table can be searched using the box above,&nbsp; or
+    individual columns searched using the boxes below each column.
+    Tables can be downloaded as a csv file suitable for opening in Excel
+    or R by clicking the <b>⤓ Table</b> button. A PNG image of the
+    datatable can also be downloaded in some cases by clicking the
+    button <b>⤓ Table as PNG</b>. This can be pasted onto graphics. It
+    is very tricky to calculate the width correctly using grid.table, so
+    the image may be clipped or extra wide, but a transparent background
+    will be generated.<br>
     <br>
-    <h3>Gene, Probe and Module Lists<br>
+    <h3>Saving Gene, Probe and Module Lists<br>
     </h3>
     When you have selected genes, probes or modules using some filters,
     they can be downloaded as a text file in a comma-separated format
@@ -249,9 +256,11 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
 
 
 
+
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
 
 
 

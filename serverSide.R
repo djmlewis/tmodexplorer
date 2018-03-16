@@ -278,14 +278,17 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
         input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
       
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
-      output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Click on points to identify")),
-                                                         plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight), click = "click_plotTopGenesSeries"))})
+      output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
+                                                         plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight),
+                                                        hover = "hover_plotTopGenesSeries"))})
       output$buttonPNGplotTopGenesSeries <- downloadHandler(filename = function(){paste0("Selected Genes As Series.png")},
         content = function(file) {plotPlotPNG(ggplotTopGenesInSeries,file,session$clientData[["output_plotTopGenesSeries_height"]],session$clientData[["output_plotTopGenesSeries_width"]])})
       
     })
   
-  observeEvent(input$click_plotTopGenesSeries, {handleClick(topGenesInSeries,input$click_plotTopGenesSeries,"click_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
+  observeEvent(
+    input$hover_plotTopGenesSeries, 
+    {handleClick(topGenesInSeries,input$hover_plotTopGenesSeries,"hover_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
   
   observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
   observeEvent(input$buttonRemoveAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = character(0))})
@@ -379,14 +382,14 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
         input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
         input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
-    output$plotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Click on points to identify")),
-      plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight), click = "click_plotModuleSeries"))})
+    output$plotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
+      plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight), hover = "hover_plotModuleSeries"))})
     
   })
   output$buttonPNGplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.png")},
     content = function(file) {plotPlotPNG(ggplotModulesInSeries,file,session$clientData[["output_plotModuleSeries_height"]],session$clientData[["output_plotModuleSeries_width"]])})
   
-  observeEvent(input$click_plotModuleSeries, {handleClick(moduleValues,input$click_plotModuleSeries,"click_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")})
+  observeEvent(input$hover_plotModuleSeries, {handleClick(moduleValues,input$hover_plotModuleSeries,"hover_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")})
   
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
     content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
@@ -556,15 +559,15 @@ observeEvent({
       input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
       input$mcheckboxShowPointsSeries,sortCol_Mods)
     output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
-    output$mplotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Click on points to identify")),
-                                                      plotOutput("mplotModuleSeries", height = isolate(input$numbermplotModuleSeriesSIZEheight), click = "click_mplotModuleSeries"))})
+    output$mplotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
+                                                      plotOutput("mplotModuleSeries", height = isolate(input$numbermplotModuleSeriesSIZEheight), hover = "hover_mplotModuleSeries"))})
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
   
 })
 output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Modules Series.png")},
   content = function(file) {plotPlotPNG(ggplotSelectedModulesSeries[['plot']],file,session$clientData[["output_mplotModuleSeries_height"]],session$clientData[["output_mplotModuleSeries_width"]])})
 
-observeEvent(input$click_mplotModuleSeries, {handleClick(ggplotSelectedModulesSeries[['table']],input$click_mplotModuleSeries,"click_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
+observeEvent(input$hover_mplotModuleSeries, {handleClick(ggplotSelectedModulesSeries[['table']],input$hover_mplotModuleSeries,"hover_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
 
 observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
 observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})

@@ -4,17 +4,21 @@ ui <-
              inverse = TRUE,
              header = tagList(tags$style(type="text/css", "body {padding-top: 70px;}")),
   ######################  TABS  #########
-  #################### Data Load ######################### f8ffeb
+  #################### Password ######################### f8ffeb
   tabPanel('Password',
-           h4('Please enter the password you have been given to access tmodExplorer'),
-           wellPanel(style = "background-color: #feffee;",
+           h4(style = "text-align: center;",'Please enter the password you have been given to access tmodExplorer'),
+           fluidRow(
+           column(6, offset = 3,
+            wellPanel(style = "background-color: #feffee;",
              fluidRow(
-               column(3,passwordInput('password', 'Enter Password To Access Database')),
-               column(1,actionButton('buttonPassword','Enter',class = "btn-primary"))
-             ),
-             p("Please contact d.j.lewis@surrey.ac.uk to request a password")
-           )
+               column(9,passwordInput('password', NULL)),
+               column(3,actionButton('buttonPassword','Enter',class = "btn-primary"))
+             )
+           ))),
+           h5(style = "text-align: center;","Please contact d.j.lewis@surrey.ac.uk to request a password")
+           
   ),
+  #################### Data Load ######################### f8ffeb
   tabPanel('Load data',
     h3("Select pre-loaded dataset to analyse and click 'Load'"),
     fluidRow(

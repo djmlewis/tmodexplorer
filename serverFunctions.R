@@ -469,7 +469,7 @@ handleClick <- function(data,click,cid,facet,fact,yv) {
   }
 
   if(is.null(res) == FALSE && nrow(res) > 0) {
-    showNotification(apply(res[1,], 1, paste, collapse="   "), duration = 15, id = cid)
+    showNotification(apply(res[1,], 1, paste, collapse="   "), duration = 30, id = cid)
   } else {
     removeNotification(id = cid)
   }
