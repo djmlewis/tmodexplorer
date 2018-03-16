@@ -33,7 +33,7 @@ ui <-
     ),
     h4(align = 'center', textOutput('textDataName')),
     conditionalPanel(condition = "output.datatableAll != null",
-                     downloadButton(class="btn-outline-primary",'buttonsavedatatableAll', 'Download Table')),
+                     downloadButton(class="btn-outline-primary",'buttonsavedatatableAll', 'Table')),
     hr(),
     dataTableOutput('datatableAll')
   ),
@@ -47,9 +47,9 @@ ui <-
                       # wellPanel(
                         h4("Select a treatment - time column to sort probe values and display responses"),
                         fluidRow(
-                          column(6,selectInput('selectColumn', NULL, character(0), width = 400, selectize = F)),
-                          column(3,checkboxInput('checkboxDescending', 'Sort Descending', value = TRUE)),
-                          column(3,checkboxInput('checkboxProbesGenes', 'Gene Averages', value = FALSE))
+                          column(2,selectInput('selectColumn', NULL, character(0), selectize = FALSE)),
+                          column(2,checkboxInput('checkboxDescending', 'Sort Descending', value = TRUE)),
+                          column(2,checkboxInput('checkboxProbesGenes', 'Gene Averages', value = FALSE))
                         ),
                       # ),
                       conditionalPanel(condition = "input.selectColumn != null",
@@ -61,8 +61,8 @@ ui <-
                               textInput('textInputKeyword',NULL),
                               h4("Search:"),
                               radioButtons('radioKeywordColumn',NULL,choices = c('Description','Gene','Probe'), inline = TRUE),
-                              conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #888888;","Spaces are stripped from Gene and Probe names")),
-                              conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #888888;","Spaces are kept in search for Description"))
+                              conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #cfdaa2;","Spaces are stripped from Gene and Probe names")),
+                              conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #cfdaa2;","Spaces are kept in search for Description"))
                           )),
                           column(8,
                             fluidRow(
@@ -84,7 +84,7 @@ ui <-
                                     column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = 200, step = 5)), 
                                     column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = 200, step = 5))
                                   ),
-                                  p(style = "color: #888888;", "More than 100 rows will result in slow response")
+                                  p(style = "color: #cfdaa2;", "More than 100 rows will result in slow response")
                                 )
                               )
                             )
@@ -99,10 +99,10 @@ ui <-
               hr(),
                h4('Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
                div(
-                downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Download Table'),
-                downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Download Table As PNG'),
-                downloadButton(class="btn-info",'buttonSaveListGenes', 'Download Gene List'),
-                downloadButton(class="btn-info",'buttonSaveListProbes', 'Download Probe List')
+                downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
+                downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG'),
+                downloadButton(class="btn-info",'buttonSaveListGenes', 'Gene List'),
+                downloadButton(class="btn-info",'buttonSaveListProbes', 'Probe List')
                ),
              hr(),
                dataTableOutput('datatableTopGenesUp')
@@ -115,7 +115,9 @@ ui <-
                fluidRow(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
-                        actionButton('buttonPlotSeries','Plot',class = "btn-primary btn-block"),
+                        conditionalPanel(condition = "input.selectColumnsForSeries != null",
+                          actionButton('buttonPlotSeries','Plot',class = "btn-primary btn-block")),
+                        conditionalPanel(condition = "input.selectColumnsForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Some Columns To Plot")),
                         fluidRow(
                             column(6,
                                    radioButtons('radioBoxLineProbesSeries',NULL, choices = c('Lines','Boxplot')),
@@ -133,7 +135,7 @@ ui <-
                               span(style = "background: green;", sliderInput("numberPlotTopGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500))
                             )),
                         conditionalPanel(condition = "output.plotTopGenesSeries != null",
-                        downloadButton(class="btn-warning btn-block",'buttonPNGplotTopGenesSeries', 'Download Plot As PNG'))
+                        downloadButton(class="btn-warning btn-block",'buttonPNGplotTopGenesSeries', 'Plot As PNG'))
                         )),
                  column(9,
                         wellPanel(style = "background-color: #feffee;",
@@ -146,15 +148,14 @@ ui <-
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotTopGenesSeriesSIZE"))
                ),
-             # plotOutput('plotTopGenesSeries', height = '600px')),
                conditionalPanel(condition = "output.datatableTopGenesSeries != null",
-                  downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Download Table')), hr(), 
+                  downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Table')), hr(), 
                dataTableOutput('datatableTopGenesSeries')),
            #################### Genes->Modules ##################
            tabPanel('Genes->Modules',
                hr(),
                h4('Modules Associated With Selected Probes or Genes'),
-               downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Download Table'), 
+               downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'), 
                hr(), 
                dataTableOutput('datatableGenesModules')),
            #################### Modules #########################
@@ -168,36 +169,37 @@ ui <-
                  column(2,radioButtons('radioGroupProbeModulesBy','Group By',choices = c('Module','Title'),inline = TRUE)),
                  column(1,checkboxInput('checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
                  column(1,sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
-                 column(2,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'Download Plot As PNG'))
+                 column(2,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'Plot As PNG'))
                 )
                ),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotGenesModulesSIZE")
                ),
-             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Download Table'),
-             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Download Raw Data'),
-             downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Download Table As PNG'),
-             downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryListPlot', 'Download Modules List As PNG'),
+             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Table'),
+             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Data'),
+             downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
+             downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG'),
              hr(),
                dataTableOutput('datatableSelModulesOnly')),
            #################### Modules->Genes ###################
            tabPanel('Module->Genes',
               wellPanel(style = "background-color: #FFFFFF;",
-                h4('Select A Module From The Menu To View Values Of Its Genes'),
-                selectInput('selectModuleForGenes', NULL, character(0), width = '500px'),
+              h4('Select A Module From The Menu To View Values Of Its Genes'),
+                fluidRow(
+                column(4,selectInput('selectModuleForGenes', NULL, character(0), width = '500px')),
+              column(8,
                fluidRow(
-                 column(1,checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
-                 column(1,checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
-                 column(1,checkboxInput('checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
-                 column(1,sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
-                 column(2,downloadButton(class="btn-warning btn-block",'buttonPNGplotModuleGenes', 'Download Plot As PNG'))
-                 
-               ),
+                 column(2,checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
+                 column(2,checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
+                 column(2,checkboxInput('checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
+                 column(2,sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
+                 column(3,downloadButton(class="btn-warning btn-block",'buttonPNGplotModuleGenes', 'Plot As PNG'))
+               ))),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotModuleGenesSIZE"))
                ),
 
-              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Download Table'), 
+              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Table'), 
                hr(), 
                dataTableOutput('datatableModuleGenes')),
 
@@ -209,7 +211,9 @@ ui <-
               fluidRow(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
-                        actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary btn-block"),
+                          conditionalPanel(condition = "input.selectColumnForModuleSeries != null && input.selectModuleForSeries != null",
+                            actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary btn-block")),
+                          conditionalPanel(condition = "input.selectColumnForModuleSeries == null || input.selectModuleForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Columns & Modules To Plot")),
                         fluidRow(
                           column(6,
                           radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Lines')),
@@ -229,7 +233,7 @@ ui <-
                           )
                         ),
                         conditionalPanel(condition = "output.plotModuleSeries != null",
-                        downloadButton(class="btn-warning btn-block",'buttonPNGplotModuleSeries', 'Download Plot As PNG'))
+                        downloadButton(class="btn-warning btn-block",'buttonPNGplotModuleSeries', 'Plot As PNG'))
                       )
                  ),
                  column(4,
@@ -253,7 +257,7 @@ ui <-
                        uiOutput("plotModuleSeriesSIZE")
              ),
                conditionalPanel(condition = "output.datatableModuleSeries != null",
-                downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Download Table')),
+                downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
                 hr(),
                dataTableOutput('datatableModuleSeries')
            )),
@@ -267,7 +271,7 @@ ui <-
                 column(4,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-primary"),actionButton("buttonGeneLookupNone", "Clear")))
               )),
               conditionalPanel(condition = "output.datatableGeneLookup != null",
-                downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Download Table')), hr(), 
+                downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Table')), hr(), 
               dataTableOutput('datatableGeneLookup')
           )
           
@@ -283,9 +287,9 @@ ui <-
         # wellPanel(
           h4("Select a treatment - time column to sort module values and display responses"),
           fluidRow(
-            column(6, selectInput('mselectColumn', NULL, character(0), width = 400, selectize = F)),
-            column(3,checkboxInput('mcheckboxDescending', 'Sort Descending', value = TRUE)),
-            column(3,checkboxInput('mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
+            column(2, selectInput('mselectColumn', NULL, character(0), width = 400, selectize = F)),
+            column(2,checkboxInput('mcheckboxDescending', 'Sort Descending', value = TRUE)),
+            column(2,checkboxInput('mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
           ),
         # ),
         conditionalPanel(condition = "input.mselectColumn != null",
@@ -297,8 +301,8 @@ ui <-
             textInput('mtextInputKeyword',NULL),
             h4("Search:"),
             radioButtons('mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
-            conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #888888;","Spaces are stripped from Module names")),
-            conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #888888;","Spaces are kept in search for Title"))
+            conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #cfdaa2;","Spaces are stripped from Module names")),
+            conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #cfdaa2;","Spaces are kept in search for Title"))
           )),
           column(8,
            fluidRow(
@@ -319,7 +323,7 @@ ui <-
                 column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = 200, step = 5)),
                 column(6,numericInput("mnumberModsEnd", "To Row:", 10, min = 0, max = 200, step = 5))
               ),
-              p(style = "color: #888888;", "More than 100 modules will result in slow response")
+              p(style = "color: #cfdaa2;", "More than 100 modules will result in slow response")
             ))
           )
         )# right column wells
@@ -338,18 +342,18 @@ ui <-
            column(3,radioButtons('mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
            column(1,checkboxInput('mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
            column(1,sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500)),
-           column(2,downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'Download Plot As PNG'))
+           column(2,downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'Plot As PNG'))
          ),
          wellPanel(style = "background-color: #FFFFFF;",
                    uiOutput("mplotSelectedModulesSIZE")
           )
          ),
-         div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Download Table'),
-             downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Download Table As PNG'),
-             downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Download Modules List As PNG'),
-             downloadButton(class="btn-info",'mbuttonSaveListTopModules', 'Download Modules List'),
-             downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitles', 'Download Titles List'),
-             downloadButton(class="btn-info",'mbuttonSaveListTopModuleCategory', 'Download Categories List')
+         div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
+             downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
+             downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG'),
+             downloadButton(class="btn-info",'mbuttonSaveListTopModules', 'Modules List'),
+             downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitles', 'Titles List'),
+             downloadButton(class="btn-info",'mbuttonSaveListTopModuleCategory', 'Categories List')
          ), hr(), 
          dataTableOutput('mdatatableTopModulesUp')
      ),
@@ -360,16 +364,25 @@ ui <-
          fluidRow(
            column(3,
                   wellPanel(style = "background-color: #feffee;",
-                    actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-primary btn-block"),
+                    conditionalPanel(condition = "input.mselectColumnForModuleSeries != null && 
+                      ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries != null) || 
+                        (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles != null) || 
+                        (input.radioModulesModulesSeries == 'Modules' && input.mselectModuleAllModules != null))",
+                      actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-primary btn-block")),
+                    conditionalPanel(condition = "input.mselectColumnForModuleSeries == null ||
+                      ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries == null) || 
+                        (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles == null) || 
+                        (input.radioModulesModulesSeries == 'Modules' && input.mselectModuleAllModules == null))",
+                      p(style = "color: #728f17; text-align: center;","Choose Columns & Modules Or Titles To Plot")),
                     fluidRow(
                       column(6,
                         radioButtons('mradioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Lines')),
                         conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
-                                         strong(p("Lines options:")),
-                                         conditionalPanel(condition = "input.mcheckboxShowFacetModuleSeries == true",
-                                                          checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE)),
-                                         checkboxInput('mcheckboxShowPointsSeries', 'Points', value = FALSE),
-                                         checkboxInput('mcheckboxShowSEModuleSeries', 'SEM', value = FALSE)
+                         strong(p("Lines options:")),
+                         conditionalPanel(condition = "input.mcheckboxShowFacetModuleSeries == true",
+                                          checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE)),
+                         checkboxInput('mcheckboxShowPointsSeries', 'Points', value = FALSE),
+                         checkboxInput('mcheckboxShowSEModuleSeries', 'SEM', value = FALSE)
                           )
                       ),
                     column(6,
@@ -379,7 +392,7 @@ ui <-
                     sliderInput("numbermplotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500)
                     )),
                     conditionalPanel(condition = "output.mplotModuleSeries != null",
-                      downloadButton(class="btn-warning btn-block",'buttonPNGmplotModuleSeries', 'Download Plot As PNG'))
+                      downloadButton(class="btn-warning btn-block",'buttonPNGmplotModuleSeries', 'Plot As PNG'))
                   )
            ),
            column(9,
@@ -393,22 +406,28 @@ ui <-
                     h6("You cannot paste into these boxes. Paste any saved lists using the Select Modules regex filter"),
                     radioButtons('radioModulesModulesSeries', NULL, inline = TRUE, choiceNames = list(
                       wellPanel(style = "background-color: #feffee;",
-                        selectInput('mselectPlotModulesInSeries', label = ('Modules Selected By Filters'), character(0), multiple = TRUE),
+                        selectInput('mselectPlotModulesInSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE),
                         actionButton('mbuttonAddAllModuleSeries','All', class="btn-outline-primary"),
                         actionButton('mbuttonRemoveAllModuleSeries','None')
                       ),
-                      wellPanel(style = "background-color: #f8ffeb;",
-                        selectInput('mselectModuleTitles', label = ('Titles In Datset'), character(0), multiple = TRUE),
-                        actionButton('mbuttonRemoveAllModuleTitles','None'),
-                        downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Download Titles List')
+                      wellPanel(style = "background-color: #dcefa0;",
+                        selectInput('mselectModuleAllModules', label = 'Modules In Dataset', character(0), multiple = TRUE),
+                        fluidRow(
+                        column(4,actionButton('mbuttonRemoveAllModulesModuleSeries','None')),
+                        column(8,conditionalPanel(condition = "input.mselectModuleAllModules != null",
+                        downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Modules List')))
+                        )
                       ),
-                      wellPanel(style = "background-color: #f8ffeb;",
-                        selectInput('mselectModuleAllModules', label = ('Modules In Datset'), character(0), multiple = TRUE),
-                        actionButton('mbuttonRemoveAllModulesModuleSeries','None'),
-                        downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Download Modules List')
+                      wellPanel(style = "background-color: #dcefa0;",
+                        selectInput('mselectModuleTitles', label = 'Titles In Dataset', character(0), multiple = TRUE),
+                        fluidRow(
+                        column(4,actionButton('mbuttonRemoveAllModuleTitles','None')),
+                        column(8,conditionalPanel(condition = "input.mselectModuleTitles != null",
+                        downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Titles List')))
+                        )
                       )
                     ),
-                    choiceValues = list('Modules Selected By Filters','All Titles In The Datset', 'All Modules In The Datset')
+                    choiceValues = list('Filters', 'Modules','Titles')
                     )
                   )
                 )
@@ -419,7 +438,7 @@ ui <-
          )
        ),
          conditionalPanel(condition = "output.mdatatableModuleSeries != null",
-          downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Download Table')), hr(), 
+          downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Table')), hr(), 
          dataTableOutput('mdatatableModuleSeries')
      ),
     #################### Module Lookup #######################
@@ -428,12 +447,13 @@ ui <-
        h5("Enter a module name and click Lookup"),
        h6("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search"),
        fluidRow(
-         column(8,textInput('mtextInputModLookup',NULL)),
+         column(5,textInput('mtextInputModLookup',NULL)),
          column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-primary"),
-                      actionButton("mbuttonModLookupNone", "Clear")))
+                      actionButton("mbuttonModLookupNone", "Clear"))),
+         column(3,radioButtons('radioArrangeModuleLookupBy','Arrange By',choices = c('Module','Title','Category'),inline = TRUE))
        )),
        conditionalPanel(condition = "output.mdatatableModuleLookup != null",
-        downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Download Table')), hr(), 
+        downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Table')), hr(), 
        dataTableOutput('mdatatableModuleLookup')
     )
    )

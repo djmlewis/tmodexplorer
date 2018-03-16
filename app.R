@@ -1,7 +1,6 @@
 #
 # (C) DJMLEWIS.EU 2018
 #
-
 library(tools)
 library(shiny)
 library(readr)

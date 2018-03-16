@@ -92,9 +92,15 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         'Lines' = {
           # ModuleMeans is ordered by Module so we have to recalculate
           if(grouper == 'Title') {
-            data2plot <- data2plot %>%
-              group_by(Title,Treatment,Column) %>%
-              summarise_if(is.numeric,mean)
+            if(facet == TRUE) {
+              data2plot <- data2plot %>%
+                group_by(Title,Treatment,Column) %>%
+                summarise_if(is.numeric,mean)
+            } else {
+                data2plot <- data2plot %>%
+                  group_by(Title,Column) %>%
+                  summarise_if(is.numeric,mean)
+            }
           }
           plot <- plot + 
             geom_line(data = data2plot, mapping = aes_string(colour = grouper, group = grouper),show.legend=l)

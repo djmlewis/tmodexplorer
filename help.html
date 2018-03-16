@@ -13,6 +13,8 @@
     The basic concept is to pick a particular time point and vaccine - <i>e.g.
 
 
+
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
     probes or genes values present in the array as they are on that time
     point in persons who received that vaccine. So you may have the
@@ -52,6 +54,8 @@
     <b>This is beta software and may experience bugs and crashes. </b>The
 
 
+
+
     software depends on the R package tmod '<cite>Feature Set Enrichment
       Analysis for Metabolomics and Transcriptomics</cite>' (<a
 href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf"
@@ -64,6 +68,8 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       target="_blank">vignette</a> for a description of the modules.The
     transcriptomics datasets are from the BIOVACSAFE project (<a
       href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
+
 
 
 
@@ -94,23 +100,35 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       these offer the choice of using R base graphics (faster) or
       ggplot2 (slower but may be prettier). Other plots have a <b>Plot</b>
       button, and will only draw or update when that is clicked, to
-      avoid slow refreshes when yu want to alter several options. Plots
-      have a slider control&nbsp;<img alt="" src="slider.png" width="48"
+      avoid slow refreshes when you alter several options. Plots have a
+      slider control&nbsp;<img alt="" src="slider.png" width="48"
         height="20"> to change the height. Plot width always resizes
-      automatically with the window width. Plots can be copied or saved
-      by right-clicking on the plot. The plotting parameters are not
-      sophisticated, but generally the data used to create the plot are
-      in a table below and can be saved and imported into R for
-      re-plotting. Some tables can be saved as PNG files to incorporate
-      with plots as graphics.<br>
+      automatically with the window width. A low resolution image of
+      plots can be copied or saved by right-clicking on the plot, while
+      clicking <b>⤓ Plot As PNG</b> button downloads a high resolution
+      image. The plotting parameters are not sophisticated, but
+      generally the data used to create the plot are in a table below
+      and can be saved and imported into R for re-plotting. Some tables
+      can be saved as PNG files to incorporate with plots as graphics.<br>
     </p>
+    <h4>Identifying data on plots by clicking on points<br>
+    </h4>
+    <p>When data are plotted as <b>Lines</b> the individual data series
+      can be identified by clicking on a <b>point</b> (or where a point
+      would be plotted if you are not displaying Points). Clicking on
+      line segments between points does nothing. A notification window
+      will appear displaying the data for this point, which can be
+      copied. It will disappear after 20 seconds, or be updated if a new
+      point is clicked.<br>
+    </p>
+    <p> </p>
     <h3>Data Tables<br>
     </h3>
     Data tables can be searched using the box above (whole table search)
     or individual boxes below each column, and downloaded as a csv file
-    suitable for opening in Excel or R by clicking the download button.
-    A PNG image of the datatable can also be downloaded in some cases by
-    clicking the button "Download Table as PNG". This can be pasted onto
+    suitable for opening in Excel or R by clicking the ⤓ Table button. A
+    PNG image of the datatable can also be downloaded in some cases by
+    clicking the button "⤓ Table as PNG". This can be pasted onto
     graphics. It is very tricky to calculate the width correctly using
     grid.table, so the image may be clipped.<br>
     <br>
@@ -229,9 +247,13 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
 
 
 
+
+
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
+
 
 
 
@@ -325,12 +347,11 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     those in the "Column" you selected. You may use the search boxes
     above and below the table to further restrict the rows for viewing
     in the table, but this has no effect on other tabs or plots. Click
-    "Download Gene List" or "Download Probe List" to save a
-    comma-separated text file that can be copy-pasted into the regex
-    search box to quickly repeat the search. Note a description appears
-    when probes are displayed individually, and disappears if "Gene
-    Averages" is selected on the <b>Select</b> tab. This is because
-    descriptions are specific for probes.<br>
+    "⤓ Gene List" or "⤓ Probe List" to save a comma-separated text file
+    that can be copy-pasted into the regex search box to quickly repeat
+    the search. Note a description appears when probes are displayed
+    individually, and disappears if "Gene Averages" is selected on the <b>Select</b>
+    tab. This is because descriptions are specific for probes.<br>
     <h3> Probes:Series tab<br>
     </h3>
     This allows the values of the probes or gene averages selected by

@@ -99,7 +99,7 @@ getModulesForTitles <- function(cats,modsdata) {
   return(unique(mods$Mods))
 }
 
-lookupModules <- function(mods2find,modmeans) {
+lookupModules <- function(mods2find,modmeans,arrangeby) {
   if(is.null(mods2find) || is.null(modmeans)) return(NULL)
   if(grepl(' ',mods2find)) {
     showNotification("Spaces have been stripped", type = 'warning')
@@ -112,10 +112,23 @@ lookupModules <- function(mods2find,modmeans) {
   modmeans <- select(modmeans,Module,Title,Category)
   mods <- 
     map_dfr(mods2find,function(m){
-      filter(modmeans,grepl(m,Module, ignore.case = TRUE)) #grepl(m,modmeans$Module, ignore.case = TRUE)
+      filter(modmeans,grepl(m,Module, ignore.case = TRUE))
     }) %>%
-    distinct() %>%
-    arrange(Module)
+    distinct()
+  
+  if(arrangeby == 'Module') {
+    mods <- mods %>%
+      arrange(Module, Title, Category)
+  } else if(arrangeby == 'Title') {
+    mods <- mods %>%
+      arrange(Title, Category, Module) %>%
+      select(Title, Category, Module,everything())
+  } else {
+    mods <- mods %>%
+      arrange(Category, Title, Module)  %>%
+      select(Category,Title, Module,everything())
+  }
+    
   
   l <- getModuleMembers(mods$Module)
   if(length(l) == 0) {

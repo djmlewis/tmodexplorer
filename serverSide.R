@@ -278,17 +278,20 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
         input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
       
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
-      output$plotTopGenesSeriesSIZE <- renderUI({plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight))})
+      output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Click on points to identify")),
+                                                         plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight), click = "click_plotTopGenesSeries"))})
       output$buttonPNGplotTopGenesSeries <- downloadHandler(filename = function(){paste0("Selected Genes As Series.png")},
         content = function(file) {plotPlotPNG(ggplotTopGenesInSeries,file,session$clientData[["output_plotTopGenesSeries_height"]],session$clientData[["output_plotTopGenesSeries_width"]])})
       
     })
   
+  observeEvent(input$click_plotTopGenesSeries, {handleClick(topGenesInSeries,input$click_plotTopGenesSeries,"click_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
+  
   observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
   observeEvent(input$buttonRemoveAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = character(0))})
   
   output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Probes-Genes Series.csv")},
-                                                  content = function(file) {write.csv(topGenesInSeries, file, row.names = FALSE)})
+     content = function(file) {write.csv(topGenesInSeries, file, row.names = FALSE)})
   
 
   #################### Genes->Modules #########################
@@ -376,12 +379,14 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
         input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
         input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
-    output$plotModuleSeriesSIZE <- renderUI({plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight))})
+    output$plotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Click on points to identify")),
+      plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight), click = "click_plotModuleSeries"))})
     
   })
   output$buttonPNGplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.png")},
     content = function(file) {plotPlotPNG(ggplotModulesInSeries,file,session$clientData[["output_plotModuleSeries_height"]],session$clientData[["output_plotModuleSeries_width"]])})
   
+  observeEvent(input$click_plotModuleSeries, {handleClick(moduleValues,input$click_plotModuleSeries,"click_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")})
   
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
     content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
@@ -539,17 +544,11 @@ ggplotSelectedModulesSeries <- NULL
 observeEvent({
   input$mbuttonPlotModuleSeries
 },{
-  # which modules 'Modules Selected By Filters','All Titles In The Datset', 'All Modules In The Datset
-  mods2plot <- 
-    switch (input$radioModulesModulesSeries,
-          'Modules Selected By Filters' = {mods2plot <- input$mselectPlotModulesInSeries},
-          'All Titles In The Datset' = {mods2plot <- getModulesForTitles(input$mselectModuleTitles,allData$modulesMeans)},
-          'All Modules In The Datset' = {mods2plot <- input$mselectModuleAllModules},
-          {NULL}
-    )
-  if(is.null(mods2plot) || is.null(input$mselectColumnForModuleSeries)) {
-    showNotification("Both Column and Modules must be defined", type = "error", duration = 3)
-  } else {
+    mods2plot <- NULL
+    if(input$radioModulesModulesSeries == 'Filters') {mods2plot <- input$mselectPlotModulesInSeries}
+    else if(input$radioModulesModulesSeries == 'Titles') {mods2plot <- getModulesForTitles(input$mselectModuleTitles,allData$modulesMeans)}
+    else if(input$radioModulesModulesSeries == 'Modules') {mods2plot <- input$mselectModuleAllModules}
+
     # MUST USE <<-
     ggplotSelectedModulesSeries <<- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
       mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
@@ -557,13 +556,15 @@ observeEvent({
       input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
       input$mcheckboxShowPointsSeries,sortCol_Mods)
     output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
-    output$mplotModuleSeriesSIZE <- renderUI({plotOutput("mplotModuleSeries", height = isolate(input$numbermplotModuleSeriesSIZEheight))})
+    output$mplotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Click on points to identify")),
+                                                      plotOutput("mplotModuleSeries", height = isolate(input$numbermplotModuleSeriesSIZEheight), click = "click_mplotModuleSeries"))})
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
-  }
+  
 })
 output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Modules Series.png")},
   content = function(file) {plotPlotPNG(ggplotSelectedModulesSeries[['plot']],file,session$clientData[["output_mplotModuleSeries_height"]],session$clientData[["output_mplotModuleSeries_width"]])})
 
+observeEvent(input$click_mplotModuleSeries, {handleClick(ggplotSelectedModulesSeries[['table']],input$click_mplotModuleSeries,"click_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
 
 observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
 observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
@@ -589,9 +590,10 @@ output$mbuttonSaveListTopModulesSeries <- downloadHandler(filename = function(){
 lookedupMods <- NULL
 observeEvent({
   input$mbuttonModLookup
+  input$radioArrangeModuleLookupBy
 },{
   # use <<-
-  lookedupMods <<- lookupModules(input$mtextInputModLookup, allData$modulesMeans)
+  lookedupMods <<- lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy)
   output$mdatatableModuleLookup <- renderDataTable({lookedupMods})
 })
 

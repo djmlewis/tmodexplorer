@@ -456,3 +456,21 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   return(expressions)
 }
 
+handleClick <- function(data,click,cid,facet,fact,yv) {
+  data <- as.data.frame(data)
+  if(facet == TRUE) {
+    res <- nearPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment') 
+  } else {
+    if(fact == TRUE) {
+    data <- data %>%
+      mutate(Column = factor(Column, levels = unique(Column)))
+    }
+    res <- nearPoints(data, click, xvar = "Column", yvar = yv) 
+  }
+
+  if(is.null(res) == FALSE && nrow(res) > 0) {
+    showNotification(apply(res[1,], 1, paste, collapse="   "), duration = 15, id = cid)
+  } else {
+    removeNotification(id = cid)
+  }
+}
