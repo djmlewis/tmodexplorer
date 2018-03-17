@@ -85,8 +85,8 @@ ui <-
                                 wellPanel(style = "background-color: #feffee;",
                                   h4(checkboxInput('checkboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
                                   fluidRow(
-                                    column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = 200, step = 5)), 
-                                    column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = 200, step = 5))
+                                    column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)), 
+                                    column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
                                   ),
                                   p(style = "color: #cfdaa2;", "More than 100 rows will result in slow response")
                                 )
@@ -324,8 +324,8 @@ ui <-
             wellPanel(style = "background-color: #feffee;",
               h4(checkboxInput('mcheckboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
               fluidRow(
-                column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = 200, step = 5)),
-                column(6,numericInput("mnumberModsEnd", "To Row:", 10, min = 0, max = 200, step = 5))
+                column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = NA, step = 5)),
+                column(6,numericInput("mnumberModsEnd", "To Row:", 10, min = 0, max = NA, step = 5))
               ),
               p(style = "color: #cfdaa2;", "More than 100 modules will result in slow response")
             ))

@@ -15,12 +15,15 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
   colpal <- rainbow(ncols, alpha = 0.4)
   bordpal <- rainbow(ncols)
   insetv <- -0.16
-  legcols <- (ncols %/% 37) + 1
-  
-
-  original.parameters<- par( no.readonly = TRUE )
+  legcols <- (ncols %/% 20) + 1
   # dont you just love fudge factors?
-  par(mai = c(0.7, max(strwidth(x, units = "inches"))+0.6 , 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
+  sw <- max(strwidth(x, units = "inches"))
+  lmar <- sw+0.6 
+  rmar <- ifelse(l == TRUE,sw*legcols+0.8,0.8)
+  if(lmar+rmar>par("pin")[1]) rmar <- ifelse(l == TRUE,par("pin")[1]-lmar-1,0.8)
+  
+  original.parameters<- par( no.readonly = TRUE )
+  par(mai = c(0.7, lmar, 0.8, rmar))
   {
     # to force a zero line we have to set ylim to 0 as needed
     ymin <- ifelse(z == TRUE, min(min(y),0),min(y) )
