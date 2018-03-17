@@ -14,6 +14,7 @@ library(ggplot2)
 library(utf8)
 library(stringr)
 library(shinythemes)
+library(forcats)
 
 ####--------------------------
 options(shiny.maxRequestSize=30*1024^2) 

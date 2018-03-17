@@ -169,12 +169,12 @@ ui <-
                fluidRow(
                  column(1,checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
                  column(1,checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
-                 column(2,checkboxInput('checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE)),
                  column(2,radioButtons('radioGroupProbeModulesBy','Group By',choices = c('Module','Title'),inline = TRUE)),
                  column(1,checkboxInput('checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
                  column(1,sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
-                 column(2,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'Plot As PNG'))
-                )
+                 column(2,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'Plot As PNG')),
+                 column(2,checkboxInput('checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE))
+               )
                ),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotGenesModulesSIZE")

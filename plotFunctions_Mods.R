@@ -4,28 +4,28 @@ plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
     
     data2plot <- moddata %>%
       filter(Module %in% unique(selmod$Module), Column %in% unique(selmod$Column))
+    data2plot[[grouper]] <- factor(data2plot[[grouper]], levels = unique(data2plot[[grouper]]))
+    # we have to reorder as data is arranged alphabetically
+    data2plot[[grouper]] <- fct_reorder(data2plot[[grouper]],data2plot$Value,median)
     
     if(gg == FALSE) {
       xmax <- max(data2plot$Value,na.rm = TRUE)
       xmin <- min(data2plot$Value,na.rm = TRUE)
-      data2plot[[grouper]] <- gsub(' ','\n', data2plot[[grouper]])
-      data2plot[[grouper]] <- factor(data2plot[[grouper]], levels = unique(data2plot[[grouper]]))
-      selmod <- selmod %>% select_at(c(grouper,'Mean'))
-      selmod[[grouper]] <- as.factor(selmod[[grouper]])
-      plot <- plotBaseBoxplot(as.factor(data2plot[[grouper]]),data2plot$Value,NULL,paste0('Selected Modules\n',t),z,l,xmax,xmin)
+      # data2plot[[grouper]] <- gsub(' ','\n', data2plot[[grouper]])
+      
+      plot <- plotBaseBoxplot(data2plot[[grouper]],data2plot$Value,NULL,paste0('Selected Modules\n',t),z,l,xmax,xmin)
     } else {
 
         plot <-  ggplot(
         data = data2plot,
         mapping = aes_string(
-          x = grouper, #'Module',
+          x = grouper,
           y = 'Value',
           colour = grouper,
           fill = grouper
         )
       ) +
-        geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
-        geom_point(data = selmod, mapping = aes_string(x = grouper, y='Mean'),show.legend=FALSE, shape = 4) +
+        geom_boxplot(alpha = 0.5, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
         ggtitle(paste0('Selected Modules\n',t)) +
         themeBase
   
@@ -87,7 +87,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       
       switch (boxRibbon,
         'Boxplot' = {
-          plot <- plot + geom_boxplot(data = data2plot, mapping = aes_string(colour = grouper,fill = grouper), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
+          plot <- plot + geom_boxplot(data = data2plot, mapping = aes_string(colour = grouper,fill = grouper), alpha = 0.5, outlier.alpha = 1.0,show.legend=l)
         },
         'Lines' = {
           # ModuleMeans is ordered by Module so we have to recalculate
@@ -103,9 +103,9 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
             }
           }
           plot <- plot + 
-            geom_line(data = data2plot, mapping = aes_string(colour = grouper, group = grouper),show.legend=l)
+            geom_line(data = data2plot, mapping = aes_string(colour = grouper, group = grouper), size = 1,show.legend=l)
           
-          if(point == TRUE) {plot <-  plot + geom_point(data = data2plot,mapping = aes_string(colour = grouper, group = grouper),show.legend=l)}
+          if(point == TRUE) {plot <-  plot + geom_point(data = data2plot,mapping = aes_string(colour = grouper, group = grouper), size = 2 ,show.legend=l)}
           
           if(facet == TRUE) {plot <- plot + scale_x_continuous(breaks = data2plot$Column)}
           if(showSE == TRUE){

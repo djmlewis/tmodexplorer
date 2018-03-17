@@ -12,14 +12,15 @@ themeBase <- theme_bw() +
 plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
 
   ncols <- length(levels(x))
-  colpal <- rainbow(ncols, alpha = 0.2)
+  colpal <- rainbow(ncols, alpha = 0.4)
   bordpal <- rainbow(ncols)
   insetv <- -0.16
   legcols <- (ncols %/% 37) + 1
   
 
   original.parameters<- par( no.readonly = TRUE )
-  par(mai = c(0.7, 1.6, 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
+  # dont you just love fudge factors?
+  par(mai = c(0.7, max(strwidth(x, units = "inches"))+0.6 , 0.8, ifelse(l == TRUE,1.6*legcols,0.8)))
   {
     # to force a zero line we have to set ylim to 0 as needed
     ymin <- ifelse(z == TRUE, min(min(y),0),min(y) )
@@ -38,14 +39,20 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
 plotGenesModules <- function(d,t,l,z,gg,grouper){
   plot <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
-    d <- d %>%
+
+     d <- d %>%
       filter(!is.na(Value)) %>%
       mutate(Module = droplevels(Module), 
-             Title = as.factor(gsub(" ","\n",Title)))
-    xmax <- max(d$Value,na.rm = TRUE)
-    xmin <- min(d$Value,na.rm = TRUE)
+             Title = as.factor(Title))# gsub(" ","\n",)
+    
+    if(grouper == "Title") {
+      # we have to reorder as data is arranged by mean according to module
+      d$Title <- fct_reorder(d$Title,d$Value,median)
+    }
     
     if(gg == FALSE){
+      xmax <- max(d$Value,na.rm = TRUE)
+      xmin <- min(d$Value,na.rm = TRUE)
       plot <- plotBaseBoxplot(d[[grouper]],d$Value,NULL,paste0('Modules For Selected Genes\n',t),z,l,xmax,xmin)
     } else {
       plot <-  ggplot(
@@ -61,7 +68,7 @@ plotGenesModules <- function(d,t,l,z,gg,grouper){
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
       plot <-  plot +
-        geom_boxplot(alpha = 0.2, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
+        geom_boxplot(alpha = 0.5, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
         ggtitle(paste0('Modules For Selected Genes\n',t)) +
         themeBase
     }
@@ -77,8 +84,6 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
       filter(!is.na(Value)) %>%
       mutate(Gene = droplevels(Gene))
     
-    xmax <- max(d$Value,na.rm = TRUE)
-    xmin <- min(d$Value,na.rm = TRUE)
     
     if(gg == TRUE) {
       plot <- ggplot(
@@ -90,7 +95,7 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
         )
       ) +
       geom_text(mapping = aes(label = Selected, y = xmin), nudge_y = -0.02, hjust = 0, show.legend=FALSE) +
-      geom_boxplot(mapping = aes(y = Value),alpha = 0.2, outlier.alpha = 1.0, show.legend=l) +
+      geom_boxplot(mapping = aes(y = Value),alpha = 0.5, outlier.alpha = 1.0, show.legend=l) +
       coord_flip() +
       ggtitle(paste0('Genes for module ',m,'\n',t)) +
       themeBase
@@ -99,6 +104,8 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
     } else {
+      xmax <- max(d$Value,na.rm = TRUE)
+      xmin <- min(d$Value,na.rm = TRUE)
       plot <- plotBaseBoxplot(d$Gene,d$Value,d$Selected,paste0('Genes for module ',m,'\n',t),z,l,xmax,xmin)
     }
   }
@@ -157,10 +164,10 @@ plotTopGenesInSeries <- function(data2plot,
     }
     
     plot <-   ggplot(data = plotData) +
-      {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.2, outlier.alpha = 1.0, show.legend = showlegend)}} +
-      {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.2, outlier.alpha = 1.0, show.legend = FALSE)}} +
-      {if (pointsBoxes == 'Lines') {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), show.legend = showlegend)}} +
-      {if(pointsBoxes == 'Lines' && showPoints){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), show.legend = showlegend)}} +
+      {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.5, outlier.alpha = 1.0, show.legend = showlegend)}} +
+      {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.5, outlier.alpha = 1.0, show.legend = FALSE)}} +
+      {if (pointsBoxes == 'Lines') {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), size = 1, show.legend = showlegend)}} +
+      {if(pointsBoxes == 'Lines' && showPoints){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), size = 2 ,show.legend = showlegend)}} +
       ggtitle(paste0('Selected ',ifelse(asGenes,'Genes','Probes'),'\n', t)) +
       themeBase
 
@@ -204,8 +211,8 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
       if(length(unique(d$Column)) > 1) {
         p <- p +
         {if(se == TRUE){geom_ribbon(mapping = aes(ymin = SElo, ymax = SEhi, fill = Module, group = Module), alpha = 0.2,show.legend=l)}} +
-        {if(pp == TRUE){geom_point(aes(y = Value, colour = Module, group = Module),show.legend=l)}} +
-          geom_line(aes(y = Value, colour = Module, group = Module),show.legend=l)
+        {if(pp == TRUE){geom_point(aes(y = Value, colour = Module, group = Module), size = 2 ,show.legend=l)}} +
+          geom_line(aes(y = Value, colour = Module, group = Module), size = 1,show.legend=l)
       } else {# cannot plot lines and ribbons with only 1 point
         p <- p +
           geom_point(aes(y = Value, colour = Module, group = Module),show.legend=l)
@@ -217,7 +224,7 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
       }
     } else { # boxplot
       p <- p +
-        geom_boxplot(mapping = aes(y = Value, colour = Module, fill = Module), alpha = 0.2, outlier.alpha = 1.0,show.legend=l)
+        geom_boxplot(mapping = aes(y = Value, colour = Module, fill = Module), alpha = 0.5, outlier.alpha = 1.0,show.legend=l)
     }
     
     if(f == TRUE){

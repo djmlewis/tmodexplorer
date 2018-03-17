@@ -16,6 +16,10 @@
 
 
 
+
+
+
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
     probes or genes values present in the array as they are on that time
     point in persons who received that vaccine. So you may have the
@@ -24,7 +28,7 @@
     got Boostrix. Why do this? Well, because with over 60k probes you
     have to order them somehow. The grouping of vaccine - time point is
     actually a natural grouping and as you use the tool this becomes
-    clear, if a bit counterintuitive when comparing between vaccines.<br>
+    clear, if a bit counter-intuitive when comparing between vaccines.<br>
     <br>
     Having ordered the top or bottom probes, you can then select the
     probes or genes into a group of interest - e.g. the top 10
@@ -40,6 +44,17 @@
     category, and then follow these selected genes and the modules that
     contain them over time.<br>
     <br>
+    The figure below illustrates this: the probes in the combined ABC
+    Surrey dataset have been sorted in descending order of their
+    expression value in the vaccinees 7 days after receiving Stamaril.
+    The top 10 probes have been selected and the time series plotted as
+    individual lines for Stamaril, Fluad and Placebo, or as a boxplot
+    for these probes treated as though they belonged to a pseudo-module.<br>
+    <div align="center"><img src="lines.png" alt="" hspace="20"
+        width="500" height="226"><img src="box.png" alt="" hspace="20"
+        width="500" border="0" height="226"><br>
+    </div>
+    <br>
     There is also an option to go straight to exploring by modules, in
     which case you just select tmod modules and observe their response
     over time. Modules can be selected in the the same way as individual
@@ -52,7 +67,13 @@
     non-responding genes that they are not representative? Could we
     cluster new modules?<br>
     <br>
+    <h4>Disclaimer &amp; Acknowledgements<br>
+    </h4>
     <b>This is beta software and may experience bugs and crashes. </b>The
+
+
+
+
 
 
 
@@ -70,6 +91,10 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       target="_blank">vignette</a> for a description of the modules.The
     transcriptomics datasets are from the BIOVACSAFE project (<a
       href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
+
+
+
 
 
 
@@ -155,18 +180,24 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       person-each probe-each timepoint, into treatment and timepoint
       pools. Then row averages for each probe within the treatment-time
       pool were calculated. This gives the basic raw expression data
-      which is the group mean for each vaccination-day for each probe. <br>
+      which is the group mean for each vaccination-day for each probe,
+      i.e. the mean expression for Probe X on day Y for participants who
+      received vaccine Z.<br>
     </p>
     <p>One group of datasets, based on <i><b>limma-normalised</b></i>
       expression values, consists of the <b> protocol-defined grouping
-        of the vaccines and associated placebo group</b> (which may have
-      only ~6 participants in Surrey):<br>
+        of the vaccines and associated placebo group</b> (<i>which may
+        have only 4-6 participants in Surrey, so when comparing with
+        placebo the combined ABC dataset described below may be better</i>):<br>
     </p>
     <ul>
       <li>A Surrey Stamaril-Varilrix-Placebo</li>
       <li>C Surrey Aggrippal-Fluad-Placebo</li>
-      <li>D Gent Fluad-Placebo</li>
-      <li>D2 Gent Boostrix-Placebo</li>
+      <li>D Gent Fluad-Placebo (<i>NB only 6 in placebo group</i>)<br>
+      </li>
+      <li>D2 Gent Boostrix-Placebo (<i>NB days 2 and 3 contain mutually
+          exclusive halves of the cohort</i><i>, placebo = 20</i>)<br>
+      </li>
     </ul>
     <p>An exception is <b>Surrey Engerix B</b>. Here the participants
       were naive and received a priming vaccination alongside a placebo
@@ -180,8 +211,9 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
         from this adjusted day 0</i>, as the response to the third
       immunisation. Thus the ENGERIXB and PLACEBO may be pooled with the
       other Surrey trials, but the ENGERIXB3 and especially the PLACEBO3
-      should be treated with caution as they are the same persons
-      repeated. This dataset therefore has the pattern:<br>
+      (<i>which</i><i> has only 4 participants)</i> should be treated
+      with caution as they are the same persons repeated. This dataset
+      therefore has the pattern:<br>
     </p>
     <ul>
       <li>B Surrey EngerixB-Placebo-EngerixB3-Placebo3</li>
@@ -189,11 +221,12 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     I have also included a <b>combined Surrey dataset</b> in which the
     vaccines in A, B and C are all together, based on <i><b>agilent</b></i><i><b>-normalised</b></i>
     expression values. In this case the PLACEBO group contains all ~21
-    participants pooled from ABC - <i>without</i> the PLACEBO3 group as
-    described for <i>B Surrey Engerix B</i> above. PLACEBO3 (the
-    subjects who repeated) are presented as a separate group. This is a
-    large dataset and so can be slow, but allows very convenient
-    comparison between vaccines. This dataset therefore has the pattern:
+    participants pooled from ABC - <i>without</i> <i>the PLACEBO3
+      group as described for</i> <i>B Surrey Engerix B</i> above.
+    PLACEBO3 (the subjects who repeated) are presented as a separate
+    group, but generally should probably be ignored. This is a large
+    dataset and so can be slow, but allows very convenient comparison
+    between vaccines. This dataset therefore has the pattern:
     <ul>
       <li>ABC Surrey Agilent</li>
     </ul>
@@ -257,9 +290,17 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
 
 
 
+
+
+
+
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
+
+
+
 
 
 
