@@ -21,6 +21,9 @@
 
 
 
+
+
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
     probes or genes values present in the array as they are on that time
     point in persons who received that vaccine. So you may have the
@@ -29,7 +32,12 @@
     got Boostrix. Why do this? Well, because with over 60k probes you
     have to order them somehow. The grouping of vaccine - time point is
     actually a natural grouping and as you use the tool this becomes
-    clear, if a bit counter-intuitive when comparing between vaccines.<br>
+    clear, if a bit counter-intuitive when comparing between vaccines.
+    As the data consists of rows where each row is a probe, and columns
+    where each column is a set of values for one time point and one
+    vaccine, by sorting the rows according to the values for one
+    vaccine-time column, you also impose the same order on other time
+    points and vaccines.<br>
     <br>
     Having ordered the top or bottom probes, you can then select the
     probes or genes into a group of interest - e.g. the top 10
@@ -45,16 +53,27 @@
     category, and then follow these selected genes and the modules that
     contain them over time.<br>
     <br>
-    The figure below illustrates this: the probes in the combined ABC
+    The figures below illustrates this: the probes in the combined ABC
     Surrey dataset have been sorted in descending order of their
     expression value in the vaccinees 7 days after receiving Stamaril.
     The top 10 probes have been selected and the time series plotted as
     individual lines for Stamaril, Fluad and Placebo, or as a boxplot
     for these probes treated as though they belonged to a pseudo-module.<br>
-    <div align="center"><img src="lines.png" alt="" height="226"
-        hspace="20" width="500"><img src="box.png" alt="" border="0"
-        height="226" hspace="20" width="500"><br>
-    </div>
+    <img src="selgenesseries.png" alt="Selected Probes" width="554"
+      height="250"> &nbsp;<img src="selgenesseriesbox.png" alt="Selected
+      Probes Boxplot" width="554" height="250"> <br>
+    <br>
+    We can then identify the modules to which those genes belong, and
+    plot the changes in those modules over time. Note that while the
+    kinetics of the probes is clear-cut, the modules are less so, with
+    some non-responding modules. This reflects that fact that modules
+    contain many genes that may not be responding to Stamaril at all, or
+    even down-regulated, as&nbsp; the modules have been clustered by
+    their authors on the basis of other datasets:<br>
+    <img src="selmods.png" alt="Selected Modules" align="middle"
+      width="550" height="249">&nbsp;&nbsp; <img
+      src="selmodsseries.png" alt="Selected Modules Timecourse"
+      align="middle" width="550" height="249"><br>
     <br>
     There is also an option to go straight to exploring by modules, in
     which case you just select tmod modules and observe their response
@@ -62,67 +81,26 @@
     probes or genes - by identifying those most up- or down-regulated
     modules on a particular day after a particular treatment; or by
     searching for modules by name or category. But the basic concept is
-    the same: how do the tmod modules respond after immunisation and how
-    does this compare when we select individual genes? Are there other
-    gene groupings that may be better? Do some modules have so many
+    the same, as shown here where the top 10 modules up-regulated on day
+    7 after Stamaril are identified and the response over time plotted.
+    Modules can be further clustered by <i>Title</i> and <i>Category</i>.
+    The plots below actually show the 8 <i>Titles</i> that these top 10
+    modules belong to. Note that the kinetics is more clear-cut because
+    we have forced the selection to focus on the aggregate expression of
+    modules - this may not be very representative of the actual
+    responding genes (as shown above): <br>
+    <img src="topmods.png" alt="Top Modules" width="553" height="250">&nbsp;&nbsp;
+
+
+    <img src="topmodsseries.png" alt="Top Modules Timecourse"
+      width="553" height="250"><br>
+    <br>
+    By visualising the changes in gene and module expression we can ask
+    how do the tmod modules respond after immunisation and how does this
+    compare when we select individual genes? Are there other gene
+    groupings that may be better? Do some modules have so many
     non-responding genes that they are not representative? Could we
     cluster new modules?<br>
-    <br>
-    <h4>Disclaimer &amp; Acknowledgements<br>
-    </h4>
-    <b>This is beta software and may experience bugs and crashes. </b>The
-
-
-
-
-
-
-
-
-
-
-    software depends on the R package tmod '<cite>Feature Set Enrichment
-      Analysis for Metabolomics and Transcriptomics</cite>' (<a
-href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf"
-      target="_blank">description</a>), created by January Weiner. I
-    have reverse engineered some aspects of tmod and any errors arising
-    from this are mine. Consult the <a
-      href="https://doi.org/10.7287/peerj.preprints.2420v1/supp-2"
-      target="_blank">tmod documentation</a> or <a
-      href="https://d3amtssd1tejdt.cloudfront.net/2016/2420/1/tmod.pdf"
-      target="_blank">vignette</a> for a description of the modules.The
-    transcriptomics datasets are from the BIOVACSAFE project (<a
-      href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    and were generated by the group of Stefan Kaufmann at MPIIB, Berlin
-    and provided by Jeroen Maertzdorf and January Weiner. I have
-    generated the probe averages per time point and any errors there are
-    mine. The trials were conducted at the University of Gent by Geert
-    Leroux-Roels, and at the University of Surrey by me. Source files
-    for the shiny app are available at <a
-      href="http://www.github.com/djmlewis/tmodexplorer" target="_blank">
-      www.github.com/djmlewis/tmodexplorer</a>. The shiny app is online
-    at <a href="http://djmlewis.shinyapps.io/tmodexplorer"
-      target="_blank">djmlewis.shinyapps.io/tmodexplorer</a><br>
     <h3>Plots</h3>
     <p><b><em>Plots may take some time to appear - be patient!</em></b>
       The more rows you select for plotting the slower it will be.
@@ -132,8 +110,8 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       ggplot2 (slower but may be prettier). Other plots have a <b>Plot</b>
       button, and will only draw or update when that is clicked, to
       avoid slow refreshes when you alter several options. Plots have a
-      slider control&nbsp;<img alt="" src="slider.png" height="20"
-        width="48"> to change the height. Plot width always resizes
+      slider control&nbsp;<img alt="" src="slider.png" width="48"
+        height="20"> to change the height. Plot width always resizes
       automatically with the window width. A low resolution image of
       plots can be copied or saved by right-clicking on the plot, while
       clicking <b>⤓ Plot As PNG</b> button downloads a high resolution
@@ -298,9 +276,15 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
 
 
 
+
+
+
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
+
+
 
 
 
@@ -598,7 +582,68 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       associated genes is shown. These gene lists can be copied and
       directly pasted into the regex search boxes that accept Gene
       Names, spaces will be stripped for you.</p>
-    <h2>Acknowledgements</h2>
+    <h1>Disclaimer &amp; Acknowledgements<br>
+    </h1>
+    <b>This is beta software and may experience bugs and crashes. </b>The
+
+
+
+
+
+
+
+
+
+
+
+
+
+    software depends on the R package tmod '<cite>Feature Set Enrichment
+      Analysis for Metabolomics and Transcriptomics</cite>' (<a
+href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf"
+      target="_blank">description</a>), created by January Weiner. I
+    have reverse engineered some aspects of tmod and any errors arising
+    from this are mine. Consult the <a
+      href="https://doi.org/10.7287/peerj.preprints.2420v1/supp-2"
+      target="_blank">tmod documentation</a> or <a
+      href="https://d3amtssd1tejdt.cloudfront.net/2016/2420/1/tmod.pdf"
+      target="_blank">vignette</a> for a description of the modules.The
+    transcriptomics datasets are from the BIOVACSAFE project (<a
+      href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    and were generated by the group of Stefan Kaufmann at MPIIB, Berlin
+    and provided by Jeroen Maertzdorf and January Weiner. I have
+    generated the probe averages per time point and any errors there are
+    mine. The trials were conducted at the University of Gent by Geert
+    Leroux-Roels, and at the University of Surrey by me. Source files
+    for the shiny app are available at <a
+      href="http://www.github.com/djmlewis/tmodexplorer" target="_blank">
+      www.github.com/djmlewis/tmodexplorer</a>. The shiny app is online
+    at <a href="http://djmlewis.shinyapps.io/tmodexplorer"
+      target="_blank">djmlewis.shinyapps.io/tmodexplorer</a><br>
+    <br>
     tmodExplorer is written in R: R Core Team (2017). R: A language and
     environment for statistical computing. R Foundation for Statistical
     Computing, Vienna,<br>
@@ -607,7 +652,7 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     tidyverse packages (<a href="https://www.tidyverse.org"
       target="_blank">https://www.tidyverse.org</a>) extensively
     especially dplyr, purrr, readr, ggplot2 and tibble.<br>
-    <h2> Versions</h2>
+    <h1> Versions</h1>
     1.2beta. Most features included and bugs trapped.<br>
     <br>
     University Of Surrey © 2018. E&amp;OE David JM Lewis&nbsp;

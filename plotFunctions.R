@@ -87,6 +87,8 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
       filter(!is.na(Value)) %>%
       mutate(Gene = droplevels(Gene))
     
+    xmax <- max(d$Value,na.rm = TRUE)
+    xmin <- min(d$Value,na.rm = TRUE)
     
     if(gg == TRUE) {
       plot <- ggplot(
@@ -107,8 +109,6 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
     } else {
-      xmax <- max(d$Value,na.rm = TRUE)
-      xmin <- min(d$Value,na.rm = TRUE)
       plot <- plotBaseBoxplot(d$Gene,d$Value,d$Selected,paste0('Genes for module ',m,'\n',t),z,l,xmax,xmin)
     }
   }
@@ -167,16 +167,24 @@ plotTopGenesInSeries <- function(data2plot,
     }
     
     plot <-   ggplot(data = plotData) +
-      {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.5, outlier.alpha = 1.0, show.legend = showlegend)}} +
-      {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.5, outlier.alpha = 1.0, show.legend = FALSE)}} +
-      {if (pointsBoxes == 'Lines') {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), size = 1, show.legend = showlegend)}} +
-      {if(pointsBoxes == 'Lines' && showPoints){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), size = 2 ,show.legend = showlegend)}} +
-      ggtitle(paste0('Selected ',ifelse(asGenes,'Genes','Probes'),'\n', t)) +
-      themeBase
-
+      themeBase  +
+      ggtitle(paste0('Selected ',ifelse(asGenes,'Genes','Probes'),'\n', t))
+    
+    
     if (showZero == TRUE) {
       plot <- plot + geom_hline(yintercept = 0.0, linetype = 2)
     }
+    
+    if(xgrid == TRUE && pointsBoxes == 'Lines' && facet == TRUE) {
+      plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+    }
+    
+    plot <- plot +
+      {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.5, outlier.alpha = 1.0, show.legend = showlegend)}} +
+      {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.5, outlier.alpha = 1.0, show.legend = FALSE)}} +
+      {if (pointsBoxes == 'Lines') {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), size = 1, show.legend = showlegend)}} +
+      {if(pointsBoxes == 'Lines' && showPoints){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), size = 2 ,show.legend = showlegend)}}
+
 
     if (facet == TRUE) {
       plot <-  plot +
@@ -184,15 +192,12 @@ plotTopGenesInSeries <- function(data2plot,
         facet_wrap( ~ Treatment)
     }
     
-    if(xgrid == TRUE && pointsBoxes == 'Lines' && facet == TRUE) {
-      plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
-    }
-    
     #sortCol - VACCINE_DAY
     if (sortCol %in% data2plot$Column || (facet == TRUE &&(unlist(str_split(sortCol, "_"))[1] %in% unique(data2plot$Treatment) &&
-          unlist(str_split(sortCol, "_"))[2] %in% unique(data2plot$Column)))) {
+                                                           unlist(str_split(sortCol, "_"))[2] %in% unique(data2plot$Column)))) {
       plot <- addSortColPlot(sortCol,facet,plot,levels(data2plot$Column))
     }
+    
     return(plot)
   }
 
@@ -204,6 +209,11 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
     p <- ggplot(data = d, mapping = aes(x = Column)) +
       ggtitle(paste0('Modules For Selected Genes / Probes\n',t)) +
       themeBase
+ 
+
+    if(xg == TRUE && r == 'Lines' && f == TRUE) {
+      p <- p + geom_vline(xintercept = unique(d$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+    }
     
     if(z == TRUE) {
       p <- p +
@@ -235,13 +245,10 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
         facet_wrap(~Treatment)
     }
     
-    #sortCol - VACCINE_DAY
-    if (sC %in% d$Column || (f == TRUE &&(unlist(str_split(sC, "_"))[1] %in% unique(d$Treatment) &&
-          unlist(str_split(sC, "_"))[2] %in% unique(d$Column)))) {
+    #sortCol - VACCINE_DAY must come last or factors go awry
+    if (sC %in% d$Column || (f == TRUE && (unlist(str_split(sC, "_"))[1] %in% unique(d$Treatment) &&
+                                          unlist(str_split(sC, "_"))[2] %in% unique(d$Column)))) {
       p <- addSortColPlot(sC,f,p,levels(d$Column))
-    }
-    if(xg == TRUE && r == 'Lines' && f == TRUE) {
-      p <- p + geom_vline(xintercept = unique(d$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
     }
     
   }

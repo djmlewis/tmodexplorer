@@ -64,7 +64,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         data2plot <- data2plot %>%
           separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
         if(boxRibbon == 'Boxplot') {
-          data2plot <- data2plot %>% mutate(Column = as.factor(Column))
+          data2plot <- data2plot %>% mutate(Column = factor(data2plot$Column, levels = unique(data2plot$Column)))
           }
         data2plot <- data2plot %>%
           arrange(Treatment, Module, Column)
@@ -83,6 +83,12 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         ggtitle(paste0('Selected Modules\n',t)) +
         themeBase
       
+      if(z == TRUE) {
+        plot <-  plot + geom_hline(data = data2plot, yintercept = 0.0, linetype = 2, show.legend = FALSE)
+      }
+      if(xgrid == TRUE && boxRibbon == 'Lines' && facet == TRUE) {
+        plot <- plot + geom_vline(data = data2plot, xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+      }
       
       
       switch (boxRibbon,
@@ -117,20 +123,15 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         }
       )
 
-      if(z == TRUE) {
-        plot <-  plot + geom_hline(data = data2plot, yintercept = 0.0, linetype = 2, show.legend = FALSE)
-      }
       if(facet == TRUE) {
         plot <- plot + facet_wrap(~Treatment)
       }
       
-      if(xgrid == TRUE && boxRibbon == 'Lines' && facet == TRUE) {
-        plot <- plot + geom_vline(data = data2plot, xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
-      }
-      
+      #sortCol - VACCINE_DAY must come last or factors go awry
       if(sortCol %in% selCol) {
         plot <- addSortColPlot(sortCol,facet,plot,levels(data2plot$Column))
       }
+      
     }
   }
   return(list(plot = plot, table = data2plot))
