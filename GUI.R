@@ -4,7 +4,8 @@ ui <-
              inverse = TRUE,
              header = tagList(tags$style(type="text/css", "body {padding-top: 70px;}")),
   ######################  TABS  #########
-  #################### Password ######################### f8ffeb
+  
+  #################### Password ################
   tabPanel('Password',
            h4(style = "text-align: center;",'Please enter the password you have been given to access tmodExplorer'),
            fluidRow(
@@ -18,7 +19,7 @@ ui <-
            h5(style = "text-align: center;","Please contact d.j.lewis@surrey.ac.uk to request a password")
            
   ),
-  #################### Data Load ######################### f8ffeb
+  #################### Data Load ######################
   tabPanel('Load data',
     h3("Select pre-loaded dataset to analyse and click 'Load'"),
     fluidRow(
@@ -46,7 +47,7 @@ ui <-
         h4(align = 'center', textOutput('textDataNameProbes')),
          navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe', header = h4(align = 'center', textOutput('textFiltersProbes')),
            #################### Selecting  ################
-           tabPanel('Select Probe',
+           tabPanel('Select Probes',
                     wellPanel(style = "background-color: #FFFFFF;",
                       # wellPanel(
                         h4("Select a treatment - time column to sort probe values and display responses"),
@@ -264,20 +265,7 @@ ui <-
                 downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
                 hr(),
                dataTableOutput('datatableModuleSeries')
-           )),
-          #################### Gene Lookup ###################
-          tabPanel('Gene Lookup',
-            wellPanel(style = "background-color: #feffee;",
-              h4("Enter a gene name or partial name and click Lookup"),
-              h5("Use commas to separate multiple genes. Alternatively, leave box empty and click Lookup to return all genes, then use search boxes above/below table to search"),
-              fluidRow(
-                column(8,textInput('textInputGeneLookup',NULL)),
-                column(4,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-primary"),actionButton("buttonGeneLookupNone", "Clear")))
-              )),
-              conditionalPanel(condition = "output.datatableGeneLookup != null",
-                downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Table')), hr(), 
-              dataTableOutput('datatableGeneLookup')
-          )
+           ))
           
 ) # navProbe
 ),# explore by probe
@@ -444,26 +432,44 @@ ui <-
          conditionalPanel(condition = "output.mdatatableModuleSeries != null",
           downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Table')), hr(), 
          dataTableOutput('mdatatableModuleSeries')
-     ),
-    #################### Module Lookup #######################
-    tabPanel('Module Lookup',
-      wellPanel(style = "background-color: #feffee;",
-       h5("Enter a module name and click Lookup"),
-       h6("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search"),
-       fluidRow(
-         column(5,textInput('mtextInputModLookup',NULL)),
-         column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-primary"),
-                      actionButton("mbuttonModLookupNone", "Clear"))),
-         column(3,radioButtons('radioArrangeModuleLookupBy','Arrange By',choices = c('Module','Title','Category'),inline = TRUE))
-       )),
-       conditionalPanel(condition = "output.mdatatableModuleLookup != null",
-        downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Table')), hr(), 
-       dataTableOutput('mdatatableModuleLookup')
-    )
+     )
    )
   ), #explore by module
-  ###########   READ ME  ##########
-  tabPanel('ReadMe', icon = icon('info-circle'),
+  ###########   Lookup  ##########
+tabPanel('Lookup',
+  navbarPage(span(style = 'color: #000000;','Lookup'), id = 'navLookup',
+     #################### Gene Lookup ###################
+     tabPanel('Gene Lookup',
+              wellPanel(style = "background-color: #feffee;",
+                        h4("Enter a gene name or partial name and click Lookup"),
+                        h5("Use commas to separate multiple genes. Alternatively, leave box empty and click Lookup to return all genes, then use search boxes above/below table to search"),
+                        fluidRow(
+                          column(8,textInput('textInputGeneLookup',NULL)),
+                          column(4,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-primary"),actionButton("buttonGeneLookupNone", "Clear")))
+                        )),
+              conditionalPanel(condition = "output.datatableGeneLookup != null",
+                               downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Table')), hr(), 
+              dataTableOutput('datatableGeneLookup')
+     ),
+     #################### Module Lookup #######################
+     tabPanel('Module Lookup',
+              wellPanel(style = "background-color: #feffee;",
+                        h5("Enter a module name and click Lookup"),
+                        h6("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search"),
+                        fluidRow(
+                          column(5,textInput('mtextInputModLookup',NULL)),
+                          column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-primary"),
+                                       actionButton("mbuttonModLookupNone", "Clear"))),
+                          column(3,radioButtons('radioArrangeModuleLookupBy','Arrange By',choices = c('Module','Title','Category'),inline = TRUE))
+                        )),
+              conditionalPanel(condition = "output.mdatatableModuleLookup != null",
+                               downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Table')), hr(), 
+              dataTableOutput('mdatatableModuleLookup')
+     )
+  )           
+),
+###########   READ ME  ##########
+tabPanel('ReadMe', icon = icon('info-circle'),
            includeHTML("help.html")
   ),
   ##### 

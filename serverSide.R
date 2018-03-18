@@ -14,7 +14,8 @@ server <- function(input, output, session) {
   # hide the explores until load
   hideTab(inputId = "navbarTop", target = "Explore By Probe")
   hideTab(inputId = "navbarTop", target = "Explore By Module")
-
+  hideTab(inputId = "navbarTop", target = "Lookup")
+  
   
 #   #################### Password #########################
   password <- read_rds("p")
@@ -66,9 +67,10 @@ server <- function(input, output, session) {
     # show hide the nav tabs to reflect we have loaded data, rehide any needing rehiding post select
     showTab(inputId = "navbarTop", target = "Explore By Probe")
     showTab(inputId = "navbarTop", target = "Explore By Module")
+    showTab(inputId = "navbarTop", target = "Lookup")
     
     # we may have been on a different pane so re-select Select
-    updateNavbarPage(session,'navProbe',selected = 'Select Probe')
+    updateNavbarPage(session,'navProbe',selected = 'Select Probes')
     hideTab(inputId = "navProbe", target = "Selected Probes")
     hideTab(inputId = "navProbe", target = "Probes:Series")
     hideTab(inputId = "navProbe", target = "Genes->Modules")
