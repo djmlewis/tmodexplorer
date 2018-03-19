@@ -367,7 +367,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     input$buttonPlotModuleSeries
   },{
     output$plotModuleSeries <- renderPlot({NULL})
-    moduleValues <- getModuleValuesForSeries(allData$data,
+    # MUST USE <<- to affect the external moduleValues
+    moduleValues <<- getModuleValuesForSeries(allData$data,
       input$selectModuleForSeries,input$selectColumnForModuleSeries, 
       input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
 

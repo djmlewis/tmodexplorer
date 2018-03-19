@@ -46,6 +46,9 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
     # strip out the titles
     mods <- sub(' .*$', '', selmod)
 
+    # honour the selCol order
+    origlevels <- unique(sub("_.*","",selCol))
+    
     switch (boxRibbon,
       'Boxplot' = {
         dataset <- 'modules'
@@ -61,8 +64,12 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
     if(nrow(data2plot)>0) { # clicking Plot without endtering columns
 
       if(facet == TRUE) {
+        
         data2plot <- data2plot %>%
-          separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
+          separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%
+          # preserve the order of entry
+          mutate(Treatment = factor(Treatment, levels = origlevels))
+
         if(boxRibbon == 'Boxplot') {
           data2plot <- data2plot %>% mutate(Column = factor(data2plot$Column, levels = unique(data2plot$Column)))
           }
@@ -74,6 +81,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
           arrange(Module, Column)
       }
       
+
       plot <-  ggplot(
         mapping = aes_string(
           x = 'Column',
@@ -122,7 +130,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
           }
         }
       )
-
+      
       if(facet == TRUE) {
         plot <- plot + facet_wrap(~Treatment)
       }

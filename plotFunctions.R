@@ -303,9 +303,17 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
     }
   }
   
+  # Treatment is a factor, so fct_relevel our order from the box if as Lines - fudge..
+  if(facetted == TRUE && boxRibbon == "Lines") {
+    moduleValues <- moduleValues %>%
+      mutate(Treatment = fct_relevel(Treatment, levels = levels(topGenesInSeries$Treatment)))
+  }
+  
+
   # join our psuedo module to the others
   moduleValues <- moduleValues %>%
     bind_rows(topGenesInSeries)
+  
   return(moduleValues)
 }
 

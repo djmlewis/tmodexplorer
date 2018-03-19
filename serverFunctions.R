@@ -174,7 +174,8 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet) {
     
   if(facet == TRUE){
     seriesData <- seriesData %>%
-      separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
+      separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%
+      mutate(Treatment = factor(Treatment, levels = unique(Treatment)))
   }
   
   return(seriesData)
@@ -440,7 +441,9 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
     
     if(facet == TRUE){
       expressions <- expressions %>%
-        separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE)
+        separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%
+        # preserve the order entered into the box
+        mutate(Treatment = factor(Treatment, levels = unique(Treatment)))
       if(ribbon == "Boxplot")
         expressions <- expressions %>%
         mutate(Column = as.factor(Column)) %>%
