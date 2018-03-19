@@ -27,7 +27,7 @@ plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
       ) +
         geom_boxplot(alpha = 0.5, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
         ggtitle(paste0('Selected Modules\n',t)) +
-        themeBase
+        themeBase(FALSE)
   
       if(z == TRUE) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
@@ -89,7 +89,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         )
       ) +
         ggtitle(paste0('Selected Modules\n',t)) +
-        themeBase
+        themeBase(facet == FALSE)
       
       if(z == TRUE) {
         plot <-  plot + geom_hline(data = data2plot, yintercept = 0.0, linetype = 2, show.legend = FALSE)

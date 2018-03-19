@@ -1,13 +1,19 @@
-themeBase <- theme_bw() + 
+themeBase <- function(rotate) {
+  a <- ifelse(rotate,60,0)
+  hj <- ifelse(rotate,1,0.5)
+
+  t <- theme_bw() + 
   theme(
     panel.grid = element_blank(),
     strip.background = element_rect(fill = "#f8ffeb"),
     axis.title = element_blank(),
     strip.text = element_text(size = 14),
     axis.text.y = element_text(size = 14),
-    axis.text.x = element_text(size = 14),
+    axis.text.x = element_text(size = 14, angle = a, hjust = hj),
     legend.title = element_text()
   )
+  return(t)
+}
 
 plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
 
@@ -73,7 +79,7 @@ plotGenesModules <- function(d,t,l,z,gg,grouper){
       plot <-  plot +
         geom_boxplot(alpha = 0.5, outlier.alpha = 1.0,show.legend=l) + coord_flip() +
         ggtitle(paste0('Modules For Selected Genes\n',t)) +
-        themeBase
+        themeBase(FALSE)
     }
   }
   return(plot)
@@ -103,7 +109,7 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
       geom_boxplot(mapping = aes(y = Value),alpha = 0.5, outlier.alpha = 1.0, show.legend=l) +
       coord_flip() +
       ggtitle(paste0('Genes for module ',m,'\n',t)) +
-      themeBase
+      themeBase(FALSE)
       
       if(z == TRUE) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
@@ -167,7 +173,7 @@ plotTopGenesInSeries <- function(data2plot,
     }
     
     plot <-   ggplot(data = plotData) +
-      themeBase  +
+      themeBase(facet == FALSE)  +
       ggtitle(paste0('Selected ',ifelse(asGenes,'Genes','Probes'),'\n', t))
     
     
@@ -208,7 +214,7 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
 
     p <- ggplot(data = d, mapping = aes(x = Column)) +
       ggtitle(paste0('Modules For Selected Genes / Probes\n',t)) +
-      themeBase
+      themeBase(f == FALSE)
  
 
     if(xg == TRUE && r == 'Lines' && f == TRUE) {
