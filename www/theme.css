@@ -15,6 +15,14 @@ html {
 body {
   margin: 0;
 }
+
+.irs-min, .irs-max, .irs-from, .irs-to, .irs-single  {
+	visibility: hidden !important;
+}
+.irs-bar, .irs-line, .irs-bar-edge,.irs-shadow {
+    background-color: #74b566;
+    border-color: #74b566;
+}
 article,
 aside,
 details,
@@ -3139,8 +3147,8 @@ fieldset[disabled] .btn-default.focus {
 }
 .btn-primary {
   color: #ffffff;
-  background-color: #728c11;
-  border-color: #728c11;
+  background-color: #74b566;
+  border-color: #74b566;
 }
 .btn-primary:focus,
 .btn-primary.focus {

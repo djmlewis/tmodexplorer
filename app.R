@@ -15,6 +15,8 @@ library(utf8)
 library(stringr)
 library(shinythemes)
 library(forcats)
+library(shinydashboard)
+library(shinyWidgets)
 
 ####--------------------------
 options(shiny.maxRequestSize=30*1024^2) 
