@@ -190,7 +190,7 @@ selectedGenesAndModules <- function(selGenes) {
 getGenesForRows <- function(genes,start,end){
   if(is.null(genes)) return(NULL)
   if(start>end || start>nrow(genes) || end>nrow(genes)){
-    showModalGenericFailure('The rows filter could not be applied. Check From and To match available rows and From is not > To.')
+    showNotification('The rows filter could not be applied. Check From and To match available rows and From is not > To.', type = 'warning')
     return(genes)
   }
   selGenes <- genes[start:end,]

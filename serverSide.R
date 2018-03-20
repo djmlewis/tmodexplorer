@@ -167,7 +167,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
             showModal(modalDialog(
               title = "Too Many Rows","You must have at least one filter selected or it will try to return and plot over 65,000 rows."))
             } else {
-              showNotification("Please wait for filters to be applied…", type = 'message', duration = 3)
+              showNotification("Please wait for filters to be applied…", type = 'message', duration = 3, id = "buttonApplySelection")
 
                             # show the tabs as we have selected probes
               showTab(inputId = "navProbe", target = "Selected Probes")
@@ -216,6 +216,13 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
               ############ lookup the genes and modules
               topGenesAndModules(selectedGenesAndModules(geneslist))
               
+              pgText <- ifelse(input$checkboxProbesGenes == TRUE, ' genes', ' probes')
+              nG <- nrow(topGenesAndModules()[['genes']])
+              nM <- length(unique(topGenesAndModules()[['modules']][["Module"]]))
+              mes <- ifelse(nG == 0 && nM == 0,'warning','message')
+              removeNotification(id = "buttonApplySelection")
+              showNotification(paste0("Found: ",nG,pgText, " and ",nM, " modules"), type = mes)
+              
             }
         } else {
         showNotification("A column to sort must always be selected, even if just filtering by regex", type = 'error')
@@ -239,7 +246,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     }
   )
   
-  
+
   #################### Top Probes #########################
   # output top genes
   output$datatableTopGenesUp <- renderDataTable({topGenesAndModules()[['genes']]})
@@ -450,7 +457,7 @@ observeEvent(
           showModal(modalDialog(
             title = "Too Many Modules","You must have at least one filter selected or it will try to return and plot over 600 modules."))
         } else {
-          showNotification("Please wait for filters to be applied…", type = 'message', duration = 3)
+          showNotification("Please wait for filters to be applied…", id = "mbuttonApplySelection", type = 'message', duration = 3)
           # show tabs as we have selected modules
           showTab(inputId = "navModule", target = "Selected Modules")
           showTab(inputId = "navModule", target = "Modules:Series")
@@ -492,6 +499,12 @@ observeEvent(
             modulesAndFiltersText("")
           }
 
+          # nM <- nrow(mods)
+          nM <- length(unique(mods[["Module"]]))
+          mes <- ifelse(nM == 0,'warning','message')
+          removeNotification(id = "mbuttonApplySelection")
+          showNotification(paste0("Found: ",nM, " modules"), type = mes)
+          
           topModulesSelected(mods)
         }
       } else {

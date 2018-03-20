@@ -68,7 +68,7 @@ getModulesForSearch <- function(modslist,search,column){
 getModulesForRows <- function(mods,start,end){
   if(is.null(mods)) return(NULL)
   if(start>end || start>nrow(mods) || end>nrow(mods)){
-    showModalGenericFailure('The rows filter could not be applied. Check From and To match available rows and From is not > To.')
+    showNotification('The rows filter could not be applied. Check From and To match available rows and From is not > To.', type = "warning")
     return(mods)
   }
   selGenes <- mods[start:end,]
