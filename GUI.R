@@ -454,7 +454,14 @@ tabPanel('Cytokines',
                                                                  actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
                                                 conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
                                          ), 
-                                         column(2)
+                                         column(4,
+                                                radioGroupButtons('cradioCytokinesWrap', NULL, 
+                                                  choiceValues = list('N', 'V','VC','C','CV'),
+                                                  choiceNames = list(' No Wrap', ' Treatment',' Treatment-Cytokine',' Cytokine',' Cytokine-Treatment'),
+                                                  individual = FALSE, justified = TRUE, status = "success",
+                                                  checkIcon = list(yes = tags$i(class = "fa fa-circle", style = "color: gold"), 
+                                                                   no = tags$i(class = "fa fa-circle-o", style = "color: white"))
+                                                ))
                                        ),
                                        fluidRow(
                                          column(4,pickerInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE, inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),

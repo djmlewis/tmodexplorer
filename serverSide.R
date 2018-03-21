@@ -634,7 +634,7 @@ cytokinesData2Plot <- reactiveVal(NULL)
 observeEvent(input$buttonPlotCytokines, {cytokinesData2Plot(getCytokinesData2Plot(cytokines, input$cselectCytokines,input$cselectDays,input$cselectTreatments))})
 output$datatableCytokines <- renderDataTable({cytokinesData2Plot()})
 
-cytokinesGGplot <- reactive({ggplotCytokinesForTreatmentDayViolin(cytokinesData2Plot())})
+cytokinesGGplot <- reactive({ggplotCytokinesForTreatmentDay(cytokinesData2Plot(), input$cradioCytokinesWrap)})
 output$cplotCytokines <- renderPlot({cytokinesGGplot()})
 output$cplotCytokinesSIZE <- renderUI({tagList(conditionalPanel(condition = "output.cplotCytokines != null",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
                                                plotOutput("cplotCytokines",  hover = "hover_plotCytokines"))}) #height = isolate(input$numbermplotModuleSeriesSIZEheight),
