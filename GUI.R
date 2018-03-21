@@ -13,7 +13,7 @@ ui <-
             wellPanel(style = "background-color: #feffee;",
              fluidRow(
                column(9,passwordInput('password', NULL)),
-               column(3,actionButton('buttonPassword','Enter',class = "btn-primary"))
+               column(3,actionButton('buttonPassword','Enter',class = "btn-success"))
              )
            ))),
            h5(style = "text-align: center;","Please contact d.j.lewis@surrey.ac.uk to request a password")
@@ -28,14 +28,14 @@ ui <-
           h4("Fold Increasess From Baseline"),
           fluidRow(
             column(10,selectInput('selectDataFI', NULL, character(0))),
-            column(2,actionButton('buttonLoadDataFI',label = 'Load',class = "btn-primary"))
+            column(2,actionButton('buttonLoadDataFI',label = 'Load',class = "btn-success"))
       ))),
     column(6,
       wellPanel(style = "background-color: #feffee;",
         h4("Raw Expression Values"),
         fluidRow(
         column(10,selectInput('selectDataRAW', NULL, character(0))),
-        column(2,actionButton('buttonLoadDataRAW',label = 'Load',class = "btn-primary"))
+        column(2,actionButton('buttonLoadDataRAW',label = 'Load',class = "btn-success"))
       )))
     ),
     h4(align = 'center', textOutput('textDataName')),
@@ -55,8 +55,8 @@ ui <-
                         h4("Select a treatment - time column to sort probe values and display responses"),
                         fluidRow(
                           column(2,selectInput('selectColumn', NULL, character(0), selectize = FALSE)),
-                          column(2,checkboxInput('checkboxDescending', 'Sort Descending', value = TRUE)),
-                          column(2,checkboxInput('checkboxProbesGenes', 'Gene Averages', value = FALSE))
+                          column(2,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending', value = TRUE)),
+                          column(2,awesomeCheckbox(status = 'success', 'checkboxProbesGenes', 'Gene Averages', value = FALSE))
                         ),
                       # ),
                       conditionalPanel(condition = "input.selectColumn != null",
@@ -64,18 +64,18 @@ ui <-
                       fluidRow(
                           column(4,
                             wellPanel(style = "background-color: #feffee;",
-                              h4(checkboxInput('checkboxSelectKeyword', '1. Using regex', value = FALSE)),
+                              h4(awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', '1. Using regex', value = FALSE)),
                               textInput('textInputKeyword',NULL),
                               h4("Search:"),
-                              radioButtons('radioKeywordColumn',NULL,choices = c('Description','Gene','Probe'), inline = TRUE),
-                              conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #689200;","Spaces are stripped from Gene and Probe names")),
-                              conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #689200;","Spaces are kept in search for Description"))
+                              awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Description','Gene','Probe'), inline = TRUE),
+                              conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #cfdaa2;","Spaces are stripped from Gene and Probe names")),
+                              conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #cfdaa2;","Spaces are kept in search for Description"))
                           )),
                           column(8,
                             fluidRow(
                               column(6,
                                 wellPanel(style = "background-color: #feffee;",
-                                  h4(checkboxInput('checkboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
+                                  h4(awesomeCheckbox(status = 'success', 'checkboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
                                   fluidRow(
                                     column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)), 
                                     column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
@@ -86,18 +86,18 @@ ui <-
                               ),
                               column(6,
                                 wellPanel(style = "background-color: #feffee;",
-                                  h4(checkboxInput('checkboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
+                                  h4(awesomeCheckbox(status = 'success', 'checkboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
                                   fluidRow(
                                     column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)), 
                                     column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
                                   ),
-                                  p(style = "color: #689200;", "More than 100 rows will result in slow response")
+                                  p(style = "color: #cfdaa2;", "More than 100 rows will result in slow response")
                                 )
                               )
                             )
                           )
                         ),
-                      fluidRow(column(4),column(4,actionButton('buttonApplySelection','Apply Selections',class = "btn-primary btn-block")),column(4))
+                      fluidRow(column(4),column(4,actionButton('buttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4))
                     )
                     )
            ),
@@ -123,22 +123,22 @@ ui <-
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
                         conditionalPanel(condition = "input.selectColumnsForSeries != null",
-                          actionButton('buttonPlotSeries','Plot',class = "btn-primary btn-block")),
+                          actionButton('buttonPlotSeries','Plot',class = "btn-success btn-block")),
                         conditionalPanel(condition = "input.selectColumnsForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Some Columns To Plot")),
                         fluidRow(
                             column(6,
-                                   radioButtons('radioBoxLineProbesSeries',NULL, choices = c('Lines','Boxplot')),
+                                   awesomeRadio(status = 'success', 'radioBoxLineProbesSeries', " ", choices = c('Lines','Boxplot')),
                                    conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",
                                     strong(p("Lines options:")),
                                     conditionalPanel(condition = "input.checkboxSplitSeries == true",
-                                                     checkboxInput('checkboxShowGridSeries', 'X gridlines', value = TRUE)),
-                                    checkboxInput('checkboxShowPointsSeries', 'Points', value = FALSE)
+                                                     awesomeCheckbox(status = 'success', 'checkboxShowGridSeries', 'X gridlines', value = TRUE)),
+                                    awesomeCheckbox(status = 'success', 'checkboxShowPointsSeries', 'Points', value = FALSE)
                                    )
                             ),
                             column(6,
-                              checkboxInput('checkboxSplitSeries', 'Split', value = TRUE),
-                              checkboxInput('checkboxShowLegendSeries', 'Legend', value = FALSE),
-                              checkboxInput('checkboxShowZeroSeries', 'Zero', value = TRUE),
+                              awesomeCheckbox(status = 'success', 'checkboxSplitSeries', 'Split', value = TRUE),
+                              awesomeCheckbox(status = 'success', 'checkboxShowLegendSeries', 'Legend', value = FALSE),
+                              awesomeCheckbox(status = 'success', 'checkboxShowZeroSeries', 'Zero', value = TRUE),
                               sliderInput("numberPlotTopGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500)
                             ))
                         )),
@@ -170,12 +170,12 @@ ui <-
              wellPanel(style = "background-color: #FFFFFF",
                h4('Expression Values Of Modules Associated With Selected Probes / Genes'),
                fluidRow(
-                 column(1,checkboxInput('checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
-                 column(1,checkboxInput('checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
-                 column(3,radioButtons('radioGroupProbeModulesBy','Group By',choices = c('Module','Title'),inline = TRUE)),
-                 column(1,checkboxInput('checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
+                 column(1,awesomeCheckbox(status = 'success', 'checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
+                 column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
+                 column(3,awesomeRadio(status = 'success', 'radioGroupProbeModulesBy','Group By',choices = c('Module','Title'),inline = TRUE)),
+                 column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
                  column(2,sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
-                 column(4,checkboxInput('checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE))
+                 column(4,awesomeCheckbox(status = 'success', 'checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE))
                ),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotGenesModulesSIZE")
@@ -196,9 +196,9 @@ ui <-
                 column(4,selectInput('selectModuleForGenes', NULL, character(0), width = '500px')),
               column(8,
                fluidRow(
-                 column(2,checkboxInput('checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
-                 column(2,checkboxInput('checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
-                 column(2,checkboxInput('checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
+                 column(2,awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
+                 column(2,awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
+                 column(2,awesomeCheckbox(status = 'success', 'checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
                  column(2,sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500))               ))),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotModuleGenesSIZE")),
@@ -217,23 +217,23 @@ ui <-
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
                           conditionalPanel(condition = "input.selectColumnForModuleSeries != null && input.selectModuleForSeries != null",
-                            actionButton('buttonPlotModuleSeries','Plot',class = "btn-primary btn-block")),
+                            actionButton('buttonPlotModuleSeries','Plot',class = "btn-success btn-block")),
                           conditionalPanel(condition = "input.selectColumnForModuleSeries == null || input.selectModuleForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Columns & Modules To Plot")),
                         fluidRow(
                           column(6,
-                          radioButtons('radioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Lines')),
+                          awesomeRadio(status = 'success', 'radioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
                           conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",
                                            strong(p("Lines options:")),
                                            conditionalPanel(condition = "input.checkboxShowFacetModuleSeries == true",
-                                                            checkboxInput('checkboxShowGridModuleSeries', 'X gridlines', value = TRUE)),
-                                           checkboxInput('checkboxShowPointsModuleSeries', 'Points', value = FALSE),
-                                           checkboxInput('checkboxShowSEModuleSeries', 'SEM', value = FALSE)
+                                                            awesomeCheckbox(status = 'success', 'checkboxShowGridModuleSeries', 'X gridlines', value = TRUE)),
+                                           awesomeCheckbox(status = 'success', 'checkboxShowPointsModuleSeries', 'Points', value = FALSE),
+                                           awesomeCheckbox(status = 'success', 'checkboxShowSEModuleSeries', 'SEM', value = FALSE)
                           )
                           ),
                           column(6,
-                                 checkboxInput('checkboxShowFacetModuleSeries', 'Split', value = TRUE),
-                                 checkboxInput('checkboxShowLegendModuleSeries', 'Legend', value = FALSE),
-                                 checkboxInput('checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
+                                 awesomeCheckbox(status = 'success', 'checkboxShowFacetModuleSeries', 'Split', value = TRUE),
+                                 awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleSeries', 'Legend', value = FALSE),
+                                 awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
                                  sliderInput("numberPlotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500)
                           )
                         )
@@ -251,7 +251,7 @@ ui <-
                           fluidRow(
                           column(6,actionButton('buttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
                             actionButton('buttonRemoveAllModulesModuleSeries','None')),
-                          column(6,checkboxInput('checkboxShowPseudoModuleModuleSeries', 'Include Selected As Module', value = TRUE))
+                          column(6,awesomeCheckbox(status = 'success', 'checkboxShowPseudoModuleModuleSeries', 'Include Selected As Module', value = TRUE))
                           )
                         )
                  )
@@ -281,8 +281,8 @@ ui <-
           h4("Select a treatment - time column to sort module values and display responses"),
           fluidRow(
             column(2, selectInput('mselectColumn', NULL, character(0), width = 400, selectize = F)),
-            column(2,checkboxInput('mcheckboxDescending', 'Sort Descending', value = TRUE)),
-            column(2,checkboxInput('mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
+            column(2,awesomeCheckbox(status = 'success', 'mcheckboxDescending', 'Sort Descending', value = TRUE)),
+            column(2,awesomeCheckbox(status = 'success', 'mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
           ),
         # ),
         conditionalPanel(condition = "input.mselectColumn != null",
@@ -290,18 +290,18 @@ ui <-
         fluidRow(
           column(4,
           wellPanel(style = "background-color: #feffee;",
-            h4(checkboxInput('mcheckboxSelectKeyword','1. Using regex', value = FALSE)),
+            h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectKeyword','1. Using regex', value = FALSE)),
             textInput('mtextInputKeyword',NULL),
             h4("Search:"),
-            radioButtons('mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
-            conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #689200;","Spaces are stripped from Module names")),
-            conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #689200;","Spaces are kept in search for Title"))
+            awesomeRadio(status = 'success', 'mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
+            conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #cfdaa2;","Spaces are stripped from Module names")),
+            conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #cfdaa2;","Spaces are kept in search for Title"))
           )),
           column(8,
            fluidRow(
             column(6,
             wellPanel(style = "background-color: #feffee;",
-              h4(checkboxInput('mcheckboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
+              h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
             fluidRow(
               column(6,numericInput("mnumberExpressionMin", "Lowest:", value = 0)),
               column(6,numericInput("mnumberExpressionMax", "Highest:", value = 0))
@@ -311,17 +311,17 @@ ui <-
           )),
           column(6,
             wellPanel(style = "background-color: #feffee;",
-              h4(checkboxInput('mcheckboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
+              h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
               fluidRow(
                 column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = NA, step = 5)),
                 column(6,numericInput("mnumberModsEnd", "To Row:", 10, min = 0, max = NA, step = 5))
               ),
-              p(style = "color: #689200;", "More than 100 modules will result in slow response")
+              p(style = "color: #cfdaa2;", "More than 100 modules will result in slow response")
             ))
           )
         )# right column wells
         ),
-        fluidRow(column(4),column(4,actionButton('mbuttonApplySelection','Apply Selections',class = "btn-primary btn-block")),column(4))
+        fluidRow(column(4),column(4,actionButton('mbuttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4))
         )
       )
      ),
@@ -330,10 +330,10 @@ ui <-
        wellPanel(style = "background-color: #FFFFFF;",
          h4('Expression Values Of Selected Modules'),
          fluidRow(
-           column(1,checkboxInput('mcheckboxShowLegendGenesModules', 'Legend', value = FALSE)),
-           column(1,checkboxInput('mcheckboxShowZeroGenesModules', 'Zero', value = TRUE)),
-           column(3,radioButtons('mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
-           column(3,checkboxInput('mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
+           column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendGenesModules', 'Legend', value = FALSE)),
+           column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroGenesModules', 'Zero', value = TRUE)),
+           column(3,awesomeRadio(status = 'success', 'mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
+           column(3,awesomeCheckbox(status = 'success', 'mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
            column(2,sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500))         ),
          wellPanel(style = "background-color: #FFFFFF;",
                    uiOutput("mplotSelectedModulesSIZE")
@@ -360,7 +360,7 @@ ui <-
                       ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries != null) || 
                         (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles != null) || 
                         (input.radioModulesModulesSeries == 'Modules' && input.mselectModuleAllModules != null))",
-                      actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-primary btn-block")),
+                      actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-success btn-block")),
                     conditionalPanel(condition = "input.mselectColumnForModuleSeries == null ||
                       ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries == null) || 
                         (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles == null) || 
@@ -368,19 +368,20 @@ ui <-
                       p(style = "color: #728f17; text-align: center;","Choose Columns & Modules Or Titles To Plot")),
                     fluidRow(
                       column(6,
-                        radioButtons('mradioRibbonBoxModuleSeries',NULL,choices = c('Boxplot','Lines')),
+                        awesomeRadio(status = 'success', 'mradioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
                         conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
                          strong(p("Lines options:")),
                          conditionalPanel(condition = "input.mcheckboxShowFacetModuleSeries == true",
-                                          checkboxInput('mcheckboxShowGridSeries', 'X gridlines', value = TRUE)),
-                         checkboxInput('mcheckboxShowPointsSeries', 'Points', value = FALSE),
-                         checkboxInput('mcheckboxShowSEModuleSeries', 'SEM', value = FALSE)
+                                          awesomeCheckbox(status = 'success', 'mcheckboxShowGridSeries', 'X gridlines', value = TRUE)),
+                         awesomeCheckbox(status = 'success', 'mcheckboxShowPointsSeries', 'Points', value = FALSE),
+                         awesomeCheckbox(status = 'success', 'mcheckboxShowSEModuleSeries', 'SEM', value = FALSE)
                           )
                       ),
                     column(6,
-                    radioButtons('mradioGroupTitleNameModuleSeries','Group By:',choices = c('Title','Module'), selected = 'Module'),                    checkboxInput('mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
-                    checkboxInput('mcheckboxShowLegendModuleSeries', 'Legend', value = FALSE),
-                    checkboxInput('mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
+                    awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleSeries', 'Legend', value = FALSE),
+                    awesomeCheckbox(status = 'success', 'mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
+                    awesomeCheckbox(status = 'success', 'mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
+                    awesomeRadio(status = 'success', 'mradioGroupTitleNameModuleSeries','Group By:',choices = c('Title','Module'), selected = 'Module'),
                     sliderInput("numbermplotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500)
                     ))
                   )
@@ -392,33 +393,41 @@ ui <-
                     actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))
                     ),
                   div(
-                    h5("Select Modules To Plot Using By Clicking In One Of The Boxes Below:"),
-                    h6("You cannot paste into these boxes. Paste any saved lists using the Select Modules regex filter"),
-                    radioButtons('radioModulesModulesSeries', NULL, inline = TRUE, choiceNames = list(
-                      wellPanel(style = "background-color: #feffee;",
+                    h4("Select Modules To Plot From One Of The Options Below:"),
+                    radioGroupButtons('radioModulesModulesSeries', NULL, 
+                                      choiceValues = list('Filters', 'Modules','Titles'),
+                                      choiceNames = list(' Modules You Selected With Filters', ' All Modules In Dataset',' All Module Titles In Dataset'),
+                                      individual = FALSE, justified = TRUE, status = "success",
+                                      checkIcon = list(yes = tags$i(class = "fa fa-circle", 
+                                                                    style = "color: gold"), 
+                                                       no = tags$i(class = "fa fa-circle-o", 
+                                                                   style = "color: white"))
+                                      ),
+                    conditionalPanel(condition = "input.radioModulesModulesSeries == 'Filters'",
+                    wellPanel(style = "background-color: #feffee;",
                         selectInput('mselectPlotModulesInSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE),
                         actionButton('mbuttonAddAllModuleSeries','All', class="btn-outline-primary"),
                         actionButton('mbuttonRemoveAllModuleSeries','None')
-                      ),
-                      wellPanel(style = "background-color: #dcefa0;",
+                      )),
+                    conditionalPanel(condition = "input.radioModulesModulesSeries == 'Modules'",
+                        wellPanel(style = "background-color: #dcefa0;",
                         selectInput('mselectModuleAllModules', label = 'Modules In Dataset', character(0), multiple = TRUE),
                         fluidRow(
                         column(4,actionButton('mbuttonRemoveAllModulesModuleSeries','None')),
                         column(8,conditionalPanel(condition = "input.mselectModuleAllModules != null",
                         downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Modules List')))
                         )
-                      ),
-                      wellPanel(style = "background-color: #dcefa0;",
+                      )),
+                    conditionalPanel(condition = "input.radioModulesModulesSeries == 'Titles'",
+                        wellPanel(style = "background-color: #dcefa0;",
                         selectInput('mselectModuleTitles', label = 'Titles In Dataset', character(0), multiple = TRUE),
                         fluidRow(
                         column(4,actionButton('mbuttonRemoveAllModuleTitles','None')),
                         column(8,conditionalPanel(condition = "input.mselectModuleTitles != null",
                         downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Titles List')))
                         )
-                      )
-                    ),
-                    choiceValues = list('Filters', 'Modules','Titles')
-                    )
+                      )),
+                    h5(style = "text-align: center;", "You cannot paste into the boxes above Paste any saved lists into the Select Modules regex filter instead")
                   )
                 )
               ),
@@ -434,6 +443,36 @@ ui <-
      )
    )
   ), #explore by module
+###########   Cytokines  ##########
+tabPanel('Cytokines',
+         navbarPage(span(style = 'color: #000000;','Cytokines'), id = 'navCytokines',
+                    tabPanel('Cytokines',
+                             wellPanel(style = "background-color: #FFFFFF;",
+                                       fluidRow(
+                                         column(1,
+                                                conditionalPanel(condition = "input.cselectCytokines != null && input.cselectTreatments != null && input.cselectDays != null",
+                                                                 actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
+                                                conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
+                                         ), 
+                                         column(2)
+                                       ),
+                                       fluidRow(
+                                         column(4,pickerInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE, inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
+                                         column(4,pickerInput("cselectTreatments", "Treatments", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
+                                         column(4,pickerInput("cselectDays", "Days", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All')))
+                                       ),
+                                       wellPanel(style = "background-color: #FFFFFF;",
+                                                 uiOutput("cplotCytokinesSIZE")
+                                       ),
+                                       conditionalPanel(condition = "output.plotCytokines != null",
+                                                        downloadButton(class="btn-warning",'buttonPNGplotCytokines', 'Plot As PNG'))
+                             ),
+                             conditionalPanel(condition = "output.datatableCytokines != null",
+                                              downloadButton(class="btn-outline-primary",'buttonSaveTableCytokines', 'Table')), hr(), 
+                             dataTableOutput('datatableCytokines')
+                    )
+         )
+),
   ###########   Lookup  ##########
 tabPanel('Lookup',
   navbarPage(span(style = 'color: #000000;','Lookup'), id = 'navLookup',
@@ -444,7 +483,7 @@ tabPanel('Lookup',
                         h5("Use commas to separate multiple genes. Alternatively, leave box empty and click Lookup to return all genes, then use search boxes above/below table to search"),
                         fluidRow(
                           column(8,textInput('textInputGeneLookup',NULL)),
-                          column(4,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-primary"),actionButton("buttonGeneLookupNone", "Clear")))
+                          column(4,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
                         )),
               conditionalPanel(condition = "output.datatableGeneLookup != null",
                                downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Table')), hr(), 
@@ -457,9 +496,9 @@ tabPanel('Lookup',
                         h6("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search"),
                         fluidRow(
                           column(5,textInput('mtextInputModLookup',NULL)),
-                          column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-primary"),
+                          column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-success"),
                                        actionButton("mbuttonModLookupNone", "Clear"))),
-                          column(3,radioButtons('radioArrangeModuleLookupBy','Arrange By',choices = c('Module','Title','Category'),inline = TRUE))
+                          column(3,awesomeRadio(status = 'success', 'radioArrangeModuleLookupBy','Arrange By',choices = c('Module','Title','Category'),inline = TRUE))
                         )),
               conditionalPanel(condition = "output.mdatatableModuleLookup != null",
                                downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Table')), hr(), 

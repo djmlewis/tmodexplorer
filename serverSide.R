@@ -215,14 +215,12 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     
               ############ lookup the genes and modules
               topGenesAndModules(selectedGenesAndModules(geneslist))
-              
               pgText <- ifelse(input$checkboxProbesGenes == TRUE, ' genes', ' probes')
               nG <- nrow(topGenesAndModules()[['genes']])
               nM <- length(unique(topGenesAndModules()[['modules']][["Module"]]))
               mes <- ifelse(nG == 0 && nM == 0,'warning','message')
               removeNotification(id = "buttonApplySelection")
               showNotification(paste0("Found: ",nG,pgText, " and ",nM, " modules"), type = mes)
-              
             }
         } else {
         showNotification("A column to sort must always be selected, even if just filtering by regex", type = 'error')
@@ -246,7 +244,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     }
   )
   
-
+  
   #################### Top Probes #########################
   # output top genes
   output$datatableTopGenesUp <- renderDataTable({topGenesAndModules()[['genes']]})
@@ -499,7 +497,6 @@ observeEvent(
             modulesAndFiltersText("")
           }
 
-          # nM <- nrow(mods)
           nM <- length(unique(mods[["Module"]]))
           mes <- ifelse(nM == 0,'warning','message')
           removeNotification(id = "mbuttonApplySelection")
@@ -625,6 +622,22 @@ observeEvent({
 
 output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){paste0("Module Lookup.csv")},
   content = function(file) {write.csv(lookedupMods, file, row.names = FALSE)})
+
+#################### Cytokines #########################
+#   load cytokines and update
+cytokines <- read_rds("cytokinesT.rds")
+updatePickerInput(session, "cselectCytokines", choices = unique(cytokines$CYTOKINE))
+updatePickerInput(session, "cselectTreatments", choices = unique(cytokines$ACTARMCD))
+updatePickerInput(session, "cselectDays", choices = unique(cytokines$DAY))
+
+cytokinesData2Plot <- reactiveVal(NULL)
+observeEvent(input$buttonPlotCytokines, {cytokinesData2Plot(getCytokinesData2Plot(cytokines, input$cselectCytokines,input$cselectDays,input$cselectTreatments))})
+output$datatableCytokines <- renderDataTable({cytokinesData2Plot()})
+
+cytokinesGGplot <- reactive({ggplotCytokinesForTreatmentDayViolin(cytokinesData2Plot())})
+output$cplotCytokines <- renderPlot({cytokinesGGplot()})
+output$cplotCytokinesSIZE <- renderUI({tagList(conditionalPanel(condition = "output.cplotCytokines != null",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
+                                               plotOutput("cplotCytokines",  hover = "hover_plotCytokines"))}) #height = isolate(input$numbermplotModuleSeriesSIZEheight),
 
   #################### End Of Server #########################
 } # end of server
