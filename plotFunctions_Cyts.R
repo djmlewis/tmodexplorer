@@ -98,11 +98,18 @@ ggplotCytokinesForTreatmentDay <-
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
-    grbs <- lapply(unique(data2plot[["ACTARMCD"]]), function(actarmcd) {
-      fdata1 <- filter(data2plot, ACTARMCD == actarmcd)
-        plots <- lapply(unique(data2plot[["CYTOKINE"]]), function(cyto) {
-          fdata2 = filter(fdata1, CYTOKINE == cyto)
-
+    switch (wrap,
+            'TC' = {v1 <- "ACTARMCD"; v2 <- "CYTOKINE"},
+            'CT' = {v2 <- "ACTARMCD"; v1 <- "CYTOKINE"}
+    )
+    
+    grbs <- lapply(unique(data2plot[[v1]]), function(vv1) {
+      # if I understood enquo, quo and !! I could do this in one go without ifelse
+      if(v1 == "ACTARMCD") {fdata1 <- filter(data2plot, ACTARMCD == vv1) } else {fdata1 <- filter(data2plot, CYTOKINE == vv1)}
+      print(fdata1)
+        plots <- lapply(unique(data2plot[[v2]]), function(vv2) {
+          if(v2 == "ACTARMCD") {fdata2 <- filter(fdata1, ACTARMCD == vv1) } else {fdata2 <- filter(fdata1, CYTOKINE == vv1)}
+          
           plot <-
             ggplot(
               fdata2,
@@ -154,28 +161,22 @@ ggplotCytokinesForTreatmentDay <-
             }
           )
           
-          # plot <- plot + facet_wrap( ~ CYTOKINE, scales = 'free_y', ncol = 4)
+          plot <- plot + ggtitle(as.character(vv2))
           
-          plot <- plot + ggtitle(as.character(cyto))
-          
-          # switch (wrap,
-          #         'TC' = {plot <- plot+facet_wrap(ACTARMCD ~ CYTOKINE, scales = 'free_y', ncol = 4)},
-          #         'CT' = {plot <- plot+facet_wrap(CYTOKINE ~ ACTARMCD, scales = 'free_y', ncol = 4)}
-          # )
-          
+
           return(plot)
         })
 
         return(arrangeGrob(grobs = plots,
                             ncol = 4,
-                            nrow = ceiling(length(unique(data2plot[["CYTOKINE"]]))/4),
-                            top = as.character(actarmcd)))
+                            nrow = ceiling(length(unique(data2plot[[v2]]))/4),
+                            top = as.character(vv1)))
       })
 
     return(marrangeGrob(
       grobs = grbs,
       ncol = 1,
-      nrow = length(unique(data2plot[["ACTARMCD"]])),
+      nrow = length(unique(data2plot[[vv1]])),
       top = NULL
     ))
   }
