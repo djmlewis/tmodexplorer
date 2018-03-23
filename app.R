@@ -17,6 +17,7 @@ library(shinythemes)
 library(forcats)
 library(shinydashboard)
 library(shinyWidgets)
+library(cowplot)
 
 ####--------------------------
 options(shiny.maxRequestSize=30*1024^2) 

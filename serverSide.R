@@ -632,7 +632,9 @@ updatePickerInput(session, "cselectDays", choices = sort(unique(cytokines$DAY)))
 
 cytokinesDataAndPlot <- reactiveValues(data = NULL, plot = NULL)
 observeEvent(input$buttonPlotCytokines, {
-  getCytokinesDataAndPlot(cytokinesDataAndPlot, cytokines, input$cselectCytokines,input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,input$cradioCytokinesPlotType)
+  getCytokinesDataAndPlot(cytokinesDataAndPlot, cytokines, input$cselectCytokines,
+    input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,
+    input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile)
 })
 output$datatableCytokines <- renderDataTable({cytokinesDataAndPlot$data})
 

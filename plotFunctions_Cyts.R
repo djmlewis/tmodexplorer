@@ -78,7 +78,7 @@ vaccinesToPlot_N <-
   ))
 
 
-getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plottype) {
+getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plottype,error,zoom) {
   if (is.null(data2plot) || nrow(data2plot) == 0) return(list(data = NULL, plot = NULL))
   
   dataFiltered <- data2plot %>%
@@ -89,12 +89,12 @@ getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plot
   if(plottype != 'Lines') dataFiltered <- mutate(dataFiltered,DAY = as.factor(DAY))
 
   cdp$data <- dataFiltered
-  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype)
+  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom)
   
 }
 
 ggplotCytokinesForTreatmentDay <-
-  function(data2plot, wrap, plottype) {
+  function(data2plot, wrap, plottype,error,zoom) {
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
@@ -105,19 +105,27 @@ ggplotCytokinesForTreatmentDay <-
     
     grbs <- lapply(unique(data2plot[[v1]]), function(vv1) {
       # if I understood enquo, quo and !! I could do this in one go without ifelse
-      if(v1 == "ACTARMCD") {fdata1 <- filter(data2plot, ACTARMCD == vv1) } else {fdata1 <- filter(data2plot, CYTOKINE == vv1)}
-      print(fdata1)
-        plots <- lapply(unique(data2plot[[v2]]), function(vv2) {
-          if(v2 == "ACTARMCD") {fdata2 <- filter(fdata1, ACTARMCD == vv1) } else {fdata2 <- filter(fdata1, CYTOKINE == vv1)}
-          
+      fdata1 <- 
+      switch (wrap,
+              "TC" = {filter(data2plot, ACTARMCD == vv1)},
+              "CT" = {filter(data2plot, CYTOKINE == vv1)}
+      )
+
+      plots <- lapply(unique(data2plot[[v2]]), function(vv2) {
+        fdata2 <- 
+          switch (wrap,
+                  "CT" = {filter(fdata1, ACTARMCD == vv2)},
+                  "TC" = {filter(fdata1, CYTOKINE == vv2)}
+          )
+        
           plot <-
             ggplot(
               fdata2,
               mapping = aes(x = DAY, y = VALUE)
             ) +
             themeBase() +
-            scale_color_manual(values = cytokineColours) +
-            scale_fill_manual(values = cytokineColours)
+            scale_color_manual(values = cytokineColours, guide = 'none') +
+            scale_fill_manual(values = cytokineColours, guide = 'none')
           
           switch (
             plottype,
@@ -125,6 +133,7 @@ ggplotCytokinesForTreatmentDay <-
               plot <-
                 plot + geom_violin(mapping = aes(colour = CYTOKINE, fill = CYTOKINE),
                                    alpha = 0.4)
+              if(zoom == TRUE) {plot <- plot + coord_cartesian(ylim = quantile(fdata2$VALUE, c(0.08, 0.92),na.rm = TRUE))}
             },
             'Boxplot' = {
               plot <-
@@ -136,28 +145,39 @@ ggplotCytokinesForTreatmentDay <-
                   ),
                   alpha = 0.4
                 )
+              if(zoom == TRUE) {plot <- plot + coord_cartesian(ylim = quantile(fdata2$VALUE, c(0.08, 0.92),na.rm = TRUE))}
+              
             },
             'Lines' = {
-              daybreaks <- unique(data2plot$DAY)
+              daybreaks <- unique(fdata2$DAY)
+
+              # skip gridlines if errorbars
+              plot <- 
+                switch (error,
+                  "ribbon" = {
+                    plot +
+                    geom_vline(xintercept = daybreaks,color = 'grey80',alpha = 0.5,show.legend = FALSE) +
+                    stat_summary(
+                    geom = 'ribbon',
+                    fun.data = "mean_se",
+                    mapping = aes(fill = CYTOKINE, group = CYTOKINE),
+                    alpha = 0.4)},
+                  "errorbar" = {
+                    plot +
+                    stat_summary(
+                    geom = 'errorbar',
+                    fun.data = "mean_se",
+                    mapping = aes(color = CYTOKINE, group = CYTOKINE), width = 0.1, size = 0.2)},
+                  {plot + geom_vline(xintercept = daybreaks,color = 'grey80',alpha = 0.5,show.legend = FALSE)}
+                )
+              
               plot <- plot +
-                stat_summary(
-                  geom = 'ribbon',
-                  fun.data = "mean_se",
-                  mapping = aes(fill = CYTOKINE, group = CYTOKINE),
-                  alpha = 0.4
-                ) +
                 stat_summary(
                   geom = 'line',
                   fun.y = "mean",
                   mapping = aes(colour = CYTOKINE, group = CYTOKINE)
                 ) +
-                scale_x_continuous(breaks = daybreaks) +
-                geom_vline(
-                  xintercept = daybreaks,
-                  color = 'grey80',
-                  alpha = 0.5,
-                  show.legend = FALSE
-                )
+                scale_x_continuous(breaks = daybreaks)
             }
           )
           
@@ -166,17 +186,21 @@ ggplotCytokinesForTreatmentDay <-
 
           return(plot)
         })
-
-        return(arrangeGrob(grobs = plots,
-                            ncol = 4,
-                            nrow = ceiling(length(unique(data2plot[[v2]]))/4),
+      nplots <- length(unique(data2plot[[v2]]))
+      pg <- plot_grid(plotlist = plots,
+                    align = 'hv',
+                    ncol = min(nplots,4),
+                    nrow = ceiling(nplots/4))
+        return(arrangeGrob(pg,
+                            ncol = 1,
+                            nrow = 1,
                             top = as.character(vv1)))
       })
 
     return(marrangeGrob(
       grobs = grbs,
       ncol = 1,
-      nrow = length(unique(data2plot[[vv1]])),
+      nrow = length(unique(data2plot[[v1]])),
       top = NULL
     ))
   }

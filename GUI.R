@@ -454,18 +454,26 @@ tabPanel('Cytokines',
                                  actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
                 conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
          ), 
-         column(4,pickerInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE, inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
-         column(4,pickerInput("cselectTreatments", "Treatments", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
+         column(3,pickerInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE, inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
+         column(5,pickerInput("cselectTreatments", "Treatments", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
          column(3,pickerInput("cselectDays", "Days", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All')))
        ),
        fluidRow(
-         column(3,prettyRadioButtons(status = 'success', 'cradioCytokinesPlotType',NULL,choices = c('Violin','Boxplot', "Lines"),inline = TRUE)),
-         column(3,
-                prettyRadioButtons('cradioCytokinesWrap', NULL, 
-                                   choiceValues = list('TC','CT'),
-                                   choiceNames = list(' Treatment~Cytokine', 'Cytokine~Treatment'),
-                                   inline = TRUE, status = "success"
-                ))
+         column(3,prettyRadioButtons('cradioCytokinesWrap', NULL, 
+                                     choiceValues = list('TC','CT'), choiceNames = list(' Treat~Cyto', 'Cyto~Treat'),
+                                     inline = TRUE, outline = TRUE, status = "success"
+         )),
+         column(3,prettyRadioButtons(status = 'success', 'cradioCytokinesPlotType',NULL, outline = TRUE,choices = c('Violin','Boxplot', "Lines"),inline = TRUE)),
+         column(3, 
+          conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
+          prettyRadioButtons('cradioCytokinesErrorType', NULL, 
+          choiceValues = list('none','ribbon','errorbar'), choiceNames = list(' No Error', 'Ribbon','Bars'),
+          inline = TRUE, outline = TRUE, status = "success"
+          )),
+          conditionalPanel(style = "margin-top: 20px;", condition = "input.cradioCytokinesPlotType != 'Lines'",
+            awesomeCheckbox(status = 'success', 'ccheckboxZoomQuantile', 'Crop Outliers', value = FALSE)
+          )
+          )
        ),
        wellPanel(style = "background-color: #FFFFFF;",
                  uiOutput("cplotCytokinesSIZE")
