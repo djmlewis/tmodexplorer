@@ -626,18 +626,20 @@ output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){pas
 #################### Cytokines #########################
 #   load cytokines and update
 cytokines <- read_rds("cytokinesT.rds")
-updatePickerInput(session, "cselectCytokines", choices = unique(cytokines$CYTOKINE))
-updatePickerInput(session, "cselectTreatments", choices = unique(cytokines$ACTARMCD))
-updatePickerInput(session, "cselectDays", choices = unique(cytokines$DAY))
+updatePickerInput(session, "cselectCytokines", choices = sort(unique(cytokines$CYTOKINE)))
+updatePickerInput(session, "cselectTreatments", choices = sort(unique(cytokines$ACTARMCD)))
+updatePickerInput(session, "cselectDays", choices = sort(unique(cytokines$DAY)))
 
-cytokinesData2Plot <- reactiveVal(NULL)
-observeEvent(input$buttonPlotCytokines, {cytokinesData2Plot(getCytokinesData2Plot(cytokines, input$cselectCytokines,input$cselectDays,input$cselectTreatments))})
-output$datatableCytokines <- renderDataTable({cytokinesData2Plot()})
+cytokinesDataAndPlot <- reactiveValues(data = NULL, plot = NULL)
+observeEvent(input$buttonPlotCytokines, {
+  getCytokinesDataAndPlot(cytokinesDataAndPlot, cytokines, input$cselectCytokines,input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,input$cradioCytokinesPlotType)
+})
+output$datatableCytokines <- renderDataTable({cytokinesDataAndPlot$data})
 
-cytokinesGGplot <- reactive({ggplotCytokinesForTreatmentDay(cytokinesData2Plot(), input$cradioCytokinesWrap)})
-output$cplotCytokines <- renderPlot({cytokinesGGplot()})
+# cytokinesGGplot <- reactive({ggplotCytokinesForTreatmentDay(cytokinesData2Plot(), isolate(input$cradioCytokinesWrap), isolate(input$cradioCytokinesPlotType))})
+output$cplotCytokines <- renderPlot({cytokinesDataAndPlot$plot})
 output$cplotCytokinesSIZE <- renderUI({tagList(conditionalPanel(condition = "output.cplotCytokines != null",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
-                                               plotOutput("cplotCytokines",  hover = "hover_plotCytokines"))}) #height = isolate(input$numbermplotModuleSeriesSIZEheight),
+    plotOutput("cplotCytokines",  hover = "hover_plotCytokines"))}) #height = isolate(input$numbermplotModuleSeriesSIZEheight),
 
   #################### End Of Server #########################
 } # end of server
