@@ -355,7 +355,7 @@ plotPlotPNG <- function(plot2plot,file, h,w) {
     grid.text("Nothing To Plot")
     dev.off()
   } else {
-    # default res seems to be 72, so we have to scale-up the h,w to get higher resolution
+    # we set res in renderplot as 72, so we have to scale-up the h,w to get higher resolution
     png(file, height = h*300/72, width = w*300/72, res = 300, units = 'px', bg = "white")
     print(plot2plot)
     dev.off()

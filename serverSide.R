@@ -282,7 +282,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
         input$checkboxShowPointsSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
         input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
       
-      output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries})
+      output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries} ,res = 72)
       output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
                                                          plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight),
                                                         hover = "hover_plotTopGenesSeries"))})
@@ -333,7 +333,6 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],dataAndFiltersText(),
                 input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules,input$checkboxGGplotGenesModules,
                 input$radioGroupProbeModulesBy)})
-  output$plotGenesModules <- renderPlot({ggplotGenesModules()})
   output$plotGenesModulesSIZE <- renderUI({plotOutput("plotGenesModules", height = input$numberPlotGenesModulesSIZEheight)})
   output$buttonPNGplotGenesModules <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes.png")},
     content = function(file) {plotPlotPNG(ggplotGenesModules(),file,session$clientData[["output_plotGenesModules_height"]],session$clientData[["output_plotGenesModules_width"]])})
@@ -357,7 +356,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   ggplotModuleGenes <- reactive({plotModuleGenes(expressionsInModule(),isolate(input$selectModuleForGenes),
                                 dataAndFiltersText(),input$checkboxShowLegendModuleGenes, input$checkboxShowZeroModuleGenes,
                                 input$checkboxGGplotModuleGenes)})
-  output$plotModuleGenes <- renderPlot({ggplotModuleGenes()})
+  output$plotModuleGenes <- renderPlot({ggplotModuleGenes()} ,res = 72)
   output$plotModuleGenesSIZE <- renderUI({plotOutput("plotModuleGenes", height = input$numberPlotModuleGenesSIZEheight)})
   output$buttonPNGplotModuleGenes <- downloadHandler(filename = function(){paste0("Selected Genes-",input$selectModuleForGenes,".png")},
      content = function(file) {plotPlotPNG(ggplotModuleGenes(),file,session$clientData[["output_plotModuleGenes_height"]],session$clientData[["output_plotModuleGenes_width"]])})
@@ -387,7 +386,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     ggplotModulesInSeries <<-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
         input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
         input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
-    output$plotModuleSeries <- renderPlot({ggplotModulesInSeries})
+    output$plotModuleSeries <- renderPlot({ggplotModulesInSeries} ,res = 72)
     output$plotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
       plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight), hover = "hover_plotModuleSeries"))})
     
@@ -547,7 +546,7 @@ output$mbuttonSaveListTopModuleCategory <- downloadHandler(filename = function()
 ggplotSelectedModules <-
   reactive({plotSelectedModules(allData$modules,topModulesSelected(),modulesAndFiltersText(), 
     input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName,input$mcheckboxGGplotGenesModules)})
-output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()})
+output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()} ,res = 72)
 output$mplotSelectedModulesSIZE <- renderUI({plotOutput("mplotSelectedModules", height = input$numbermplotSelectedModulesSIZEheight)})
 output$buttonPNGmplotSelectedModules <- downloadHandler(filename = function(){paste0("Selected Modules.png")},
   content = function(file) {plotPlotPNG(ggplotSelectedModules(),file,session$clientData[["output_mplotSelectedModules_height"]],session$clientData[["output_mplotSelectedModules_width"]])})
@@ -569,7 +568,7 @@ observeEvent({
       input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
       input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
       input$mcheckboxShowPointsSeries,sortCol_Mods)
-    output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]})
+    output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]} ,res = 72)
     output$mplotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
                                                       plotOutput("mplotModuleSeries", height = isolate(input$numbermplotModuleSeriesSIZEheight), hover = "hover_mplotModuleSeries"))})
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
@@ -637,7 +636,7 @@ observeEvent(input$buttonPlotCytokines, {
 })
 output$datatableCytokines <- renderDataTable({cytokinesDataAndPlot$data})
 
-output$cplotCytokines <- renderPlot({cytokinesDataAndPlot$plot})
+output$cplotCytokines <- renderPlot({cytokinesDataAndPlot$plot} ,res = 72)
 output$cplotCytokinesSIZE <- renderUI({plotOutput("cplotCytokines", height = input$cnumberPlotCytokinesSIZEheight)})
 
   #################### End Of Server #########################
