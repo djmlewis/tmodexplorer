@@ -21,21 +21,13 @@ ui <-
   ),
   #################### Data Load ######################
   tabPanel('Load data',
-    h3(style = "text-align: center;","Select pre-loaded dataset to analyse and click 'Load'"),
+    h3(style = "text-align: center;","Select pre-loaded dataset to analyse"),
     fluidRow(
-    column(6,
+    column(8, offset = 2,
         wellPanel(style = "background-color: #feffee;",
-          h4("Fold Increasess From Baseline"),
           fluidRow(
-            column(10,selectInput('selectDataFI', NULL, character(0))),
-            column(2,actionButton('buttonLoadDataFI',label = 'Load',class = "btn-success"))
-      ))),
-    column(6,
-      wellPanel(style = "background-color: #feffee;",
-        h4("Raw Expression Values"),
-        fluidRow(
-        column(10,selectInput('selectDataRAW', NULL, character(0))),
-        column(2,actionButton('buttonLoadDataRAW',label = 'Load',class = "btn-success"))
+            column(10,pickerInput('selectDataFI', NULL, character(0)),options = list(style = "btn-danger")),
+            column(2,actionButton('buttonLoadDataFI',label = 'Load Data',class = "btn-success"))
       )))
     ),
     h4(align = 'center', textOutput('textDataName')),
@@ -174,7 +166,7 @@ ui <-
                  column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
                  column(3,awesomeRadio(status = 'success', 'radioGroupProbeModulesBy','Group By',choices = c('Module','Title'),inline = TRUE)),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
-                 column(2,sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
+                 column(2, style = "margin-top: -10px;", sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500)),
                  column(4,awesomeCheckbox(status = 'success', 'checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE))
                ),
                wellPanel(style = "background-color: #FFFFFF;",
@@ -199,7 +191,7 @@ ui <-
                  column(2,awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
                  column(2,awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
                  column(2,awesomeCheckbox(status = 'success', 'checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
-                 column(2,sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500))               ))),
+                 column(2, style = "margin-top: -10px;", sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500))               ))),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotModuleGenesSIZE")),
                 downloadButton(class="btn-warning",'buttonPNGplotModuleGenes', 'Plot As PNG')
@@ -334,7 +326,7 @@ ui <-
            column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroGenesModules', 'Zero', value = TRUE)),
            column(3,awesomeRadio(status = 'success', 'mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
            column(3,awesomeCheckbox(status = 'success', 'mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
-           column(2,sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500))         ),
+           column(2, style = "margin-top: -10px;", sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500))         ),
          wellPanel(style = "background-color: #FFFFFF;",
                    uiOutput("mplotSelectedModulesSIZE")
           ),
@@ -454,8 +446,8 @@ tabPanel('Cytokines',
                                  actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
                 conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
          ), 
-         column(3,pickerInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE, inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
-         column(5,pickerInput("cselectTreatments", "Treatments", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
+         column(4,pickerInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE, inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
+         column(4,pickerInput("cselectTreatments", "Treatments", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
          column(3,pickerInput("cselectDays", "Days", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All')))
        ),
        fluidRow(
@@ -465,17 +457,19 @@ tabPanel('Cytokines',
          )),
          column(3,prettyRadioButtons(status = 'success', 'cradioCytokinesPlotType',NULL, outline = TRUE,choices = c('Violin','Boxplot', "Lines"),inline = TRUE)),
          column(3, 
-          conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
-          prettyRadioButtons('cradioCytokinesErrorType', NULL, 
-          choiceValues = list('none','ribbon','errorbar'), choiceNames = list(' No Error', 'Ribbon','Bars'),
-          inline = TRUE, outline = TRUE, status = "success"
-          )),
-          conditionalPanel(style = "margin-top: 20px;", condition = "input.cradioCytokinesPlotType != 'Lines'",
-            awesomeCheckbox(status = 'success', 'ccheckboxZoomQuantile', 'Crop Outliers', value = FALSE)
-          )
-          )
+            conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
+            prettyRadioButtons('cradioCytokinesErrorType', NULL, 
+            choiceValues = list('none','ribbon','errorbar'), choiceNames = list(' No Error', 'Ribbon','Bars'),
+            inline = TRUE, outline = TRUE, status = "success"
+            )),
+            conditionalPanel(style = "margin-top: 20px;", condition = "input.cradioCytokinesPlotType != 'Lines'",
+              awesomeCheckbox(status = 'success', 'ccheckboxZoomQuantile', 'Crop Y', value = FALSE))
+          ),
+         column(1,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxFixedY', 'Fix Y', value = TRUE)),
+         column(1,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxOmit0', 'Omit 0', value = TRUE))
        ),
        wellPanel(style = "background-color: #FFFFFF;",
+                 fluidRow(column(1, offset = 11, sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500))),
                  uiOutput("cplotCytokinesSIZE")
        ),
        conditionalPanel(condition = "output.plotCytokines != null",

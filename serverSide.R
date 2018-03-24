@@ -32,12 +32,10 @@ server <- function(input, output, session) {
 #   
   # list local data files on the server
   files <- sort(basename(list.dirs(path = 'datafiles', recursive = FALSE)))
-  updateSelectInput(session, 'selectDataFI', choices = files[grepl("Fold", files)])
-  updateSelectInput(session, 'selectDataRAW', choices = files[!grepl("Fold", files)])
-  
+  updatePickerInput(session, 'selectDataFI', choices = list(`Fold Increase From Baseline` = files[grepl("Fold", files)], `Raw Expression Values` = files[!grepl("Fold", files)]))
+
   allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, annot = NULL)
   observeEvent(input$buttonLoadDataFI, {if (getNewData(allData,input$selectDataFI) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
-  observeEvent(input$buttonLoadDataRAW, {if (getNewData(allData,input$selectDataRAW) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
   observeEvent(input$fileInputUploadData,{if(loadUploadedData(allData,input$fileInputUploadData,input$textInputUploadFileName)) {updateLoadControls()}})
   
   output$buttonsavedatatableAll <- downloadHandler(filename = function(){paste0(allData$folder,".csv")},
@@ -634,14 +632,13 @@ cytokinesDataAndPlot <- reactiveValues(data = NULL, plot = NULL)
 observeEvent(input$buttonPlotCytokines, {
   getCytokinesDataAndPlot(cytokinesDataAndPlot, cytokines, input$cselectCytokines,
     input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,
-    input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile)
+    input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile, input$ccheckboxFixedY,
+    input$ccheckboxOmit0)
 })
 output$datatableCytokines <- renderDataTable({cytokinesDataAndPlot$data})
 
-# cytokinesGGplot <- reactive({ggplotCytokinesForTreatmentDay(cytokinesData2Plot(), isolate(input$cradioCytokinesWrap), isolate(input$cradioCytokinesPlotType))})
 output$cplotCytokines <- renderPlot({cytokinesDataAndPlot$plot})
-output$cplotCytokinesSIZE <- renderUI({tagList(conditionalPanel(condition = "output.cplotCytokines != null",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
-    plotOutput("cplotCytokines",  hover = "hover_plotCytokines"))}) #height = isolate(input$numbermplotModuleSeriesSIZEheight),
+output$cplotCytokinesSIZE <- renderUI({plotOutput("cplotCytokines", height = input$cnumberPlotCytokinesSIZEheight)})
 
   #################### End Of Server #########################
 } # end of server

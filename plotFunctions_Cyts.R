@@ -1,3 +1,4 @@
+# Enums ###########
 colours <- c(
   "TNFalpha" = 'lightsalmon',
   "IL12p40"  = 'brown4',
@@ -77,34 +78,60 @@ vaccinesToPlot_N <-
     "PLACEBO.B3" = 20
   ))
 
+# Code ###########
+getCytokineMaxs <- function(data2Max,fixedy,plottype) {
+  if(fixedy == FALSE) return(NULL)
+  if(plottype == 'Lines') {
+    maxs <- data2Max %>%
+      group_by(ACTARMCD,DAY,CYTOKINE) %>%
+      summarise(MEAN = mean(VALUE, na.rm = TRUE))
+    print(maxs)
+    maxs <- maxs %>%
+      group_by(CYTOKINE) %>%
+      summarise(MAX = max(MEAN, na.rm = TRUE))
+  } else {
+    maxs <- data2Max %>%
+      group_by(CYTOKINE) %>%
+      summarise(MAX = max(VALUE, na.rm = TRUE))
+  }
+  print(maxs)
+  
+  return(set_names(maxs$MAX,nm = maxs$CYTOKINE))
+}
 
-getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plottype,error,zoom) {
+getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0) {
   if (is.null(data2plot) || nrow(data2plot) == 0) return(list(data = NULL, plot = NULL))
   
   dataFiltered <- data2plot %>%
-    filter(CYTOKINE %in% cyts, DAY %in% days, ACTARMCD %in% acts) %>%
+    filter(CYTOKINE %in% cyts, DAY %in% days, ACTARMCD %in% acts)
+  if(omit0 == TRUE) {
+    data2plot <- data2plot %>%
+      filter(is.na(VALUE) == FALSE & VALUE > 0)
+  }
+  data2plot <- data2plot %>%
     mutate(CYTOKINE = factor(CYTOKINE, levels = cytokineLevels)) %>%
     mutate(ACTARMCD = factor(ACTARMCD, levels = vaccineLevels))
   # irritating but ifelse and case_when dont allow RHS to be different in mutate
   if(plottype != 'Lines') dataFiltered <- mutate(dataFiltered,DAY = as.factor(DAY))
 
   cdp$data <- dataFiltered
-  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom)
+  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,getCytokineMaxs(dataFiltered,fixedy,plottype))
   
 }
 
 ggplotCytokinesForTreatmentDay <-
-  function(data2plot, wrap, plottype,error,zoom) {
+  function(data2plot, wrap, plottype,error,zoom,yMaxs) {
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
+
     switch (wrap,
             'TC' = {v1 <- "ACTARMCD"; v2 <- "CYTOKINE"},
             'CT' = {v2 <- "ACTARMCD"; v1 <- "CYTOKINE"}
     )
     
     grbs <- lapply(unique(data2plot[[v1]]), function(vv1) {
-      # if I understood enquo, quo and !! I could do this in one go without ifelse
+      # if I understood enquo, quo and !! I could do this in one go without switches
       fdata1 <- 
       switch (wrap,
               "TC" = {filter(data2plot, ACTARMCD == vv1)},
@@ -126,6 +153,11 @@ ggplotCytokinesForTreatmentDay <-
             themeBase() +
             scale_color_manual(values = cytokineColours, guide = 'none') +
             scale_fill_manual(values = cytokineColours, guide = 'none')
+          
+          if(is.null(yMaxs) == FALSE) {
+            # only 1 cytokine by now
+            plot <- plot + scale_y_continuous(limits = c(0,yMaxs[[fdata2$CYTOKINE[1]]]))
+          }
           
           switch (
             plottype,
