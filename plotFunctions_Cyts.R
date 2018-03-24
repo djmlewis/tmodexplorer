@@ -79,24 +79,24 @@ vaccinesToPlot_N <-
   ))
 
 # Code ###########
-getCytokineMaxs <- function(data2Max,fixedy,plottype) {
+getCytokineMaxMins <- function(data2Max,fixedy,plottype) {
   if(fixedy == FALSE) return(NULL)
   if(plottype == 'Lines') {
-    maxs <- data2Max %>%
-      group_by(ACTARMCD,DAY,CYTOKINE) %>%
-      summarise(MEAN = mean(VALUE, na.rm = TRUE))
-    print(maxs)
-    maxs <- maxs %>%
+    maxsmins <- data2Max %>%
       group_by(CYTOKINE) %>%
-      summarise(MAX = max(MEAN, na.rm = TRUE))
+      summarise(MAX = max(MEAN+SE, na.rm = TRUE),
+                MIN = min(MEAN-SE, na.rm = TRUE))
   } else {
-    maxs <- data2Max %>%
+    maxsmins <- data2Max %>%
       group_by(CYTOKINE) %>%
-      summarise(MAX = max(VALUE, na.rm = TRUE))
+      summarise(MAX = max(VALUE, na.rm = TRUE),
+                MIN = min(VALUE, na.rm = TRUE))
   }
-  print(maxs)
+  # make a named list
+  maxs <- set_names(maxsmins$MAX,nm = maxsmins$CYTOKINE)
+  mins <- set_names(maxsmins$MIN,nm = maxsmins$CYTOKINE)
   
-  return(set_names(maxs$MAX,nm = maxs$CYTOKINE))
+  return(list(mx = maxs, mn = mins))
 }
 
 getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0) {
@@ -105,22 +105,31 @@ getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plot
   dataFiltered <- data2plot %>%
     filter(CYTOKINE %in% cyts, DAY %in% days, ACTARMCD %in% acts)
   if(omit0 == TRUE) {
-    data2plot <- data2plot %>%
-      filter(is.na(VALUE) == FALSE & VALUE > 0)
+    dataFiltered <- dataFiltered %>%
+      filter(is.na(VALUE) == FALSE, VALUE > 0)
   }
-  data2plot <- data2plot %>%
+  dataFiltered <- dataFiltered %>%
     mutate(CYTOKINE = factor(CYTOKINE, levels = cytokineLevels)) %>%
     mutate(ACTARMCD = factor(ACTARMCD, levels = vaccineLevels))
   # irritating but ifelse and case_when dont allow RHS to be different in mutate
-  if(plottype != 'Lines') dataFiltered <- mutate(dataFiltered,DAY = as.factor(DAY))
+  if(plottype == 'Lines') {
+    dataFiltered <- dataFiltered %>%
+      group_by(ACTARMCD,DAY,CYTOKINE) %>%
+      summarise(MEAN = mean(VALUE, na.rm = TRUE),
+                N = n(),
+                SE = sd(VALUE, na.rm = TRUE)/sqrt(N))
+  } else {
+    dataFiltered <- dataFiltered %>%
+      mutate(DAY = as.factor(DAY))
+  }
 
   cdp$data <- dataFiltered
-  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,getCytokineMaxs(dataFiltered,fixedy,plottype))
+  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,getCytokineMaxMins(dataFiltered,fixedy,plottype))
   
 }
 
 ggplotCytokinesForTreatmentDay <-
-  function(data2plot, wrap, plottype,error,zoom,yMaxs) {
+  function(data2plot, wrap, plottype,error,zoom,yMaxMins) {
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
@@ -148,22 +157,24 @@ ggplotCytokinesForTreatmentDay <-
           plot <-
             ggplot(
               fdata2,
-              mapping = aes(x = DAY, y = VALUE)
+              mapping = aes(x = DAY)
             ) +
             themeBase() +
             scale_color_manual(values = cytokineColours, guide = 'none') +
             scale_fill_manual(values = cytokineColours, guide = 'none')
           
-          if(is.null(yMaxs) == FALSE) {
+          if(is.null(yMaxMins) == FALSE) {
             # only 1 cytokine by now
-            plot <- plot + scale_y_continuous(limits = c(0,yMaxs[[fdata2$CYTOKINE[1]]]))
+            mx <- (yMaxMins$mx[[as.character(fdata2$CYTOKINE[1])]])
+            mn <- (yMaxMins$mn[[as.character(fdata2$CYTOKINE[1])]])
+            plot <- plot + scale_y_continuous(limits = c(mn,mx))
           }
           
           switch (
             plottype,
             'Violin' = {
               plot <-
-                plot + geom_violin(mapping = aes(colour = CYTOKINE, fill = CYTOKINE),
+                plot + geom_violin(mapping = aes(y = VALUE, colour = CYTOKINE, fill = CYTOKINE),
                                    alpha = 0.4)
               if(zoom == TRUE) {plot <- plot + coord_cartesian(ylim = quantile(fdata2$VALUE, c(0.08, 0.92),na.rm = TRUE))}
             },
@@ -171,6 +182,7 @@ ggplotCytokinesForTreatmentDay <-
               plot <-
                 plot + geom_boxplot(
                   mapping = aes(
+                    y = VALUE, 
                     colour = CYTOKINE,
                     fill = CYTOKINE,
                     group = DAY
@@ -189,17 +201,14 @@ ggplotCytokinesForTreatmentDay <-
                   "ribbon" = {
                     plot +
                     geom_vline(xintercept = daybreaks,color = 'grey80',alpha = 0.5,show.legend = FALSE) +
-                    stat_summary(
-                    geom = 'ribbon',
-                    fun.data = "mean_se",
-                    mapping = aes(fill = CYTOKINE, group = CYTOKINE),
+                    geom_ribbon(
+                    mapping = aes(fill = CYTOKINE, group = CYTOKINE, ymin = MEAN-SE, ymax = MEAN+SE),
                     alpha = 0.4)},
                   "errorbar" = {
                     plot +
-                    stat_summary(
-                    geom = 'errorbar',
-                    fun.data = "mean_se",
-                    mapping = aes(color = CYTOKINE, group = CYTOKINE), width = 0.1, size = 0.2)},
+                    geom_errorbar(
+                    mapping = aes(color = CYTOKINE, group = CYTOKINE, ymin = MEAN-SE, ymax = MEAN+SE), width = 0.1, size = 0.2)},
+                  # default
                   {plot + geom_vline(xintercept = daybreaks,color = 'grey80',alpha = 0.5,show.legend = FALSE)}
                 )
               
@@ -207,7 +216,7 @@ ggplotCytokinesForTreatmentDay <-
                 stat_summary(
                   geom = 'line',
                   fun.y = "mean",
-                  mapping = aes(colour = CYTOKINE, group = CYTOKINE)
+                  mapping = aes(y = MEAN, colour = CYTOKINE, group = CYTOKINE)
                 ) +
                 scale_x_continuous(breaks = daybreaks)
             }
