@@ -632,7 +632,7 @@ observeEvent(input$buttonPlotCytokines, {
   getCytokinesDataAndPlot(cytokinesDataAndPlot, cytokines, input$cselectCytokines,
     input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,
     input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile, input$ccheckboxFixedY,
-    input$ccheckboxOmit0)
+    input$ccheckboxOmit0, input$ccheckboxShowN,input$cnumericNumPanels)
 })
 output$datatableCytokines <- renderDataTable({cytokinesDataAndPlot$data})
 

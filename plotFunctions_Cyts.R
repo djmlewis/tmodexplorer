@@ -99,11 +99,12 @@ getCytokineMaxMins <- function(data2Max,fixedy,plottype) {
   return(list(mx = maxs, mn = mins))
 }
 
-getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0) {
+getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols) {
   if (is.null(data2plot) || nrow(data2plot) == 0) return(list(data = NULL, plot = NULL))
   
   dataFiltered <- data2plot %>%
     filter(CYTOKINE %in% cyts, DAY %in% days, ACTARMCD %in% acts)
+  
   if(omit0 == TRUE) {
     dataFiltered <- dataFiltered %>%
       filter(is.na(VALUE) == FALSE, VALUE > 0)
@@ -124,12 +125,12 @@ getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plot
   }
 
   cdp$data <- dataFiltered
-  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,getCytokineMaxMins(dataFiltered,fixedy,plottype))
+  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,getCytokineMaxMins(dataFiltered,fixedy,plottype),showN,nCols)
   
 }
 
 ggplotCytokinesForTreatmentDay <-
-  function(data2plot, wrap, plottype,error,zoom,yMaxMins) {
+  function(data2plot, wrap, plottype,error,zoom,yMaxMins,showN,nCols) {
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
@@ -189,7 +190,7 @@ ggplotCytokinesForTreatmentDay <-
                   ),
                   alpha = 0.4
                 )
-              if(zoom == TRUE) {plot <- plot + coord_cartesian(ylim = quantile(fdata2$VALUE, c(0.08, 0.92),na.rm = TRUE))}
+              if(zoom == TRUE) {plot <- plot + coord_cartesian(ylim = quantile(fdata2$VALUE, c(0.1, 0.9),na.rm = TRUE))}
               
             },
             'Lines' = {
@@ -219,6 +220,10 @@ ggplotCytokinesForTreatmentDay <-
                   mapping = aes(y = MEAN, colour = CYTOKINE, group = CYTOKINE)
                 ) +
                 scale_x_continuous(breaks = daybreaks)
+              
+              if(showN == TRUE) {
+                plot <- plot + geom_text(mapping = aes(label = N), y = mx, hjust = 0.5, vjust = 'outward')
+              }
             }
           )
           
@@ -228,10 +233,11 @@ ggplotCytokinesForTreatmentDay <-
           return(plot)
         })
       nplots <- length(unique(data2plot[[v2]]))
+      ncolsperrow = min(nplots,nCols)
       pg <- plot_grid(plotlist = plots,
                     align = 'hv',
-                    ncol = min(nplots,4),
-                    nrow = ceiling(nplots/4))
+                    ncol = ncolsperrow,
+                    nrow = ceiling(nplots/ncolsperrow))
         return(arrangeGrob(pg,
                             ncol = 1,
                             nrow = 1,
