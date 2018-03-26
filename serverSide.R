@@ -623,21 +623,37 @@ output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){pas
 #################### Cytokines #########################
 #   load cytokines and update
 cytokines <- read_rds("cytokinesT.rds")
-updatePickerInput(session, "cselectCytokines", choices = sort(unique(cytokines$CYTOKINE)))
-updatePickerInput(session, "cselectTreatments", choices = sort(unique(cytokines$ACTARMCD)))
-updatePickerInput(session, "cselectDays", choices = sort(unique(cytokines$DAY)))
+updateSelectInput(session, "cselectCytokines", choices = sort(unique(cytokines$CYTOKINE)))
+updateSelectInput(session, "cselectTreatments", choices = sort(unique(cytokines$ACTARMCD)))
+updateSelectInput(session, "cselectDays", choices = sort(unique(cytokines$DAY)))
 
 cytokinesDataAndPlot <- reactiveValues(data = NULL, plot = NULL)
 observeEvent(input$buttonPlotCytokines, {
-  getCytokinesDataAndPlot(cytokinesDataAndPlot, cytokines, input$cselectCytokines,
+  cdp <- getCytokinesDataAndPlot(cytokines, input$cselectCytokines,
     input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,
     input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile, input$ccheckboxFixedY,
-    input$ccheckboxOmit0, input$ccheckboxShowN,input$cnumericNumPanels)
+    input$ccheckboxOmit0, input$ccheckboxShowN,input$cnumericNumPanels)#cytokinesDataAndPlot, 
+  cytokinesDataAndPlot$data <- cdp$data
+  cytokinesDataAndPlot$plot <- cdp$plot
+    
+  output$cdatatableCytokines <- renderDataTable({cdp$data})
+  output$cplotCytokines <- renderPlot({cdp$plot} ,res = 72)
+  output$cplotCytokinesSIZE <- renderUI({plotOutput("cplotCytokines", height = isolate(input$cnumberPlotCytokinesSIZEheight))})
+  
 })
-output$datatableCytokines <- renderDataTable({cytokinesDataAndPlot$data})
+output$cbuttonPNGplotCytokines <- downloadHandler(filename = function(){paste0("Selected Cytokines.png")},
+  content = function(file) {plotPlotPNG(cytokinesDataAndPlot$plot,file,session$clientData[["output_cplotCytokines_height"]],session$clientData[["output_cplotCytokines_width"]])})
 
-output$cplotCytokines <- renderPlot({cytokinesDataAndPlot$plot} ,res = 72)
-output$cplotCytokinesSIZE <- renderUI({plotOutput("cplotCytokines", height = input$cnumberPlotCytokinesSIZEheight)})
+output$buttonSaveTableCytokines <- downloadHandler(filename = function(){paste0("Selected Cytokines.csv")},
+  content = function(file) {write.csv(cytokinesDataAndPlot$data, file, row.names = FALSE)})
+
+observeEvent(input$cbuttonAddAllCytokines,{updateSelectInput(session, 'cselectCytokines', selected = sort(unique(cytokines$CYTOKINE)))})
+observeEvent(input$cbuttonAddNoneCytokines,{updateSelectInput(session, 'cselectCytokines', selected = character(0))})
+observeEvent(input$cbuttonAddAllCytokineTreats,{updateSelectInput(session, 'cselectTreatments', selected = sort(unique(cytokines$ACTARMCD)))})
+observeEvent(input$cbuttonAddNoneCytokineTreats,{updateSelectInput(session, 'cselectTreatments', selected = character(0))})
+observeEvent(input$cbuttonAddAllCytokineDays,{updateSelectInput(session, 'cselectDays', selected = sort(unique(cytokines$DAY)))})
+observeEvent(input$cbuttonAddNoneCytokineDays,{updateSelectInput(session, 'cselectDays', selected = character(0))})
+
 
   #################### End Of Server #########################
 } # end of server

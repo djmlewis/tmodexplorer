@@ -7,6 +7,17 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+/*
+.shiny-notification {
+             position:fixed;
+             top: calc(50%);;
+             left: calc(50%);;
+}
+*/
+#shiny-notification-panel {
+             width: 800px;
+}
+
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;

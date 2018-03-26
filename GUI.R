@@ -137,15 +137,14 @@ ui <-
                  column(9,
                         wellPanel(style = "background-color: #feffee;",
                           selectInput('selectColumnsForSeries', label = "Click In Box To Select Columns", choices = character(0), multiple = TRUE),
-                          div(actionButton('buttonAddAllProbesSeries','All', class="btn-outline-primary"),
-                              actionButton('buttonRemoveAllProbesSeries','None'))
+                          div(actionButton('buttonAddAllProbesSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllProbesSeries','None'))
                         )
                  )
                ),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotTopGenesSeriesSIZE")),
                conditionalPanel(condition = "output.plotTopGenesSeries != null",
-                                downloadButton(class="btn-warning",'buttonPNGplotTopGenesSeries', 'Plot As PNG'))
+                                downloadButton(class="btn-warning",'buttonPNGplotTopGenesSeries', 'HiRes PNG'))
                ),
                conditionalPanel(condition = "output.datatableTopGenesSeries != null",
                   downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Table')), hr(), 
@@ -172,7 +171,7 @@ ui <-
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotGenesModulesSIZE")
                ),
-               downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'Plot As PNG')
+               downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'HiRes PNG')
                ),
              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Table'),
              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Data'),
@@ -194,7 +193,7 @@ ui <-
                  column(2, style = "margin-top: -10px;", sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500))               ))),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotModuleGenesSIZE")),
-                downloadButton(class="btn-warning",'buttonPNGplotModuleGenes', 'Plot As PNG')
+                downloadButton(class="btn-warning",'buttonPNGplotModuleGenes', 'HiRes PNG')
                ),
               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Table'), 
                hr(), 
@@ -252,7 +251,7 @@ ui <-
                        uiOutput("plotModuleSeriesSIZE")
              ),
              conditionalPanel(condition = "output.plotModuleSeries != null",
-              downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'Plot As PNG'))
+              downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG'))
             ),
                conditionalPanel(condition = "output.datatableModuleSeries != null",
                 downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
@@ -330,7 +329,7 @@ ui <-
          wellPanel(style = "background-color: #FFFFFF;",
                    uiOutput("mplotSelectedModulesSIZE")
           ),
-         downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'Plot As PNG')
+         downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'HiRes PNG')
          ),
          div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
              downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
@@ -427,7 +426,7 @@ ui <-
           uiOutput("mplotModuleSeriesSIZE")
          ),
          conditionalPanel(condition = "output.mplotModuleSeries != null",
-          downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'Plot As PNG'))
+          downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG'))
        ),
          conditionalPanel(condition = "output.mdatatableModuleSeries != null",
           downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Table')), hr(), 
@@ -441,17 +440,26 @@ tabPanel('Cytokines',
   tabPanel('Cytokines',
            wellPanel(style = "background-color: #FFFFFF;",
                      fluidRow(
-                       column(1,
+                       column(1,style = "margin-top: 20px;",
                               conditionalPanel(condition = "input.cselectCytokines != null && input.cselectTreatments != null && input.cselectDays != null",
                                                actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
                               conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
                        ), 
-                       column(4,pickerInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE, inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
-                       column(4,pickerInput("cselectTreatments", "Treatments", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All'))),
-                       column(3,pickerInput("cselectDays", "Days", choices = character(0), multiple = TRUE,inline = TRUE, options = list(`actions-box` = TRUE, `deselect-all-text` = 'None', `select-all-text` = 'All')))
+                       column(4,
+                              fluidRow(column(8,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE)),
+                                    column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','None')))
+                              )),
+                       column(4,
+                              fluidRow(column(8,selectInput("cselectTreatments", "Vaccines", choices = character(0), multiple = TRUE)),
+                                    column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokineTreats','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineTreats','None')))
+                              )),
+                       column(3,
+                              fluidRow(column(8,selectInput("cselectDays", "Days", choices = character(0), multiple = TRUE)),
+                                    column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','None')))
+                              ))
                      ),
                      fluidRow(
-                       column(2,prettyRadioButtons('cradioCytokinesWrap', NULL, choiceValues = list('TC','CT'), choiceNames = list('Vc~Cy', 'Cy~Vc'),
+                       column(2,prettyRadioButtons('cradioCytokinesWrap', NULL, choiceValues = list('TC','CT'), choiceNames = list('Vac~Cyt', 'Cyt~Vac'),
                                                    inline = TRUE, outline = TRUE, status = "success"
                        )),
                        column(3,prettyRadioButtons(status = 'success', 'cradioCytokinesPlotType',NULL, outline = TRUE,choices = c("Lines",'Boxplot','Violin'),inline = TRUE)),
@@ -462,23 +470,23 @@ tabPanel('Cytokines',
                                                awesomeCheckbox(status = 'success', 'ccheckboxZoomQuantile', 'Crop Y', value = FALSE))
                        ),
                        column(1,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxFixedY', 'Fix Y', value = TRUE)),
-                       column(1,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxOmit0', 'Omit 0', value = TRUE)),
-                       column(1,style = "margin-top: 10px;",numericInput("cnumericNumPanels",NULL,value = 3, min = 1, step = 1))
+                       column(1,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxOmit0', 'Omit 0', value = FALSE)),
+                       column(1,style = "margin-top: 10px;",numericInput("cnumericNumPanels",NULL,value = 3, min = 1, step = 1)),
+                       column(1,sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500))
                      ),
                      fluidRow(
                        column(1,conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
                               awesomeCheckbox(status = 'success', 'ccheckboxShowN', 'Show N', value = TRUE)))
                      ),
                      wellPanel(style = "background-color: #FFFFFF;",
-                               fluidRow(column(1, offset = 11, sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500))),
                                uiOutput("cplotCytokinesSIZE")
                      ),
-                     conditionalPanel(condition = "output.plotCytokines != null",
-                                      downloadButton(class="btn-warning",'buttonPNGplotCytokines', 'Plot As PNG'))
+                     conditionalPanel(condition = "output.cplotCytokines != null", 
+                                      downloadButton(class="btn-warning",'cbuttonPNGplotCytokines', 'HiRes PNG'))
            ),
-           conditionalPanel(condition = "output.datatableCytokines != null",
+           conditionalPanel(condition = "output.cdatatableCytokines != null",
                             downloadButton(class="btn-outline-primary",'buttonSaveTableCytokines', 'Table')), hr(), 
-           dataTableOutput('datatableCytokines')
+           dataTableOutput('cdatatableCytokines')
   )
  )
 ),

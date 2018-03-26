@@ -99,8 +99,10 @@ getCytokineMaxMins <- function(data2Max,fixedy,plottype) {
   return(list(mx = maxs, mn = mins))
 }
 
-getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols) {
+getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols) {#cdp, 
   if (is.null(data2plot) || nrow(data2plot) == 0) return(list(data = NULL, plot = NULL))
+  
+  showNotification("Please wait for data table and plot output. This may take a long time if many cytokines ~ vaccines selected…", type = 'message', duration = 10)
   
   dataFiltered <- data2plot %>%
     filter(CYTOKINE %in% cyts, DAY %in% days, ACTARMCD %in% acts)
@@ -109,24 +111,30 @@ getCytokinesDataAndPlot <- function(cdp, data2plot, cyts, days, acts, wrap, plot
     dataFiltered <- dataFiltered %>%
       filter(is.na(VALUE) == FALSE, VALUE > 0)
   }
+  
   dataFiltered <- dataFiltered %>%
-    mutate(CYTOKINE = factor(CYTOKINE, levels = cytokineLevels)) %>%
-    mutate(ACTARMCD = factor(ACTARMCD, levels = vaccineLevels))
+    # preserve the order of the selects with levels
+    mutate(CYTOKINE = factor(CYTOKINE, levels = unique(cyts))) %>% 
+    mutate(ACTARMCD = factor(ACTARMCD, levels = unique(acts)))
   # irritating but ifelse and case_when dont allow RHS to be different in mutate
   if(plottype == 'Lines') {
     dataFiltered <- dataFiltered %>%
       group_by(ACTARMCD,DAY,CYTOKINE) %>%
-      summarise(MEAN = mean(VALUE, na.rm = TRUE),
-                N = n(),
-                SE = sd(VALUE, na.rm = TRUE)/sqrt(N))
+      summarise(
+        MEAN = mean(VALUE, na.rm = TRUE),
+        N = n(),
+        # N = 1 or 0 introduces NAs for SE which replicate into max/mins
+        SE = case_when(N>1 ~ sd(VALUE, na.rm = TRUE)/sqrt(N), TRUE ~ 0))
+
   } else {
     dataFiltered <- dataFiltered %>%
-      mutate(DAY = as.factor(DAY))
+      mutate(DAY = as.factor(DAY)) %>%
+      arrange(ACTARMCD,DAY,CYTOKINE)
   }
 
-  cdp$data <- dataFiltered
-  cdp$plot <- ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,getCytokineMaxMins(dataFiltered,fixedy,plottype),showN,nCols)
-  
+  return(list(data = dataFiltered, 
+              plot =  ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,getCytokineMaxMins(dataFiltered,fixedy,plottype),showN,nCols)))
+
 }
 
 ggplotCytokinesForTreatmentDay <-
@@ -134,12 +142,11 @@ ggplotCytokinesForTreatmentDay <-
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
-
     switch (wrap,
             'TC' = {v1 <- "ACTARMCD"; v2 <- "CYTOKINE"},
             'CT' = {v2 <- "ACTARMCD"; v1 <- "CYTOKINE"}
     )
-    
+
     grbs <- lapply(unique(data2plot[[v1]]), function(vv1) {
       # if I understood enquo, quo and !! I could do this in one go without switches
       fdata1 <- 
@@ -164,11 +171,17 @@ ggplotCytokinesForTreatmentDay <-
             scale_color_manual(values = cytokineColours, guide = 'none') +
             scale_fill_manual(values = cytokineColours, guide = 'none')
           
-          if(is.null(yMaxMins) == FALSE) {
+          # NAs sneak in and crash when we combine some options and omit 0
+          if(is.null(yMaxMins) == FALSE && is.na(fdata2$CYTOKINE[1]) == FALSE) {
             # only 1 cytokine by now
+            just <- 'outward'
             mx <- (yMaxMins$mx[[as.character(fdata2$CYTOKINE[1])]])
             mn <- (yMaxMins$mn[[as.character(fdata2$CYTOKINE[1])]])
             plot <- plot + scale_y_continuous(limits = c(mn,mx))
+            labY <- mx
+          } else {
+            labY <- Inf
+            just <- 'inward'
           }
           
           switch (
@@ -214,15 +227,13 @@ ggplotCytokinesForTreatmentDay <-
                 )
               
               plot <- plot +
-                stat_summary(
-                  geom = 'line',
-                  fun.y = "mean",
+                geom_line(
                   mapping = aes(y = MEAN, colour = CYTOKINE, group = CYTOKINE)
                 ) +
                 scale_x_continuous(breaks = daybreaks)
               
               if(showN == TRUE) {
-                plot <- plot + geom_text(mapping = aes(label = N), y = mx, hjust = 0.5, vjust = 'outward')
+                plot <- plot + geom_text(mapping = aes(label = N), y = labY, hjust = 0.5, vjust = just)
               }
             }
           )
