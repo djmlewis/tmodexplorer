@@ -622,17 +622,18 @@ output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){pas
 
 #################### Cytokines #########################
 #   load cytokines and update
-cytokines <- read_rds("cytokinesT.rds")
-updateSelectInput(session, "cselectCytokines", choices = sort(unique(cytokines$CYTOKINE)))
-updateSelectInput(session, "cselectTreatments", choices = sort(unique(cytokines$ACTARMCD)))
-updateSelectInput(session, "cselectDays", choices = sort(unique(cytokines$DAY)))
+cytokines <- list(`Fold Increase` = read_rds("cytFoldT.rds"), Concentration = read_rds("cytokinesT.rds"))
+updateSelectInput(session, "cselectCytokines", choices = sort(unique(cytokines[["Fold Increase"]][["CYTOKINE"]])))
+updateSelectInput(session, "cselectTreatments", choices = sort(unique(cytokines[["Fold Increase"]][["ACTARMCD"]])))
+updateSelectInput(session, "cselectDays", choices = sort(unique(cytokines[["Fold Increase"]][["DAY"]])))
 
 cytokinesDataAndPlot <- reactiveValues(data = NULL, plot = NULL)
 observeEvent(input$buttonPlotCytokines, {
-  cdp <- getCytokinesDataAndPlot(cytokines, input$cselectCytokines,
+  cdp <- getCytokinesDataAndPlot(cytokines[[input$cradioCytoMeansRaw]], input$cselectCytokines,
     input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,
     input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile, input$ccheckboxFixedY,
-    input$ccheckboxOmit0, input$ccheckboxShowN,input$cnumericNumPanels)#cytokinesDataAndPlot, 
+    input$ccheckboxOmit0, input$ccheckboxShowN,input$cnumericNumPanels,input$cradioCytoMeansRaw,
+    input$ccheckboxShowPoints, input$cradioCytokinesTransformY)
   cytokinesDataAndPlot$data <- cdp$data
   cytokinesDataAndPlot$plot <- cdp$plot
     
@@ -647,11 +648,11 @@ output$cbuttonPNGplotCytokines <- downloadHandler(filename = function(){paste0("
 output$buttonSaveTableCytokines <- downloadHandler(filename = function(){paste0("Selected Cytokines.csv")},
   content = function(file) {write.csv(cytokinesDataAndPlot$data, file, row.names = FALSE)})
 
-observeEvent(input$cbuttonAddAllCytokines,{updateSelectInput(session, 'cselectCytokines', selected = sort(unique(cytokines$CYTOKINE)))})
+observeEvent(input$cbuttonAddAllCytokines,{updateSelectInput(session, 'cselectCytokines', selected = sort(unique(cytokines[["Fold Increase"]][["CYTOKINE"]])))})
 observeEvent(input$cbuttonAddNoneCytokines,{updateSelectInput(session, 'cselectCytokines', selected = character(0))})
-observeEvent(input$cbuttonAddAllCytokineTreats,{updateSelectInput(session, 'cselectTreatments', selected = sort(unique(cytokines$ACTARMCD)))})
+observeEvent(input$cbuttonAddAllCytokineTreats,{updateSelectInput(session, 'cselectTreatments', selected = sort(unique(cytokines[["Fold Increase"]][["ACTARMCD"]])))})
 observeEvent(input$cbuttonAddNoneCytokineTreats,{updateSelectInput(session, 'cselectTreatments', selected = character(0))})
-observeEvent(input$cbuttonAddAllCytokineDays,{updateSelectInput(session, 'cselectDays', selected = sort(unique(cytokines$DAY)))})
+observeEvent(input$cbuttonAddAllCytokineDays,{updateSelectInput(session, 'cselectDays', selected = sort(unique(cytokines[["Fold Increase"]][["DAY"]])))})
 observeEvent(input$cbuttonAddNoneCytokineDays,{updateSelectInput(session, 'cselectDays', selected = character(0))})
 
 

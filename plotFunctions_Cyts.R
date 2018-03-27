@@ -78,16 +78,24 @@ vaccinesToPlot_N <-
     "PLACEBO.B3" = 20
   ))
 
+themeCyto <- themeBase() + 
+  # tweak the sub plots titles
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        axis.title = element_text(size = 14))
+  
 # Code ###########
-getCytokineMaxMins <- function(data2Max,fixedy,plottype) {
+getCytokineMaxMins <- function(data2Max,fixedy,plottype,error) {
   if(fixedy == FALSE) return(NULL)
+  maxsmins <- data2Max
+    # dont add SE if we are not plotting it
   if(plottype == 'Lines') {
-    maxsmins <- data2Max %>%
+    if(error == 'none') {maxsmins$SE <- 0}
+    maxsmins <- maxsmins %>%
       group_by(CYTOKINE) %>%
       summarise(MAX = max(MEAN+SE, na.rm = TRUE),
                 MIN = min(MEAN-SE, na.rm = TRUE))
   } else {
-    maxsmins <- data2Max %>%
+    maxsmins <- maxsmins %>%
       group_by(CYTOKINE) %>%
       summarise(MAX = max(VALUE, na.rm = TRUE),
                 MIN = min(VALUE, na.rm = TRUE))
@@ -99,7 +107,7 @@ getCytokineMaxMins <- function(data2Max,fixedy,plottype) {
   return(list(mx = maxs, mn = mins))
 }
 
-getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols) {#cdp, 
+getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols,FIraw, showPoints,Ytrans) { 
   if (is.null(data2plot) || nrow(data2plot) == 0) return(list(data = NULL, plot = NULL))
   
   showNotification("Please wait for data table and plot output. This may take a long time if many cytokines ~ vaccines selected…", type = 'message', duration = 10)
@@ -109,7 +117,17 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
   
   if(omit0 == TRUE) {
     dataFiltered <- dataFiltered %>%
-      filter(is.na(VALUE) == FALSE, VALUE > 0)
+      filter(VALUE > 0)
+  }
+  
+  if(Ytrans != 'identity') {
+    dataFiltered$VALUE<- 
+      switch (Ytrans,
+              log = log(dataFiltered$VALUE),
+              log10 = log10(dataFiltered$VALUE),
+              log2 = log2(dataFiltered$VALUE),
+              log1p = log1p(dataFiltered$VALUE)
+      )
   }
   
   dataFiltered <- dataFiltered %>%
@@ -122,7 +140,7 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
       group_by(ACTARMCD,DAY,CYTOKINE) %>%
       summarise(
         MEAN = mean(VALUE, na.rm = TRUE),
-        N = n(),
+        N = sum(!is.na(VALUE)),
         # N = 1 or 0 introduces NAs for SE which replicate into max/mins
         SE = case_when(N>1 ~ sd(VALUE, na.rm = TRUE)/sqrt(N), TRUE ~ 0))
 
@@ -132,13 +150,37 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
       arrange(ACTARMCD,DAY,CYTOKINE)
   }
 
+  if(Ytrans != 'identity') {
+    dataFiltered <- dataFiltered %>%
+      mutate(TRANSFORM = Ytrans)
+  }
+    
+    
   return(list(data = dataFiltered, 
-              plot =  ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,getCytokineMaxMins(dataFiltered,fixedy,plottype),showN,nCols)))
+              plot =  ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,
+              getCytokineMaxMins(dataFiltered,fixedy,plottype,error),showN,nCols,FIraw, showPoints,Ytrans)))
 
 }
 
+ylabForTransform <- function(lab,trans) {
+  if(trans == 'identity') return(lab)
+  return(paste0(trans,'(',lab,')'))
+}
+
+
+nData <- function(data2N,plottype) {
+  if(plottype == 'Lines') return(data2N)
+  ndata <- data2N %>%
+    # only 1 ACTARMCD and CYTO here
+    group_by(DAY) %>%
+    summarise(
+      N = sum(!is.na(VALUE))
+    )
+  return(ndata)
+}
+
 ggplotCytokinesForTreatmentDay <-
-  function(data2plot, wrap, plottype,error,zoom,yMaxMins,showN,nCols) {
+  function(data2plot, wrap, plottype,error,zoom,yMaxMins,showN,nCols,FIraw,showPoints,Ytrans) {
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
@@ -167,10 +209,11 @@ ggplotCytokinesForTreatmentDay <-
               fdata2,
               mapping = aes(x = DAY)
             ) +
-            themeBase() +
+            themeCyto +
             scale_color_manual(values = cytokineColours, guide = 'none') +
-            scale_fill_manual(values = cytokineColours, guide = 'none')
-          
+            scale_fill_manual(values = cytokineColours, guide = 'none') +
+            ylab(ylabForTransform(FIraw,Ytrans))
+
           # NAs sneak in and crash when we combine some options and omit 0
           if(is.null(yMaxMins) == FALSE && is.na(fdata2$CYTOKINE[1]) == FALSE) {
             # only 1 cytokine by now
@@ -182,6 +225,12 @@ ggplotCytokinesForTreatmentDay <-
           } else {
             labY <- Inf
             just <- 'inward'
+            plot <- plot + scale_y_continuous()
+          }
+          # hack for violins and boxplots that zoom Y
+          if(plottype != 'Lines' && zoom == TRUE) {
+            labY <- median(fdata2$VALUE, na.rm = TRUE)
+            just <- 0.5
           }
           
           switch (
@@ -227,16 +276,16 @@ ggplotCytokinesForTreatmentDay <-
                 )
               
               plot <- plot +
-                geom_line(
-                  mapping = aes(y = MEAN, colour = CYTOKINE, group = CYTOKINE)
-                ) +
+                geom_line(mapping = aes(y = MEAN, colour = CYTOKINE, group = CYTOKINE)) +
+                {if(showPoints == TRUE) {geom_point(mapping = aes(y = MEAN, colour = CYTOKINE, group = CYTOKINE), size = 2 ,show.legend = FALSE)}} +
                 scale_x_continuous(breaks = daybreaks)
               
-              if(showN == TRUE) {
-                plot <- plot + geom_text(mapping = aes(label = N), y = labY, hjust = 0.5, vjust = just)
-              }
             }
           )
+          
+          if(showN == TRUE) {
+            plot <- plot +  geom_text(data = nData(fdata2,plottype), mapping = aes(x = DAY, label = N), y = labY, hjust = 0.5, vjust = just)
+          }
           
           plot <- plot + ggtitle(as.character(vv2))
           
@@ -252,7 +301,7 @@ ggplotCytokinesForTreatmentDay <-
         return(arrangeGrob(pg,
                             ncol = 1,
                             nrow = 1,
-                            top = as.character(vv1)))
+                            top = textGrob(as.character(vv1), gp=gpar(fontface="bold",fontsize=20, padding = 2))))
       })
 
     return(marrangeGrob(
