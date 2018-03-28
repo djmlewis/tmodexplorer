@@ -3,11 +3,12 @@ server <- function(input, output, session) {
   
 #   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
-  
+  removeUI(selector = "#myid", immediate = TRUE)
   # initial hidden setup
   if(is_local == FALSE) {
-    hideTab(inputId = "navbarTop", target = "Load data")
+    hideTab(inputId = "navbarTop", target = "Load transcriptomics")
     hideTab(inputId = "navbarTop", target = "ReadMe")
+    hideTab(inputId = "navbarTop", target = "Cytokines")
   } else {
     hideTab(inputId = "navbarTop", target = "Password")
   }
@@ -22,8 +23,9 @@ server <- function(input, output, session) {
   observeEvent(input$buttonPassword, {
     if (input$password == password) {
       hideTab(inputId = "navbarTop", target = "Password")
-      showTab(inputId = "navbarTop", target = "Load data", select = TRUE)
+      showTab(inputId = "navbarTop", target = "Load transcriptomics", select = TRUE)
       showTab(inputId = "navbarTop", target = "ReadMe")
+      showTab(inputId = "navbarTop", target = "Cytokines")
     }
     })
   

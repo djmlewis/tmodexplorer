@@ -113,7 +113,19 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
   showNotification("Please wait for data table and plot output. This may take a long time if many cytokines ~ vaccines selected…", type = 'message', duration = 10)
   
   dataFiltered <- data2plot %>%
-    filter(CYTOKINE %in% cyts, DAY %in% days, ACTARMCD %in% acts)
+    filter(CYTOKINE %in% cyts, DAY %in% days, ACTARMCD %in% acts)%>%
+    # preserve the order of the selects with levels
+    mutate(CYTOKINE = factor(CYTOKINE, levels = unique(cyts))) %>% 
+    mutate(ACTARMCD = factor(ACTARMCD, levels = unique(acts)))
+  if(plottype != 'Lines') {
+    dataFiltered <- dataFiltered %>%
+      mutate(DAY = factor(DAY, levels = unique(days))) %>%
+      arrange(ACTARMCD,DAY,CYTOKINE)
+  }
+  # calc groupsize perday here before we do anything else
+  dataGroups <- dataFiltered %>%
+    group_by(ACTARMCD,DAY,CYTOKINE) %>%
+    summarise(GROUP = n()) 
   
   if(omit0 == TRUE) {
     dataFiltered <- dataFiltered %>%
@@ -130,11 +142,6 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
       )
   }
   
-  dataFiltered <- dataFiltered %>%
-    # preserve the order of the selects with levels
-    mutate(CYTOKINE = factor(CYTOKINE, levels = unique(cyts))) %>% 
-    mutate(ACTARMCD = factor(ACTARMCD, levels = unique(acts)))
-  # irritating but ifelse and case_when dont allow RHS to be different in mutate
   if(plottype == 'Lines') {
     dataFiltered <- dataFiltered %>%
       group_by(ACTARMCD,DAY,CYTOKINE) %>%
@@ -143,21 +150,19 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
         N = sum(!is.na(VALUE)),
         # N = 1 or 0 introduces NAs for SE which replicate into max/mins
         SE = case_when(N>1 ~ sd(VALUE, na.rm = TRUE)/sqrt(N), TRUE ~ 0))
-
-  } else {
-    dataFiltered <- dataFiltered %>%
-      mutate(DAY = as.factor(DAY)) %>%
-      arrange(ACTARMCD,DAY,CYTOKINE)
+    
   }
 
+  
   if(Ytrans != 'identity') {
     dataFiltered <- dataFiltered %>%
       mutate(TRANSFORM = Ytrans)
   }
     
     
-  return(list(data = dataFiltered, 
-              plot =  ggplotCytokinesForTreatmentDay(dataFiltered,wrap, plottype,error,zoom,
+  return(list(data = dataFiltered,
+              datagroups = dataGroups,
+              plot =  ggplotCytokinesForTreatmentDay(dataFiltered,dataGroups,wrap, plottype,error,zoom,
               getCytokineMaxMins(dataFiltered,fixedy,plottype,error),showN,nCols,FIraw, showPoints,Ytrans)))
 
 }
@@ -169,18 +174,19 @@ ylabForTransform <- function(lab,trans) {
 
 
 nData <- function(data2N,plottype) {
+  # Lines already has this info
   if(plottype == 'Lines') return(data2N)
   ndata <- data2N %>%
-    # only 1 ACTARMCD and CYTO here
     group_by(DAY) %>%
     summarise(
       N = sum(!is.na(VALUE))
     )
+
   return(ndata)
 }
 
 ggplotCytokinesForTreatmentDay <-
-  function(data2plot, wrap, plottype,error,zoom,yMaxMins,showN,nCols,FIraw,showPoints,Ytrans) {
+  function(data2plot, dataGroups,wrap, plottype,error,zoom,yMaxMins,showN,nCols,FIraw,showPoints,Ytrans) {
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
@@ -284,7 +290,18 @@ ggplotCytokinesForTreatmentDay <-
           )
           
           if(showN == TRUE) {
-            plot <- plot +  geom_text(data = nData(fdata2,plottype), mapping = aes(x = DAY, label = N), y = labY, hjust = 0.5, vjust = just)
+            ndata <- nData(fdata2,plottype)
+            plot <- plot +  geom_label(data = ndata, alpha = 0,label.size = 0, label.padding = unit(0.5, "lines"), mapping = aes(x = DAY, label = N), hjust = 0.5, y = Inf, vjust = 'inward' ) # y = labY, vjust = just
+            gData <- filter(dataGroups,
+                            # this avoids having to figure out what vv1 and 2 are
+                            as.character(ACTARMCD) == as.character(vv1) | as.character(CYTOKINE) == as.character(vv1), 
+                            as.character(ACTARMCD) == as.character(vv2) | as.character(CYTOKINE) == as.character(vv2),
+                            # DAY is bloody subtle. Took hours to get right. You have to drop DAY values from dataGroups that may have gone
+                            # due to omit0 removing all values for a specific day(s). The side effect of not doing this is that ggplot
+                            # re-factors DAY as a character and so you get 0,1,14,2,21.... OMG! Why?
+                            DAY %in% unique(fdata2$DAY))
+            plot <- plot +  geom_label(data = gData,
+              mapping = aes(x = DAY, label = GROUP),alpha = 0,label.size = 0, label.padding = unit(0.25, "lines"), hjust = 0.5, y = -Inf, vjust = 'inward')
           }
           
           plot <- plot + ggtitle(as.character(vv2))
@@ -301,7 +318,8 @@ ggplotCytokinesForTreatmentDay <-
         return(arrangeGrob(pg,
                             ncol = 1,
                             nrow = 1,
-                            top = textGrob(as.character(vv1), gp=gpar(fontface="bold",fontsize=20, padding = 2))))
+                            top = textGrob(as.character(vv1), gp=gpar(fontface="bold",fontsize=20, padding = 2))
+                           ))
       })
 
     return(marrangeGrob(

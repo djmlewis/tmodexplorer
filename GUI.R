@@ -1,5 +1,5 @@
 # Define UI  
-ui <- 
+ui <-
   navbarPage(span(style = 'color: #fefc78;','tmodExplorer'), id = 'navbarTop', position = "fixed-top", theme = "theme.css", windowTitle = 'tmodExplorer',
              inverse = TRUE,
              header = tagList(tags$style(type="text/css", "body {padding-top: 70px;}")),
@@ -20,8 +20,8 @@ ui <-
            
   ),
   #################### Data Load ######################
-  tabPanel('Load data',
-    h3(style = "text-align: center;","Select pre-loaded dataset to analyse"),
+  tabPanel('Load transcriptomics',
+    h3(style = "text-align: center;","Select pre-loaded transcriptomics dataset to analyse"),
     fluidRow(
     column(8, offset = 2,
         wellPanel(style = "background-color: #feffee;",
@@ -436,65 +436,6 @@ ui <-
      )
    )
   ), #explore by module
-###########   Cytokines  ##########
-tabPanel('Cytokines',
- navbarPage(span(style = 'color: #000000;','Cytokines'), id = 'navCytokines',
-  tabPanel('Cytokines',
-           wellPanel(style = "background-color: #FFFFFF;",
-                     fluidRow(
-                       column(1,style = "margin-top: 20px;",
-                              conditionalPanel(condition = "input.cselectCytokines != null && input.cselectTreatments != null && input.cselectDays != null",
-                                               actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
-                              conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
-                       ), 
-                       column(4,
-                              fluidRow(column(8,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE)),
-                                    column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','None')))
-                              )),
-                       column(4,
-                              fluidRow(column(8,selectInput("cselectTreatments", "Vaccines", choices = character(0), multiple = TRUE)),
-                                    column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokineTreats','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineTreats','None')))
-                              )),
-                       column(3,
-                              fluidRow(column(6,selectInput("cselectDays", "Days", choices = character(0), multiple = TRUE)),
-                                    column(6,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','None')))
-                              ))
-                     ),
-                     fluidRow(
-                       column(3,prettyRadioButtons(status = 'warning', 'cradioCytokinesPlotType',NULL, outline = TRUE,choices = c("Lines",'Boxplot','Violin'),inline = TRUE)),
-                       column(3,prettyRadioButtons(status = 'success', 'cradioCytoMeansRaw',NULL, outline = TRUE,choices = c('Fold Increase',"Concentration"),inline = TRUE),bsTooltip("cradioCytoMeansRaw", "Which data to plot: actual concentration values or fold-increase from day 0")),
-                       column(4,prettyRadioButtons(status = 'danger', 'cradioCytokinesTransformY',NULL, outline = TRUE,
-                                                   choiceNames = c("Y",'ln(Y)','log10(Y)','ln1p(Y)','log2(Y)'),choiceValues = c("identity",'log','log10','log1p','log2'),inline = TRUE), bsTooltip("cradioCytokinesTransformY", "Log transform Y values. Ln1p is best with 0 values as it does ln(Y+1)")),
-                       column(2,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxOmit0', 'Exclude Zero Y values', value = FALSE))
-                     ),
-                     fluidRow(
-                       column(1,style = "margin-top: 10px;",
-                              conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
-                                 awesomeCheckbox(status = 'warning', 'ccheckboxShowPoints', 'Points', value = TRUE)),
-                              conditionalPanel(condition = "input.cradioCytokinesPlotType != 'Lines'",
-                                 awesomeCheckbox(status = 'warning', 'ccheckboxZoomQuantile', 'Crop Y', value = FALSE))),
-                       column(3,conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
-                                prettyRadioButtons('cradioCytokinesErrorType', NULL, choiceValues = list('none','ribbon','errorbar'), 
-                                choiceNames = list('No Error','Ribbon','Bars'), selected = 'ribbon', inline = TRUE, outline = TRUE, status = "warning"),bsTooltip("cradioCytokinesErrorType", "Plot SEM as ribbon, error bars or omitted"))),
-                       column(1,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxShowN', 'Show N', value = TRUE)),
-                       column(1,offset = 1, style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxFixedY', 'Fixed Y', value = TRUE)),
-                       column(3,prettyRadioButtons('cradioCytokinesWrap', NULL, choiceValues = list('TC','CT'), choiceNames = list('Vac↓ Cyt→', 'Cyt↓ Vac→'),
-                                                   inline = TRUE, outline = TRUE, status = "success"),bsTooltip("cradioCytokinesWrap", "How to order the panels when plotting: Cytokines across and vaccines downwards, or reverse.")),
-                       column(1, style = "margin-top: 10px;",numericInput("cnumericNumPanels",NULL,value = 3, min = 1, step = 1), bsTooltip("cnumericNumPanels", "Maximum number of panels per plot row")),
-                       column(1,sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("cnumberPlotCytokinesSIZEheight", "Plot height"))
-                     ),
-                     wellPanel(style = "background-color: #FFFFFF;",
-                               uiOutput("cplotCytokinesSIZE")
-                     ),
-                     conditionalPanel(condition = "output.cplotCytokines != null", 
-                                      downloadButton(class="btn-warning",'cbuttonPNGplotCytokines', 'HiRes PNG'))
-           ),
-           conditionalPanel(condition = "output.cdatatableCytokines != null",
-                            downloadButton(class="btn-outline-primary",'buttonSaveTableCytokines', 'Table')), hr(), 
-           dataTableOutput('cdatatableCytokines')
-  )
- )
-),
   ###########   Lookup  ##########
 tabPanel('Lookup',
   navbarPage(span(style = 'color: #000000;','Lookup'), id = 'navLookup',
@@ -527,6 +468,65 @@ tabPanel('Lookup',
               dataTableOutput('mdatatableModuleLookup')
      )
   )           
+),
+###########   Cytokines  ##########
+tabPanel('Cytokines',
+         navbarPage(span(style = 'color: #000000;','Cytokines'), id = 'navCytokines',
+                    tabPanel('Plot',
+                             wellPanel(style = "background-color: #FFFFFF;",
+                                       fluidRow(
+                                         column(1,style = "margin-top: 20px;",
+                                                conditionalPanel(condition = "input.cselectCytokines != null && input.cselectTreatments != null && input.cselectDays != null",
+                                                                 actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
+                                                conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
+                                         ), 
+                                         column(4,
+                                                fluidRow(column(8,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE)),
+                                                         column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','None')))
+                                                )),
+                                         column(4,
+                                                fluidRow(column(8,selectInput("cselectTreatments", "Vaccines", choices = character(0), multiple = TRUE)),
+                                                         column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokineTreats','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineTreats','None')))
+                                                )),
+                                         column(3,
+                                                fluidRow(column(6,selectInput("cselectDays", "Days", choices = character(0), multiple = TRUE)),
+                                                         column(6,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','None')))
+                                                ))
+                                       ),
+                                       fluidRow(
+                                         column(3,prettyRadioButtons(status = 'success', 'cradioCytoMeansRaw',NULL, outline = TRUE,choices = c('Fold Increase',"Concentration"),inline = TRUE),bsTooltip("cradioCytoMeansRaw", "Which data to plot: actual concentration values or fold-increase from day 0")),
+                                         column(3,prettyRadioButtons(status = 'warning', 'cradioCytokinesPlotType',NULL, outline = TRUE,choices = c("Lines",'Boxplot','Violin'),inline = TRUE)),
+                                         column(4,prettyRadioButtons(status = 'danger', 'cradioCytokinesTransformY',NULL, outline = TRUE,
+                                                                     choiceNames = c("Y",'ln(Y)','log10(Y)','ln1p(Y)','log2(Y)'),choiceValues = c("identity",'log','log10','log1p','log2'),inline = TRUE), bsTooltip("cradioCytokinesTransformY", "Log transform Y values. Ln1p is best with 0 values as it does ln(Y+1)")),
+                                         column(2,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxOmit0', 'Exclude Zero Y values', value = FALSE))
+                                       ),
+                                       fluidRow(
+                                         column(1,style = "margin-top: 10px;",
+                                                conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
+                                                                 awesomeCheckbox(status = 'warning', 'ccheckboxShowPoints', 'Points', value = TRUE)),
+                                                conditionalPanel(condition = "input.cradioCytokinesPlotType != 'Lines'",
+                                                                 awesomeCheckbox(status = 'warning', 'ccheckboxZoomQuantile', 'Crop Y', value = FALSE))),
+                                         column(3,conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
+                                                                   prettyRadioButtons('cradioCytokinesErrorType', NULL, choiceValues = list('none','ribbon','errorbar'), 
+                                                                                      choiceNames = list('No Error','Ribbon','Bars'), selected = 'ribbon', inline = TRUE, outline = TRUE, status = "warning"),bsTooltip("cradioCytokinesErrorType", "Plot SEM as ribbon, error bars or omitted"))),
+                                         column(1,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxShowN', 'Show N', value = TRUE)),
+                                         column(1,offset = 1, style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxFixedY', 'Fixed Y', value = TRUE)),
+                                         column(3,prettyRadioButtons('cradioCytokinesWrap', NULL, choiceValues = list('TC','CT'), choiceNames = list('Vac↓ Cyt→', 'Cyt↓ Vac→'),
+                                                                     inline = TRUE, outline = TRUE, status = "success"),bsTooltip("cradioCytokinesWrap", "How to order the panels when plotting: Cytokines across and vaccines downwards, or reverse.")),
+                                         column(1, style = "margin-top: 10px;",numericInput("cnumericNumPanels",NULL,value = 3, min = 1, step = 1), bsTooltip("cnumericNumPanels", "Maximum number of panels per plot row")),
+                                         column(1,sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("cnumberPlotCytokinesSIZEheight", "Plot height"))
+                                       ),
+                                       wellPanel(style = "background-color: #FFFFFF;",
+                                                 uiOutput("cplotCytokinesSIZE")
+                                       ),
+                                       conditionalPanel(condition = "output.cplotCytokines != null", 
+                                                        downloadButton(class="btn-warning",'cbuttonPNGplotCytokines', 'HiRes PNG'))
+                             ),
+                             conditionalPanel(condition = "output.cdatatableCytokines != null",
+                                              downloadButton(class="btn-outline-primary",'buttonSaveTableCytokines', 'Table')), hr(), 
+                             dataTableOutput('cdatatableCytokines')
+                    )
+         )
 ),
 ###########   READ ME  ##########
 tabPanel('ReadMe', icon = icon('info-circle'),
