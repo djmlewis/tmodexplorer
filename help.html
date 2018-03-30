@@ -8,9 +8,14 @@
     <h1> Introduction</h1>
     The purpose of this app is just to visualise the expression of genes
     as a time course after immunisation, either alone or when clustered
-    into modules.<br>
+    into Blood Transcriptional Modules (BTMs); and to look inside the
+    BTMs to observe how the individual genes are responding to the
+    vaccine stimulus.<br>
     <br>
     The basic concept is to pick a particular time point and vaccine - <i>e.g.
+
+
+
 
 
 
@@ -48,12 +53,12 @@
         analysis</b></i>. You can identify how the expression of these
     genes changes over time; which modules these genes belong to;
     observe how the other genes in those modules are responding over
-    time, or how the whole module responds over time. You can treat
+    time; or how the whole module responds over time. You can treat
     these selected genes as a 'pseudo-module' and see how this module
     changes over time in comparison with the predefined modules in tmod.
     Other search options allow you to identify genes by their title or
-    category, and then follow these selected genes and the modules that
-    contain them over time.<br>
+    description, and then follow these selected genes and the modules
+    that contain them over time.<br>
     <br>
     The figures below illustrates this: the probes in the combined ABC
     Surrey dataset have been sorted in descending order of their
@@ -62,9 +67,9 @@
     individual lines for Stamaril, Fluad and Placebo, or as a boxplot
     for these probes treated as though they belonged to a pseudo-module.<br>
     <br>
-    <img src="selgenesseries.png" alt="Selected Probes" width="554"
-      height="250"> &nbsp;<img src="selgenesseriesbox.png" alt="Selected
-      Probes Boxplot" width="554" height="250"> <br>
+    <img src="selgenesseries.png" alt="Selected Probes" height="250"
+      width="554"> &nbsp;<img src="selgenesseriesbox.png" alt="Selected
+      Probes Boxplot" height="250" width="554"> <br>
     <br>
     We can then identify the modules to which those genes belong, and
     plot the changes in those modules over time. Note that while the
@@ -73,10 +78,10 @@
     contain many genes that may not be responding to Stamaril at all, or
     even down-regulated, as&nbsp; the modules have been clustered by
     their authors on the basis of other datasets:<br>
-    <img src="selmods.png" alt="Selected Modules" align="middle"
-      width="550" height="249">&nbsp;&nbsp; <img
+    <img src="selmods.png" alt="Selected Modules" height="249"
+      align="middle" width="550">&nbsp;&nbsp; <img
       src="selmodsseries.png" alt="Selected Modules Timecourse"
-      align="middle" width="550" height="249"><br>
+      height="249" align="middle" width="550"><br>
     <br>
     There is also an option to go straight to exploring by modules, in
     which case you just select tmod modules and observe their response
@@ -92,13 +97,16 @@
     we have forced the selection to focus on the aggregate expression of
     modules - this may not be very representative of the actual
     responding genes (as shown above): <br>
-    <img src="topmods.png" alt="Top Modules" width="553" height="250">&nbsp;&nbsp;
+    <img src="topmods.png" alt="Top Modules" height="250" width="553">&nbsp;&nbsp;
+
+
+
 
 
 
 
     <img src="topmodsseries.png" alt="Top Modules Timecourse"
-      width="553" height="250"><br>
+      height="250" width="553"><br>
     <br>
     By visualising the changes in gene and module expression we can ask
     how do the tmod modules respond after immunisation and how does this
@@ -115,8 +123,8 @@
       ggplot2 (slower but may be prettier). Other plots have a <b>Plot</b>
       button, and will only draw or update when that is clicked, to
       avoid slow refreshes when you alter several options. Plots have a
-      slider control&nbsp;<img alt="" src="slider.png" width="82"
-        height="20"> to change the height. Plot width always resizes
+      slider control&nbsp;<img alt="" src="slider.png" height="20"
+        width="82"> to change the height. Plot width always resizes
       automatically with the window width. A low resolution image of
       plots can be copied or saved by right-clicking on the plot, while
       clicking <b>⤓ Plot As PNG</b> button downloads a high resolution
@@ -143,11 +151,11 @@
     The entire data table can be searched using the box above,&nbsp; or
     individual columns searched using the boxes below each column.
     Tables can be downloaded as a csv file suitable for opening in Excel
-    or R by clicking the <b>⤓ Table</b> button. A PNG image of the
-    datatable can also be downloaded in some cases by clicking the
-    button <b>⤓ Table as PNG</b>. This can be pasted onto graphics. It
-    is very tricky to calculate the width correctly using grid.table, so
-    the image may be clipped or extra wide, but a transparent background
+    or R by clicking the <b>⤓ Table</b> button. A PNG image of the data
+    table can also be downloaded in some cases by clicking the button <b>⤓
+      Table as PNG</b>. This can be pasted onto graphics. It is very
+    tricky to calculate the width correctly using grid.table, so the
+    image may be clipped or extra wide, but a transparent background
     will be generated.<br>
     <br>
     <h3>Saving Gene, Probe and Module Lists<br>
@@ -156,19 +164,24 @@
     they can be downloaded as a text file in a comma-separated format
     suitable for pasting into the 'regex' search boxes.<br>
     <h1>The Datasets</h1>
-    <p>The preloaded datasets come in two versions: <b>fold-increase in
-        the log2 expression values</b> (by subtraction of the log2
-      values), <i>always from day 0</i> <i>baseline</i> (in Surrey day
-      -1 is calculated as a time point preceding day 0); and <b>raw
-        log2 expression values</b>. Day 0 at 8AM was selected for Surrey
-      as baseline as participants entered the unit on day -1. The data
-      were calculated by initially grouping the raw data for each
-      person-each probe-each timepoint, into treatment and timepoint
-      pools. Then row averages for each probe within the treatment-time
-      pool were calculated. This gives the basic raw expression data
-      which is the group mean for each vaccination-day for each probe,
-      i.e. the mean expression for Probe X on day Y for participants who
-      received vaccine Z.<br>
+    <h2>Transcriptomics Data<br>
+    </h2>
+    <p>The&nbsp; transcriptomics datasets have been uploaded to the
+      server, but must be selected and loaded into the app before use.
+      They come in two versions: <b>fold-increase in the log2
+        expression values</b> (by subtraction of the log2 values), <i>always
+
+
+        from day 0</i> <i>baseline</i> (in Surrey day -1 is calculated
+      as a time point preceding day 0); and <b>raw log2 expression
+        values</b>. Day 0 at 8AM was selected for Surrey as baseline as
+      participants entered the unit on day -1. The data were calculated
+      by initially grouping the raw data for each person-each probe-each
+      time point, into treatment and time point pools. Then row averages
+      for each probe within the treatment-time pool were calculated.
+      This gives the basic raw expression data which is the group mean
+      for each vaccination-day for each probe, i.e. the mean expression
+      for Probe X on day Y for participants who received vaccine Z.<br>
     </p>
     <p>One group of datasets, based on <i><b>limma-normalised</b></i>
       expression values, consists of the <b> protocol-defined grouping
@@ -216,6 +229,90 @@
     <ul>
       <li>ABC Surrey Agilent</li>
     </ul>
+    <h2>Cytokines Data<br>
+    </h2>
+    <p>The&nbsp; cytokines dataset has been uploaded to the server and
+      loads automatically on start up. It is a single combined dataset
+      with data from Surrey ABC trials, and Gent Fluad (D). No cytokine
+      data is available for the Gent Boostrix trial (D2). The data has
+      been handled in a similar way to the transcriptomics ABC Surrey
+      Agilent (see above) with the addition of D. There is a single
+      placebo group for Surrey AB1C, pooled from all participants, plus
+      a separate PlaceboB3 group of those who had the second Engerix B
+      immunisation. Fluad Gent is separate with its own placebo group
+      (with only 6 participants), and also has only a subset of
+      available days. <br>
+      Two versions of data are available: <b>actual concentrations</b>,
+      and <b>fold-increase from day 0</b>, which can be selected using
+      radio buttons on the Plot panel. For fold increase, if the day 0
+      value was zero or absent for a particular participant, then no
+      fold increase can be calculated and the participant's data for
+      that cytokine is absent from all calculations. The plot gives the
+      option to show the group size per day (available data at import
+      including NA and 0) and the N with usable data, so you can see the
+      actual group size contributing to each day's mean/median value. As
+      the data contain a lot of zero (below threshold of detection)
+      values, the option to remove zero values form calculation of means
+      and median/IQR also exists, so that the kinetics of only
+      measurable responses can be plotted. For TREM1 there were some
+      "OOR" values (out of range) which have just been replaced by NA on
+      import, and hence deleted from calculations. No log
+      transformations have been done, this is an option when plotting.<br>
+    </p>
+    <h3>Plot Tab</h3>
+    <p>Select at least one cytokine, treatment group (vaccines or
+      placebo), and day. Click Plot to create plots. You must click Plot
+      again to effect any changes in options. This uses ggplot and is
+      extremely slow to produce a plot if more than ~6 panels are
+      created - just wait, do not click Plot again or a repeat cycle
+      will commence.<br>
+    </p>
+    <ul>
+      <li><b>Fold Increase ~ Concentration</b>. Use the radio buttons to
+        switch between <b>actual concentration values</b> or <b>fold
+          increase</b> from day 0 when plotting.<br>
+      </li>
+      <li><b>Lines ~ Boxplot ~ Violin.</b><b> </b>Select which type of
+        plot:<br>
+        <b>Lines</b> draws the group mean per day, and has additional
+        options to also show <b>SEM</b> as <b>ribbon</b> or <b>error
+          bars</b><b>; </b>and to include<b> points</b>.<br>
+        <b>Boxplot </b>and<b> Violin has</b> option to <b>Crop Y</b> -
+        the panel is "zoomed" to clip the 25/75 IQR for the whole panel,
+        which is helpful when there are outliers.</li>
+      <li><b>Log transforms</b>. Use the radio buttons to plot
+        untransformed <b>Y</b>, or various log transforms. ln1p plots
+        ln(1+Y) which is useful when there are zero values or Y &lt;&lt;
+        1. The actual values are log transformed before any mean/medians
+        are then calculated, so bear this in mind. The raw data can
+        always be downloaded from the data table to do your own
+        transformations.</li>
+      <li><b>Exclude Zero Values</b>. The dataset already includes
+        missing values (as NAs) where there was no data or "OOR"
+        entered, or where a fold-increase could not be calculated (when
+        day 0 was 0 or missing). It also contains many real zero values,
+        where the concentration is entered as 0. To plot just the
+        kinetics of the non-zero values, select this option and the data
+        are filtered to remove zeros before means/medians/densities
+        calculated.</li>
+      <li><b>Show N</b>. This prints the number of available data points
+        per day at the bottom of the plot, and the actual number used at
+        the top. The top number may be reduced by missing data in the
+        dataset, or when zero values have been omitted. The bottom
+        number may also be reduced by data missing from the dataset
+        (e.g. if one participant skipped a visit that reduces the group
+        size for that day by 1).</li>
+      <li><b>Fixed Y.</b> When selected the Y axis max-min range will be
+        fixed for each cytokine across all treatments. Each cytokine
+        will still have its own range, but the overall max - min will be
+        imposed. This is relevant for placebo groups. If unselected,
+        each panel has its own Y axis range.</li>
+      <li><br>
+      </li>
+    </ul>
+    <p> </p>
+    <ul>
+    </ul>
     <ul>
     </ul>
     <h1> </h1>
@@ -226,21 +323,23 @@
     d.j.lewis@surrey.ac.uk to be given the password. Enter the password
     and click the button to unlock the menus. When running locally no
     password is required. <br>
-    <h2> Loading Data</h2>
-    You must load a dataset before you can do anything. The datasets are
-    already uploaded to the server. Select a dataset. Click Load. All
-    existing plots and data tables will be cleared. Note that some
-    datasets are fold-increase from baseline, whereas others are actual
-    expression values. The fold-increase are more useful. All data have
-    been collated as a mean for each treatment group on each day. All
-    expression values and fold-increases are log2. Once you click "Load"
-    the name of the data set will appear below the tabs, and two more
-    tabs will appear:<br>
+    <h2> Loading Transcriptomics Data</h2>
+    You must load a transcriptomics dataset before you can do anything
+    with transcriptomics data. The transcriptomics datasets are already
+    uploaded to the server. Select a dataset. Click Load. All existing
+    plots and data tables will be cleared. Note that some
+    transcriptomics datasets are fold-increase from baseline, whereas
+    others are actual expression values. The fold-increase are more
+    useful. All data have been collated as a mean for each treatment
+    group on each day. All expression values and fold-increases are
+    log2. Once you click "Load" the name of the data set will appear
+    below the tabs, and two more tabs will appear:<br>
     <ul>
       <li>Explore By Probe</li>
       <li>Explore By Module</li>
     </ul>
-    <h2><a name="Explore_By_Probe_tab"></a> Explore By Probe tab<br>
+    <h2><a name="Explore_By_Probe_tab"></a> Explore Transcriptomics By
+      Probe tab<br>
     </h2>
     Select this tab to explore the datasets using individual probes in
     the array. The idea is to choose a time point and a treatment, and
@@ -286,9 +385,15 @@
 
 
 
+
+
+
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
+
+
 
 
 
@@ -484,7 +589,8 @@
     Options to show / hide the <b>legend</b> and <b>zero</b> line
     exist.<br>
     <h3> </h3>
-    <h2><a name="Explore_By_Module_tab"></a> Explore By Module tab<br>
+    <h2><a name="Explore_By_Module_tab"></a> Explore Transcriptomics By
+      Module tab<br>
     </h2>
     The concept is similar to the <b>Explore By Probe</b> tab. However,
     here a data table is created in which the rows are sorted by the
@@ -565,7 +671,7 @@
     is selected, or by category <b>Title</b>.<br>
     Click <b>Plot</b> button to create the plot and data table, and
     after any changes to module/column selections or options.<br>
-    <h2>Lookup tab<br>
+    <h2>Transcriptomics Lookup tab<br>
     </h2>
     <h3>Gene Lookup tab</h3>
     <p>Enter a gene name or partial string and click <b>Lookup</b> to
@@ -590,10 +696,73 @@
       also be used. A list of modules with their descriptions and
       associated genes is shown. These gene lists can be copied and
       directly pasted into the regex search boxes that accept Gene
-      Names, spaces will be stripped for you.</p>
+      Names, spaces will be stripped for you.<br>
+    </p>
+    <h2>Explore Cytokines</h2>
+    <p>The cytokines data is preloaded and immediately available. For
+      details of the ABCD dataset see above. <br>
+      Use the menus to select some cytokines, vaccine treatments and
+      days. The order in which you enter the cytokines is respected in
+      the plots. Click <b>Plot</b> to create plot, and to re-draw if
+      you change any options.<br>
+    </p>
+    <ul>
+      <li><b>Fold Increase</b> or <b>Concentration</b>: Select to plot
+        actual concentration data or the fold-increase from day 0.<br>
+      </li>
+      <li> <b>Lines</b>, <b>Boxplot</b>, <b>Violin</b>: select the
+        chart type:<br>
+        <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
+        is a frequency distribution. They both offer the option to <b>Crop
+          Y,</b> which zooms the plot to the IQR for the whole dataset -
+        useful when extreme outliers squash the scale.<br>
+        <b>Lines</b> plots the mean of the cytokine~treatment
+        combination on each day. Further options appear when selected:<br>
+      </li>
+      <ul>
+        <li><b>Points</b> adds a point to the lines.</li>
+        <li><b>No Error</b>, <b>Ribbon</b>, <b>Bars</b> allows for SEM
+          plotted as ribbon or error bars</li>
+      </ul>
+      <li><b>Log transformations</b> of Y can be selected. The values
+        are transformed before any means/medians/IQR calculated. <b>lnp1</b>
+        calculates ln(1+Y) which is useful when zero or Y values
+        &lt;&lt;1 exist. Zero values are removed before transformation
+        if <b>Exclude Zero Y</b><b> Values</b> option is selected<br>
+      </li>
+      <li><b>Exclude Zero Y Values</b> removes values that are zero so
+        that only responders are included in plots and calculations. Use
+        with <b>Show N</b></li>
+      <li><b>Show N</b> places the total participants available for the
+        cytokine~vaccine group on each day at the bottom of the plot,
+        and the actual number included in calculations/plots at the top.
+        Useful if <b>Exclude Zero Y Values</b> selected. Some group
+        sizes may be reduced if there was missing data for one day.</li>
+      <li><b>Fixed Y</b> fixes the Y axis max-min to that for each
+        cytokine, ignoring vaccine treatment. Useful when comparing
+        placebo and vaccines. If unselected then each panel has its own
+        Y axis scale.</li>
+      <li><b>Vac↓ Cyt→</b> creates panels grouped by vaccine: cytokines
+        wrap in the columns, and then a new block starts with each
+        vaccine treatment. <br>
+        <b>Vac→Cyt↓</b> does the reverse, with panels grouped by
+        cytokine: vaccine treatments wrap in the columns, and then a new
+        block starts with each cytokine.</li>
+      <li>A box to enter the <b>maximum</b><b> number of panels per row</b>,
+        and slider to control the <b>height of the plot</b>, offer some
+        control over the image. Widening or narrowing the window also
+        changes the aspect ratio.<br>
+      </li>
+    </ul>
+    The plot can be copied at low resolution by right-clicking, or a
+    Hi-Res image downloaded by clicking the button. The data table can
+    be downloaded by clicking the button.<br>
     <h1>Disclaimer &amp; Acknowledgements<br>
     </h1>
     <b>This is beta software and may experience bugs and crashes. </b>The
+
+
+
 
 
 
@@ -621,6 +790,9 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       target="_blank">vignette</a> for a description of the modules.The
     transcriptomics datasets are from the BIOVACSAFE project (<a
       href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
+
+
 
 
 

@@ -88,7 +88,7 @@ server <- function(input, output, session) {
     
     
     # these must be updated here as they do not observe allData
-    updateSelectInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))
+    updatePickerInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))#, selected = character(0)
     updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     
@@ -105,7 +105,7 @@ server <- function(input, output, session) {
     
 
     # modules DO NOT RESPOND. NEED TO FIX
-    updateSelectInput(session, 'mselectColumn', choices = allData$colNames, selected = character(0))
+    updatePickerInput(session, inputId = 'mselectColumn', choices = allData$colNames)
     updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'mselectPlotModulesInSeries', choices = character(0))
     updateSelectInput(session, 'mselectModuleTitles', choices = sort(unique(allData$modulesMeans[['Title']])))
@@ -127,7 +127,6 @@ output$textDataNameMods <- renderText({allData$folder})
 output$textFiltersProbes <- renderText({filtersText()})
 output$textFiltersMods <- renderText({modulesAndFiltersText()})
 
-  
 
 
 #################### PROBES #####################
@@ -154,7 +153,6 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     }})
   
   
-  
   ### topGenesAndModules()
   topGenesAndModules <- reactiveVal()
   topGenesAndModules(NULL)
@@ -164,8 +162,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     {
         if(!is.null(input$selectColumn)) {
           if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE) {
-            showModal(modalDialog(
-              title = "Too Many Rows","You must have at least one filter selected or it will try to return and plot over 65,000 rows."))
+            sendSweetAlert(session, type = 'error', title = "Too Many Probes", text = "You must have at least one filter selected or it will try to return and plot over 60,000 probes")
             } else {
               showNotification("Please wait for filters to be applied…", type = 'message', duration = 3, id = "buttonApplySelection")
 
@@ -177,26 +174,31 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
               showTab(inputId = "navProbe", target = "Module->Genes")
               showTab(inputId = "navProbe", target = "Modules:Series")
               
-              sortCol_Probes <<- input$selectColumn # note <<- as in isolate()
-              
-              # calculate topGenesAndModules()
-              geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
+              sortCol_Probes <<- input$selectColumn # note <<- as in function()
               filterText <- ""
-              # apply the filters sequentially
-              if(input$checkboxSelectKeyword == TRUE){
-                geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$radioKeywordColumn)
-                filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
+              # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
+              if(input$checkboxSelectKeyword == TRUE) {
+                geneslist <- getGenesForSearch(allData$data,input$textInputKeyword,input$radioKeywordColumn)
+                if(dataOK(geneslist)) {
+                  filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
+                  # calculate topGenesAndModules() using geneslist
+                  geneslist <- getSortedGenesForVaccDay(geneslist,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
+                }
+              } else {
+                # calculate topGenesAndModules() using allData
+                geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
               }
-              if(input$checkboxSelectValues == TRUE){
+              
+              if(input$checkboxSelectValues == TRUE && dataOK(geneslist)){
                 geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
                 filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
               }
-              if(input$checkboxSelectRows == TRUE){
+              if(input$checkboxSelectRows == TRUE && dataOK(geneslist)){
                 geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
                 filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
               }
-              
-              if(!is.null(geneslist)) {
+
+              if(dataOK(geneslist)) {
                 if(nchar(filterText) > 0) {
                   filtersText(
                     paste0(input$selectColumn,' ',filterText,' ',
@@ -214,13 +216,18 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
               }
     
               ############ lookup the genes and modules
-              topGenesAndModules(selectedGenesAndModules(geneslist))
-              pgText <- ifelse(input$checkboxProbesGenes == TRUE, ' genes', ' probes')
-              nG <- nrow(topGenesAndModules()[['genes']])
-              nM <- length(unique(topGenesAndModules()[['modules']][["Module"]]))
-              mes <- ifelse(nG == 0 && nM == 0,'warning','message')
-              removeNotification(id = "buttonApplySelection")
-              showNotification(paste0("Found: ",nG,pgText, " and ",nM, " modules"), type = mes)
+              if(dataOK(geneslist)) {
+                topGenesAndModules(selectedGenesAndModules(geneslist))
+                # show a notifications
+                  removeNotification(id = "buttonApplySelection")
+                  showNotification(paste0("Found: ",nrow(topGenesAndModules()[['genes']]),
+                    ifelse(input$checkboxProbesGenes == TRUE, ' genes', ' probes'), " and ",
+                    length(unique(topGenesAndModules()[['modules']][["Module"]])), " modules"), type = 'message')
+              } else {
+                topGenesAndModules(list(genes = NULL, modules = NULL, modsOnly = NULL))
+                removeNotification(id = "buttonApplySelection")
+                showNotification(paste0("Found 0 Probes and 0 Modules"), type = 'warning')
+              }
             }
         } else {
         showNotification("A column to sort must always be selected, even if just filtering by regex", type = 'error')
@@ -335,6 +342,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],dataAndFiltersText(),
                 input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules,input$checkboxGGplotGenesModules,
                 input$radioGroupProbeModulesBy)})
+  output$plotGenesModules <- renderPlot({ggplotGenesModules()} ,res = 72)
   output$plotGenesModulesSIZE <- renderUI({plotOutput("plotGenesModules", height = input$numberPlotGenesModulesSIZEheight)})
   output$buttonPNGplotGenesModules <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes.png")},
     content = function(file) {plotPlotPNG(ggplotGenesModules(),file,session$clientData[["output_plotGenesModules_height"]],session$clientData[["output_plotGenesModules_width"]])})

@@ -160,11 +160,13 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
   }
     
     
-  return(list(data = dataFiltered,
-              datagroups = dataGroups,
-              plot =  ggplotCytokinesForTreatmentDay(dataFiltered,dataGroups,wrap, plottype,error,zoom,
-              getCytokineMaxMins(dataFiltered,fixedy,plottype,error),showN,nCols,FIraw, showPoints,Ytrans)))
-
+  return(list(
+                data = dataFiltered,
+                datagroups = dataGroups,
+                plot =  ggplotCytokinesForTreatmentDay(dataFiltered,dataGroups,wrap, plottype,error,zoom,
+                getCytokineMaxMins(dataFiltered,fixedy,plottype,error),showN,nCols,FIraw, showPoints,Ytrans)
+              )
+         )
 }
 
 ylabForTransform <- function(lab,trans) {

@@ -26,7 +26,7 @@ ui <-
     column(8, offset = 2,
         wellPanel(style = "background-color: #feffee;",
           fluidRow(
-            column(10,pickerInput('selectDataFI', NULL, character(0)),options = list(style = "btn-danger")),
+            column(10,pickerInput(inputId = 'selectDataFI', choices = NULL, options = list(`style` = "btn-success"))),
             column(2,actionButton('buttonLoadDataFI',label = 'Load Data',class = "btn-success"))
       )))
     ),
@@ -42,56 +42,58 @@ ui <-
          navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe', header = h4(align = 'center', textOutput('textFiltersProbes')),
            #################### Selecting  ################
            tabPanel('Select Probes',
+                    hr(),h3('Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
                     wellPanel(style = "background-color: #FFFFFF;",
-                      # wellPanel(
-                        h4("Select a treatment - time column to sort probe values and display responses"),
-                        fluidRow(
-                          column(2,selectInput('selectColumn', NULL, character(0), selectize = FALSE)),
-                          column(2,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending', value = TRUE)),
-                          column(2,awesomeCheckbox(status = 'success', 'checkboxProbesGenes', 'Gene Averages', value = FALSE))
-                        ),
-                      # ),
-                      conditionalPanel(condition = "input.selectColumn != null",
-                      h4(align = 'center','Filter probes by a combination of options below. Selected filters are applied in order left to right'),
                       fluidRow(
                           column(4,
+                            conditionalPanel(condition = "input.selectColumn != null",
                             wellPanel(style = "background-color: #feffee;",
-                              h4(awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', '1. Using regex', value = FALSE)),
+                              awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
                               textInput('textInputKeyword',NULL),
                               h4("Search:"),
                               awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Description','Gene','Probe'), inline = TRUE),
-                              conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #cfdaa2;","Spaces are stripped from Gene and Probe names")),
-                              conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #cfdaa2;","Spaces are kept in search for Description"))
-                          )),
+                              conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces are stripped from Gene and Probe names")),
+                              conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces are kept in search for Description"))
+                          ))),
                           column(8,
-                            fluidRow(
-                              column(6,
-                                wellPanel(style = "background-color: #feffee;",
-                                  h4(awesomeCheckbox(status = 'success', 'checkboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
-                                  fluidRow(
-                                    column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)), 
-                                    column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
-                                  ),
-                                  actionButton('buttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
-                                  actionButton('buttonResetValuesRangeData','Data', class = 'btn-outline-primary')
-                                )
+                            wellPanel(style = "background-color: #ffffff;",
+                              h4(align = 'center', "Select a treatment~time column to filter by value and sort probes by value"),
+                              fluidRow(
+                                column(4,pickerInput('selectColumn', choices = NULL, options = list(`style` = "btn-success"))),
+                                column(4,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending Value', value = TRUE)),
+                                column(4,awesomeCheckbox(status = 'success', 'checkboxProbesGenes', 'Calculate Gene Averages', value = FALSE))
                               ),
-                              column(6,
-                                wellPanel(style = "background-color: #feffee;",
-                                  h4(awesomeCheckbox(status = 'success', 'checkboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
-                                  fluidRow(
-                                    column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)), 
-                                    column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
-                                  ),
-                                  p(style = "color: #cfdaa2;", "More than 100 rows will result in slow response")
+                              fluidRow(
+                                column(6,
+                                  conditionalPanel(condition = "input.selectColumn != null",
+                                  wellPanel(style = "background-color: #feffee;",
+                                    awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px;",'2. Values Within Range:'), value = FALSE),
+                                    fluidRow(
+                                      column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)), 
+                                      column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
+                                    ),
+                                    conditionalPanel(condition = "input.checkboxProbesGenes == true",p(style = "color: #44b84b;","Probes Averaged By Gene Before Applying Limits")),
+                                    actionButton('buttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
+                                    actionButton('buttonResetValuesRangeData','Data', class = 'btn-outline-primary')
+                                  ))
+                                ),
+                                column(6,
+                                  conditionalPanel(condition = "input.selectColumn != null",
+                                  wellPanel(style = "background-color: #feffee;",
+                                    awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px;",'3. Column Row Numbers Within Range:'), value = TRUE),
+                                    fluidRow(
+                                      column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)), 
+                                      column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
+                                    ),
+                                    conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
+                                  ))
                                 )
                               )
                             )
-                          )
-                        ),
-                      fluidRow(column(4),column(4,actionButton('buttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4))
-                    )
-                    )
+                          )#column
+                        )
+                    ),
+                    conditionalPanel(condition = "input.selectColumn != null",fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4)))
            ),
            #################### Top Probes #######################
            tabPanel('Selected Probes',
@@ -268,55 +270,60 @@ ui <-
     navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule', header = h4(align = 'center', textOutput('textFiltersMods')),
       #################### Selecting Modules ################
       tabPanel('Select Modules',
+      hr(),
+      h3('Apply filters to select modules for plotting. Selected filters are applied in order left → right'),
       wellPanel(style = "background-color: #FFFFFF;",
-        # wellPanel(
-          h4("Select a treatment - time column to sort module values and display responses"),
-          fluidRow(
-            column(2, selectInput('mselectColumn', NULL, character(0), width = 400, selectize = F)),
-            column(2,awesomeCheckbox(status = 'success', 'mcheckboxDescending', 'Sort Descending', value = TRUE)),
-            column(2,awesomeCheckbox(status = 'success', 'mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
-          ),
-        # ),
-        conditionalPanel(condition = "input.mselectColumn != null",
-        h4(align = 'center','Filter modules by a combination of options below. Selected filters are applied in order left to right'),
-        fluidRow(
-          column(4,
-          wellPanel(style = "background-color: #feffee;",
-            h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectKeyword','1. Using regex', value = FALSE)),
-            textInput('mtextInputKeyword',NULL),
-            h4("Search:"),
-            awesomeRadio(status = 'success', 'mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
-            conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #cfdaa2;","Spaces are stripped from Module names")),
-            conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #cfdaa2;","Spaces are kept in search for Title"))
-          )),
-          column(8,
-           fluidRow(
-            column(6,
-            wellPanel(style = "background-color: #feffee;",
-              h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
+      fluidRow(
+        column(4,
+               conditionalPanel(condition = "input.mselectColumn != null",
+                        wellPanel(style = "background-color: #feffee;",
+                         h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectKeyword','1. Using regex', value = FALSE)),
+                         textInput('mtextInputKeyword',NULL),
+                         h4("Search:"),
+                         awesomeRadio(status = 'success', 'mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
+                         conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #44b84b;","Spaces are stripped from Module names")),
+                         conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces are kept in search for Title"))
+               ))
+               ),
+        column(8,
+        wellPanel(style = "background-color: #FFFFFF;",
+            h4(align = 'center', "Select a treatment~time column to filter by value and sort modules by value"),
             fluidRow(
-              column(6,numericInput("mnumberExpressionMin", "Lowest:", value = 0)),
-              column(6,numericInput("mnumberExpressionMax", "Highest:", value = 0))
+              column(4, pickerInput(inputId = 'mselectColumn', label = NULL, choices = NULL, options = list(`style` = "btn-success"))),
+              column(4,awesomeCheckbox(status = 'success', 'mcheckboxDescending', 'Sort Descending', value = TRUE)),
+              column(4,awesomeCheckbox(status = 'success', 'mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
             ),
-            actionButton('mbuttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
-            actionButton('mbuttonResetValuesRangeData','Data', class = 'btn-outline-primary')
-          )),
-          column(6,
-            wellPanel(style = "background-color: #feffee;",
-              h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
+          fluidRow(
+             fluidRow(
+              column(6,
+              conditionalPanel(condition = "input.mselectColumn != null",
+                wellPanel(style = "background-color: #feffee;",
+                h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
               fluidRow(
-                column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = NA, step = 5)),
-                column(6,numericInput("mnumberModsEnd", "To Row:", 10, min = 0, max = NA, step = 5))
+                column(6,numericInput("mnumberExpressionMin", "Lowest:", value = 0)),
+                column(6,numericInput("mnumberExpressionMax", "Highest:", value = 0))
               ),
-              p(style = "color: #cfdaa2;", "More than 100 modules will result in slow response")
-            ))
+              actionButton('mbuttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
+              actionButton('mbuttonResetValuesRangeData','Data', class = 'btn-outline-primary')
+            ))),
+            column(6,
+              conditionalPanel(condition = "input.mselectColumn != null",
+                wellPanel(style = "background-color: #feffee;",
+                h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
+                fluidRow(
+                  column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = NA, step = 5)),
+                  column(6,numericInput("mnumberModsEnd", "To Row:", 10, min = 0, max = NA, step = 5))
+                ),
+                conditionalPanel(condition = "input.mnumberModsEnd - input.mnumberModsStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
+              )))
+            )
           )
-        )# right column wells
-        ),
-        fluidRow(column(4),column(4,actionButton('mbuttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4))
+        )#wp
         )
       )
-     ),
+      ),
+      fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumn != null",actionButton('mbuttonApplySelection','Apply Selections',class = "btn-success btn-block"))))
+    ), #tab
     #################### Top Modules #######################
      tabPanel('Selected Modules',
        wellPanel(style = "background-color: #FFFFFF;",
@@ -480,19 +487,14 @@ tabPanel('Cytokines',
                                                                  actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
                                                 conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
                                          ), 
-                                         column(4,
-                                                fluidRow(column(8,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE)),
-                                                         column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','None')))
-                                                )),
-                                         column(4,
-                                                fluidRow(column(8,selectInput("cselectTreatments", "Vaccines", choices = character(0), multiple = TRUE)),
-                                                         column(4,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokineTreats','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineTreats','None')))
-                                                )),
-                                         column(3,
-                                                fluidRow(column(6,selectInput("cselectDays", "Days", choices = character(0), multiple = TRUE)),
-                                                         column(6,style = "margin-top: 20px;",div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','None')))
-                                                ))
+                                         column(4,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','None'))
+                                                ),
+                                         column(4,selectInput("cselectTreatments", "Vaccines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineTreats','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineTreats','None'))
+                                                ),
+                                         column(3,selectInput("cselectDays", "Days", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','None'))
+                                                )
                                        ),
+                                       hr(),
                                        fluidRow(
                                          column(3,prettyRadioButtons(status = 'success', 'cradioCytoMeansRaw',NULL, outline = TRUE,choices = c('Fold Increase',"Concentration"),inline = TRUE),bsTooltip("cradioCytoMeansRaw", "Which data to plot: actual concentration values or fold-increase from day 0")),
                                          column(3,prettyRadioButtons(status = 'warning', 'cradioCytokinesPlotType',NULL, outline = TRUE,choices = c("Lines",'Boxplot','Violin'),inline = TRUE)),
@@ -510,11 +512,11 @@ tabPanel('Cytokines',
                                                                    prettyRadioButtons('cradioCytokinesErrorType', NULL, choiceValues = list('none','ribbon','errorbar'), 
                                                                                       choiceNames = list('No Error','Ribbon','Bars'), selected = 'ribbon', inline = TRUE, outline = TRUE, status = "warning"),bsTooltip("cradioCytokinesErrorType", "Plot SEM as ribbon, error bars or omitted"))),
                                          column(1,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxShowN', 'Show N', value = TRUE)),
-                                         column(1,offset = 1, style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxFixedY', 'Fixed Y', value = TRUE)),
+                                         column(1, style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxFixedY', 'Fixed Y', value = TRUE)),
                                          column(3,prettyRadioButtons('cradioCytokinesWrap', NULL, choiceValues = list('TC','CT'), choiceNames = list('Vac↓ Cyt→', 'Cyt↓ Vac→'),
                                                                      inline = TRUE, outline = TRUE, status = "success"),bsTooltip("cradioCytokinesWrap", "How to order the panels when plotting: Cytokines across and vaccines downwards, or reverse.")),
                                          column(1, style = "margin-top: 10px;",numericInput("cnumericNumPanels",NULL,value = 3, min = 1, step = 1), bsTooltip("cnumericNumPanels", "Maximum number of panels per plot row")),
-                                         column(1,sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("cnumberPlotCytokinesSIZEheight", "Plot height"))
+                                         column(1,sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 4000), bsTooltip("cnumberPlotCytokinesSIZEheight", "Plot height"))
                                        ),
                                        wellPanel(style = "background-color: #FFFFFF;",
                                                  uiOutput("cplotCytokinesSIZE")

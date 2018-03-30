@@ -4,6 +4,10 @@ load('tmod.rda')
 
 
 ###### Functions
+dataOK <- function(data2check) {
+  return(!is.null(data2check) && nrow(data2check)>0)
+}
+
 extractColumnNames <- function(cnams) {
   colData <-
     data_frame(COLNAMES = grep('_', cnams, value = TRUE)) %>%
@@ -116,7 +120,7 @@ loadUploadedData <- function(allData, infiles,fileName) {
 
 getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
   # protect from not matching colN
-  if (!is.null(data) && colN %in% names(data)) {
+  if (dataOK(data) && colN %in% names(data)) {
       if (asGenes == TRUE) {
         data4VaccDay <- data %>%
           # matches will find substrings so force it to match the whole string against colN
@@ -182,42 +186,49 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet) {
 }
 
 selectedGenesAndModules <- function(selGenes) {
-  selMods <- modules4GeneList(selGenes$Gene,selGenes$Rank)
-  selModsOnly <- selMods[selMods$Module != '',]
-  return(list(genes = selGenes, modules = selMods, modsOnly = selModsOnly))
+  if(dataOK(selGenes)) {
+    selMods <- modules4GeneList(selGenes$Gene,selGenes$Rank)
+    selModsOnly <- selMods[selMods$Module != '',]
+    return(list(genes = selGenes, modules = selMods, modsOnly = selModsOnly))
+  } else {
+    return(list(genes = NULL, modules = NULL, modsOnly = NULL))
+  }
 }
 
 getGenesForRows <- function(genes,start,end){
-  if(is.null(genes)) return(NULL)
+  if(is.null(genes) || nrow(genes) == 0) return(NULL)
+
   if(start>end || start>nrow(genes) || end>nrow(genes)){
-    showNotification('The rows filter could not be applied. Check From and To match available rows and From is not > To.', type = 'warning')
+    showNotification('The rows filter could not be applied. Check From and To match available rows and From < To.', type = 'warning')
     return(genes)
   }
-  selGenes <- genes[start:end,]
-  return(selGenes)
-  # return(selectedGenesAndModules(selGenes))
+
+  return(genes[start:end,])
 }
 
 getGenesForValues <- function(genes,Min,Max){
-  if(is.null(genes) || Min > Max){return(NULL)}
-  selGenes <- genes %>%
-    filter(between(Value,Min,Max))
-  return(selGenes)
-  # return(selectedGenesAndModules(selGenes))
+  if(is.null(genes) || nrow(genes) == 0 || Min > Max){return(NULL)}
+  # selGenes <- genes %>%
+  #   filter(between(Value,Min,Max))
+  return(filter(genes,between(Value,Min,Max)))
 }
 
 getGenesForSearch <- function(geneslist,search,column){
   if(is.null(geneslist) || is.null(search)) return(NULL)
+
   # ignore an empty search
-  if(search == "") return(geneslist)
-  # do the search
+  if(search == "") {
+    showNotification("Empty searches are ignored", type = 'error')
+    return(NULL)
+  }
   # strip spaces from genes and probes
   if((column == "Gene" || column == "Probe") && grepl(' ',search)) {
     showNotification("Spaces have been stripped", type = 'warning')
     search <- gsub(" ","",search)
   }
+  
+  # multiple search ?
   if(grepl(',',search)) {
-    # multiple search
     searches <- unlist(strsplit(search,','))
     selGenes <- map_dfr(
       searches,
@@ -225,13 +236,15 @@ getGenesForSearch <- function(geneslist,search,column){
         geneslist[grepl(s,geneslist[[column]], ignore.case = TRUE),]
       }
     )
+    if(nrow(selGenes)>0) {
+      # avoid duplicate Probes from multiple hits
+      selGenes <- distinct(selGenes, Probe, .keep_all = TRUE)
+    }
   } else {
+    # no duplicates possible for single search term
     selGenes <- geneslist[grepl(search,geneslist[[column]], ignore.case = TRUE),]
   }
-  selGenes <- selGenes %>%
-    # avoid duplicate Probe
-    distinct(Probe, .keep_all = TRUE)
-  
+
   return(selGenes)
 }
 
@@ -249,7 +262,8 @@ lookupGenesProbes <- function(gene,annot) {
     map_dfr(gene,function(g){
       filter(annot,grepl(g,annot$GeneName, ignore.case = TRUE))
     }) %>%
-    select(GeneName,SystematicName,ProbeName,Description)
+    select(GeneName,SystematicName,ProbeName,Description) %>%
+    arrange(GeneName,SystematicName,ProbeName)
   
   if(nrow(probes) == 0) {
     showNotification("No genes found", type = 'error')
@@ -354,7 +368,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
 
 getExpressionsForModules <- function(topgenesmods, actarmcdDay, allExpressionData, addPseudoModule, filters) {
     
-    if (!is.null(topgenesmods) && nrow(topgenesmods[['modsOnly']]) > 0 && nrow(topgenesmods[['genes']]) > 0) {
+    if (!is.null(topgenesmods[['modsOnly']]) && !is.null(topgenesmods[['genes']]) && nrow(topgenesmods[['modsOnly']]) > 0 && nrow(topgenesmods[['genes']]) > 0) {
 
       actarmDayExpressionData <- allExpressionData %>%
         select(Value = matches(paste0('^', actarmcdDay, '$')), Gene)
