@@ -698,7 +698,7 @@ observeEvent(input$buttonPlotCytokines, {
     input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,
     input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile, input$ccheckboxFixedY,
     input$ccheckboxOmit0, input$ccheckboxShowN,input$cnumericNumPanels,input$cradioCytoMeansRaw,
-    input$ccheckboxShowPoints, input$cradioCytokinesTransformY, 
+    input$ccheckboxShowPoints, input$cradioCytokinesTransformY, input$ccheckboxLogMeans,
     (input$ccheckboxShow1 & input$cradioCytoMeansRaw == 'Fold Increase'))# calc if we plot --- at 1
   cytokinesDataAndPlot$data <- cdp$data
   cytokinesDataAndPlot$plot <- cdp$plot

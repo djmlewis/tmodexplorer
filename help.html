@@ -33,6 +33,7 @@
 
 
 
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
     probes or genes values present in the array as they are on that time
     point in persons who received that vaccine. So you may have the
@@ -109,6 +110,7 @@
 
 
 
+
     <img src="topmodsseries.png" alt="Top Modules Timecourse"
       height="250" width="553"><br>
     <br>
@@ -174,6 +176,7 @@
       server, but must be selected and loaded into the app before use.
       They come in two versions: <b>fold-increase in the log2
         expression values</b> (by subtraction of the log2 values), <i>always
+
 
 
 
@@ -339,9 +342,11 @@
 
 
 
+
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
 
 
 
@@ -673,6 +678,7 @@
         is a frequency distribution. They both offer the option to <b>Crop
 
 
+
           Y,</b> which zooms the plot to the IQR for the whole dataset -
         useful when extreme outliers squash the scale.<br>
         <b>Lines</b> plots the mean of the cytokine~treatment
@@ -694,11 +700,17 @@
       <li><b>Log transforms</b>. Use the radio buttons to plot
         untransformed <b>Y</b>, or various log transforms. ln1p plots
         ln(1+Y) which is useful when there are zero values or Y &lt;&lt;
-        1. The actual values are log transformed before any mean/medians
-        are then calculated, so bear this in mind. The raw data can
-        always be downloaded from the data table to do your own
-        transformations. Zero values are removed before transformation
-        if <b>Exclude Zero Y</b><b> Values</b> option is selected<br>
+        1. For Boxplot and Violin plots the actual Y values are log
+        transformed before any mean/medians are then calculated, so bear
+        this in mind. For Line plots the raw Y values are also
+        transformed before calculating the mean - unless the <b>Means</b>
+        checkbox is selected, in which case the mean is calculated from
+        untransformed data then log transformed (equivalent to plotting
+        on a log scale), and the SE is set to 0 (as log transformation
+        of variance is tricky). The raw data can always be downloaded
+        from the data table to do your own transformations. Zero values
+        are removed before transformation if <b>Exclude Zero Y</b><b>
+          Values</b> option is selected<br>
       </li>
       <li><b>Show N</b>. This prints the number of available data points
         per day at the bottom of the plot, and the actual number used at
@@ -754,6 +766,7 @@
 
 
 
+
     software depends on the R package tmod '<cite>Feature Set Enrichment
       Analysis for Metabolomics and Transcriptomics</cite>' (<a
 href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf"
@@ -766,6 +779,7 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       target="_blank">vignette</a> for a description of the modules.The
     transcriptomics datasets are from the BIOVACSAFE project (<a
       href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
 
 
 

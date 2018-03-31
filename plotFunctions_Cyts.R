@@ -107,7 +107,18 @@ getCytokineMaxMins <- function(data2Max,fixedy,plottype,error) {
   return(list(mx = maxs, mn = mins))
 }
 
-getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols,FIraw, showPoints,Ytrans,show1) { 
+logTransformY <- function(data2trans, trans) {
+  switch (trans,
+          'log' = log(data2trans),
+          'log10' = log10(data2trans),
+          'log2' = log2(data2trans),
+          'log1p' = log1p(data2trans),
+          'identity' = data2trans,
+          data2trans
+  )
+}
+
+getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols,FIraw, showPoints,Ytrans,logMeans,show1) { 
   if (is.null(data2plot) || nrow(data2plot) == 0) return(list(data = NULL, plot = NULL))
   
   showNotification("Please wait for data table and plot output. This may take a long time if many cytokines ~ vaccines selected…", type = 'message', duration = 10)
@@ -132,14 +143,10 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
       filter(VALUE > 0)
   }
   
-  if(Ytrans != 'identity') {
-    dataFiltered$VALUE<- 
-      switch (Ytrans,
-              log = log(dataFiltered$VALUE),
-              log10 = log10(dataFiltered$VALUE),
-              log2 = log2(dataFiltered$VALUE),
-              log1p = log1p(dataFiltered$VALUE)
-      )
+  # transform the raw data for violin & box, but not if Lines wants to transform AFTER calculating means + SEM
+  if(Ytrans != 'identity' && (plottype != 'Lines' || (plottype == 'Lines' && logMeans == FALSE))) {
+    dataFiltered$VALUE<- logTransformY(dataFiltered$VALUE,Ytrans)
+
   }
   
   if(plottype == 'Lines') {
@@ -151,12 +158,20 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
         # N = 1 or 0 introduces NAs for SE which replicate into max/mins
         SE = case_when(N>1 ~ sd(VALUE, na.rm = TRUE)/sqrt(N), TRUE ~ 0))
     
+    if(Ytrans != 'identity' && logMeans == TRUE) {
+      dataFiltered <- dataFiltered %>%
+      mutate(MEAN = logTransformY(MEAN,Ytrans),
+             # log(SEM) is non meaningful
+             SE = 0)
+    }
+    
   }
 
   
   if(Ytrans != 'identity') {
+    y_trans <- case_when(plottype == 'Lines' && logMeans == TRUE ~ paste0(Ytrans,'(Mean Y)'), TRUE ~ Ytrans)
     dataFiltered <- dataFiltered %>%
-      mutate(TRANSFORM = Ytrans)
+      mutate(TRANSFORM = y_trans)
   }
     
     
@@ -223,7 +238,7 @@ ggplotCytokinesForTreatmentDay <-
             ylab(ylabForTransform(FIraw,Ytrans))
           
           if(show1 == TRUE) {
-            plot <-  plot + geom_hline(yintercept = 1.0, linetype = 2)
+            plot <-  plot + geom_hline( linetype = 2,yintercept = switch (Ytrans,'identity' = 1.0,'log1p' = log1p(1),0))
           }
 
           # NAs sneak in and crash when we combine some options and omit 0
