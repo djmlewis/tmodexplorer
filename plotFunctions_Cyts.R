@@ -107,7 +107,7 @@ getCytokineMaxMins <- function(data2Max,fixedy,plottype,error) {
   return(list(mx = maxs, mn = mins))
 }
 
-getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols,FIraw, showPoints,Ytrans) { 
+getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols,FIraw, showPoints,Ytrans,show1) { 
   if (is.null(data2plot) || nrow(data2plot) == 0) return(list(data = NULL, plot = NULL))
   
   showNotification("Please wait for data table and plot output. This may take a long time if many cytokines ~ vaccines selected…", type = 'message', duration = 10)
@@ -164,7 +164,7 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
                 data = dataFiltered,
                 datagroups = dataGroups,
                 plot =  ggplotCytokinesForTreatmentDay(dataFiltered,dataGroups,wrap, plottype,error,zoom,
-                getCytokineMaxMins(dataFiltered,fixedy,plottype,error),showN,nCols,FIraw, showPoints,Ytrans)
+                getCytokineMaxMins(dataFiltered,fixedy,plottype,error),showN,nCols,FIraw, showPoints,Ytrans,show1)
               )
          )
 }
@@ -188,7 +188,7 @@ nData <- function(data2N,plottype) {
 }
 
 ggplotCytokinesForTreatmentDay <-
-  function(data2plot, dataGroups,wrap, plottype,error,zoom,yMaxMins,showN,nCols,FIraw,showPoints,Ytrans) {
+  function(data2plot, dataGroups,wrap, plottype,error,zoom,yMaxMins,showN,nCols,FIraw,showPoints,Ytrans,show1) {
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
@@ -221,6 +221,10 @@ ggplotCytokinesForTreatmentDay <-
             scale_color_manual(values = cytokineColours, guide = 'none') +
             scale_fill_manual(values = cytokineColours, guide = 'none') +
             ylab(ylabForTransform(FIraw,Ytrans))
+          
+          if(show1 == TRUE) {
+            plot <-  plot + geom_hline(yintercept = 1.0, linetype = 2)
+          }
 
           # NAs sneak in and crash when we combine some options and omit 0
           if(is.null(yMaxMins) == FALSE && is.na(fdata2$CYTOKINE[1]) == FALSE) {

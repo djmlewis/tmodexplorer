@@ -145,18 +145,21 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     input$buttonResetValuesRangeData,
     {updateExpressionMinMax(allData$colNames)})
   
-  warnedAboutProbeRows <- FALSE
+  # warnedAboutProbeRows <- FALSE
+  assign("warnedAboutProbeRows",FALSE, envir = .GlobalEnv)
   observeEvent(
     input$checkboxSelectRows,
     {if(warnedAboutProbeRows == FALSE && (input$checkboxSelectRows == FALSE || input$numberGenesStart - input$numberGenesEnd > 100)) {
-      warnedAboutProbeRows <<- TRUE
+      # warnedAboutProbeRows <<- TRUE
+      assign("warnedAboutProbeRows",TRUE, envir = .GlobalEnv)
     }})
   
   
   ### topGenesAndModules()
   topGenesAndModules <- reactiveVal()
   topGenesAndModules(NULL)
-  sortCol_Probes <- NULL
+  # sortCol_Probes <- NULL
+  assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   observeEvent(
     input$buttonApplySelection,
     {
@@ -174,7 +177,8 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
               showTab(inputId = "navProbe", target = "Module->Genes")
               showTab(inputId = "navProbe", target = "Modules:Series")
               
-              sortCol_Probes <<- input$selectColumn # note <<- as in function()
+              # sortCol_Probes <<- input$selectColumn # note <<- as in function()
+              assign("sortCol_Probes",input$selectColumn, envir = .GlobalEnv)
               filterText <- ""
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
               if(input$checkboxSelectKeyword == TRUE) {
@@ -276,15 +280,20 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   
 
   #################### Top Probes Series #########################
-  topGenesInSeries <- NULL
+  # topGenesInSeries <- NULL
+  assign("topGenesInSeries",NULL, envir = .GlobalEnv)
+  
   observeEvent(
     {
       input$buttonPlotSeries
     },
     {
       # MUST USE <<- to affect the external topGenesInSeries
-      topGenesInSeries <<- getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries, 
-                        input$checkboxSplitSeries)
+      # topGenesInSeries <<- getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries,input$checkboxSplitSeries)
+      assign("topGenesInSeries",
+             getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries,input$checkboxSplitSeries), 
+             envir = .GlobalEnv)
+      
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
@@ -353,7 +362,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   mods4Genes <- reactive({moduleDescriptionsForGenes(geneExpressionsForModules()[['summStats']])})
   # change choices in the Genes In Module select based on selected modules
   observeEvent(mods4Genes(),{
-    updateSelectInput(session, 'selectModuleForGenes', choices = mods4Genes())
+    updatePickerInput(session, 'selectModuleForGenes', choices = mods4Genes())
     updateSelectInput(session, 'selectModuleForSeries', choices = mods4Genes())})
   # calculate gene expressions for the module selected
   expressionsInModule <- reactive({getGeneExpressionsInModule(input$selectModuleForGenes,input$selectColumn,
@@ -373,29 +382,48 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   
   #################### Modules Series #########################
   # selectModuleForSeries and selectColumnForModuleSeries are updated above
-  moduleValues <- NULL
-  ggplotModulesInSeries <-NULL
+  assign("moduleValues",NULL, envir = .GlobalEnv)
+  # moduleValues <- NULL
+  assign("ggplotModulesInSeries",NULL, envir = .GlobalEnv)
+  # ggplotModulesInSeries <-NULL
   observeEvent({
     input$buttonPlotModuleSeries
   },{
     output$plotModuleSeries <- renderPlot({NULL})
     # MUST USE <<- to affect the external moduleValues
-    moduleValues <<- getModuleValuesForSeries(allData$data,
-      input$selectModuleForSeries,input$selectColumnForModuleSeries, 
-      input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
-
+    # moduleValues <<- getModuleValuesForSeries(allData$data,
+    #   input$selectModuleForSeries,input$selectColumnForModuleSeries, 
+    #   input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
+    assign("moduleValues",
+           getModuleValuesForSeries(allData$data,
+                                    input$selectModuleForSeries,input$selectColumnForModuleSeries, 
+                                    input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries), 
+           envir = .GlobalEnv)
+    
     if(!is.null(moduleValues) && input$checkboxShowPseudoModuleModuleSeries == TRUE) {
       # MUST USE <<- to affect the external moduleValues
-      moduleValues <<- getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
-                            input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
-                            input$radioRibbonBoxModuleSeries,moduleValues)
+      # moduleValues <<- getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
+      #                       input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
+      #                       input$radioRibbonBoxModuleSeries,moduleValues)
+      assign("moduleValues",
+             getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
+                                                  input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
+                                                  input$radioRibbonBoxModuleSeries,moduleValues), 
+             envir = .GlobalEnv)
     }
     
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
-    ggplotModulesInSeries <<-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
-        input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
-        input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
+    # ggplotModulesInSeries <<-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
+    #     input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
+    #     input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
+    assign("ggplotModulesInSeries",
+           plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
+                               input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
+                               input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries), 
+           envir = .GlobalEnv)
+    
+    
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries} ,res = 72)
     output$plotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
       plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight), hover = "hover_plotModuleSeries"))})
@@ -415,12 +443,14 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   observeEvent(input$buttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = character(0))})
   
   ############################## Gene Lookup ###########
-  lookedupGenes <- NULL
+  assign("lookedupGenes",NULL, envir = .GlobalEnv)
+  # lookedupGenes <- NULL
   observeEvent({
     input$buttonGeneLookup
   },{
     # <<-
-    lookedupGenes <<- lookupGenesProbes(input$textInputGeneLookup, allData$annot)
+    # lookedupGenes <<- lookupGenesProbes(input$textInputGeneLookup, allData$annot)
+    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot), envir = .GlobalEnv)
     output$datatableGeneLookup <- renderDataTable({lookedupGenes})
   })
   observeEvent({
@@ -450,7 +480,9 @@ observeEvent(
 
 topModulesSelected <- reactiveVal()
 topModulesSelected(NULL)
-sortCol_Mods <- NULL
+
+# sortCol_Mods <- NULL
+assign("sortCol_Mods",NULL, envir = .GlobalEnv)
 
 observeEvent(
   input$mbuttonApplySelection,
@@ -467,7 +499,8 @@ observeEvent(
           showTab(inputId = "navModule", target = "Selected Modules")
           showTab(inputId = "navModule", target = "Modules:Series")
           
-          sortCol_Mods <<- input$mselectColumn # note <<-
+          # sortCol_Mods <<- input$mselectColumn # note <<-
+          assign("sortCol_Mods",input$mselectColumn, envir = .GlobalEnv)
           
           filterText <- ""
           # apply the filters sequentially
@@ -570,7 +603,9 @@ output$buttonPNGmplotSelectedModules <- downloadHandler(filename = function(){pa
 
   #################### Plot Modules Selected Series #########################
 
-ggplotSelectedModulesSeries <- NULL
+# ggplotSelectedModulesSeries <- NULL
+assign("ggplotSelectedModulesSeries",NULL, envir = .GlobalEnv)
+
 observeEvent({
   input$mbuttonPlotModuleSeries
 },{
@@ -580,11 +615,20 @@ observeEvent({
     else if(input$radioModulesModulesSeries == 'Modules') {mods2plot <- input$mselectModuleAllModules}
 
     # MUST USE <<-
-    ggplotSelectedModulesSeries <<- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
-      mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
-      input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
-      input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
-      input$mcheckboxShowPointsSeries,sortCol_Mods)
+    # ggplotSelectedModulesSeries <<- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
+    #   mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
+    #   input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
+    #   input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
+    #   input$mcheckboxShowPointsSeries,sortCol_Mods)
+    assign("ggplotSelectedModulesSeries",
+           plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
+                                     mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
+                                     input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
+                                     input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
+                                     input$mcheckboxShowPointsSeries,sortCol_Mods),
+           envir = .GlobalEnv)
+    
+    
     output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]} ,res = 72)
     output$mplotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
                                                       plotOutput("mplotModuleSeries", height = isolate(input$numbermplotModuleSeriesSIZEheight), hover = "hover_mplotModuleSeries"))})
@@ -617,14 +661,18 @@ output$mbuttonSaveListTopModulesSeries <- downloadHandler(filename = function(){
 
 
   #################### Modules Lookup #########################
-lookedupMods <- NULL
+# lookedupMods <- NULL
+assign("lookedupMods",NULL, envir = .GlobalEnv)
+
 observeEvent({
   input$mbuttonModLookup
   input$radioArrangeModuleLookupBy
 },{
   # use <<-
-  lookedupMods <<- lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy)
-  output$mdatatableModuleLookup <- renderDataTable({lookedupMods})
+  # lookedupMods <<- lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy)
+  assign("lookedupMods",lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy), envir = .GlobalEnv)
+
+    output$mdatatableModuleLookup <- renderDataTable({lookedupMods})
 })
 
 observeEvent({
@@ -650,7 +698,8 @@ observeEvent(input$buttonPlotCytokines, {
     input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,
     input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile, input$ccheckboxFixedY,
     input$ccheckboxOmit0, input$ccheckboxShowN,input$cnumericNumPanels,input$cradioCytoMeansRaw,
-    input$ccheckboxShowPoints, input$cradioCytokinesTransformY)
+    input$ccheckboxShowPoints, input$cradioCytokinesTransformY, 
+    (input$ccheckboxShow1 & input$cradioCytoMeansRaw == 'Fold Increase'))# calc if we plot --- at 1
   cytokinesDataAndPlot$data <- cdp$data
   cytokinesDataAndPlot$plot <- cdp$plot
     

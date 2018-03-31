@@ -31,6 +31,8 @@
 
 
 
+
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
     probes or genes values present in the array as they are on that time
     point in persons who received that vaccine. So you may have the
@@ -105,6 +107,8 @@
 
 
 
+
+
     <img src="topmodsseries.png" alt="Top Modules Timecourse"
       height="250" width="553"><br>
     <br>
@@ -170,6 +174,8 @@
       server, but must be selected and loaded into the app before use.
       They come in two versions: <b>fold-increase in the log2
         expression values</b> (by subtraction of the log2 values), <i>always
+
+
 
 
         from day 0</i> <i>baseline</i> (in Surrey day -1 is calculated
@@ -259,64 +265,7 @@
       import, and hence deleted from calculations. No log
       transformations have been done, this is an option when plotting.<br>
     </p>
-    <h3>Plot Tab</h3>
-    <p>Select at least one cytokine, treatment group (vaccines or
-      placebo), and day. Click Plot to create plots. You must click Plot
-      again to effect any changes in options. This uses ggplot and is
-      extremely slow to produce a plot if more than ~6 panels are
-      created - just wait, do not click Plot again or a repeat cycle
-      will commence.<br>
-    </p>
-    <ul>
-      <li><b>Fold Increase ~ Concentration</b>. Use the radio buttons to
-        switch between <b>actual concentration values</b> or <b>fold
-          increase</b> from day 0 when plotting.<br>
-      </li>
-      <li><b>Lines ~ Boxplot ~ Violin.</b><b> </b>Select which type of
-        plot:<br>
-        <b>Lines</b> draws the group mean per day, and has additional
-        options to also show <b>SEM</b> as <b>ribbon</b> or <b>error
-          bars</b><b>; </b>and to include<b> points</b>.<br>
-        <b>Boxplot </b>and<b> Violin has</b> option to <b>Crop Y</b> -
-        the panel is "zoomed" to clip the 25/75 IQR for the whole panel,
-        which is helpful when there are outliers.</li>
-      <li><b>Log transforms</b>. Use the radio buttons to plot
-        untransformed <b>Y</b>, or various log transforms. ln1p plots
-        ln(1+Y) which is useful when there are zero values or Y &lt;&lt;
-        1. The actual values are log transformed before any mean/medians
-        are then calculated, so bear this in mind. The raw data can
-        always be downloaded from the data table to do your own
-        transformations.</li>
-      <li><b>Exclude Zero Values</b>. The dataset already includes
-        missing values (as NAs) where there was no data or "OOR"
-        entered, or where a fold-increase could not be calculated (when
-        day 0 was 0 or missing). It also contains many real zero values,
-        where the concentration is entered as 0. To plot just the
-        kinetics of the non-zero values, select this option and the data
-        are filtered to remove zeros before means/medians/densities
-        calculated.</li>
-      <li><b>Show N</b>. This prints the number of available data points
-        per day at the bottom of the plot, and the actual number used at
-        the top. The top number may be reduced by missing data in the
-        dataset, or when zero values have been omitted. The bottom
-        number may also be reduced by data missing from the dataset
-        (e.g. if one participant skipped a visit that reduces the group
-        size for that day by 1).</li>
-      <li><b>Fixed Y.</b> When selected the Y axis max-min range will be
-        fixed for each cytokine across all treatments. Each cytokine
-        will still have its own range, but the overall max - min will be
-        imposed. This is relevant for placebo groups. If unselected,
-        each panel has its own Y axis range.</li>
-      <li><br>
-      </li>
-    </ul>
-    <p> </p>
-    <ul>
-    </ul>
-    <ul>
-    </ul>
-    <h1> </h1>
-    <h1> Instructions For Use</h1>
+    <h1>Instructions For Use</h1>
     <h2> Password</h2>
     When running on the shinyapps.io server the software requires a
     password. This is to protect the datasets. Please contact
@@ -388,9 +337,13 @@
 
 
 
+
+
       Averages</b> to have expressions of individual probes that map to
     a gene averaged into one row, otherwise it will be one probe per row
     and genes may repeat. This is important if you restrict by "<b>Sorted
+
+
 
 
 
@@ -528,7 +481,9 @@
     <b>Lines / Boxplot</b>: XY graph of individual probes / genes, or a
     boxplot summarising values when genes are averaged.<br>
     <b>Points</b>, <b>Gridlines</b>: show/hide.<br>
-    <b>Legend</b> and <b>Zero</b>: show/hide these features.<br>
+    <b>Legend</b> and
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <b>0 |---- (zero) line</b>: show/hide these features.<br>
     <b>Plot button</b>: click this to draw the plot, and again after
     changing any options.<br>
     <h3> Genes-&gt;Modules tab<br>
@@ -542,9 +497,9 @@
     modules associated with the selected probes or genes is plotted
     automatically. If you change any of the criteria on the <b>Select</b>
     tab this plot will re-draw. There are options to show or hide the <b>legend</b>
-    and <b>zero</b> line, and to have ggplot2 graphics which are a bit
-    nicer but slower. ggplot2 calculates the dimensions of the box
-    slightly differently to base graphics. The genes selected by the
+    and <b>0 |---- (zero) line</b>, and to have ggplot2 graphics which
+    are a bit nicer but slower. ggplot2 calculates the dimensions of the
+    box slightly differently to base graphics. The genes selected by the
     filters can also be plotted as a "pseudo-module", for comparison
     with&nbsp; the tmod modules. The table gives the summary statistics
     and the number of probes mapped to the modules' genes (N).<br>
@@ -562,7 +517,7 @@
     selection are denoted by the ︎► symbol next to the y axis, and in
     the data table. You may be surprised by how few genes in a module
     overlap with your selected genes. Options to show or hide the <b>legend</b>
-    and <b>zero line</b> are available, and to use <b>ggplot2</b>
+    and <b>0 |---- (zero) line</b> are available, and to use <b>ggplot2</b>
     instead of base graphics.&nbsp; ggplot2 uses a geom_boxplot with
     default values. Unlike the Selected Probes tab which shows the gene
     description in the table, the <b>Module-&gt;Genes</b> tab does not,
@@ -586,8 +541,8 @@
     is selected allowing an SEM ribbon to be added.<br>
     <b>Split</b> - uses facet_wrap to separate treatments into different
     panels. <br>
-    Options to show / hide the <b>legend</b> and <b>zero</b> line
-    exist.<br>
+    Options to show / hide the <b>legend</b> and <b>0 |---- (zero</b>)
+    line exist.<br>
     <h3> </h3>
     <h2><a name="Explore_By_Module_tab"></a> Explore Transcriptomics By
       Module tab<br>
@@ -701,19 +656,23 @@
     <h2>Explore Cytokines</h2>
     <p>The cytokines data is preloaded and immediately available. For
       details of the ABCD dataset see above. <br>
-      Use the menus to select some cytokines, vaccine treatments and
+    </p>
+    <h3>Plot Tab</h3>
+    <p> Use the menus to select some cytokines, vaccine treatments and
       days. The order in which you enter the cytokines is respected in
       the plots. Click <b>Plot</b> to create plot, and to re-draw if
       you change any options.<br>
     </p>
     <ul>
-      <li><b>Fold Increase</b> or <b>Concentration</b>: Select to plot
-        actual concentration data or the fold-increase from day 0.<br>
-      </li>
-      <li> <b>Lines</b>, <b>Boxplot</b>, <b>Violin</b>: select the
-        chart type:<br>
+      <li><b>Fold Increase ~ Concentration</b>. Use the radio buttons to
+        switch between <b>actual concentration values</b> or <b>fold
+          increase</b> from day 0 when plotting. </li>
+      <li><b>Lines ~ Boxplot ~ Violin.</b><b> </b>Select which type of
+        plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
+
           Y,</b> which zooms the plot to the IQR for the whole dataset -
         useful when extreme outliers squash the scale.<br>
         <b>Lines</b> plots the mean of the cytokine~treatment
@@ -724,30 +683,45 @@
         <li><b>No Error</b>, <b>Ribbon</b>, <b>Bars</b> allows for SEM
           plotted as ribbon or error bars</li>
       </ul>
-      <li><b>Log transformations</b> of Y can be selected. The values
-        are transformed before any means/medians/IQR calculated. <b>lnp1</b>
-        calculates ln(1+Y) which is useful when zero or Y values
-        &lt;&lt;1 exist. Zero values are removed before transformation
+      <li><b>Exclude Zero Values</b>. The dataset already includes
+        missing values (as NAs) where there was no data or "OOR"
+        entered, or where a fold-increase could not be calculated (when
+        day 0 was 0 or missing). It also contains many real zero values,
+        where the concentration is entered as 0. To plot just the
+        kinetics of the non-zero values, select this option and the data
+        are filtered to remove zeros before means/medians/densities
+        calculated.</li>
+      <li><b>Log transforms</b>. Use the radio buttons to plot
+        untransformed <b>Y</b>, or various log transforms. ln1p plots
+        ln(1+Y) which is useful when there are zero values or Y &lt;&lt;
+        1. The actual values are log transformed before any mean/medians
+        are then calculated, so bear this in mind. The raw data can
+        always be downloaded from the data table to do your own
+        transformations. Zero values are removed before transformation
         if <b>Exclude Zero Y</b><b> Values</b> option is selected<br>
       </li>
-      <li><b>Exclude Zero Y Values</b> removes values that are zero so
-        that only responders are included in plots and calculations. Use
-        with <b>Show N</b></li>
-      <li><b>Show N</b> places the total participants available for the
-        cytokine~vaccine group on each day at the bottom of the plot,
-        and the actual number included in calculations/plots at the top.
-        Useful if <b>Exclude Zero Y Values</b> selected. Some group
-        sizes may be reduced if there was missing data for one day.</li>
-      <li><b>Fixed Y</b> fixes the Y axis max-min to that for each
-        cytokine, ignoring vaccine treatment. Useful when comparing
-        placebo and vaccines. If unselected then each panel has its own
-        Y axis scale.</li>
+      <li><b>Show N</b>. This prints the number of available data points
+        per day at the bottom of the plot, and the actual number used at
+        the top. The top number may be reduced by missing data in the
+        dataset, or when zero values have been omitted. The bottom
+        number may also be reduced by data missing from the dataset
+        (e.g. if one participant skipped a visit that reduces the group
+        size for that day by 1). Useful if <b>Exclude Zero Y Values</b>
+        selected. Some group sizes may be reduced if there was missing
+        data for one day.</li>
+      <li><b>Fixed Y.</b> When selected the Y axis max-min range will be
+        fixed for each cytokine across all treatments. Each cytokine
+        will still have its own range, but the overall max - min will be
+        imposed. This is relevant for placebo groups. If unselected,
+        each panel has its own Y axis range.</li>
       <li><b>Vac↓ Cyt→</b> creates panels grouped by vaccine: cytokines
         wrap in the columns, and then a new block starts with each
         vaccine treatment. <br>
         <b>Vac→Cyt↓</b> does the reverse, with panels grouped by
         cytokine: vaccine treatments wrap in the columns, and then a new
         block starts with each cytokine.</li>
+      <li> <b>1 |----&nbsp;</b> plot a horizontal line at Y = 1 when
+        fold-increase data plotted. </li>
       <li>A box to enter the <b>maximum</b><b> number of panels per row</b>,
         and slider to control the <b>height of the plot</b>, offer some
         control over the image. Widening or narrowing the window also
@@ -778,6 +752,8 @@
 
 
 
+
+
     software depends on the R package tmod '<cite>Feature Set Enrichment
       Analysis for Metabolomics and Transcriptomics</cite>' (<a
 href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf"
@@ -790,6 +766,8 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       target="_blank">vignette</a> for a description of the modules.The
     transcriptomics datasets are from the BIOVACSAFE project (<a
       href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
+
 
 
 

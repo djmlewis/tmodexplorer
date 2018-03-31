@@ -132,7 +132,7 @@ ui <-
                             column(6,
                               awesomeCheckbox(status = 'success', 'checkboxSplitSeries', 'Split', value = TRUE),
                               awesomeCheckbox(status = 'success', 'checkboxShowLegendSeries', 'Legend', value = FALSE),
-                              awesomeCheckbox(status = 'success', 'checkboxShowZeroSeries', 'Zero', value = TRUE),
+                              awesomeCheckbox(status = 'success', 'checkboxShowZeroSeries', '0 |----', value = TRUE),
                               sliderInput("numberPlotTopGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotTopGenesSeriesSIZEheight", "Plot height")
                             ))
                         )),
@@ -164,7 +164,7 @@ ui <-
                h4(style = "margin-top: 0px;",'Expression Values Of Modules Associated With Selected Probes / Genes'),
                fluidRow(
                  column(1,awesomeCheckbox(status = 'success', 'checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
-                 column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
+                 column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroGenesModules', '0 |----', value = TRUE)),
                  column(3,awesomeRadio(status = 'success', 'radioGroupProbeModulesBy','Group By',choices = c('Module','Title'),inline = TRUE)),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
                  column(2, style = "margin-top: -10px;", sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotGenesModulesSIZEheight", "Plot height")),
@@ -173,8 +173,10 @@ ui <-
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotGenesModulesSIZE")
                ),
-               downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'HiRes PNG')
-               ),
+               fluidRow(
+               column(1,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'HiRes PNG')),
+               column(11, p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
+               )),
              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Table'),
              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Data'),
              downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
@@ -184,20 +186,21 @@ ui <-
            #################### Modules->Genes ###################
            tabPanel('Module->Genes',
               wellPanel(style = "background-color: #FFFFFF;",
-              h4(style = "margin-top: 0px;",'Select A Module From The Menu To View Values Of Its Genes'),
+              h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Modules Associated With Selected Probes / Genes'),
                 fluidRow(
-                column(4,selectInput('selectModuleForGenes', NULL, character(0), width = '500px')),
-              column(8,
-               fluidRow(
-                 column(2,awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
-                 column(2,awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleGenes', 'Zero', value = TRUE)),
-                 column(2,awesomeCheckbox(status = 'success', 'checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
-                 column(2, style = "margin-top: -10px;", sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               
-                ))),
+                column(6,pickerInput(inputId = 'selectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
+                column(1,offset = 2, awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
+                column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleGenes', '0 |----', value = TRUE)),
+                column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
+                column(1, style = "margin-top: -10px;", sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               
+                ),
                wellPanel(style = "background-color: #FFFFFF;",
-                uiOutput("plotModuleGenesSIZE")),
-                downloadButton(class="btn-warning",'buttonPNGplotModuleGenes', 'HiRes PNG')
-               ),
+                uiOutput("plotModuleGenesSIZE")
+                ),
+              fluidRow(
+                column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleGenes', 'HiRes PNG')),
+                column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
+              )),
               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Table'), 
                hr(), 
                dataTableOutput('datatableModuleGenes')),
@@ -227,7 +230,7 @@ ui <-
                           column(6,
                                  awesomeCheckbox(status = 'success', 'checkboxShowFacetModuleSeries', 'Split', value = TRUE),
                                  awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleSeries', 'Legend', value = FALSE),
-                                 awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleSeries', 'Zero', value = TRUE),
+                                 awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleSeries', '0 |----', value = TRUE),
                                  sliderInput("numberPlotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleSeriesSIZEheight", "Plot height")
                           )
                         )
@@ -253,8 +256,10 @@ ui <-
              wellPanel(style = "background-color: #FFFFFF;",
                        uiOutput("plotModuleSeriesSIZE")
              ),
-             conditionalPanel(condition = "output.plotModuleSeries != null",
-              downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG'))
+             fluidRow(
+              column(1,conditionalPanel(condition = "output.plotModuleSeries != null",downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG'))),
+              column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
+              )
             ),
                conditionalPanel(condition = "output.datatableModuleSeries != null",
                 downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
@@ -332,15 +337,17 @@ ui <-
          h4(style = "margin-top: 0px;",'Expression Values Of Selected Modules'),
          fluidRow(
            column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendGenesModules', 'Legend', value = FALSE)),
-           column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroGenesModules', 'Zero', value = TRUE)),
+           column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroGenesModules', '0 |----', value = TRUE)),
            column(3,awesomeRadio(status = 'success', 'mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
            column(3,awesomeCheckbox(status = 'success', 'mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
            column(2, style = "margin-top: -10px;", sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numbermplotSelectedModulesSIZEheight", "Plot height"))
            ),
          wellPanel(style = "background-color: #FFFFFF;",
                    uiOutput("mplotSelectedModulesSIZE")
-          ),
-         downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'HiRes PNG')
+         ),
+         fluidRow(
+           column(1, downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'HiRes PNG')),
+           column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised")))
          ),
          div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
              downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
@@ -381,7 +388,7 @@ ui <-
                       ),
                     column(6,
                     awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleSeries', 'Legend', value = FALSE),
-                    awesomeCheckbox(status = 'success', 'mcheckboxShowZeroModuleSeries', 'Zero', value = TRUE),
+                    awesomeCheckbox(status = 'success', 'mcheckboxShowZeroModuleSeries', '0 |----', value = TRUE),
                     awesomeCheckbox(status = 'success', 'mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                     awesomeRadio(status = 'success', 'mradioGroupTitleNameModuleSeries','Group By:',choices = c('Title','Module'), selected = 'Module'),
                     sliderInput("numbermplotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numbermplotModuleSeriesSIZEheight", "Plot height")
@@ -436,8 +443,9 @@ ui <-
          wellPanel(style = "background-color: #FFFFFF;",
           uiOutput("mplotModuleSeriesSIZE")
          ),
-         conditionalPanel(condition = "output.mplotModuleSeries != null",
-          downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG'))
+         fluidRow(
+         column(1,conditionalPanel(condition = "output.mplotModuleSeries != null",downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG'))),
+         column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised")))
        ),
          conditionalPanel(condition = "output.mdatatableModuleSeries != null",
           downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Table')), hr(), 
@@ -464,14 +472,16 @@ tabPanel('Lookup',
      #################### Module Lookup #######################
      tabPanel('Module Lookup',
               wellPanel(style = "background-color: #feffee;",
-                        h5("Enter a module name and click Lookup"),
-                        h6("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search"),
+                        h4(style = "margin-top: 0px;","Enter a module name or partial name and click Lookup"),
+                        h5("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search."),
                         fluidRow(
                           column(5,textInput('mtextInputModLookup',NULL)),
                           column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-success"),
                                        actionButton("mbuttonModLookupNone", "Clear"))),
                           column(3,awesomeRadio(status = 'success', 'radioArrangeModuleLookupBy','Arrange By',choices = c('Module','Title','Category'),inline = TRUE))
-                        )),
+                        ),
+                        h5("Only module names are searched, not titles or categories.")
+                        ),
               conditionalPanel(condition = "output.mdatatableModuleLookup != null",
                                downloadButton(class="btn-outline-primary",'mbuttonSaveTableModuleLookup', 'Table')), hr(), 
               dataTableOutput('mdatatableModuleLookup')
@@ -505,6 +515,8 @@ tabPanel('Cytokines',
                                          column(2,style = "margin-top: 10px;",awesomeCheckbox(status = 'success', 'ccheckboxOmit0', 'Exclude Zero Y values', value = FALSE))
                                        ),
                                        fluidRow(
+                                         column(1,style = "margin-top: 10px;",conditionalPanel(condition = "input.cradioCytoMeansRaw == 'Fold Increase'",
+                                                                   awesomeCheckbox(status = 'success', 'ccheckboxShow1', '1 |----', value = TRUE))),
                                          column(1,style = "margin-top: 10px;",
                                                 conditionalPanel(condition = "input.cradioCytokinesPlotType == 'Lines'",
                                                                  awesomeCheckbox(status = 'warning', 'ccheckboxShowPoints', 'Points', value = TRUE)),
