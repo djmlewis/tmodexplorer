@@ -7,7 +7,7 @@ ui <-
   
   #################### Password ################
   tabPanel('Password',
-           h4(style = "text-align: center;",'Please enter the password you have been given to access tmodExplorer'),
+           h4(style = "text-align: center; margin-top: 0px;",'Please enter the password you have been given to access tmodExplorer'),
            fluidRow(
            column(6, offset = 3,
             wellPanel(style = "background-color: #feffee;",
@@ -30,7 +30,7 @@ ui <-
             column(2,actionButton('buttonLoadDataFI',label = 'Load Data',class = "btn-success"))
       )))
     ),
-    h4(align = 'center', textOutput('textDataName')),
+    h4(style = "text-align: center; margin-top: 0px;",textOutput('textDataName')),
     conditionalPanel(condition = "output.datatableAll != null",
                      downloadButton(class="btn-outline-primary",'buttonsavedatatableAll', 'Table')),
     hr(),
@@ -38,8 +38,8 @@ ui <-
   ),
   # ############## PROBES #################
       tabPanel('Explore By Probe',
-        h4(align = 'center', textOutput('textDataNameProbes')),
-         navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe', header = h4(align = 'center', textOutput('textFiltersProbes')),
+        h4(style = "text-align: center; margin-top: 0px;", textOutput('textDataNameProbes')),
+         navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe', header = h4(style = "text-align: center; margin-top: 0px;", textOutput('textFiltersProbes')),
            #################### Selecting  ################
            tabPanel('Select Probes',
                     hr(),h3('Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
@@ -50,14 +50,14 @@ ui <-
                             wellPanel(style = "background-color: #feffee;",
                               awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
                               textInput('textInputKeyword',NULL),
-                              h4("Search:"),
+                              h4(style = "margin-top: 0px;","Search:"),
                               awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Description','Gene','Probe'), inline = TRUE),
                               conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces are stripped from Gene and Probe names")),
                               conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces are kept in search for Description"))
                           ))),
                           column(8,
                             wellPanel(style = "background-color: #ffffff;",
-                              h4(align = 'center', "Select a treatment~time column to filter by value and sort probes by value"),
+                              h4(style = "text-align: center; margin-top: 0px;", "Select a treatment~time column to filter by value and sort probes by value"),
                               fluidRow(
                                 column(4,pickerInput('selectColumn', choices = NULL, options = list(`style` = "btn-success"))),
                                 column(4,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending Value', value = TRUE)),
@@ -98,7 +98,7 @@ ui <-
            #################### Top Probes #######################
            tabPanel('Selected Probes',
               hr(),
-               h4('Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
+               h4(style = "margin-top: 0px;",'Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
                div(
                 downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
                 downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG'),
@@ -111,7 +111,7 @@ ui <-
            #################### Top Probes Series ################
            tabPanel('Probes:Series',
              wellPanel(style = "background-color: #FFFFFF",
-               h4('Time Course Of Probes Or Genes Meeting The Filters, By Treatment-Time Column'),
+               h4(style = "margin-top: 0px;",'Time Course Of Probes Or Genes Meeting The Filters, By Treatment-Time Column'),
                h5("Select Some Treatment-Timepoint Columns And Click Plot"),
                fluidRow(
                  column(3,
@@ -154,14 +154,14 @@ ui <-
            #################### Genes->Modules ##################
            tabPanel('Genes->Modules',
                hr(),
-               h4('Modules Associated With Selected Probes or Genes'),
+               h4(style = "margin-top: 0px;",'Modules Associated With Selected Probes or Genes'),
                downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'), 
                hr(), 
                dataTableOutput('datatableGenesModules')),
            #################### Modules #########################
            tabPanel('Modules',
              wellPanel(style = "background-color: #FFFFFF",
-               h4('Expression Values Of Modules Associated With Selected Probes / Genes'),
+               h4(style = "margin-top: 0px;",'Expression Values Of Modules Associated With Selected Probes / Genes'),
                fluidRow(
                  column(1,awesomeCheckbox(status = 'success', 'checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroGenesModules', 'Zero', value = TRUE)),
@@ -184,7 +184,7 @@ ui <-
            #################### Modules->Genes ###################
            tabPanel('Module->Genes',
               wellPanel(style = "background-color: #FFFFFF;",
-              h4('Select A Module From The Menu To View Values Of Its Genes'),
+              h4(style = "margin-top: 0px;",'Select A Module From The Menu To View Values Of Its Genes'),
                 fluidRow(
                 column(4,selectInput('selectModuleForGenes', NULL, character(0), width = '500px')),
               column(8,
@@ -205,7 +205,7 @@ ui <-
            #################### Modules Series ###################
            tabPanel('Modules:Series',
             wellPanel(style = "background-color: #FFFFFF;",
-              h4('Time Course Of Modules Associated With Selected Probes / Genes'),
+              h4(style = "margin-top: 0px;",'Time Course Of Modules Associated With Selected Probes / Genes'),
               h5('Select Some Treatment-Timepoint Columns And Modules, And Click Plot'),
               fluidRow(
                  column(3,
@@ -266,8 +266,8 @@ ui <-
 ),# explore by probe
   ############## MODULES #################
   tabPanel('Explore By Module',
-    h4(align = 'center', textOutput('textDataNameMods')),
-    navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule', header = h4(align = 'center', textOutput('textFiltersMods')),
+    h4(style = "text-align: center; margin-top: 0px;", textOutput('textDataNameMods')),
+    navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule', header = h4(style = "text-align: center; margin-top: 0px;", textOutput('textFiltersMods')),
       #################### Selecting Modules ################
       tabPanel('Select Modules',
       hr(),
@@ -277,17 +277,17 @@ ui <-
         column(4,
                conditionalPanel(condition = "input.mselectColumn != null",
                         wellPanel(style = "background-color: #feffee;",
-                         h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectKeyword','1. Using regex', value = FALSE)),
+                         awesomeCheckbox(status = 'success',inputId = 'mcheckboxSelectKeyword',label =  h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
                          textInput('mtextInputKeyword',NULL),
-                         h4("Search:"),
+                         h4(style = "margin-top: 0px;","Search:"),
                          awesomeRadio(status = 'success', 'mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
-                         conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #44b84b;","Spaces are stripped from Module names")),
-                         conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces are kept in search for Title"))
+                         conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #44b84b;","Spaces are stripped from Module name search")),
+                         conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces are kept for Title name search"))
                ))
                ),
         column(8,
         wellPanel(style = "background-color: #FFFFFF;",
-            h4(align = 'center', "Select a treatment~time column to filter by value and sort modules by value"),
+            h4(style = "text-align: center; margin-top: 0px;", "Select a treatment~time column to filter by value and sort modules by value"),
             fluidRow(
               column(4, pickerInput(inputId = 'mselectColumn', label = NULL, choices = NULL, options = list(`style` = "btn-success"))),
               column(4,awesomeCheckbox(status = 'success', 'mcheckboxDescending', 'Sort Descending', value = TRUE)),
@@ -298,18 +298,20 @@ ui <-
               column(6,
               conditionalPanel(condition = "input.mselectColumn != null",
                 wellPanel(style = "background-color: #feffee;",
-                h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectValues', '2. Sorted Column Values Within Range:', value = FALSE)),
+                awesomeCheckbox(status = 'success', inputId = 'mcheckboxSelectValues', label =  h4(style = "margin-top: 0px;",'2. Values Within Range:'), value = FALSE),
               fluidRow(
                 column(6,numericInput("mnumberExpressionMin", "Lowest:", value = 0)),
                 column(6,numericInput("mnumberExpressionMax", "Highest:", value = 0))
               ),
+              conditionalPanel(condition = "input.mcheckboxModuleMedians == true",p(style = "color: #44b84b;","Limits Applied To Module Medians, Not Gene Values")),
+              conditionalPanel(condition = "input.mcheckboxModuleMedians == false",p(style = "color: #44b84b;","Limits Applied To Module Means, Not Gene Values")),
               actionButton('mbuttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
               actionButton('mbuttonResetValuesRangeData','Data', class = 'btn-outline-primary')
             ))),
             column(6,
               conditionalPanel(condition = "input.mselectColumn != null",
                 wellPanel(style = "background-color: #feffee;",
-                h4(awesomeCheckbox(status = 'success', 'mcheckboxSelectRows', '3. Sorted Column Row Numbers', value = TRUE)),
+                awesomeCheckbox(status = 'success', inputId = 'mcheckboxSelectRows', label =  h4(style = "margin-top: 0px;",'3. Column Row Numbers Within Range:'), value = TRUE),
                 fluidRow(
                   column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = NA, step = 5)),
                   column(6,numericInput("mnumberModsEnd", "To Row:", 10, min = 0, max = NA, step = 5))
@@ -327,7 +329,7 @@ ui <-
     #################### Top Modules #######################
      tabPanel('Selected Modules',
        wellPanel(style = "background-color: #FFFFFF;",
-         h4('Expression Values Of Selected Modules'),
+         h4(style = "margin-top: 0px;",'Expression Values Of Selected Modules'),
          fluidRow(
            column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendGenesModules', 'Legend', value = FALSE)),
            column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroGenesModules', 'Zero', value = TRUE)),
@@ -352,7 +354,7 @@ ui <-
     #################### Top Modules Series #######################
      tabPanel('Modules:Series',
        wellPanel(style = "background-color: #FFFFFF;",
-         h4("Plot Time Course Of Modules"),
+         h4(style = "margin-top: 0px;","Plot Time Course Of Modules"),
          fluidRow(
            column(3,
                   wellPanel(style = "background-color: #feffee;",
@@ -393,7 +395,7 @@ ui <-
                     actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))
                     ),
                   div(
-                    h4("Select Modules To Plot From One Of The Options Below:"),
+                    h4(style = "margin-top: 0px;","Select Modules To Plot From One Of The Options Below:"),
                     radioGroupButtons('radioModulesModulesSeries', NULL, 
                                       choiceValues = list('Filters', 'Modules','Titles'),
                                       choiceNames = list(' Modules You Selected With Filters', ' All Modules In Dataset',' All Module Titles In Dataset'),
@@ -449,7 +451,7 @@ tabPanel('Lookup',
      #################### Gene Lookup ###################
      tabPanel('Gene Lookup',
               wellPanel(style = "background-color: #feffee;",
-                        h4("Enter a gene name or partial name and click Lookup"),
+                        h4(style = "margin-top: 0px;","Enter a gene name or partial name and click Lookup"),
                         h5("Use commas to separate multiple genes. Alternatively, leave box empty and click Lookup to return all genes, then use search boxes above/below table to search"),
                         fluidRow(
                           column(8,textInput('textInputGeneLookup',NULL)),

@@ -83,8 +83,8 @@ server <- function(input, output, session) {
     hideTab(inputId = "navModule", target = "Selected Modules")
     hideTab(inputId = "navModule", target = "Modules:Series")
 
-    topGenesAndModules(NULL)
-    topModulesSelected(NULL)
+    # topGenesAndModules(NULL)
+    # topModulesSelected(NULL)
     
     
     # these must be updated here as they do not observe allData
@@ -469,24 +469,29 @@ observeEvent(
           
           sortCol_Mods <<- input$mselectColumn # note <<-
           
-          mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
-          
           filterText <- ""
           # apply the filters sequentially
           if(input$mcheckboxSelectKeyword == TRUE){
-            mods <- getModulesForSearch(mods,input$mtextInputKeyword,input$mradioKeywordColumn)
-            filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
+            mods <- getModulesForSearch(allData$modulesMeans,input$mtextInputKeyword,input$mradioKeywordColumn)
+            if(dataOK(mods)) {
+              filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
+              mods <- getSortedModulesForVaccDay(mods,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
+            }
+          } else {
+            mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
           }
-          if(input$mcheckboxSelectValues == TRUE){
+          
+          
+          if(input$mcheckboxSelectValues == TRUE && dataOK(mods)){
             mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
             filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
           }
-          if(input$mcheckboxSelectRows == TRUE){
+          if(input$mcheckboxSelectRows == TRUE && dataOK(mods)){
             mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
             filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
           }
       
-          if(!is.null(mods)) {
+          if(dataOK(mods)) {
             if(nchar(filterText) > 0) {
               modulesAndFiltersText(
                 paste0(input$mselectColumn,' ',filterText,' ',
@@ -500,16 +505,18 @@ observeEvent(
                        ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
                 ))
             }
+            topModulesSelected(mods)
+            
+            removeNotification(id = "mbuttonApplySelection")
+            showNotification(paste0("Found: ",length(unique(mods[["Module"]])), " modules"), type = 'message')
+            
           } else {
             modulesAndFiltersText("")
+            topModulesSelected(NULL)
+            
+            removeNotification(id = "mbuttonApplySelection")
+            showNotification(paste0("Found: 0 modules"), type = 'warning')
           }
-
-          nM <- length(unique(mods[["Module"]]))
-          mes <- ifelse(nM == 0,'warning','message')
-          removeNotification(id = "mbuttonApplySelection")
-          showNotification(paste0("Found: ",nM, " modules"), type = mes)
-          
-          topModulesSelected(mods)
         }
       } else {
         showNotification("A column to sort must always be selected, even if just filtering by regex", type = 'error')
