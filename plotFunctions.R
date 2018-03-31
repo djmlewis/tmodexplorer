@@ -9,8 +9,10 @@ themeBase <- function(rotate = FALSE) {
     strip.background = element_rect(fill = "#f8ffeb"),
     axis.title = element_blank(),
     strip.text = element_text(size = 14),
-    axis.text.y = element_text(size = 14),
-    axis.text.x = element_text(size = 14, angle = a, hjust = hj),
+    axis.line.x = element_line(size = 1),
+    axis.line.y = element_line(size = 1),
+    axis.text.y = element_text(size = 16),
+    axis.text.x = element_text(size = 16, angle = a, hjust = hj),
     legend.title = element_text()
   )
   return(t)
@@ -34,7 +36,7 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
   {
     # to force a zero line we have to set ylim to 0 as needed
     ymin <- ifelse(z == TRUE, min(min(y),0),min(y) )
-    boxplot(y ~ x, col = colpal,border = bordpal, pars = list(las = 2), horizontal = TRUE, outline = TRUE, ylim = c(ymin,max(y)))
+    boxplot(y ~ x, col = colpal,border = bordpal, pars = list(las = 1, cex.axis = 1.5), horizontal = TRUE, outline = TRUE, ylim = c(ymin,max(y)))
     if(!is.null(s)) text(y = x, x = min(ymin,xmin), labels = s, pos = 2)
     title(t)
     if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
