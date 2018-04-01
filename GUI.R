@@ -261,10 +261,10 @@ ui <-
              wellPanel(style = "background-color: #FFFFFF;",
                        uiOutput("plotModuleSeriesSIZE")
              ),
-             fluidRow(
-              column(1,conditionalPanel(condition = "output.plotModuleSeries != null",downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG'))),
+             fluidRow(conditionalPanel(condition = "output.plotModuleSeries != null",
+              column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG')),
               column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
-              )
+              ))
             ),
                conditionalPanel(condition = "output.datatableModuleSeries != null",
                 downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
