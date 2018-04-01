@@ -92,7 +92,6 @@ server <- function(input, output, session) {
     
     
     # these must be updated here as they do not observe allData
-    # updatePickerInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))
     vaccDays <- vaccinesDaysFromColNames(allData$colNames)
     updatePickerInput(session, 'selectColumnVaccine', choices = vaccDays$vaccines)
     updatePickerInput(session, 'selectColumnDay', choices = vaccDays$days)
@@ -145,13 +144,10 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   ### selecting events - probes
   observeEvent(
     {
-      # input$selectColumn
       input$selectColumnDay
       input$selectColumnVaccine
     },
-    # {updateExpressionMinMax(input$selectColumn)})
     {
-      print(columnFromVaccineDay(input$selectColumnVaccine,input$selectColumnDay))
       assign("sortCol_Probes",columnFromVaccineDay(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
       updateExpressionMinMax(sortCol_Probes)
     })
@@ -191,8 +187,6 @@ observeEvent(
               showTab(inputId = "navProbe", target = "Module->Genes")
               showTab(inputId = "navProbe", target = "Modules:Series")
               
-              # sortCol_Probes <<- input$selectColumn # note <<- as in function()
-              # assign("sortCol_Probes",input$selectColumn, envir = .GlobalEnv)
               filterText <- ""
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
               if(input$checkboxSelectKeyword == TRUE) {
@@ -219,13 +213,13 @@ observeEvent(
               if(dataFrameOK(geneslist)) {
                 if(nchar(filterText) > 0) {
                   filtersText(
-                    paste0(sortCol_Probes,' ',filterText,' ',
+                    paste0(gsub('_',' day ',sortCol_Probes),' ',filterText,' ',
                            ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
                            ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
                     ))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 } else {
-                  filtersText(paste0(sortCol_Probes,' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
+                  filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 }
               } else {
