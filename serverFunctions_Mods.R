@@ -14,7 +14,7 @@ getMaxMinValueFromModulesData <- function(alldata,allcols,medians){
 
 
 getSortedModulesForVaccDay <- function(data, colN, descend, asMedians) {
-  if (dataOK(data)) {
+  if (dataFrameOK(data)) {
     # data is allData$modulesMeans
     data4VaccDay <- data %>%
       filter(Column == colN)
@@ -37,7 +37,7 @@ getSortedModulesForVaccDay <- function(data, colN, descend, asMedians) {
 }
 
 getModulesForSearch <- function(modslist,search,column){
-  if(!dataOK(modslist) || is.null(search)) return(NULL)
+  if(!dataFrameOK(modslist) || is.null(search)) return(NULL)
   # ignore an empty search
   if(search == "") return(modslist)
   
@@ -65,7 +65,7 @@ getModulesForSearch <- function(modslist,search,column){
 }
 
 getModulesForRows <- function(mods,start,end){
-  if(!dataOK(mods)) return(NULL)
+  if(!dataFrameOK(mods)) return(NULL)
   if(start>end || start>nrow(mods) || end>nrow(mods)){
     showNotification('The rows filter could not be applied. Check From and To match available rows and From is not > To.', type = "warning")
     return(mods)
@@ -75,7 +75,7 @@ getModulesForRows <- function(mods,start,end){
 }
 
 getModulesForValues <- function(mods,Min,Max,asMedians){
-  if(!dataOK(mods) || Min > Max){return(NULL)}
+  if(!dataFrameOK(mods) || Min > Max){return(NULL)}
   if(asMedians){
     selGenes <- mods %>%
       filter(between(Median,Min,Max))
@@ -87,7 +87,7 @@ getModulesForValues <- function(mods,Min,Max,asMedians){
 }
 
 getModulesForTitles <- function(cats,modsdata) {
-  if(!dataOK(modsdata) || is.null(cats)) {return(character(0))}
+  if(!dataFrameOK(modsdata) || is.null(cats)) {return(character(0))}
   mods <- map_dfr(cats,function(cat){
     modsdata %>%
     ungroup() %>%

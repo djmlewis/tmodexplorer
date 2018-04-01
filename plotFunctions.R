@@ -25,9 +25,10 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
   bordpal <- rainbow(ncols)
   insetv <- -0.16
   legcols <- (ncols %/% 20) + 1
+  cexAxis = 1.5
   # dont you just love fudge factors?
   sw <- max(strwidth(x, units = "inches"))
-  lmar <- sw+0.6 
+  lmar <- (sw+0.6)*cexAxis
   rmar <- ifelse(l == TRUE,sw*legcols+0.8,0.8)
   if(lmar+rmar>par("pin")[1]) rmar <- ifelse(l == TRUE,par("pin")[1]-lmar-1,0.8)
   
@@ -36,7 +37,7 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
   {
     # to force a zero line we have to set ylim to 0 as needed
     ymin <- ifelse(z == TRUE, min(min(y),0),min(y) )
-    boxplot(y ~ x, col = colpal,border = bordpal, pars = list(las = 1, cex.axis = 1.5), horizontal = TRUE, outline = TRUE, ylim = c(ymin,max(y)))
+    boxplot(y ~ x, col = colpal, medcol = bordpal, border = "black", pars = list(las = 1, cex.axis = cexAxis), horizontal = TRUE, outline = TRUE, ylim = c(ymin,max(y)))
     if(!is.null(s)) text(y = x, x = min(ymin,xmin), labels = s, pos = 2)
     title(t)
     if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')

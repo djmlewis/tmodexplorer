@@ -46,7 +46,7 @@ ui <-
                     wellPanel(style = "background-color: #FFFFFF;",
                       fluidRow(
                           column(4,
-                            conditionalPanel(condition = "input.selectColumn != null",
+                            conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                             wellPanel(style = "background-color: #feffee;",
                               awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
                               textInput('textInputKeyword',NULL),
@@ -57,15 +57,16 @@ ui <-
                           ))),
                           column(8,
                             wellPanel(style = "background-color: #ffffff;",
-                              h4(style = "text-align: center; margin-top: 0px;", "Select a treatment~time column to filter by value and sort probes by value"),
+                              h4(style = "text-align: left; margin-top: 0px;", "Select a treatment~time combination to filter by value and sort probes by value"),
                               fluidRow(
-                                column(4,pickerInput('selectColumn', choices = NULL, options = list(`style` = "btn-success"))),
-                                column(4,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending Value', value = TRUE)),
-                                column(4,awesomeCheckbox(status = 'success', 'checkboxProbesGenes', 'Calculate Gene Averages', value = FALSE))
+                                column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
+                                column(3,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                column(3,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending Value', value = TRUE)),
+                                column(3,awesomeCheckbox(status = 'success', 'checkboxProbesGenes', 'Use Gene Averages', value = FALSE))
                               ),
                               fluidRow(
                                 column(6,
-                                  conditionalPanel(condition = "input.selectColumn != null",
+                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                   wellPanel(style = "background-color: #feffee;",
                                     awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px;",'2. Values Within Range:'), value = FALSE),
                                     fluidRow(
@@ -78,7 +79,7 @@ ui <-
                                   ))
                                 ),
                                 column(6,
-                                  conditionalPanel(condition = "input.selectColumn != null",
+                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                   wellPanel(style = "background-color: #feffee;",
                                     awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px;",'3. Column Row Numbers Within Range:'), value = TRUE),
                                     fluidRow(
@@ -93,7 +94,7 @@ ui <-
                           )#column
                         )
                     ),
-                    conditionalPanel(condition = "input.selectColumn != null",fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4)))
+                    conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4)))
            ),
            #################### Top Probes #######################
            tabPanel('Selected Probes',
@@ -163,12 +164,12 @@ ui <-
              wellPanel(style = "background-color: #FFFFFF",
                h4(style = "margin-top: 0px;",'Expression Values Of Modules Associated With Selected Probes / Genes'),
                fluidRow(
+                 column(3,awesomeCheckbox(status = 'success', 'checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE)),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroGenesModules', '0 |----', value = TRUE)),
-                 column(3,awesomeRadio(status = 'success', 'radioGroupProbeModulesBy','Group By',choices = c('Module','Title'),inline = TRUE)),
+                 column(3,style = "margin-top: 10px;",awesomeRadio(status = 'success', 'radioGroupProbeModulesBy',NULL,choices = c('Module','Title'),inline = TRUE)),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
-                 column(2, style = "margin-top: -10px;", sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotGenesModulesSIZEheight", "Plot height")),
-                 column(4,awesomeCheckbox(status = 'success', 'checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE))
+                 column(2, offset = 1, style = "margin-top: -10px;", sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotGenesModulesSIZEheight", "Plot height"))
                ),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotGenesModulesSIZE")
@@ -338,9 +339,9 @@ ui <-
          fluidRow(
            column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendGenesModules', 'Legend', value = FALSE)),
            column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroGenesModules', '0 |----', value = TRUE)),
-           column(3,awesomeRadio(status = 'success', 'mradioGroupTitleName','Group By',choices = c('Module','Title'),inline = TRUE)),
+           column(3,style = "margin-top: 10px;", awesomeRadio(status = 'success', 'mradioGroupTitleName',NULL,choices = c('Module','Title'),inline = TRUE)),
            column(3,awesomeCheckbox(status = 'success', 'mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
-           column(2, style = "margin-top: -10px;", sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numbermplotSelectedModulesSIZEheight", "Plot height"))
+           column(2, offset = 2, style = "margin-top: -10px;", sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numbermplotSelectedModulesSIZEheight", "Plot height"))
            ),
          wellPanel(style = "background-color: #FFFFFF;",
                    uiOutput("mplotSelectedModulesSIZE")
@@ -443,9 +444,9 @@ ui <-
          wellPanel(style = "background-color: #FFFFFF;",
           uiOutput("mplotModuleSeriesSIZE")
          ),
-         fluidRow(
-         column(1,conditionalPanel(condition = "output.mplotModuleSeries != null",downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG'))),
-         column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised")))
+         fluidRow(conditionalPanel(condition = "output.mplotModuleSeries != null",
+         column(1,downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG')),
+         column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))))
        ),
          conditionalPanel(condition = "output.mdatatableModuleSeries != null",
           downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Table')), hr(), 

@@ -4,8 +4,13 @@ load('tmod.rda')
 
 
 ###### Functions
-dataOK <- function(data2check) {
-  return(!is.null(data2check) && nrow(data2check)>0)
+dataFrameOK <- function(data2check) {
+  if(is.null(data2check)) return(FALSE)
+  # nrow(data2check)>0 may return logical(0), because nrow(NULL) is NULL, and NULL > 0 is not false but logical(0)!
+  # the same response from nrow() applied to lists -> NULL
+  # and TRUE && logical(0) = NA! So we return an NA from the test (!is.null(data2check) && nrow(data2check)>0)
+  # so use isTRUE to trap this horrible thing called logical(0)
+  return(isTRUE(nrow(data2check)>0))
 }
 
 extractColumnNames <- function(cnams) {
@@ -53,6 +58,19 @@ showModalGenericFailure <- function(message){
   )
 }
 
+vaccinesDaysFromColNames <- function(coln) {
+  u <- str_split(coln,'_',simplify = TRUE)
+  return(list(vaccines = unique(u[,1]), days = unique(u[,2])))
+}
+
+columnsFromVaccinesDays <- function(v,d) {
+  e <- expand.grid(v,d, stringsAsFactors = FALSE)
+  paste(e[,1],e[,2],sep = '_')
+}
+
+columnFromVaccineDay <- function(v,d) {
+  paste(v,d,sep = '_')
+}
 
 getNewData <- function(allData, folderNme) {
   folderpath <- paste0('datafiles/', folderNme) #file.choose()
@@ -120,7 +138,7 @@ loadUploadedData <- function(allData, infiles,fileName) {
 
 getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
   # protect from not matching colN
-  if (dataOK(data) && colN %in% names(data)) {
+  if (dataFrameOK(data) && colN %in% names(data)) {
       if (asGenes == TRUE) {
         data4VaccDay <- data %>%
           # matches will find substrings so force it to match the whole string against colN
@@ -186,7 +204,7 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet) {
 }
 
 selectedGenesAndModules <- function(selGenes) {
-  if(dataOK(selGenes)) {
+  if(dataFrameOK(selGenes)) {
     selMods <- modules4GeneList(selGenes$Gene,selGenes$Rank)
     selModsOnly <- selMods[selMods$Module != '',]
     return(list(genes = selGenes, modules = selMods, modsOnly = selModsOnly))
@@ -367,13 +385,16 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
   }
 
 getExpressionsForModules <- function(topgenesmods, actarmcdDay, allExpressionData, addPseudoModule, filters) {
-    
-    if (!is.null(topgenesmods[['modsOnly']]) && !is.null(topgenesmods[['genes']]) && nrow(topgenesmods[['modsOnly']]) > 0 && nrow(topgenesmods[['genes']]) > 0) {
-
+  if(
+    dataFrameOK(allExpressionData) 
+    && !is.null(topgenesmods) # its a list cannot use dataFrameOK
+    && dataFrameOK(topgenesmods[['modsOnly']])
+    && dataFrameOK(topgenesmods[['genes']])
+       ) {
+      print("getExpressionsForModules")
       actarmDayExpressionData <- allExpressionData %>%
         select(Value = matches(paste0('^', actarmcdDay, '$')), Gene)
       # Extract unique mod names
-
       modsUnique <- unique(topgenesmods[['modsOnly']][['Module']])
 
       # get a named list, name is the module and values are gene names

@@ -17,6 +17,8 @@ server <- function(input, output, session) {
   hideTab(inputId = "navbarTop", target = "Explore By Module")
   hideTab(inputId = "navbarTop", target = "Lookup")
   
+  # sortCol_Probes <- NULL
+  assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   
 #   #################### Password #########################
   password <- read_rds("p")
@@ -83,12 +85,18 @@ server <- function(input, output, session) {
     hideTab(inputId = "navModule", target = "Selected Modules")
     hideTab(inputId = "navModule", target = "Modules:Series")
 
-    # topGenesAndModules(NULL)
-    # topModulesSelected(NULL)
+    # reset to NULL previous selections
+    assign("sortCol_Probes",NULL, envir = .GlobalEnv)
+    topGenesAndModules(NULL)
+    topModulesSelected(NULL)
     
     
     # these must be updated here as they do not observe allData
-    updatePickerInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))#, selected = character(0)
+    # updatePickerInput(session, 'selectColumn', choices = allData$colNames, selected = character(0))
+    vaccDays <- vaccinesDaysFromColNames(allData$colNames)
+    updatePickerInput(session, 'selectColumnVaccine', choices = vaccDays$vaccines)
+    updatePickerInput(session, 'selectColumnDay', choices = vaccDays$days)
+    
     updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     
@@ -133,14 +141,23 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
 
   #################### Selecting Columns #########################
   # select the genes and identify associated modules
-  
+
   ### selecting events - probes
   observeEvent(
-    input$selectColumn,
-    {updateExpressionMinMax(input$selectColumn)})
-  observeEvent(
+    {
+      # input$selectColumn
+      input$selectColumnDay
+      input$selectColumnVaccine
+    },
+    # {updateExpressionMinMax(input$selectColumn)})
+    {
+      print(columnFromVaccineDay(input$selectColumnVaccine,input$selectColumnDay))
+      assign("sortCol_Probes",columnFromVaccineDay(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
+      updateExpressionMinMax(sortCol_Probes)
+    })
+observeEvent(
     input$buttonResetValuesRangeCol,
-    {updateExpressionMinMax(input$selectColumn)})
+    {updateExpressionMinMax(sortCol_Probes)})
   observeEvent(
     input$buttonResetValuesRangeData,
     {updateExpressionMinMax(allData$colNames)})
@@ -155,15 +172,12 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     }})
   
   
-  ### topGenesAndModules()
   topGenesAndModules <- reactiveVal()
   topGenesAndModules(NULL)
-  # sortCol_Probes <- NULL
-  assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   observeEvent(
     input$buttonApplySelection,
     {
-        if(!is.null(input$selectColumn)) {
+        if(!is.null(sortCol_Probes)) {
           if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE) {
             sendSweetAlert(session, type = 'error', title = "Too Many Probes", text = "You must have at least one filter selected or it will try to return and plot over 60,000 probes")
             } else {
@@ -178,40 +192,40 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
               showTab(inputId = "navProbe", target = "Modules:Series")
               
               # sortCol_Probes <<- input$selectColumn # note <<- as in function()
-              assign("sortCol_Probes",input$selectColumn, envir = .GlobalEnv)
+              # assign("sortCol_Probes",input$selectColumn, envir = .GlobalEnv)
               filterText <- ""
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
               if(input$checkboxSelectKeyword == TRUE) {
                 geneslist <- getGenesForSearch(allData$data,input$textInputKeyword,input$radioKeywordColumn)
-                if(dataOK(geneslist)) {
+                if(dataFrameOK(geneslist)) {
                   filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
                   # calculate topGenesAndModules() using geneslist
-                  geneslist <- getSortedGenesForVaccDay(geneslist,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
+                  geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
                 }
               } else {
                 # calculate topGenesAndModules() using allData
-                geneslist <- getSortedGenesForVaccDay(allData$data,input$selectColumn,input$checkboxDescending,input$checkboxProbesGenes)
+                geneslist <- getSortedGenesForVaccDay(allData$data,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
               }
               
-              if(input$checkboxSelectValues == TRUE && dataOK(geneslist)){
+              if(input$checkboxSelectValues == TRUE && dataFrameOK(geneslist)){
                 geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
                 filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
               }
-              if(input$checkboxSelectRows == TRUE && dataOK(geneslist)){
+              if(input$checkboxSelectRows == TRUE && dataFrameOK(geneslist)){
                 geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
                 filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
               }
 
-              if(dataOK(geneslist)) {
+              if(dataFrameOK(geneslist)) {
                 if(nchar(filterText) > 0) {
                   filtersText(
-                    paste0(input$selectColumn,' ',filterText,' ',
+                    paste0(sortCol_Probes,' ',filterText,' ',
                            ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
                            ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
                     ))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 } else {
-                  filtersText(paste0(input$selectColumn,' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
+                  filtersText(paste0(sortCol_Probes,' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 }
               } else {
@@ -220,7 +234,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
               }
     
               ############ lookup the genes and modules
-              if(dataOK(geneslist)) {
+              if(dataFrameOK(geneslist)) {
                 topGenesAndModules(selectedGenesAndModules(geneslist))
                 # show a notifications
                   removeNotification(id = "buttonApplySelection")
@@ -333,7 +347,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
   #################### Modules #########################
   # get the individual gene values for boxplot and the summ stats of the modules
   geneExpressionsForModules <- reactive({
-    getExpressionsForModules(topGenesAndModules(),input$selectColumn,allData$data, input$checkboxShowPsuedoModuleGenesModules,filtersText())})
+    getExpressionsForModules(topGenesAndModules(),sortCol_Probes,allData$data, input$checkboxShowPsuedoModuleGenesModules,filtersText())})
   # draw / save table
   output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['summStats']]})
   output$buttonSaveTableModulesSummary <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Summary.csv")},
@@ -365,7 +379,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     updatePickerInput(session, 'selectModuleForGenes', choices = mods4Genes())
     updateSelectInput(session, 'selectModuleForSeries', choices = mods4Genes())})
   # calculate gene expressions for the module selected
-  expressionsInModule <- reactive({getGeneExpressionsInModule(input$selectModuleForGenes,input$selectColumn,
+  expressionsInModule <- reactive({getGeneExpressionsInModule(input$selectModuleForGenes,sortCol_Probes,
                                                               allData$data,topGenesAndModules()[['genes']])})
   # redraw the table of gene expressions for the module selected
   output$datatableModuleGenes <- renderDataTable({expressionsInModule()})
@@ -506,7 +520,7 @@ observeEvent(
           # apply the filters sequentially
           if(input$mcheckboxSelectKeyword == TRUE){
             mods <- getModulesForSearch(allData$modulesMeans,input$mtextInputKeyword,input$mradioKeywordColumn)
-            if(dataOK(mods)) {
+            if(dataFrameOK(mods)) {
               filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
               mods <- getSortedModulesForVaccDay(mods,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
             }
@@ -515,16 +529,16 @@ observeEvent(
           }
           
           
-          if(input$mcheckboxSelectValues == TRUE && dataOK(mods)){
+          if(input$mcheckboxSelectValues == TRUE && dataFrameOK(mods)){
             mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
             filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
           }
-          if(input$mcheckboxSelectRows == TRUE && dataOK(mods)){
+          if(input$mcheckboxSelectRows == TRUE && dataFrameOK(mods)){
             mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
             filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
           }
       
-          if(dataOK(mods)) {
+          if(dataFrameOK(mods)) {
             if(nchar(filterText) > 0) {
               modulesAndFiltersText(
                 paste0(input$mselectColumn,' ',filterText,' ',
