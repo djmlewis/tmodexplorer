@@ -96,7 +96,10 @@ server <- function(input, output, session) {
     updatePickerInput(session, 'selectColumnVaccine', choices = vaccDays$vaccines)
     updatePickerInput(session, 'selectColumnDay', choices = vaccDays$days)
     
-    updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
+    # updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
+    updateSelectInput(session, 'selectVaccinesForSeries', choices = vaccDays$vaccines, selected = character(0))
+    updateSelectInput(session, 'selectDaysForSeries', choices = vaccDays$days, selected = character(0))
+    
     updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     
     modulesAndFiltersText("")
@@ -259,7 +262,8 @@ observeEvent(
 
       output$plotTopGenesSeries <- renderPlot({NULL})
       output$datatableTopGenesSeries <- renderDataTable({NULL})
-      updateSelectInput(session, 'selectColumnsForSeries')
+      updateSelectInput(session, 'selectVaccinesForSeries')
+      updateSelectInput(session, 'selectDaysForSeries')
     }
   )
   
@@ -296,10 +300,9 @@ observeEvent(
       input$buttonPlotSeries
     },
     {
-      # MUST USE <<- to affect the external topGenesInSeries
-      # topGenesInSeries <<- getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries,input$checkboxSplitSeries)
+      columnsForSeries <- columnsFromVaccinesDays(input$selectVaccinesForSeries,input$selectDaysForSeries)
       assign("topGenesInSeries",
-             getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],input$selectColumnsForSeries,input$checkboxSplitSeries), 
+             getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],columnsForSeries,input$checkboxSplitSeries), 
              envir = .GlobalEnv)
       
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
@@ -321,8 +324,10 @@ observeEvent(
     input$hover_plotTopGenesSeries, 
     {handleClick(topGenesInSeries,input$hover_plotTopGenesSeries,"hover_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
   
-  observeEvent(input$buttonAddAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = allData$colNames)})
-  observeEvent(input$buttonRemoveAllProbesSeries,{updateSelectInput(session, 'selectColumnsForSeries', selected = character(0))})
+  observeEvent(input$buttonAddAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
+  observeEvent(input$buttonRemoveAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = character(0))})
+  observeEvent(input$buttonAddAllDaysSeries,{updateSelectInput(session, 'selectDaysForSeries', selected = vaccinesDaysFromColNames(allData$colNames)[['days']])})
+  observeEvent(input$buttonRemoveAllDaysSeries,{updateSelectInput(session, 'selectDaysForSeries', selected = character(0))})
   
   output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Probes-Genes Series.csv")},
      content = function(file) {write.csv(topGenesInSeries, file, row.names = FALSE)})

@@ -391,7 +391,6 @@ getExpressionsForModules <- function(topgenesmods, actarmcdDay, allExpressionDat
     && dataFrameOK(topgenesmods[['modsOnly']])
     && dataFrameOK(topgenesmods[['genes']])
        ) {
-      print("getExpressionsForModules")
       actarmDayExpressionData <- allExpressionData %>%
         select(Value = matches(paste0('^', actarmcdDay, '$')), Gene)
       # Extract unique mod names

@@ -112,14 +112,14 @@ ui <-
            #################### Top Probes Series ################
            tabPanel('Probes:Series',
              wellPanel(style = "background-color: #FFFFFF",
-               h4(style = "margin-top: 0px;",'Time Course Of Probes Or Genes Meeting The Filters, By Treatment-Time Column'),
-               h5("Select Some Treatment-Timepoint Columns And Click Plot"),
+               h4(style = "margin-top: 0px;",'Time Course Of Probes Or Genes Meeting The Filters, By Treatment~Time'),
+               h5("Select Some Treatments & Time points And Click Plot"),
                fluidRow(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
-                        conditionalPanel(condition = "input.selectColumnsForSeries != null",
+                        conditionalPanel(condition = "input.selectVaccinesForSeries != null && input.selectDaysForSeries != null",
                           actionButton('buttonPlotSeries','Plot',class = "btn-success btn-block")),
-                        conditionalPanel(condition = "input.selectColumnsForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Some Columns To Plot")),
+                        conditionalPanel(condition = "input.selectVaccinesForSeries == null || input.selectDaysForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Some Columns To Plot")),
                         fluidRow(
                             column(6,
                                    awesomeRadio(status = 'success', 'radioBoxLineProbesSeries', " ", choices = c('Lines','Boxplot')),
@@ -139,8 +139,12 @@ ui <-
                         )),
                  column(9,
                         wellPanel(style = "background-color: #feffee;",
-                          selectInput('selectColumnsForSeries', label = "Click In Box To Select Columns", choices = character(0), multiple = TRUE),
-                          div(actionButton('buttonAddAllProbesSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllProbesSeries','None'))
+                                  fluidRow(
+                                    column(4,selectInput('selectVaccinesForSeries', label = "Treatment", choices = character(0), multiple = TRUE)),
+                                    column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllVaccinesSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllVaccinesSeries','None'))),
+                                    column(4,selectInput('selectDaysForSeries', label = "Days", choices = character(0), multiple = TRUE)),
+                                    column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllDaysSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllDaysSeries','None')))
+                                  )
                         )
                  )
                ),
