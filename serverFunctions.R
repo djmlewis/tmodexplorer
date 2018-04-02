@@ -331,13 +331,13 @@ modNameFromMenuTitle <-  function(title) {
   return(sub(' .*$', '', title))
 }
 
-getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGenes) {
+getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topGenes) {
     # protect from empty data
     if (nchar(mod) > 0 &&
         nchar(actarmcdDay) > 0 &&
         !is.null(allExpressionData) &&
-        nrow(allExpressionData) > 0 &&
-        !is.null(topGenes))
+        nrow(allExpressionData) > 0
+        )
     {
       # extract just the module name from the name-Title
       selModName <- modNameFromMenuTitle(mod)
@@ -372,12 +372,20 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData,topGe
             )
           )
         })
-        selgenes <- topGenes[['Gene']]
+        
         genesExpression <-  genesExpression %>%
           arrange(Value) %>%
-          mutate(Gene = factor(Gene, levels = unique(Gene)),
-                 Selected = ifelse(Gene %in% selgenes,"►",""))
-
+          mutate(Gene = factor(Gene, levels = unique(Gene)))
+                 
+        if(!is.null(topGenes)) {
+          selgenes <- topGenes[['Gene']]
+          genesExpression <-  genesExpression %>%
+            mutate(Selected = ifelse(Gene %in% selgenes,"►",""))
+        } else {
+          genesExpression <-  genesExpression %>%
+            mutate(Selected = "")
+        }
+        
         return(genesExpression)
       }
     }

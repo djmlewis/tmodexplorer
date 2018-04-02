@@ -83,6 +83,7 @@ server <- function(input, output, session) {
     # we may have been on a different pane so re-select Select
     updateNavbarPage(session,'navModule',selected = 'Select Modules')
     hideTab(inputId = "navModule", target = "Selected Modules")
+    hideTab(inputId = "navModule", target = "Module->Genes")
     hideTab(inputId = "navModule", target = "Modules:Series")
 
     # reset to NULL previous selections
@@ -118,6 +119,7 @@ server <- function(input, output, session) {
     updatePickerInput(session, inputId = 'mselectColumn', choices = allData$colNames)
     updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'mselectPlotModulesInSeries', choices = character(0))
+    updatePickerInput(session, 'mselectModuleForGenes', choices = NULL)
     updateSelectInput(session, 'mselectModuleTitles', choices = sort(unique(allData$modulesMeans[['Title']])))
     updateSelectInput(session, 'mselectModuleAllModules', choices = sort(unique(modsNameTitle(allData$modulesMeans[['Module']],allData$modulesMeans[['Title']]))))
     
@@ -396,17 +398,11 @@ observeEvent(
   #################### Modules Series #########################
   # selectModuleForSeries and selectColumnForModuleSeries are updated above
   assign("moduleValues",NULL, envir = .GlobalEnv)
-  # moduleValues <- NULL
   assign("ggplotModulesInSeries",NULL, envir = .GlobalEnv)
-  # ggplotModulesInSeries <-NULL
   observeEvent({
     input$buttonPlotModuleSeries
   },{
     output$plotModuleSeries <- renderPlot({NULL})
-    # MUST USE <<- to affect the external moduleValues
-    # moduleValues <<- getModuleValuesForSeries(allData$data,
-    #   input$selectModuleForSeries,input$selectColumnForModuleSeries, 
-    #   input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries)
     assign("moduleValues",
            getModuleValuesForSeries(allData$data,
                                     input$selectModuleForSeries,input$selectColumnForModuleSeries, 
@@ -414,10 +410,6 @@ observeEvent(
            envir = .GlobalEnv)
     
     if(!is.null(moduleValues) && input$checkboxShowPseudoModuleModuleSeries == TRUE) {
-      # MUST USE <<- to affect the external moduleValues
-      # moduleValues <<- getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
-      #                       input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
-      #                       input$radioRibbonBoxModuleSeries,moduleValues)
       assign("moduleValues",
              getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
                                                   input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
@@ -427,9 +419,6 @@ observeEvent(
     
     output$datatableModuleSeries <- renderDataTable({moduleValues})
     
-    # ggplotModulesInSeries <<-  plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
-    #     input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
-    #     input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries)
     assign("ggplotModulesInSeries",
            plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
                                input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
@@ -457,12 +446,9 @@ observeEvent(
   
   ############################## Gene Lookup ###########
   assign("lookedupGenes",NULL, envir = .GlobalEnv)
-  # lookedupGenes <- NULL
   observeEvent({
     input$buttonGeneLookup
   },{
-    # <<-
-    # lookedupGenes <<- lookupGenesProbes(input$textInputGeneLookup, allData$annot)
     assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot), envir = .GlobalEnv)
     output$datatableGeneLookup <- renderDataTable({lookedupGenes})
   })
@@ -510,6 +496,7 @@ observeEvent(
           showNotification("Please wait for filters to be applied…", id = "mbuttonApplySelection", type = 'message', duration = 3)
           # show tabs as we have selected modules
           showTab(inputId = "navModule", target = "Selected Modules")
+          showTab(inputId = "navModule", target = "Module->Genes")
           showTab(inputId = "navModule", target = "Modules:Series")
           
           # sortCol_Mods <<- input$mselectColumn # note <<-
@@ -580,8 +567,9 @@ observeEvent(
     output$mplotModuleSeries <- renderPlot({NULL})
     output$mdatatableModuleSeries <- renderDataTable({NULL})
     updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))
-    updateSelectInput(session, 'mselectPlotModulesInSeries',choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']])) #choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']])
-
+    updateSelectInput(session, 'mselectPlotModulesInSeries',choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))
+    updatePickerInput(session, 'mselectModuleForGenes',choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))
+    
   }
 )
 
@@ -605,7 +593,7 @@ output$mbuttonSaveListTopModuleCategory <- downloadHandler(filename = function()
 
 
 
-  #################### Plot Modules Selected #########################
+  # Plot Modules Selected #
 ggplotSelectedModules <-
   reactive({plotSelectedModules(allData$modules,topModulesSelected(),modulesAndFiltersText(), 
     input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName,input$mcheckboxGGplotGenesModules)})
@@ -613,6 +601,25 @@ output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()} ,res = 72)
 output$mplotSelectedModulesSIZE <- renderUI({plotOutput("mplotSelectedModules", height = input$numbermplotSelectedModulesSIZEheight)})
 output$buttonPNGmplotSelectedModules <- downloadHandler(filename = function(){paste0("Selected Modules.png")},
   content = function(file) {plotPlotPNG(ggplotSelectedModules(),file,session$clientData[["output_mplotSelectedModules_height"]],session$clientData[["output_mplotSelectedModules_width"]])})
+
+#################### Modules Modules->Genes #########################
+
+# change choices in the Genes In Module select based on selected modules
+# observeEvent(topModulesSelected() is above and resets our menu
+# calculate gene expressions for the module selected
+expressionsInModuleModule <- reactive({getGeneExpressionsInModule(input$mselectModuleForGenes,sortCol_Mods,allData$data,NULL)})
+# # redraw the table of gene expressions for the module selected
+output$mdatatableModuleGenes <- renderDataTable({expressionsInModuleModule()})
+output$buttonSaveTableModulesGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".csv")},
+                                                      content = function(file) {write.csv(expressionsInModuleModule(), file, row.names = FALSE)})
+
+ggplotModuleModuleGenes <- reactive({plotModuleGenes(expressionsInModuleModule(),isolate(input$mselectModuleForGenes),
+                                                    modulesAndFiltersText(),input$mcheckboxShowLegendModuleGenes, input$mcheckboxShowZeroModuleGenes,
+                                                    input$mcheckboxGGplotModuleGenes)})
+output$mplotModuleGenes <- renderPlot({ggplotModuleModuleGenes()} ,res = 72)
+output$mplotModuleGenesSIZE <- renderUI({plotOutput("mplotModuleGenes", height = input$mnumberPlotModuleGenesSIZEheight)})
+output$mbuttonPNGplotModuleGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".png")},
+                                                   content = function(file) {plotPlotPNG(ggplotModuleModuleGenes(),file,session$clientData[["output_mplotModuleGenes_height"]],session$clientData[["output_mplotModuleGenes_width"]])})
 
   #################### Plot Modules Selected Series #########################
 
@@ -627,12 +634,6 @@ observeEvent({
     else if(input$radioModulesModulesSeries == 'Titles') {mods2plot <- getModulesForTitles(input$mselectModuleTitles,allData$modulesMeans)}
     else if(input$radioModulesModulesSeries == 'Modules') {mods2plot <- input$mselectModuleAllModules}
 
-    # MUST USE <<-
-    # ggplotSelectedModulesSeries <<- plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
-    #   mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
-    #   input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
-    #   input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
-    #   input$mcheckboxShowPointsSeries,sortCol_Mods)
     assign("ggplotSelectedModulesSeries",
            plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
                                      mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,

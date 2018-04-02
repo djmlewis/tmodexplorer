@@ -363,6 +363,27 @@ ui <-
          ), hr(), 
          dataTableOutput('mdatatableTopModulesUp')
      ),
+    #################### Top Modules->Genes ###################
+    tabPanel('Module->Genes',
+             wellPanel(style = "background-color: #FFFFFF;",
+                       h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Selected Modules'),
+                       fluidRow(
+                         column(6,pickerInput(inputId = 'mselectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
+                         column(1,offset = 2, awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleGenes', 'Legend', value = FALSE)),
+                         column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroModuleGenes', '0 |----', value = TRUE)),
+                         column(1,awesomeCheckbox(status = 'success', 'mcheckboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
+                         column(1, style = "margin-top: -10px;", sliderInput("mnumberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               
+                       ),
+                       wellPanel(style = "background-color: #FFFFFF;",
+                                 uiOutput("mplotModuleGenesSIZE")
+                       ),
+                       fluidRow(
+                         column(1,downloadButton(class="btn-warning",'mbuttonPNGplotModuleGenes', 'HiRes PNG')),
+                         column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
+                       )),
+             downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesGenes', 'Table'), 
+             hr(), 
+             dataTableOutput('mdatatableModuleGenes')),
     #################### Top Modules Series #######################
      tabPanel('Modules:Series',
        wellPanel(style = "background-color: #FFFFFF;",
