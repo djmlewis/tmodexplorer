@@ -3,7 +3,7 @@ modsNameTitle <- function(mods,titles){
 }
 
 getMaxMinValueFromModulesData <- function(alldata,allcols,medians){
-  if(is.null(alldata)) return(c(0,0))
+  if(!dataFrameOK(alldata$modulesMeans)) return(c(0,0))
   
   data <- alldata$modulesMeans %>%
     filter(Column %in% allcols)

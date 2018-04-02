@@ -4,6 +4,9 @@ load('tmod.rda')
 
 
 ###### Functions
+dataFrameNotOK <- function(data2check) {
+  return(!dataFrameOK(data2check))
+}
 dataFrameOK <- function(data2check) {
   if(is.null(data2check)) return(FALSE)
   # nrow(data2check)>0 may return logical(0), because nrow(NULL) is NULL, and NULL > 0 is not false but logical(0)!

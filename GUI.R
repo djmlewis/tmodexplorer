@@ -285,7 +285,7 @@ ui <-
       wellPanel(style = "background-color: #FFFFFF;",
       fluidRow(
         column(4,
-               conditionalPanel(condition = "input.mselectColumn != null",
+               conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
                         wellPanel(style = "background-color: #feffee;",
                          awesomeCheckbox(status = 'success',inputId = 'mcheckboxSelectKeyword',label =  h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
                          textInput('mtextInputKeyword',NULL),
@@ -299,14 +299,16 @@ ui <-
         wellPanel(style = "background-color: #FFFFFF;",
             h4(style = "text-align: center; margin-top: 0px;", "Select a treatment~time column to filter by value and sort modules by value"),
             fluidRow(
-              column(4, pickerInput(inputId = 'mselectColumn', label = NULL, choices = NULL, options = list(`style` = "btn-success"))),
-              column(4,awesomeCheckbox(status = 'success', 'mcheckboxDescending', 'Sort Descending', value = TRUE)),
-              column(4,awesomeCheckbox(status = 'success', 'mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
+              # column(4, pickerInput(inputId = 'mselectColumn', label = NULL, choices = NULL, options = list(`style` = "btn-success"))),
+              column(3,pickerInput('mselectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
+              column(3,pickerInput('mselectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
+              column(3,awesomeCheckbox(status = 'success', 'mcheckboxDescending', 'Sort Descending', value = TRUE)),
+              column(3,awesomeCheckbox(status = 'success', 'mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
             ),
           fluidRow(
              fluidRow(
               column(6,
-              conditionalPanel(condition = "input.mselectColumn != null",
+              conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
                 wellPanel(style = "background-color: #feffee;",
                 awesomeCheckbox(status = 'success', inputId = 'mcheckboxSelectValues', label =  h4(style = "margin-top: 0px;",'2. Values Within Range:'), value = FALSE),
               fluidRow(
@@ -319,7 +321,7 @@ ui <-
               actionButton('mbuttonResetValuesRangeData','Data', class = 'btn-outline-primary')
             ))),
             column(6,
-              conditionalPanel(condition = "input.mselectColumn != null",
+              conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
                 wellPanel(style = "background-color: #feffee;",
                 awesomeCheckbox(status = 'success', inputId = 'mcheckboxSelectRows', label =  h4(style = "margin-top: 0px;",'3. Column Row Numbers Within Range:'), value = TRUE),
                 fluidRow(
@@ -334,7 +336,7 @@ ui <-
         )
       )
       ),
-      fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumn != null",actionButton('mbuttonApplySelection','Apply Selections',class = "btn-success btn-block"))))
+      fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",actionButton('mbuttonApplySelection','Apply Selections',class = "btn-success btn-block"))))
     ), #tab
     #################### Top Modules #######################
      tabPanel('Selected Modules',

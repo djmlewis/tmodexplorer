@@ -50,17 +50,22 @@ server <- function(input, output, session) {
   
   updateExpressionMinMax <- function(selCol){
     if(!is.null(selCol)){
-      expressionValueRange <- getMaxMinValueFromData(allData$data,c(selCol))#allData$colNames
+      expressionValueRange <- getMaxMinValueFromData(allData$data,c(selCol))
       updateNumericInput(session,'numberExpressionMin',value = expressionValueRange[['Min']])
       updateNumericInput(session,'numberExpressionMax',value = expressionValueRange[['Max']])
+      
+      removeNotification(id = "updateExpressionMinMax")
+      showNotification(id = "updateExpressionMinMax", paste0("Expression Max Min Reset To ", ifelse(length(selCol)==1,"Selected Column","Whole Dataset"), " Max Min"))
     }
   }
   
   updateModuleMinMax <- function(selCol){
-    if(!is.null(selCol)){
+    if(!is.null(selCol) && dataFrameOK(allData$modulesMeans)){
       expressionValueRange <- getMaxMinValueFromModulesData(allData,c(selCol), input$mcheckboxModuleMedians)
       updateNumericInput(session,'mnumberExpressionMin',value = expressionValueRange[['Min']])
       updateNumericInput(session,'mnumberExpressionMax',value = expressionValueRange[['Max']])
+      removeNotification(id = "updateModuleMinMax")
+      showNotification(id = "updateModuleMinMax", paste0("Module Max Min Reset To ", ifelse(length(selCol)==1,"Selected Column","Whole Dataset"), " Max Min"))
     }
   }
   
@@ -116,7 +121,11 @@ server <- function(input, output, session) {
     
 
     # modules DO NOT RESPOND. NEED TO FIX
-    updatePickerInput(session, inputId = 'mselectColumn', choices = allData$colNames)
+    # updatePickerInput(session, inputId = 'mselectColumn', choices = allData$colNames)
+    updatePickerInput(session, 'mselectColumnVaccine', choices = vaccDays$vaccines)
+    updatePickerInput(session, 'mselectColumnDay', choices = vaccDays$days)
+    
+    
     updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'mselectPlotModulesInSeries', choices = character(0))
     updatePickerInput(session, 'mselectModuleForGenes', choices = NULL)
@@ -158,10 +167,12 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
     })
 observeEvent(
     input$buttonResetValuesRangeCol,
-    {updateExpressionMinMax(sortCol_Probes)})
+    {
+      updateExpressionMinMax(sortCol_Probes)})
   observeEvent(
     input$buttonResetValuesRangeData,
-    {updateExpressionMinMax(allData$colNames)})
+    {
+      updateExpressionMinMax(allData$colNames)})
   
   # warnedAboutProbeRows <- FALSE
   assign("warnedAboutProbeRows",FALSE, envir = .GlobalEnv)
@@ -464,30 +475,52 @@ observeEvent(
   
 
 #################### MODULES ####################  
+  # sortCol_Mods <- NULL
+  assign("sortCol_Mods",NULL, envir = .GlobalEnv)
+  
   #################### Selecting Modules ####
 
-observeEvent(
-  {input$mselectColumn
-    input$mcheckboxModuleMedians},
-  {updateModuleMinMax(input$mselectColumn)})
+# observeEvent(
+#   {input$mselectColumn
+#     input$mcheckboxModuleMedians},
+#   {updateModuleMinMax(input$mselectColumn)})
+  
+  observeEvent({
+    input$mselectColumnDay
+    input$mselectColumnVaccine
+  },
+  {
+    assign(
+      "sortCol_Mods",
+      columnFromVaccineDay(input$mselectColumnVaccine, input$mselectColumnDay),
+      envir = .GlobalEnv
+    )
+    updateModuleMinMax(sortCol_Mods)
+  })
+  
+  
 observeEvent(
   input$mbuttonResetValuesRangeCol,
-  {updateModuleMinMax(input$mselectColumn)})
+  {
+    updateModuleMinMax(sortCol_Mods)})
+
 observeEvent(
-  input$mbuttonResetValuesRangeData,
-  {updateModuleMinMax(allData$colNames)})
+  {
+    input$mbuttonResetValuesRangeData
+    input$mcheckboxModuleMedians
+  },
+  {
+    updateModuleMinMax(allData$colNames)})
 
 topModulesSelected <- reactiveVal()
 topModulesSelected(NULL)
 
-# sortCol_Mods <- NULL
-assign("sortCol_Mods",NULL, envir = .GlobalEnv)
 
 observeEvent(
   input$mbuttonApplySelection,
   {
     {
-      if(!is.null(input$mselectColumn)) {
+      if(!is.null(sortCol_Mods)) {
         # calculate topGenesAndModules()
         if(input$mcheckboxSelectKeyword == FALSE && input$mcheckboxSelectValues == FALSE && input$mcheckboxSelectRows == FALSE) {
           showModal(modalDialog(
@@ -499,8 +532,7 @@ observeEvent(
           showTab(inputId = "navModule", target = "Module->Genes")
           showTab(inputId = "navModule", target = "Modules:Series")
           
-          # sortCol_Mods <<- input$mselectColumn # note <<-
-          assign("sortCol_Mods",input$mselectColumn, envir = .GlobalEnv)
+          assign("sortCol_Mods",columnFromVaccineDay(input$mselectColumnVaccine, input$mselectColumnDay), envir = .GlobalEnv)
           
           filterText <- ""
           # apply the filters sequentially
@@ -508,10 +540,10 @@ observeEvent(
             mods <- getModulesForSearch(allData$modulesMeans,input$mtextInputKeyword,input$mradioKeywordColumn)
             if(dataFrameOK(mods)) {
               filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
-              mods <- getSortedModulesForVaccDay(mods,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
+              mods <- getSortedModulesForVaccDay(mods,sortCol_Mods,input$mcheckboxDescending,input$mcheckboxModuleMedians)
             }
           } else {
-            mods <- getSortedModulesForVaccDay(allData$modulesMeans,input$mselectColumn,input$mcheckboxDescending,input$mcheckboxModuleMedians)
+            mods <- getSortedModulesForVaccDay(allData$modulesMeans,sortCol_Mods,input$mcheckboxDescending,input$mcheckboxModuleMedians)
           }
           
           
@@ -527,13 +559,13 @@ observeEvent(
           if(dataFrameOK(mods)) {
             if(nchar(filterText) > 0) {
               modulesAndFiltersText(
-                paste0(input$mselectColumn,' ',filterText,' ',
+                paste0(sortCol_Mods,' ',filterText,' ',
                        ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
                        ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
                 ))
             } else {
               modulesAndFiltersText(
-                paste0(input$mselectColumn,' [No filters] ',
+                paste0(sortCol_Mods,' [No filters] ',
                        ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),
                        ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
                 ))
@@ -609,7 +641,7 @@ output$buttonPNGmplotSelectedModules <- downloadHandler(filename = function(){pa
 # calculate gene expressions for the module selected
 expressionsInModuleModule <- reactive({getGeneExpressionsInModule(input$mselectModuleForGenes,sortCol_Mods,allData$data,NULL)})
 # # redraw the table of gene expressions for the module selected
-output$mdatatableModuleGenes <- renderDataTable({expressionsInModuleModule()})
+output$mdatatableModuleGenes <- renderDataTable({select(expressionsInModuleModule(),-Selected)})
 output$buttonSaveTableModulesGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".csv")},
                                                       content = function(file) {write.csv(expressionsInModuleModule(), file, row.names = FALSE)})
 
