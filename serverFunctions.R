@@ -66,12 +66,12 @@ vaccinesDaysFromColNames <- function(coln) {
   return(list(vaccines = unique(u[,1]), days = unique(u[,2])))
 }
 
-columnsFromVaccinesDays <- function(v,d) {
+multiColumnsFromMultiVaccinesDays <- function(v,d) {
   e <- expand.grid(v,d, stringsAsFactors = FALSE)
   paste(e[,1],e[,2],sep = '_')
 }
 
-columnFromVaccineDay <- function(v,d) {
+singleColumnFromOneVaccineDay <- function(v,d) {
   paste(v,d,sep = '_')
 }
 

@@ -18,6 +18,7 @@ library(forcats)
 library(shinydashboard)
 library(shinyWidgets)
 library(shinyBS)
+library(shinyjs)
 library(cowplot)
 
 ####--------------------------

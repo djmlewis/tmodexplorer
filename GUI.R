@@ -1,8 +1,11 @@
 # Define UI  
 ui <-
+tagList(
+  useShinyjs(),  # Set up shinyjs
   navbarPage(span(style = 'color: #fefc78;','tmodExplorer'), id = 'navbarTop', position = "fixed-top", theme = "theme.css", windowTitle = 'tmodExplorer',
              inverse = TRUE,
              header = tagList(tags$style(type="text/css", "body {padding-top: 70px;}")),
+             
   ######################  TABS  #########
   
   #################### Password ################
@@ -30,19 +33,22 @@ ui <-
             column(2,actionButton('buttonLoadDataFI',label = 'Load Data',class = "btn-success"))
       )))
     ),
-    h4(style = "text-align: center; margin-top: 0px;",textOutput('textDataName')),
-    conditionalPanel(condition = "output.datatableAll != null",
-                     downloadButton(class="btn-outline-primary",'buttonsavedatatableAll', 'Table')),
+    hidden(h4(id = "textDataNameHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;",textOutput('textDataName'))),
+    conditionalPanel(condition = "output.datatableAll != null",downloadButton(class="btn-outline-primary",'buttonsavedatatableAll', 'Table')),
     hr(),
     dataTableOutput('datatableAll')
   ),
   # ############## PROBES #################
       tabPanel('Explore By Probe',
-        h4(style = "text-align: center; margin-top: 0px;", textOutput('textDataNameProbes')),
-         navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe', header = h4(style = "text-align: center; margin-top: 0px;", textOutput('textFiltersProbes')),
+        hidden(h4(id = "textDataNameProbesHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameProbes')))),
+         navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe', 
+                    header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #feffee;padding-top: 10px; padding-bottom: 10px;", textOutput('textFiltersProbes'))))),
            #################### Selecting  ################
            tabPanel('Select Probes',
-                    hr(),h3('Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
+                    hr(),
+                    h4(style = "text-align: center;",'Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
+                    conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4))),
+                    br(),
                     wellPanel(style = "background-color: #FFFFFF;",
                       fluidRow(
                           column(4,
@@ -81,7 +87,7 @@ ui <-
                                 column(6,
                                   conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                   wellPanel(style = "background-color: #feffee;",
-                                    awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px;",'3. Column Row Numbers Within Range:'), value = TRUE),
+                                    awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px;",'3. Row Numbers Within Range:'), value = TRUE),
                                     fluidRow(
                                       column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)), 
                                       column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
@@ -93,8 +99,7 @@ ui <-
                             )
                           )#column
                         )
-                    ),
-                    conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4)))
+                    )
            ),
            #################### Top Probes #######################
            tabPanel('Selected Probes',
@@ -214,13 +219,14 @@ ui <-
            tabPanel('Modules:Series',
             wellPanel(style = "background-color: #FFFFFF;",
               h4(style = "margin-top: 0px;",'Time Course Of Modules Associated With Selected Probes / Genes'),
-              h5('Select Some Treatment-Timepoint Columns And Modules, And Click Plot'),
+              h5(style = "text-align: right;",'Select Some Treatment ~ Times And Modules, And Click Plot'),
               fluidRow(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
-                          conditionalPanel(condition = "input.selectColumnForModuleSeries != null && input.selectModuleForSeries != null",
+                          conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines != null && input.selectColumnForModuleSeriesDays != null && input.selectModuleForSeries != null",
                             actionButton('buttonPlotModuleSeries','Plot',class = "btn-success btn-block")),
-                          conditionalPanel(condition = "input.selectColumnForModuleSeries == null || input.selectModuleForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Columns & Modules To Plot")),
+                          conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines == null || input.selectColumnForModuleSeriesDays == null || input.selectModuleForSeries == null", 
+                            p(style = "color: #728f17; text-align: center;","Choose Columns & Modules To Plot")),
                         fluidRow(
                           column(6,
                           awesomeRadio(status = 'success', 'radioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
@@ -241,20 +247,25 @@ ui <-
                         )
                       )
                  ),
-                 column(4,
+                 column(6,
                         wellPanel(style = "background-color: #feffee;",
-                          selectInput('selectColumnForModuleSeries', label = 'Click In Box To Select Columns', character(0), multiple = TRUE),
-                          div(actionButton('buttonAddAllColumnsModuleSeries','All', class="btn-outline-primary"),
-                          actionButton('buttonRemoveAllColumnsModuleSeries','None'))
-                        )),
-                 column(5,
-                        wellPanel(style = "background-color: #feffee;",
-                          selectInput('selectModuleForSeries', label = 'Click In Box To Select Modules', character(0), multiple = TRUE),
                           fluidRow(
-                          column(6,actionButton('buttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
-                            actionButton('buttonRemoveAllModulesModuleSeries','None')),
-                          column(6,awesomeCheckbox(status = 'success', 'checkboxShowPseudoModuleModuleSeries', 'Include Selected As Module', value = TRUE))
+                            column(6,selectInput('selectColumnForModuleSeriesVaccines', label = "Treatment", choices = character(0), multiple = TRUE),
+                                   div(style = "margin-top: 20px;",
+                                       actionButton('buttonAddAllColumnsModuleSeriesVaccines','All', class="btn-outline-primary"),
+                                       actionButton('buttonRemoveAllColumnsModuleSeriesVaccines','None'))),
+                            column(6,selectInput('selectColumnForModuleSeriesDays', label = "Days", choices = character(0), multiple = TRUE),
+                                   div(style = "margin-top: 20px;",
+                                       actionButton('buttonAddAllColumnsModuleSeriesDays','All', class="btn-outline-primary"),
+                                       actionButton('buttonRemoveAllColumnsModuleSeriesDays','None')))
                           )
+                        )),
+                 column(3,
+                        wellPanel(style = "background-color: #feffee;",
+                          selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
+                          div(actionButton('buttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
+                              actionButton('buttonRemoveAllModulesModuleSeries','None')),
+                          awesomeCheckbox(status = 'success', 'checkboxShowPseudoModuleModuleSeries', 'Include Selected As Module', value = TRUE)
                         )
                  )
                ),
@@ -276,12 +287,16 @@ ui <-
 ),# explore by probe
   ############## MODULES #################
   tabPanel('Explore By Module',
-    h4(style = "text-align: center; margin-top: 0px;", textOutput('textDataNameMods')),
-    navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule', header = h4(style = "text-align: center; margin-top: 0px;", textOutput('textFiltersMods')),
+    hidden(h4(id = "textDataNameModsHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameMods'))),
+    navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule', 
+               header = hidden(tagList(div(id = "navModuleHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #feffee;padding-top: 10px; padding-bottom: 10px;", 
+                                                                     textOutput('textFiltersMods'))))),
       #################### Selecting Modules ################
       tabPanel('Select Modules',
       hr(),
-      h3('Apply filters to select modules for plotting. Selected filters are applied in order left → right'),
+      h4(style = "text-align: center;", 'Apply filters to select modules for plotting. Selected filters are applied in order left → right'),
+      fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",actionButton('mbuttonApplySelection','Apply Selections',class = "btn-success btn-block")))),
+      br(),
       wellPanel(style = "background-color: #FFFFFF;",
       fluidRow(
         column(4,
@@ -335,8 +350,7 @@ ui <-
         )#wp
         )
       )
-      ),
-      fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",actionButton('mbuttonApplySelection','Apply Selections',class = "btn-success btn-block"))))
+      )
     ), #tab
     #################### Top Modules #######################
      tabPanel('Selected Modules',
@@ -585,3 +599,4 @@ tabPanel('ReadMe', icon = icon('info-circle'),
   div( img(src = 'surrey.png'), img(src = 'ugent.png'), img(src = 'mpiib.png'),img(src = 'icl.png'), img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')),
   hr()
   )# navpage top
+)# tagList top

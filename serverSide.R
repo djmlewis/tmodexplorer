@@ -85,6 +85,11 @@ server <- function(input, output, session) {
     hideTab(inputId = "navProbe", target = "Module->Genes")
     hideTab(inputId = "navProbe", target = "Modules:Series")
     
+    
+    show(id = "textDataNameHeader")
+    show(id = "textDataNameModsHeader")
+    show(id = "textDataNameProbesHeader")
+    
     # we may have been on a different pane so re-select Select
     updateNavbarPage(session,'navModule',selected = 'Select Modules')
     hideTab(inputId = "navModule", target = "Selected Modules")
@@ -106,7 +111,9 @@ server <- function(input, output, session) {
     updateSelectInput(session, 'selectVaccinesForSeries', choices = vaccDays$vaccines, selected = character(0))
     updateSelectInput(session, 'selectDaysForSeries', choices = vaccDays$days, selected = character(0))
     
-    updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
+    # updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
+    updateSelectInput(session, 'selectColumnForModuleSeriesVaccines', choices = vaccDays$vaccines, selected = character(0))
+    updateSelectInput(session, 'selectColumnForModuleSeriesDays', choices = vaccDays$days, selected = character(0))
     
     modulesAndFiltersText("")
     filtersText("")
@@ -142,11 +149,11 @@ server <- function(input, output, session) {
 dataAndFiltersText <- reactiveVal(value = "")
 filtersText <- reactiveVal(value = "")
 modulesAndFiltersText <- reactiveVal(value = "")
-output$textDataName <- renderText({allData$folder})
-output$textDataNameProbes <- renderText({allData$folder})
-output$textDataNameMods <- renderText({allData$folder})
-output$textFiltersProbes <- renderText({filtersText()})
-output$textFiltersMods <- renderText({modulesAndFiltersText()})
+output$textDataName <- renderText({paste0("\U1F4C2 ",allData$folder)})
+output$textDataNameProbes <- renderText({paste0("\U1F4C2 ",allData$folder)})
+output$textDataNameMods <- renderText({paste0("\U1F4C2 ",allData$folder)})
+output$textFiltersProbes <- renderText({paste0("\U1F50D ",filtersText())})
+output$textFiltersMods <- renderText({paste0("\U1F50D ",modulesAndFiltersText())})
 
 
 
@@ -162,7 +169,7 @@ output$textFiltersMods <- renderText({modulesAndFiltersText()})
       input$selectColumnVaccine
     },
     {
-      assign("sortCol_Probes",columnFromVaccineDay(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
+      assign("sortCol_Probes",singleColumnFromOneVaccineDay(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
       updateExpressionMinMax(sortCol_Probes)
     })
 observeEvent(
@@ -238,9 +245,11 @@ observeEvent(
                   filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 }
+                show(id = "navProbeHeader")
               } else {
                 filtersText("")
                 dataAndFiltersText("")
+                hide(id = "navProbeHeader")
               }
     
               ############ lookup the genes and modules
@@ -271,8 +280,10 @@ observeEvent(
       # these are non-reactive and need a manual reboot
       output$plotModuleSeries <- renderPlot({NULL})
       output$datatableModuleSeries <- renderDataTable({NULL})
-      updateSelectInput(session, 'selectColumnForModuleSeries')
-
+      # updateSelectInput(session, 'selectColumnForModuleSeries')
+      updateSelectInput(session, 'selectColumnForModuleSeriesVaccines')
+      updateSelectInput(session, 'selectColumnForModuleSeriesDays')
+      
       output$plotTopGenesSeries <- renderPlot({NULL})
       output$datatableTopGenesSeries <- renderDataTable({NULL})
       updateSelectInput(session, 'selectVaccinesForSeries')
@@ -313,7 +324,7 @@ observeEvent(
       input$buttonPlotSeries
     },
     {
-      columnsForSeries <- columnsFromVaccinesDays(input$selectVaccinesForSeries,input$selectDaysForSeries)
+      columnsForSeries <- multiColumnsFromMultiVaccinesDays(input$selectVaccinesForSeries,input$selectDaysForSeries)
       assign("topGenesInSeries",
              getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],columnsForSeries,input$checkboxSplitSeries), 
              envir = .GlobalEnv)
@@ -416,14 +427,14 @@ observeEvent(
     output$plotModuleSeries <- renderPlot({NULL})
     assign("moduleValues",
            getModuleValuesForSeries(allData$data,
-                                    input$selectModuleForSeries,input$selectColumnForModuleSeries, 
+                                    input$selectModuleForSeries,multiColumnsFromMultiVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays), 
                                     input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries), 
            envir = .GlobalEnv)
     
     if(!is.null(moduleValues) && input$checkboxShowPseudoModuleModuleSeries == TRUE) {
       assign("moduleValues",
              getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
-                                                  input$selectColumnForModuleSeries,input$checkboxShowFacetModuleSeries,
+                                                  multiColumnsFromMultiVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays),input$checkboxShowFacetModuleSeries,
                                                   input$radioRibbonBoxModuleSeries,moduleValues), 
              envir = .GlobalEnv)
     }
@@ -450,10 +461,15 @@ observeEvent(
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
     content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
   
-  observeEvent(input$buttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = allData$colNames)})
   observeEvent(input$buttonAddAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = mods4Genes())})
-  observeEvent(input$buttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'selectColumnForModuleSeries', selected = character(0))})
   observeEvent(input$buttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = character(0))})
+  
+  observeEvent(input$buttonAddAllColumnsModuleSeriesVaccines,{updateSelectInput(session, 'selectColumnForModuleSeriesVaccines', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
+  observeEvent(input$buttonRemoveAllColumnsModuleSeriesVaccines,{updateSelectInput(session, 'selectColumnForModuleSeriesVaccines', selected = character(0))})
+  observeEvent(input$buttonAddAllColumnsModuleSeriesDays,{updateSelectInput(session, 'selectColumnForModuleSeriesDays', selected = vaccinesDaysFromColNames(allData$colNames)[['days']])})
+  observeEvent(input$buttonRemoveAllColumnsModuleSeriesDays,{updateSelectInput(session, 'selectColumnForModuleSeriesDays', selected = character(0))})
+  
+  
   
   ############################## Gene Lookup ###########
   assign("lookedupGenes",NULL, envir = .GlobalEnv)
@@ -492,7 +508,7 @@ observeEvent(
   {
     assign(
       "sortCol_Mods",
-      columnFromVaccineDay(input$mselectColumnVaccine, input$mselectColumnDay),
+      singleColumnFromOneVaccineDay(input$mselectColumnVaccine, input$mselectColumnDay),
       envir = .GlobalEnv
     )
     updateModuleMinMax(sortCol_Mods)
@@ -532,7 +548,7 @@ observeEvent(
           showTab(inputId = "navModule", target = "Module->Genes")
           showTab(inputId = "navModule", target = "Modules:Series")
           
-          assign("sortCol_Mods",columnFromVaccineDay(input$mselectColumnVaccine, input$mselectColumnDay), envir = .GlobalEnv)
+          assign("sortCol_Mods",singleColumnFromOneVaccineDay(input$mselectColumnVaccine, input$mselectColumnDay), envir = .GlobalEnv)
           
           filterText <- ""
           # apply the filters sequentially
@@ -570,15 +586,16 @@ observeEvent(
                        ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
                 ))
             }
+            # ASSIGN topModulesSelected
             topModulesSelected(mods)
-            
+            show(id = "navModuleHeader")
             removeNotification(id = "mbuttonApplySelection")
             showNotification(paste0("Found: ",length(unique(mods[["Module"]])), " modules"), type = 'message')
             
           } else {
             modulesAndFiltersText("")
             topModulesSelected(NULL)
-            
+            hide(id = "navModuleHeader")
             removeNotification(id = "mbuttonApplySelection")
             showNotification(paste0("Found: 0 modules"), type = 'warning')
           }
