@@ -48,7 +48,7 @@ tagList(
                     hr(),
                     h4(style = "text-align: center;",'Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
                     conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                     fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-danger btn-block")),column(4))),
+                                     fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-warning btn-block")),column(4))),
                     br(),
                     wellPanel(style = "background-color: #FFFFFF;",
                       fluidRow(
@@ -124,7 +124,7 @@ tagList(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
                         conditionalPanel(condition = "input.selectVaccinesForSeries != null && input.selectDaysForSeries != null",
-                          actionButton('buttonPlotSeries','Plot',class = "btn-danger btn-block")),
+                          actionButton('buttonPlotSeries','Plot',class = "btn-warning btn-block")),
                         conditionalPanel(condition = "input.selectVaccinesForSeries == null || input.selectDaysForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Some Columns To Plot")),
                         fluidRow(
                             column(6,
@@ -227,7 +227,7 @@ tagList(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
                           conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines != null && input.selectColumnForModuleSeriesDays != null && input.selectModuleForSeries != null",
-                            actionButton('buttonPlotModuleSeries','Plot',class = "btn-danger btn-block")),
+                            actionButton('buttonPlotModuleSeries','Plot',class = "btn-warning btn-block")),
                           conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines == null || input.selectColumnForModuleSeriesDays == null || input.selectModuleForSeries == null", 
                             p(style = "color: #728f17; text-align: center;","Choose Columns & Modules To Plot")),
                         fluidRow(
@@ -300,7 +300,7 @@ tagList(
       hr(),
       h4(style = "text-align: center;", 'Apply filters to select modules for plotting. Selected filters are applied in order left → right'),
       fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
-                                                    actionButton('mbuttonApplySelection','Apply Selections',class = "btn-danger btn-block")))),
+                                                    actionButton('mbuttonApplySelection','Apply Selections',class = "btn-warning btn-block")))),
       br(),
       wellPanel(style = "background-color: #FFFFFF;",
       fluidRow(
@@ -420,7 +420,7 @@ tagList(
                       ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries != null) || 
                         (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles != null) || 
                         (input.radioModulesModulesSeries == 'Modules' && input.mselectModuleAllModules != null))",
-                      actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-danger btn-block")),
+                      actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-warning btn-block")),
                     conditionalPanel(condition = "input.mselectColumnForModuleSeriesVaccines == null || input.mselectColumnForModuleSeriesDays == null ||
                       ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries == null) || 
                         (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles == null) || 
@@ -562,7 +562,7 @@ tabPanel('Cytokines',
                                        fluidRow(
                                          column(1,style = "margin-top: 20px;",
                                                 conditionalPanel(condition = "input.cselectCytokines != null && input.cselectTreatments != null && input.cselectDays != null",
-                                                                 actionButton('buttonPlotCytokines','Plot',class = "btn-danger btn-block")),
+                                                                 actionButton('buttonPlotCytokines','Plot',class = "btn-warning btn-block")),
                                                 conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
                                          ), 
                                          column(4,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','None'))
