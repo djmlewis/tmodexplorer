@@ -66,14 +66,16 @@ vaccinesDaysFromColNames <- function(coln) {
   return(list(vaccines = unique(u[,1]), days = unique(u[,2])))
 }
 
-multiColumnsFromMultiVaccinesDays <- function(v,d) {
+columnsFromVaccinesDays <- function(v,d) {
   e <- expand.grid(v,d, stringsAsFactors = FALSE)
   paste(e[,1],e[,2],sep = '_')
 }
 
-singleColumnFromOneVaccineDay <- function(v,d) {
-  paste(v,d,sep = '_')
-}
+# singleColumnFromOneVaccineDay <- function(v,d) {
+#   print(paste(v,d,sep = '_'))
+#   print(columnsFromVaccinesDays(v,d))
+#   paste(v,d,sep = '_')
+# }
 
 getNewData <- function(allData, folderNme) {
   folderpath <- paste0('datafiles/', folderNme) #file.choose()

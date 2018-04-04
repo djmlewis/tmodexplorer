@@ -131,9 +131,10 @@ server <- function(input, output, session) {
     # updatePickerInput(session, inputId = 'mselectColumn', choices = allData$colNames)
     updatePickerInput(session, 'mselectColumnVaccine', choices = vaccDays$vaccines)
     updatePickerInput(session, 'mselectColumnDay', choices = vaccDays$days)
+    updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', choices = vaccDays$vaccines, selected = character(0))
+    updateSelectInput(session, 'mselectColumnForModuleSeriesDays', choices = vaccDays$days, selected = character(0))
     
     
-    updateSelectInput(session, 'mselectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'mselectPlotModulesInSeries', choices = character(0))
     updatePickerInput(session, 'mselectModuleForGenes', choices = NULL)
     updateSelectInput(session, 'mselectModuleTitles', choices = sort(unique(allData$modulesMeans[['Title']])))
@@ -169,7 +170,7 @@ output$textFiltersMods <- renderText({paste0("\U1F50D ",modulesAndFiltersText())
       input$selectColumnVaccine
     },
     {
-      assign("sortCol_Probes",singleColumnFromOneVaccineDay(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
+      assign("sortCol_Probes",columnsFromVaccinesDays(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
       updateExpressionMinMax(sortCol_Probes)
     })
 observeEvent(
@@ -324,7 +325,7 @@ observeEvent(
       input$buttonPlotSeries
     },
     {
-      columnsForSeries <- multiColumnsFromMultiVaccinesDays(input$selectVaccinesForSeries,input$selectDaysForSeries)
+      columnsForSeries <- columnsFromVaccinesDays(input$selectVaccinesForSeries,input$selectDaysForSeries)
       assign("topGenesInSeries",
              getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],columnsForSeries,input$checkboxSplitSeries), 
              envir = .GlobalEnv)
@@ -427,14 +428,14 @@ observeEvent(
     output$plotModuleSeries <- renderPlot({NULL})
     assign("moduleValues",
            getModuleValuesForSeries(allData$data,
-                                    input$selectModuleForSeries,multiColumnsFromMultiVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays), 
+                                    input$selectModuleForSeries,columnsFromVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays), 
                                     input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries), 
            envir = .GlobalEnv)
     
     if(!is.null(moduleValues) && input$checkboxShowPseudoModuleModuleSeries == TRUE) {
       assign("moduleValues",
              getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
-                                                  multiColumnsFromMultiVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays),input$checkboxShowFacetModuleSeries,
+                                                  columnsFromVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays),input$checkboxShowFacetModuleSeries,
                                                   input$radioRibbonBoxModuleSeries,moduleValues), 
              envir = .GlobalEnv)
     }
@@ -508,7 +509,7 @@ observeEvent(
   {
     assign(
       "sortCol_Mods",
-      singleColumnFromOneVaccineDay(input$mselectColumnVaccine, input$mselectColumnDay),
+      columnsFromVaccinesDays(input$mselectColumnVaccine, input$mselectColumnDay),
       envir = .GlobalEnv
     )
     updateModuleMinMax(sortCol_Mods)
@@ -548,7 +549,7 @@ observeEvent(
           showTab(inputId = "navModule", target = "Module->Genes")
           showTab(inputId = "navModule", target = "Modules:Series")
           
-          assign("sortCol_Mods",singleColumnFromOneVaccineDay(input$mselectColumnVaccine, input$mselectColumnDay), envir = .GlobalEnv)
+          assign("sortCol_Mods",columnsFromVaccinesDays(input$mselectColumnVaccine, input$mselectColumnDay), envir = .GlobalEnv)
           
           filterText <- ""
           # apply the filters sequentially
@@ -615,7 +616,8 @@ observeEvent(
     # these are non-reactive and need a manual reboot
     output$mplotModuleSeries <- renderPlot({NULL})
     output$mdatatableModuleSeries <- renderDataTable({NULL})
-    updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))
+    updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', selected = character(0))
+    updateSelectInput(session, 'mselectColumnForModuleSeriesDays', selected = character(0))
     updateSelectInput(session, 'mselectPlotModulesInSeries',choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))
     updatePickerInput(session, 'mselectModuleForGenes',choices = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))
     
@@ -684,7 +686,8 @@ observeEvent({
     else if(input$radioModulesModulesSeries == 'Modules') {mods2plot <- input$mselectModuleAllModules}
 
     assign("ggplotSelectedModulesSeries",
-           plotSelectedModulesSeries(allData,input$mselectColumnForModuleSeries,
+           plotSelectedModulesSeries(allData,
+                                     columnsFromVaccinesDays(input$mselectColumnForModuleSeriesVaccines,input$mselectColumnForModuleSeriesDays),
                                      mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
                                      input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
                                      input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
@@ -703,8 +706,14 @@ output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste
 
 observeEvent(input$hover_mplotModuleSeries, {handleClick(ggplotSelectedModulesSeries[['table']],input$hover_mplotModuleSeries,"hover_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
 
-observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
-observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
+# observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
+# observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
+
+observeEvent(input$mbuttonAddAllColumnsModuleSeriesVaccines,{updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
+observeEvent(input$mbuttonRemoveAllColumnsModuleSeriesVaccines,{updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', selected = character(0))})
+observeEvent(input$mbuttonAddAllColumnsModuleSeriesDays,{updateSelectInput(session, 'mselectColumnForModuleSeriesDays', selected = vaccinesDaysFromColNames(allData$colNames)[['days']])})
+observeEvent(input$mbuttonRemoveAllColumnsModuleSeriesDays,{updateSelectInput(session, 'mselectColumnForModuleSeriesDays', selected = character(0))})
+
 
 observeEvent(input$mbuttonAddAllModuleSeries,{updateSelectInput(session, 'mselectPlotModulesInSeries', selected = modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))}) # modsNameTitle(topModulesSelected()[['Module']],topModulesSelected()[['Title']]))
 observeEvent(input$mbuttonRemoveAllModuleSeries,{updateSelectInput(session, 'mselectPlotModulesInSeries',selected = character(0))})

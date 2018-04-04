@@ -22,7 +22,7 @@ tagList(
            h5(style = "text-align: center;","Please contact d.j.lewis@surrey.ac.uk to request a password")
            
   ),
-  #################### Data Load ######################
+  #################### Dataset Load ######################
   tabPanel('Load transcriptomics',
     h3(style = "text-align: center;","Select pre-loaded transcriptomics dataset to analyse"),
     fluidRow(
@@ -30,24 +30,25 @@ tagList(
         wellPanel(style = "background-color: #feffee;",
           fluidRow(
             column(10,pickerInput(inputId = 'selectDataFI', choices = NULL, options = list(`style` = "btn-success"))),
-            column(2,actionButton('buttonLoadDataFI',label = 'Load Data',class = "btn-success"))
+            column(2,actionButton('buttonLoadDataFI',label = 'Load Dataset',class = "btn-success"))
       )))
     ),
-    hidden(h4(id = "textDataNameHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;",textOutput('textDataName'))),
+    hidden(h4(id = "textDataNameHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 10px; margin-right: 10px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;",textOutput('textDataName'))),
     conditionalPanel(condition = "output.datatableAll != null",downloadButton(class="btn-outline-primary",'buttonsavedatatableAll', 'Table')),
     hr(),
     dataTableOutput('datatableAll')
   ),
   # ############## PROBES #################
       tabPanel('Explore By Probe',
-        hidden(h4(id = "textDataNameProbesHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameProbes')))),
+        hidden(h4(id = "textDataNameProbesHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 10px; margin-right: 10px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameProbes')))),
          navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe', 
-                    header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #feffee;padding-top: 10px; padding-bottom: 10px;", textOutput('textFiltersProbes'))))),
+                    header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 10px; margin-right: 10px; background-color: #feffee;padding-top: 10px; padding-bottom: 10px;", textOutput('textFiltersProbes'))))),
            #################### Selecting  ################
            tabPanel('Select Probes',
                     hr(),
                     h4(style = "text-align: center;",'Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
-                    conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-success btn-block")),column(4))),
+                    conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                     fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-danger btn-block")),column(4))),
                     br(),
                     wellPanel(style = "background-color: #FFFFFF;",
                       fluidRow(
@@ -67,7 +68,7 @@ tagList(
                               fluidRow(
                                 column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
                                 column(3,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                column(3,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending Value', value = TRUE)),
+                                column(3,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending', value = TRUE)),
                                 column(3,awesomeCheckbox(status = 'success', 'checkboxProbesGenes', 'Use Gene Averages', value = FALSE))
                               ),
                               fluidRow(
@@ -80,8 +81,8 @@ tagList(
                                       column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
                                     ),
                                     conditionalPanel(condition = "input.checkboxProbesGenes == true",p(style = "color: #44b84b;","Probes Averaged By Gene Before Applying Limits")),
-                                    actionButton('buttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
-                                    actionButton('buttonResetValuesRangeData','Data', class = 'btn-outline-primary')
+                                    actionButton('buttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
+                                    actionButton('buttonResetValuesRangeData','Dataset', class = 'btn-outline-primary')
                                   ))
                                 ),
                                 column(6,
@@ -104,7 +105,7 @@ tagList(
            #################### Top Probes #######################
            tabPanel('Selected Probes',
               hr(),
-               h4(style = "margin-top: 0px;",'Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Column'),
+               h4(style = "margin-top: 0px;",'Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Combination'),
                div(
                 downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
                 downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG'),
@@ -123,7 +124,7 @@ tagList(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
                         conditionalPanel(condition = "input.selectVaccinesForSeries != null && input.selectDaysForSeries != null",
-                          actionButton('buttonPlotSeries','Plot',class = "btn-success btn-block")),
+                          actionButton('buttonPlotSeries','Plot',class = "btn-danger btn-block")),
                         conditionalPanel(condition = "input.selectVaccinesForSeries == null || input.selectDaysForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Some Columns To Plot")),
                         fluidRow(
                             column(6,
@@ -176,7 +177,9 @@ tagList(
                  column(3,awesomeCheckbox(status = 'success', 'checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE)),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroGenesModules', '0 |----', value = TRUE)),
-                 column(3,style = "margin-top: 10px;",awesomeRadio(status = 'success', 'radioGroupProbeModulesBy',NULL,choices = c('Module','Title'),inline = TRUE)),
+                 column(3,style = "margin-top: 10px;",
+                        awesomeRadio(status = 'success', 'radioGroupProbeModulesBy',NULL,choices = c('Module','Title'),inline = TRUE),
+                        bsTooltip("radioGroupProbeModulesBy", "Group by Modules or Module Titles (may be fewer)")),
                  column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
                  column(2, offset = 1, style = "margin-top: -10px;", sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotGenesModulesSIZEheight", "Plot height"))
                ),
@@ -188,7 +191,7 @@ tagList(
                column(11, p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                )),
              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Table'),
-             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Data'),
+             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Dataset'),
              downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
              downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG'),
              hr(),
@@ -224,7 +227,7 @@ tagList(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
                           conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines != null && input.selectColumnForModuleSeriesDays != null && input.selectModuleForSeries != null",
-                            actionButton('buttonPlotModuleSeries','Plot',class = "btn-success btn-block")),
+                            actionButton('buttonPlotModuleSeries','Plot',class = "btn-danger btn-block")),
                           conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines == null || input.selectColumnForModuleSeriesDays == null || input.selectModuleForSeries == null", 
                             p(style = "color: #728f17; text-align: center;","Choose Columns & Modules To Plot")),
                         fluidRow(
@@ -287,15 +290,17 @@ tagList(
 ),# explore by probe
   ############## MODULES #################
   tabPanel('Explore By Module',
-    hidden(h4(id = "textDataNameModsHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameMods'))),
+    hidden(h4(id = "textDataNameModsHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; margin-left: 10px; margin-right: 10px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameMods'))),
     navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule', 
-               header = hidden(tagList(div(id = "navModuleHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px; background-color: #feffee;padding-top: 10px; padding-bottom: 10px;", 
-                                                                     textOutput('textFiltersMods'))))),
+               header = hidden(tagList(div(id = "navModuleHeader", 
+                                           h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 10px; margin-right: 10px; background-color: #feffee;padding-top: 10px; padding-bottom: 10px;", 
+                                          textOutput('textFiltersMods'))))),
       #################### Selecting Modules ################
       tabPanel('Select Modules',
       hr(),
       h4(style = "text-align: center;", 'Apply filters to select modules for plotting. Selected filters are applied in order left → right'),
-      fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",actionButton('mbuttonApplySelection','Apply Selections',class = "btn-success btn-block")))),
+      fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
+                                                    actionButton('mbuttonApplySelection','Apply Selections',class = "btn-danger btn-block")))),
       br(),
       wellPanel(style = "background-color: #FFFFFF;",
       fluidRow(
@@ -306,6 +311,7 @@ tagList(
                          textInput('mtextInputKeyword',NULL),
                          h4(style = "margin-top: 0px;","Search:"),
                          awesomeRadio(status = 'success', 'mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
+                         bsTooltip("mradioKeywordColumn", "Search in Module Names or Module Titles"),
                          conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #44b84b;","Spaces are stripped from Module name search")),
                          conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces are kept for Title name search"))
                ))
@@ -318,7 +324,7 @@ tagList(
               column(3,pickerInput('mselectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
               column(3,pickerInput('mselectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
               column(3,awesomeCheckbox(status = 'success', 'mcheckboxDescending', 'Sort Descending', value = TRUE)),
-              column(3,awesomeCheckbox(status = 'success', 'mcheckboxModuleMedians', 'Use Medians Not Means', value = FALSE))
+              column(3,awesomeCheckbox(status = 'success', 'mcheckboxModuleMedians', 'Medians Not Means', value = FALSE))
             ),
           fluidRow(
              fluidRow(
@@ -332,13 +338,13 @@ tagList(
               ),
               conditionalPanel(condition = "input.mcheckboxModuleMedians == true",p(style = "color: #44b84b;","Limits Applied To Module Medians, Not Gene Values")),
               conditionalPanel(condition = "input.mcheckboxModuleMedians == false",p(style = "color: #44b84b;","Limits Applied To Module Means, Not Gene Values")),
-              actionButton('mbuttonResetValuesRangeCol','Column', class = 'btn-outline-primary'),
-              actionButton('mbuttonResetValuesRangeData','Data', class = 'btn-outline-primary')
+              actionButton('mbuttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
+              actionButton('mbuttonResetValuesRangeData','Dataset', class = 'btn-outline-primary')
             ))),
             column(6,
               conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
                 wellPanel(style = "background-color: #feffee;",
-                awesomeCheckbox(status = 'success', inputId = 'mcheckboxSelectRows', label =  h4(style = "margin-top: 0px;",'3. Column Row Numbers Within Range:'), value = TRUE),
+                awesomeCheckbox(status = 'success', inputId = 'mcheckboxSelectRows', label =  h4(style = "margin-top: 0px;",'3. Row Numbers Within Range:'), value = TRUE),
                 fluidRow(
                   column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = NA, step = 5)),
                   column(6,numericInput("mnumberModsEnd", "To Row:", 10, min = 0, max = NA, step = 5))
@@ -359,7 +365,9 @@ tagList(
          fluidRow(
            column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendGenesModules', 'Legend', value = FALSE)),
            column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroGenesModules', '0 |----', value = TRUE)),
-           column(3,style = "margin-top: 10px;", awesomeRadio(status = 'success', 'mradioGroupTitleName',NULL,choices = c('Module','Title'),inline = TRUE)),
+           column(3,style = "margin-top: 10px;", 
+                  awesomeRadio(status = 'success', 'mradioGroupTitleName',NULL,choices = c('Module','Title'),inline = TRUE),
+                  bsTooltip("mradioGroupTitleName", "Group by Modules or Module Titles (may be fewer)")),
            column(3,awesomeCheckbox(status = 'success', 'mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
            column(2, offset = 2, style = "margin-top: -10px;", sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numbermplotSelectedModulesSIZEheight", "Plot height"))
            ),
@@ -403,16 +411,17 @@ tagList(
     #################### Top Modules Series #######################
      tabPanel('Modules:Series',
        wellPanel(style = "background-color: #FFFFFF;",
-         h4(style = "margin-top: 0px;","Plot Time Course Of Modules"),
+         fluidRow(column(3, h4(style = "margin-top: 0px; text-align: center;","Plot Time Course Of Modules")),
+                  column(9,p(style = "color: #44b84b; text-align: center;", "You cannot paste into the boxes below. Paste any saved lists into the Select Modules regex filter instead"))),
          fluidRow(
            column(3,
                   wellPanel(style = "background-color: #feffee;",
-                    conditionalPanel(condition = "input.mselectColumnForModuleSeries != null && 
+                    conditionalPanel(condition = "input.mselectColumnForModuleSeriesVaccines != null && input.mselectColumnForModuleSeriesDays != null && 
                       ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries != null) || 
                         (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles != null) || 
                         (input.radioModulesModulesSeries == 'Modules' && input.mselectModuleAllModules != null))",
-                      actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-success btn-block")),
-                    conditionalPanel(condition = "input.mselectColumnForModuleSeries == null ||
+                      actionButton('mbuttonPlotModuleSeries','Plot',class = "btn-danger btn-block")),
+                    conditionalPanel(condition = "input.mselectColumnForModuleSeriesVaccines == null || input.mselectColumnForModuleSeriesDays == null ||
                       ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries == null) || 
                         (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles == null) || 
                         (input.radioModulesModulesSeries == 'Modules' && input.mselectModuleAllModules == null))",
@@ -433,15 +442,29 @@ tagList(
                     awesomeCheckbox(status = 'success', 'mcheckboxShowZeroModuleSeries', '0 |----', value = TRUE),
                     awesomeCheckbox(status = 'success', 'mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                     awesomeRadio(status = 'success', 'mradioGroupTitleNameModuleSeries','Group By:',choices = c('Title','Module'), selected = 'Module'),
+                    bsTooltip("mradioGroupTitleNameModuleSeries", "Group by Modules or Module Titles (may be fewer)"),
                     sliderInput("numbermplotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numbermplotModuleSeriesSIZEheight", "Plot height")
                     ))
                   )
            ),
            column(9,
                   wellPanel(style = "background-color: #feffee;",
-                    selectInput('mselectColumnForModuleSeries', label = 'Click In Box To Select Columns To Plot', character(0), multiple = TRUE),
-                    div(actionButton('mbuttonAddAllColumnsModuleSeries','All', class="btn-outline-primary"),
-                    actionButton('mbuttonRemoveAllColumnsModuleSeries','None'))
+                    fluidRow(
+                      column(6,
+                             fluidRow(
+                             column(8, selectInput('mselectColumnForModuleSeriesVaccines', label = "Treatment", choices = character(0), multiple = TRUE)),
+                             column(4, div(style = "margin-top: 20px;",
+                                 actionButton('mbuttonAddAllColumnsModuleSeriesVaccines','All', class="btn-outline-primary"),
+                                 actionButton('mbuttonRemoveAllColumnsModuleSeriesVaccines','None'))))
+                             ),
+                      column(6,
+                             fluidRow(
+                              column(8, selectInput('mselectColumnForModuleSeriesDays', label = "Days", choices = character(0), multiple = TRUE)),
+                              column(4, div(style = "margin-top: 20px;",
+                                 actionButton('mbuttonAddAllColumnsModuleSeriesDays','All', class="btn-outline-primary"),
+                                 actionButton('mbuttonRemoveAllColumnsModuleSeriesDays','None'))))
+                              )
+                    )
                     ),
                   div(
                     h4(style = "margin-top: 0px;","Select Modules To Plot From One Of The Options Below:"),
@@ -456,29 +479,30 @@ tagList(
                                       ),
                     conditionalPanel(condition = "input.radioModulesModulesSeries == 'Filters'",
                     wellPanel(style = "background-color: #feffee;",
-                        selectInput('mselectPlotModulesInSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE),
-                        actionButton('mbuttonAddAllModuleSeries','All', class="btn-outline-primary"),
-                        actionButton('mbuttonRemoveAllModuleSeries','None')
+                      fluidRow(
+                        column(8, selectInput('mselectPlotModulesInSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE)),
+                        column(4, style = "margin-top: 20px;", actionButton('mbuttonAddAllModuleSeries','All', class="btn-outline-primary"),
+                        actionButton('mbuttonRemoveAllModuleSeries','None'))
+                      )
                       )),
                     conditionalPanel(condition = "input.radioModulesModulesSeries == 'Modules'",
                         wellPanel(style = "background-color: #dcefa0;",
-                        selectInput('mselectModuleAllModules', label = 'Modules In Dataset', character(0), multiple = TRUE),
                         fluidRow(
-                        column(4,actionButton('mbuttonRemoveAllModulesModuleSeries','None')),
-                        column(8,conditionalPanel(condition = "input.mselectModuleAllModules != null",
-                        downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Modules List')))
+                          column(9,selectInput('mselectModuleAllModules', label = 'Modules In Dataset', character(0), multiple = TRUE)),
+                          column(1,style = "margin-top: 20px;",  actionButton('mbuttonRemoveAllModulesModuleSeries','None')),
+                          column(2,style = "margin-top: 20px;",  conditionalPanel(condition = "input.mselectModuleAllModules != null",
+                          downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Modules')))
                         )
                       )),
                     conditionalPanel(condition = "input.radioModulesModulesSeries == 'Titles'",
                         wellPanel(style = "background-color: #dcefa0;",
-                        selectInput('mselectModuleTitles', label = 'Titles In Dataset', character(0), multiple = TRUE),
                         fluidRow(
-                        column(4,actionButton('mbuttonRemoveAllModuleTitles','None')),
-                        column(8,conditionalPanel(condition = "input.mselectModuleTitles != null",
-                        downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Titles List')))
+                          column(9, selectInput('mselectModuleTitles', label = 'Titles In Dataset', character(0), multiple = TRUE)),
+                          column(1,style = "margin-top: 20px;", actionButton('mbuttonRemoveAllModuleTitles','None')),
+                          column(2,style = "margin-top: 20px;", conditionalPanel(condition = "input.mselectModuleTitles != null",
+                        downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Titles')))
                         )
-                      )),
-                    h5(style = "text-align: center;", "You cannot paste into the boxes above Paste any saved lists into the Select Modules regex filter instead")
+                      ))
                   )
                 )
               ),
@@ -538,7 +562,7 @@ tabPanel('Cytokines',
                                        fluidRow(
                                          column(1,style = "margin-top: 20px;",
                                                 conditionalPanel(condition = "input.cselectCytokines != null && input.cselectTreatments != null && input.cselectDays != null",
-                                                                 actionButton('buttonPlotCytokines','Plot',class = "btn-primary btn-block")),
+                                                                 actionButton('buttonPlotCytokines','Plot',class = "btn-danger btn-block")),
                                                 conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
                                          ), 
                                          column(4,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','None'))
