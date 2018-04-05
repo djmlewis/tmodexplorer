@@ -491,13 +491,18 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
         separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%
         # preserve the order entered into the box
         mutate(Treatment = factor(Treatment, levels = unique(Treatment)))
-      if(ribbon == "Boxplot")
+      if(ribbon == "Boxplot") {
         expressions <- expressions %>%
-        mutate(Column = as.factor(Column)) %>%
+        mutate(Column = as.factor(Column))
+      }
+      expressions <- expressions %>%
+        select(Treatment,Column,Module, everything()) %>%
         arrange(Treatment,Column,Module)
     } else {
       expressions <- expressions %>%
-      mutate(Column = factor(Column, levels = series))
+      mutate(Column = factor(Column, levels = series)) %>%
+      select(Treatment,Column,Module, everything()) %>%
+      arrange(Module,Column)
     }
       
   }

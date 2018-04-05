@@ -24,7 +24,7 @@ tagList(
   ),
   #################### Dataset Load ######################
   tabPanel('Load transcriptomics',
-    h3(style = "text-align: center;","Select pre-loaded transcriptomics dataset to analyse"),
+    h3(style = "text-align: center;","Select a pre-loaded transcriptomics dataset to analyse"),
     fluidRow(
     column(8, offset = 2,
         wellPanel(style = "background-color: #feffee;",
@@ -109,8 +109,8 @@ tagList(
                div(
                 downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
                 downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG'),
-                downloadButton(class="btn-info",'buttonSaveListGenes', 'Gene List'),
-                downloadButton(class="btn-info",'buttonSaveListProbes', 'Probe List')
+                downloadButton(class="btn-info",'buttonSaveListGenes', 'Gene List'), bsTooltip("buttonSaveListGenes", "Gene List To Paste Into regex Keyword Search"),
+                downloadButton(class="btn-info",'buttonSaveListProbes', 'Probe List'), bsTooltip("buttonSaveListProbes", "Probe List To Paste Into regex Keyword Search")
                ),
              hr(),
                dataTableOutput('datatableTopGenesUp')
@@ -166,7 +166,8 @@ tagList(
            tabPanel('Genes->Modules',
                hr(),
                h4(style = "margin-top: 0px;",'Modules Associated With Selected Probes or Genes'),
-               downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'), 
+               div(downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'), 
+               downloadButton(class="btn-warning",'buttonSaveTableGenesModulesPlot', 'Table As PNG')),
                hr(), 
                dataTableOutput('datatableGenesModules')),
            #################### Modules #########################
@@ -194,6 +195,7 @@ tagList(
              downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Dataset'),
              downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
              downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG'),
+             downloadButton(class="btn-info",'buttonSaveTableModulesSummaryList', 'Modules & Titles List'), bsTooltip("buttonSaveTableModulesSummaryList", "Modules & Titles List To Paste Into regex Keyword Search"),
              hr(),
                dataTableOutput('datatableSelModulesOnly')),
            #################### Modules->Genes ###################
@@ -215,7 +217,8 @@ tagList(
                 column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
               )),
               downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Table'), 
-               hr(), 
+              downloadButton(class="btn-info",'buttonTableModulesGenesList', 'Module Genes List'), bsTooltip("buttonTableModulesGenesList", "Gene List To Paste Into regex Keyword Search"),
+              hr(), 
                dataTableOutput('datatableModuleGenes')),
 
            #################### Modules Series ###################
@@ -250,27 +253,35 @@ tagList(
                         )
                       )
                  ),
-                 column(6,
+                 column(9,
                         wellPanel(style = "background-color: #feffee;",
                           fluidRow(
-                            column(6,selectInput('selectColumnForModuleSeriesVaccines', label = "Treatment", choices = character(0), multiple = TRUE),
-                                   div(style = "margin-top: 20px;",
+                            column(6,
+                                   fluidRow(
+                                   column(8, selectInput('selectColumnForModuleSeriesVaccines', label = "Treatment", choices = character(0), multiple = TRUE)),
+                                   column(4,div(style = "margin-top: 20px;",
                                        actionButton('buttonAddAllColumnsModuleSeriesVaccines','All', class="btn-outline-primary"),
-                                       actionButton('buttonRemoveAllColumnsModuleSeriesVaccines','None'))),
-                            column(6,selectInput('selectColumnForModuleSeriesDays', label = "Days", choices = character(0), multiple = TRUE),
-                                   div(style = "margin-top: 20px;",
+                                       actionButton('buttonRemoveAllColumnsModuleSeriesVaccines','None')))
+                                   )
+                                   ),
+                            column(6,
+                                   fluidRow(
+                                   column(8, selectInput('selectColumnForModuleSeriesDays', label = "Days", choices = character(0), multiple = TRUE)),
+                                   column(4, div(style = "margin-top: 20px;",
                                        actionButton('buttonAddAllColumnsModuleSeriesDays','All', class="btn-outline-primary"),
-                                       actionButton('buttonRemoveAllColumnsModuleSeriesDays','None')))
+                                       actionButton('buttonRemoveAllColumnsModuleSeriesDays','None'))))
+                            )
                           )
-                        )),
-                 column(3,
+                        ),
                         wellPanel(style = "background-color: #feffee;",
-                          selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
-                          div(actionButton('buttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
-                              actionButton('buttonRemoveAllModulesModuleSeries','None')),
-                          awesomeCheckbox(status = 'success', 'checkboxShowPseudoModuleModuleSeries', 'Include Selected As Module', value = TRUE)
-                        )
-                 )
+                          fluidRow(
+                          column(9, selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
+                              awesomeCheckbox(status = 'success', 'checkboxShowPseudoModuleModuleSeries', 'Include Selected As Module', value = TRUE)),
+                          column(3, div(style = "margin-top: 20px;",actionButton('buttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
+                              actionButton('buttonRemoveAllModulesModuleSeries','None'))
+                          )
+                        ))
+              )
                ),
              wellPanel(style = "background-color: #FFFFFF;",
                        uiOutput("plotModuleSeriesSIZE")
@@ -282,7 +293,7 @@ tagList(
             ),
                conditionalPanel(condition = "output.datatableModuleSeries != null",
                 downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
-                hr(),
+            hr(),
                dataTableOutput('datatableModuleSeries')
            )
           
@@ -381,9 +392,9 @@ tagList(
          div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
              downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
              downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG'),
-             downloadButton(class="btn-info",'mbuttonSaveListTopModules', 'Modules List'),
-             downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitles', 'Titles List'),
-             downloadButton(class="btn-info",'mbuttonSaveListTopModuleCategory', 'Categories List')
+             downloadButton(class="btn-info",'mbuttonSaveListTopModules', 'Modules List'), bsTooltip("mbuttonSaveListTopModules", "Modules List To Paste Into regex Keyword Search"),
+             downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitles', 'Titles List'), bsTooltip("mbuttonSaveListTopModuleTitles", "Titles List To Paste Into regex Keyword Search"),
+             downloadButton(class="btn-info",'mbuttonSaveListTopModuleCategory', 'Categories List'), bsTooltip("mbuttonSaveListTopModuleCategory", "Categories List To Paste Into regex Keyword Search")
          ), hr(), 
          dataTableOutput('mdatatableTopModulesUp')
      ),
@@ -406,6 +417,7 @@ tagList(
                          column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                        )),
              downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesGenes', 'Table'), 
+             downloadButton(class="btn-info",'mbuttonTopModulesGenesList', 'Module Genes List'), bsTooltip("mbuttonTopModulesGenesList", "Gene List To Paste Into regex Keyword Search"),
              hr(), 
              dataTableOutput('mdatatableModuleGenes')),
     #################### Top Modules Series #######################
@@ -491,7 +503,8 @@ tagList(
                           column(9,selectInput('mselectModuleAllModules', label = 'Modules In Dataset', character(0), multiple = TRUE)),
                           column(1,style = "margin-top: 20px;",  actionButton('mbuttonRemoveAllModulesModuleSeries','None')),
                           column(2,style = "margin-top: 20px;",  conditionalPanel(condition = "input.mselectModuleAllModules != null",
-                          downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Modules')))
+                          downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Modules List'), bsTooltip("mbuttonSaveListTopModulesSeries", "Modules List To Paste Into regex Keyword Search")
+                          ))
                         )
                       )),
                     conditionalPanel(condition = "input.radioModulesModulesSeries == 'Titles'",
@@ -500,7 +513,8 @@ tagList(
                           column(9, selectInput('mselectModuleTitles', label = 'Titles In Dataset', character(0), multiple = TRUE)),
                           column(1,style = "margin-top: 20px;", actionButton('mbuttonRemoveAllModuleTitles','None')),
                           column(2,style = "margin-top: 20px;", conditionalPanel(condition = "input.mselectModuleTitles != null",
-                        downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Titles')))
+                        downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Titles'), bsTooltip("mbuttonSaveListTopModuleTitlesSeries", "Titles List To Paste Into regex Keyword Search")
+                        ))
                         )
                       ))
                   )

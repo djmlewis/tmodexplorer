@@ -18,7 +18,7 @@ themeBase <- function(rotate = FALSE) {
   return(t)
 }
 
-plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
+plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin,naGenes){
 
   ncols <- length(levels(x))
   colpal <- rainbow(ncols, alpha = 0.4)
@@ -39,6 +39,7 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
     ymin <- ifelse(z == TRUE, min(min(y),0),min(y) )
     boxplot(y ~ x, col = colpal, medcol = bordpal, border = "black", pars = list(las = 1, cex.axis = cexAxis), horizontal = TRUE, outline = TRUE, ylim = c(ymin,max(y)))
     if(!is.null(s)) text(y = x, x = min(ymin,xmin), labels = s, pos = 2)
+    if(length(naGenes)>0) text(y = naGenes, x = min(ymin,xmin), labels = c('Missing'), pos = 4)
     title(t)
     if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
     if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(x), fill = colpal, xpd = TRUE)
@@ -52,7 +53,6 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin){
 plotGenesModules <- function(d,t,l,z,gg,grouper){
   plot <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
-
      d <- d %>%
       filter(!is.na(Value)) %>%
       mutate(Module = droplevels(Module), 
@@ -66,7 +66,7 @@ plotGenesModules <- function(d,t,l,z,gg,grouper){
     if(gg == FALSE){
       xmax <- max(d$Value,na.rm = TRUE)
       xmin <- min(d$Value,na.rm = TRUE)
-      plot <- plotBaseBoxplot(d[[grouper]],d$Value,NULL,paste0('Modules For Selected Genes\n',t),z,l,xmax,xmin)
+      plot <- plotBaseBoxplot(d[[grouper]],d$Value,NULL,paste0('Modules For Selected Genes\n',t),z,l,xmax,xmin,0)
     } else {
       plot <-  ggplot(
         data = d,
@@ -93,13 +93,20 @@ plotGenesModules <- function(d,t,l,z,gg,grouper){
 plotModuleGenes <- function(d,m,t,l,z,gg) {
   plot <- NULL
   if (!is.null(d) && nrow(d) > 0) {
-    d <- d %>%
-      filter(!is.na(Value)) %>%
-      mutate(Gene = droplevels(Gene))
+    NAfactors <- d %>%
+      filter(is.na(Value)) %>%
+      select(Gene) %>%
+      distinct(Gene)
     
+    # now remove NAs to allow min max etc
+    d <- d %>%
+      filter(!is.na(Value)) #%>%
+      #mutate(Gene = droplevels(Gene)) Dont drop levels, we see them as empty - labelled "missing"
+
     xmax <- max(d$Value,na.rm = TRUE)
     xmin <- min(d$Value,na.rm = TRUE)
-    
+
+
     if(gg == TRUE) {
       plot <- ggplot(
         data = d,
@@ -111,15 +118,21 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
       ) +
       geom_text(mapping = aes(label = Selected, y = xmin), nudge_y = -0.02, hjust = 0, show.legend=FALSE) +
       geom_boxplot(mapping = aes(y = Value),alpha = 0.5, outlier.alpha = 1.0, show.legend=l) +
+      scale_x_discrete(drop = FALSE) +
       coord_flip() +
       ggtitle(paste0('Genes for module ',m,'\n',t)) +
       themeBase(FALSE)
+      
+      # if(nrow(NAfactors)>0){
+      #   plot <- plot +
+      #     geom_text(mapping = aes(x = Gene, label = Missing), y = xmin, color = 'black', hjust = 0, show.legend=FALSE)
+      # }
       
       if(z == TRUE) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
     } else {
-      plot <- plotBaseBoxplot(d$Gene,d$Value,d$Selected,paste0('Genes for module ',m,'\n',t),z,l,xmax,xmin)
+      plot <- plotBaseBoxplot(d$Gene,d$Value,d$Selected,paste0('Genes for module ',m,'\n',t),z,l,xmax,xmin,NAfactors$Gene)
     }
   }
   return(plot)
@@ -306,17 +319,21 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
     # horrible again
     if(facetted == TRUE) {
       topGenesInSeries <- topGenesInSeries %>%
-        select(Treatment, Column, Module, Value = Mean, N, SD, SElo, SEhi)
+        select(Treatment, Module, Column,  Value = Mean, N, SD, SElo, SEhi)
+      
     } else {
       topGenesInSeries <- topGenesInSeries %>%
-        select(Column, Module, Value = Mean, N, SD, SElo, SEhi)
+        select(Module, Column,  Value = Mean, N, SD, SElo, SEhi) %>%
+        arrange(Module, Column)
     }
   }
   
   # Treatment is a factor, so fct_relevel our order from the box if as Lines - fudge..
   if(facetted == TRUE && boxRibbon == "Lines") {
     moduleValues <- moduleValues %>%
-      mutate(Treatment = fct_relevel(Treatment, levels = levels(topGenesInSeries$Treatment)))
+      mutate(Treatment = fct_relevel(Treatment, levels = levels(topGenesInSeries$Treatment))) %>%
+      select(Treatment, Module, Column, everything()) %>%
+      arrange(Treatment, Module, Column)
   }
   
 

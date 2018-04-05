@@ -366,6 +366,8 @@ observeEvent(
 
   output$buttonSaveTableGenesModules <- downloadHandler(filename = function(){paste0("Selected Genes -> Modules.csv")},
      content = function(file) {write.csv(topGenesAndModules()[['modules']], file, row.names = FALSE)})
+  output$buttonSaveTableGenesModulesPlot <- downloadHandler(filename = function(){paste0("Selected Genes -> Modules.png")},
+    content = function(file) {plotDataTable(topGenesAndModules()[['modules']],file,35)})
   
   
   #################### Modules #########################
@@ -383,6 +385,15 @@ observeEvent(
     content = function(file) {plotDataTable(geneExpressionsForModules()[['summStats']],file,10.9)})
   output$buttonSaveTableModulesSummaryListPlot <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Table.png")},
     content = function(file) {plotDataTable(select(geneExpressionsForModules()[['summStats']],Module,Title),file,20)})
+  
+  output$buttonSaveTableModulesSummaryList <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes.txt")},
+    content = function(file) {write_lines(
+      paste0(
+      paste(unique(filter(geneExpressionsForModules()[['summStats']], Module != "Selected")[['Module']]), collapse = ','),'\n\n',
+      paste(unique(filter(geneExpressionsForModules()[['summStats']], Title != "Selected")[['Title']]), collapse = ','),'\n\n# ',
+      dataFilterStr('g')
+      ), file)})
+  
   
   # draw / save plot
   ggplotGenesModules <-
@@ -407,6 +418,13 @@ observeEvent(
                                                               allData$data,topGenesAndModules()[['genes']])})
   # redraw the table of gene expressions for the module selected
   output$datatableModuleGenes <- renderDataTable({expressionsInModule()})
+  output$buttonTableModulesGenesList <- downloadHandler(filename = function(){paste0("Genes In ",input$selectModuleForGenes,".txt")},
+    content = function(file) {write_lines(paste0(paste(rev(unique(expressionsInModule()[['Gene']])), collapse = ','),'\n\n# ',
+      input$selectModuleForGenes,'\n\n# ',
+      dataFilterStr('g')), file)})
+  
+  
+  
   output$buttonSaveTableModulesGenes <- downloadHandler(filename = function(){paste0("Selected Genes-",input$selectModuleForGenes,"-Genes.csv")},
      content = function(file) {write.csv(expressionsInModule(), file, row.names = FALSE)})
   
@@ -497,11 +515,6 @@ observeEvent(
   
   #################### Selecting Modules ####
 
-# observeEvent(
-#   {input$mselectColumn
-#     input$mcheckboxModuleMedians},
-#   {updateModuleMinMax(input$mselectColumn)})
-  
   observeEvent({
     input$mselectColumnDay
     input$mselectColumnVaccine
@@ -664,13 +677,20 @@ output$mdatatableModuleGenes <- renderDataTable({select(expressionsInModuleModul
 output$buttonSaveTableModulesGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".csv")},
                                                       content = function(file) {write.csv(expressionsInModuleModule(), file, row.names = FALSE)})
 
+output$mbuttonTopModulesGenesList <- downloadHandler(filename = function(){paste0("Genes In ",input$mselectModuleForGenes,".txt")},
+  content = function(file) {write_lines(paste0(paste(rev(unique(expressionsInModuleModule()[['Gene']])), collapse = ','),'\n\n# ',
+                                               input$mselectModuleForGenes,'\n\n# ',
+                                               dataFilterStr('m')), file)})
+
+
+
 ggplotModuleModuleGenes <- reactive({plotModuleGenes(expressionsInModuleModule(),isolate(input$mselectModuleForGenes),
                                                     modulesAndFiltersText(),input$mcheckboxShowLegendModuleGenes, input$mcheckboxShowZeroModuleGenes,
                                                     input$mcheckboxGGplotModuleGenes)})
 output$mplotModuleGenes <- renderPlot({ggplotModuleModuleGenes()} ,res = 72)
 output$mplotModuleGenesSIZE <- renderUI({plotOutput("mplotModuleGenes", height = input$mnumberPlotModuleGenesSIZEheight)})
 output$mbuttonPNGplotModuleGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".png")},
-                                                   content = function(file) {plotPlotPNG(ggplotModuleModuleGenes(),file,session$clientData[["output_mplotModuleGenes_height"]],session$clientData[["output_mplotModuleGenes_width"]])})
+ content = function(file) {plotPlotPNG(ggplotModuleModuleGenes(),file,session$clientData[["output_mplotModuleGenes_height"]],session$clientData[["output_mplotModuleGenes_width"]])})
 
   #################### Plot Modules Selected Series #########################
 
