@@ -13,7 +13,7 @@ plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
       xmax <- max(data2plot$Value,na.rm = TRUE)
       xmin <- min(data2plot$Value,na.rm = TRUE)
 
-      plot <- plotBaseBoxplot(data2plot[[grouper]],data2plot$Value,NULL,paste0('Selected Modules\n',t),z,l,xmax,xmin,0)
+      plot <- plotBaseBoxplot(data2plot[[grouper]],data2plot$Value,NULL,paste0('Selected Modules\n',t),z,l,xmax,xmin,c())
     } else {
 
         plot <-  ggplot(

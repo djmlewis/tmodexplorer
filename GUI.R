@@ -204,7 +204,8 @@ tagList(
               h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Modules Associated With Selected Probes / Genes'),
                 fluidRow(
                 column(6,pickerInput(inputId = 'selectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
-                column(1,offset = 2, awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
+                column(2, awesomeCheckbox(status = 'success', 'checkboxShowMissingModuleGenes', 'Show Missing Genes', value = TRUE)),
+                column(1, awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
                 column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleGenes', '0 |----', value = TRUE)),
                 column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
                 column(1, style = "margin-top: -10px;", sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               
@@ -404,7 +405,8 @@ tagList(
                        h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Selected Modules'),
                        fluidRow(
                          column(6,pickerInput(inputId = 'mselectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
-                         column(1,offset = 2, awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleGenes', 'Legend', value = FALSE)),
+                         column(2, awesomeCheckbox(status = 'success', 'mcheckboxShowMissingModuleGenes', 'Show Missing Genes', value = TRUE)),
+                         column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleGenes', 'Legend', value = FALSE)),
                          column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroModuleGenes', '0 |----', value = TRUE)),
                          column(1,awesomeCheckbox(status = 'success', 'mcheckboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
                          column(1, style = "margin-top: -10px;", sliderInput("mnumberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               

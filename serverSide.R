@@ -430,7 +430,7 @@ observeEvent(
   
   ggplotModuleGenes <- reactive({plotModuleGenes(expressionsInModule(),isolate(input$selectModuleForGenes),
                                 dataAndFiltersText(),input$checkboxShowLegendModuleGenes, input$checkboxShowZeroModuleGenes,
-                                input$checkboxGGplotModuleGenes)})
+                                input$checkboxGGplotModuleGenes, input$checkboxShowMissingModuleGenes)})
   output$plotModuleGenes <- renderPlot({ggplotModuleGenes()} ,res = 72)
   output$plotModuleGenesSIZE <- renderUI({plotOutput("plotModuleGenes", height = input$numberPlotModuleGenesSIZEheight)})
   output$buttonPNGplotModuleGenes <- downloadHandler(filename = function(){paste0("Selected Genes-",input$selectModuleForGenes,".png")},
@@ -686,7 +686,7 @@ output$mbuttonTopModulesGenesList <- downloadHandler(filename = function(){paste
 
 ggplotModuleModuleGenes <- reactive({plotModuleGenes(expressionsInModuleModule(),isolate(input$mselectModuleForGenes),
                                                     modulesAndFiltersText(),input$mcheckboxShowLegendModuleGenes, input$mcheckboxShowZeroModuleGenes,
-                                                    input$mcheckboxGGplotModuleGenes)})
+                                                    input$mcheckboxGGplotModuleGenes, input$mcheckboxShowMissingModuleGenes)})
 output$mplotModuleGenes <- renderPlot({ggplotModuleModuleGenes()} ,res = 72)
 output$mplotModuleGenesSIZE <- renderUI({plotOutput("mplotModuleGenes", height = input$mnumberPlotModuleGenesSIZEheight)})
 output$mbuttonPNGplotModuleGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".png")},

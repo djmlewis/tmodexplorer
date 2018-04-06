@@ -20,16 +20,17 @@ themeBase <- function(rotate = FALSE) {
 
 plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin,naGenes){
 
+  cexAxis = 1.5
   ncols <- length(levels(x))
   colpal <- rainbow(ncols, alpha = 0.4)
   bordpal <- rainbow(ncols)
-  insetv <- -0.16
-  legcols <- (ncols %/% 20) + 1
-  cexAxis = 1.5
+  insetv <- -0.16*cexAxis
+  colN <- 20
+  legcols <- (ncols %/% colN) + 1
   # dont you just love fudge factors?
   sw <- max(strwidth(x, units = "inches"))
   lmar <- (sw+0.6)*cexAxis
-  rmar <- ifelse(l == TRUE,sw*legcols+0.8,0.8)
+  rmar <- ifelse(l == TRUE,sw*legcols+1.2*cexAxis,0.8)
   if(lmar+rmar>par("pin")[1]) rmar <- ifelse(l == TRUE,par("pin")[1]-lmar-1,0.8)
   
   original.parameters<- par( no.readonly = TRUE )
@@ -42,7 +43,7 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin,naGenes){
     if(length(naGenes)>0) text(y = naGenes, x = min(ymin,xmin), labels = c('Missing'), pos = 4)
     title(t)
     if(z == TRUE) abline(v = 0.0, xpd = FALSE, col = "gray60", lty = 'dashed')
-    if(l == TRUE) legend(x = xmax+xmax/18, y = ncols+(ncols/18),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(x), fill = colpal, xpd = TRUE)
+    if(l == TRUE) legend(x = xmax+xmax/colN, y = ncols+(ncols/colN),bty = 'n',ncol = legcols, horiz = FALSE, inset = c(insetv,0), legend = levels(x), fill = colpal, xpd = TRUE)
   }
   plot <- recordPlot()
   par(original.parameters)
@@ -66,7 +67,7 @@ plotGenesModules <- function(d,t,l,z,gg,grouper){
     if(gg == FALSE){
       xmax <- max(d$Value,na.rm = TRUE)
       xmin <- min(d$Value,na.rm = TRUE)
-      plot <- plotBaseBoxplot(d[[grouper]],d$Value,NULL,paste0('Modules For Selected Genes\n',t),z,l,xmax,xmin,0)
+      plot <- plotBaseBoxplot(d[[grouper]],d$Value,NULL,paste0('Modules For Selected Genes\n',t),z,l,xmax,xmin,c())
     } else {
       plot <-  ggplot(
         data = d,
@@ -90,14 +91,17 @@ plotGenesModules <- function(d,t,l,z,gg,grouper){
 }
 
 
-plotModuleGenes <- function(d,m,t,l,z,gg) {
+plotModuleGenes <- function(d,m,t,l,z,gg,showmiss) {
   plot <- NULL
   if (!is.null(d) && nrow(d) > 0) {
+    if(showmiss == TRUE) {
     NAfactors <- d %>%
       filter(is.na(Value)) %>%
       select(Gene) %>%
       distinct(Gene)
-    
+    } else {
+      NAfactors <- data.frame(Gene = character())
+    }
     # now remove NAs to allow min max etc
     d <- d %>%
       filter(!is.na(Value)) #%>%
@@ -118,21 +122,28 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
       ) +
       geom_text(mapping = aes(label = Selected, y = xmin), nudge_y = -0.02, hjust = 0, show.legend=FALSE) +
       geom_boxplot(mapping = aes(y = Value),alpha = 0.5, outlier.alpha = 1.0, show.legend=l) +
-      scale_x_discrete(drop = FALSE) +
+      scale_x_discrete(drop = !showmiss) +
       coord_flip() +
       ggtitle(paste0('Genes for module ',m,'\n',t)) +
       themeBase(FALSE)
       
       if(nrow(NAfactors)>0){
         plot <- plot +
-          geom_text(mapping = aes(x = NAfactors$Gene), inherit.aes = FALSE, size = 5, family = 'Verdana', fontface = 'plain', label = "Missing", y = xmin, hjust = 0, show.legend=FALSE)
+          geom_text(data = NAfactors, mapping = aes(x = Gene), inherit.aes = FALSE, size = 5, label = "Missing", y = xmin, hjust = 0, show.legend=FALSE)
       }
       
       if(z == TRUE) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
     } else {
-      plot <- plotBaseBoxplot(d$Gene,d$Value,d$Selected,paste0('Genes for module ',m,'\n',t),z,l,xmax,xmin,NAfactors$Gene)
+      if(showmiss == TRUE) {
+        nafactors <- NAfactors$Gene
+      } else {
+        d <- d %>%
+          mutate(Gene = droplevels(Gene))
+        nafactors <- c()
+      }
+      plot <- plotBaseBoxplot(d$Gene,d$Value,d$Selected,paste0('Genes for module ',m,'\n',t),z,l,xmax,xmin,nafactors)
     }
   }
   return(plot)
