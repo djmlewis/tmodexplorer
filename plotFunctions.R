@@ -123,10 +123,10 @@ plotModuleGenes <- function(d,m,t,l,z,gg) {
       ggtitle(paste0('Genes for module ',m,'\n',t)) +
       themeBase(FALSE)
       
-      # if(nrow(NAfactors)>0){
-      #   plot <- plot +
-      #     geom_text(mapping = aes(x = Gene, label = Missing), y = xmin, color = 'black', hjust = 0, show.legend=FALSE)
-      # }
+      if(nrow(NAfactors)>0){
+        plot <- plot +
+          geom_text(mapping = aes(x = NAfactors$Gene), inherit.aes = FALSE, size = 5, family = 'Verdana', fontface = 'plain', label = "Missing", y = xmin, hjust = 0, show.legend=FALSE)
+      }
       
       if(z == TRUE) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
