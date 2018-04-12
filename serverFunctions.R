@@ -68,9 +68,7 @@ vaccinesDaysFromColNames <- function(coln) {
 
 columnsFromVaccinesDays <- function(v,d) {
   # grid.expand does not maintain the order but goes V1S1P1V2S2P2 which messes up the levels
-  # e <- expand.grid(v,d, stringsAsFactors = FALSE)
-  # paste(e[,1],e[,2],sep = '_')
-  
+ # this is a quick fix. a more elegant apply method no doubt exists avoiding a dataframe
   levs <- map_dfr(v,function(vac){
     vd <- map_chr(d,function(dy) {
       return(paste0(vac,"_",dy))
@@ -97,15 +95,10 @@ getNewData <- function(allData, folderNme) {
     annotation <- annotation %>%
       select(Probe = X1, Gene = GeneName, Description)
 
-    newData<- read_rds(dataPath) %>%
+    allData$data<- read_rds(dataPath) %>%
       rename(Probe = X1) %>%
       full_join(annotation, by = 'Probe')
-    # This disgraceful hack saves me having to redo the scripts that make the data matrices, and allows proper sorting of the column names
-    # n <- names(newData)
-    # walk(1:9,function(i){n <<- sub(paste0("_",i,"$"),paste0("_0",i),n)})
-    # names(newData) <- n
-    allData$data <- newData
-    
+
     allData$colNames <-
       names(allData$data)[grepl('_', names(allData$data))]
     
@@ -211,13 +204,14 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
       gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
     
     # now SEM
-    # semData <- seriesData %>%
-    #   group_by(Gene) %>%
-    #   summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
-    #   ungroup() %>%
-    #   gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
+    semData <- seriesData %>%
+      group_by(Gene) %>%
+      summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
+      ungroup() %>%
+      gather(key = 'Column', value = 'SEM', convert = TRUE, factor_key = FALSE, one_of(selCols))
     
-    seriesData <- meansData
+    seriesData <- full_join(meansData, semData,by = c("Gene", "Column", "Value"))
+    print(head(seriesData))
   } else {
     seriesData <- allData %>%
       select(Probe,Gene,one_of(selCols)) %>%
