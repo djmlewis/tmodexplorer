@@ -77,7 +77,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         data2plot <- data2plot %>%
           arrange(Treatment, Module, Column)
       } else {
-        data2plot <- data2plot %>% mutate(Column = factor(Column, levels = unique(selCol)))
+        data2plot <- data2plot %>% mutate(Column = factor(Column, levels = sort(unique(selCol))))
         data2plot <- data2plot %>%
           arrange(Module, Column)
       }

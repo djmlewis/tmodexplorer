@@ -26,7 +26,7 @@ tagList(
   tabPanel('Load transcriptomics',
     h3(style = "text-align: center;","Select a pre-loaded transcriptomics dataset to analyse"),
     fluidRow(
-    column(8, offset = 2,
+    column(10, offset = 1,
         wellPanel(style = "background-color: #feffee;",
           fluidRow(
             column(10,pickerInput(inputId = 'selectDataFI', choices = NULL, options = list(`style` = "btn-success"))),
@@ -69,7 +69,7 @@ tagList(
                                 column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
                                 column(3,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
                                 column(3,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending', value = TRUE)),
-                                column(3,awesomeCheckbox(status = 'success', 'checkboxProbesGenes', 'Use Gene Averages', value = FALSE))
+                                column(3,style = "color: red;", awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', 'Gene Averages', value = FALSE))
                               ),
                               fluidRow(
                                 column(6,
@@ -123,9 +123,10 @@ tagList(
                fluidRow(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
-                        conditionalPanel(condition = "input.selectVaccinesForSeries != null && input.selectDaysForSeries != null",
+                        conditionalPanel(condition = "input.selectVaccinesForSeries != null && input.selectDaysForSeries != null && input.selectGenesProbesForSeries != null",
                           actionButton('buttonPlotSeries','Plot',class = "btn-warning btn-block")),
-                        conditionalPanel(condition = "input.selectVaccinesForSeries == null || input.selectDaysForSeries == null", p(style = "color: #728f17; text-align: center;","Choose Some Columns To Plot")),
+                        conditionalPanel(condition = "input.selectVaccinesForSeries == null || input.selectDaysForSeries == null || input.selectGenesProbesForSeries == null", 
+                                         p(style = "color: #728f17; text-align: center;","Choose Some Variables To Plot")),
                         fluidRow(
                             column(6,
                                    awesomeRadio(status = 'success', 'radioBoxLineProbesSeries', " ", choices = c('Lines','Boxplot')),
@@ -151,6 +152,15 @@ tagList(
                                     column(4,selectInput('selectDaysForSeries', label = "Days", choices = character(0), multiple = TRUE)),
                                     column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllDaysSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllDaysSeries','None')))
                                   )
+                        ),
+                        wellPanel(
+                          style = "background-color: #feffee;",
+                          fluidRow(
+                          column(9,selectInput('selectGenesProbesForSeries', label = "Probes / Genes", choices = character(0), multiple = TRUE)),
+                          column(3,div(style = "margin-top: 20px;",
+                                       actionButton('buttonAddAllGenesProbesSeries','All', class="btn-outline-primary"),
+                                       actionButton('buttonRemoveGenesProbesSeries','None')))
+                          )
                         )
                  )
                ),
@@ -203,12 +213,12 @@ tagList(
               wellPanel(style = "background-color: #FFFFFF;",
               h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Modules Associated With Selected Probes / Genes'),
                 fluidRow(
-                column(6,pickerInput(inputId = 'selectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
+                column(5,pickerInput(inputId = 'selectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
                 column(2, awesomeCheckbox(status = 'success', 'checkboxShowMissingModuleGenes', 'Show Missing Genes', value = TRUE)),
                 column(1, awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleGenes', 'Legend', value = FALSE)),
                 column(1,awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleGenes', '0 |----', value = TRUE)),
                 column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
-                column(1, style = "margin-top: -10px;", sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               
+                column(2, style = "margin-top: -10px;", sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               
                 ),
                wellPanel(style = "background-color: #FFFFFF;",
                 uiOutput("plotModuleGenesSIZE")
@@ -226,7 +236,7 @@ tagList(
            tabPanel('Modules:Series',
             wellPanel(style = "background-color: #FFFFFF;",
               h4(style = "margin-top: 0px;",'Time Course Of Modules Associated With Selected Probes / Genes'),
-              h5(style = "text-align: right;",'Select Some Treatment ~ Times And Modules, And Click Plot'),
+              h5(style = "text-align: center;",'Select Some Treatment ~ Times And Modules, And Click Plot'),
               fluidRow(
                  column(3,
                         wellPanel(style = "background-color: #feffee;",
@@ -404,12 +414,12 @@ tagList(
              wellPanel(style = "background-color: #FFFFFF;",
                        h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Selected Modules'),
                        fluidRow(
-                         column(6,pickerInput(inputId = 'mselectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
+                         column(5,pickerInput(inputId = 'mselectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
                          column(2, awesomeCheckbox(status = 'success', 'mcheckboxShowMissingModuleGenes', 'Show Missing Genes', value = TRUE)),
                          column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleGenes', 'Legend', value = FALSE)),
                          column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowZeroModuleGenes', '0 |----', value = TRUE)),
                          column(1,awesomeCheckbox(status = 'success', 'mcheckboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
-                         column(1, style = "margin-top: -10px;", sliderInput("mnumberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               
+                         column(2, style = "margin-top: -10px;", sliderInput("mnumberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))               
                        ),
                        wellPanel(style = "background-color: #FFFFFF;",
                                  uiOutput("mplotModuleGenesSIZE")

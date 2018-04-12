@@ -67,15 +67,19 @@ vaccinesDaysFromColNames <- function(coln) {
 }
 
 columnsFromVaccinesDays <- function(v,d) {
-  e <- expand.grid(v,d, stringsAsFactors = FALSE)
-  paste(e[,1],e[,2],sep = '_')
+  # grid.expand does not maintain the order but goes V1S1P1V2S2P2 which messes up the levels
+  # e <- expand.grid(v,d, stringsAsFactors = FALSE)
+  # paste(e[,1],e[,2],sep = '_')
+  
+  levs <- map_dfr(v,function(vac){
+    vd <- map_chr(d,function(dy) {
+      return(paste0(vac,"_",dy))
+    })
+    return(data.frame(vdy = vd, stringsAsFactors = FALSE))
+  })
+  return(levs$vdy)
 }
 
-# singleColumnFromOneVaccineDay <- function(v,d) {
-#   print(paste(v,d,sep = '_'))
-#   print(columnsFromVaccinesDays(v,d))
-#   paste(v,d,sep = '_')
-# }
 
 getNewData <- function(allData, folderNme) {
   folderpath <- paste0('datafiles/', folderNme) #file.choose()
@@ -93,9 +97,14 @@ getNewData <- function(allData, folderNme) {
     annotation <- annotation %>%
       select(Probe = X1, Gene = GeneName, Description)
 
-    allData$data <- read_rds(dataPath) %>%
+    newData<- read_rds(dataPath) %>%
       rename(Probe = X1) %>%
       full_join(annotation, by = 'Probe')
+    # This disgraceful hack saves me having to redo the scripts that make the data matrices, and allows proper sorting of the column names
+    # n <- names(newData)
+    # walk(1:9,function(i){n <<- sub(paste0("_",i,"$"),paste0("_0",i),n)})
+    # names(newData) <- n
+    allData$data <- newData
     
     allData$colNames <-
       names(allData$data)[grepl('_', names(allData$data))]
@@ -142,6 +151,7 @@ loadUploadedData <- function(allData, infiles,fileName) {
 
 
 getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
+  # Note this is ...ForVaccDay, there is NO COLUMN variable
   # protect from not matching colN
   if (dataFrameOK(data) && colN %in% names(data)) {
       if (asGenes == TRUE) {
@@ -151,16 +161,19 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
           # Description is missing from asGenes as it is probe-specific
           group_by(Gene) %>%
           summarise(
+            N = sum(!is.na(Value)),
             SD = sd(Value, na.rm = TRUE),
-            Value = mean(Value, na.rm = TRUE),
-            N = n()) %>%
+            Value = mean(Value, na.rm = TRUE)
+            ) %>%
           ungroup() %>%
-          select(Value,SD,N,Gene)
+          # it is much faster to do this on the summary table not within summarise
+          mutate(SEM = case_when(N > 1 ~ SD/sqrt(N), TRUE ~ 0)) %>%
+          select(Gene,Value,SEM,N)
       } else {
         data4VaccDay <- data %>%
           # matches will find substrings so force it to match the whole string against colN
           # Description is available
-          select(Value = matches(paste0('^', colN, '$')), Gene, Description,Probe)
+          select(Probe, Gene, Value = matches(paste0('^', colN, '$')), Description)
       }
 
       if (descend) {
@@ -178,26 +191,42 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
   return(NULL)
 }
 
-getTopGenesInSeries <- function(allData, selData,selCols, facet) {
+getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSelected) {
   if(is.null(allData) || length(selCols) == 0) return(NULL)
+  # Note getSortedGenesForVaccDay is ...ForVaccDay, there is NO COLUMN variable in selData, it is just the selected day means
+  # so we have to do all the calculations again, for each column now
   
   # asGenes: detect whether it really is as genes based on the selData: if that lacks column Probe then it is
   asGenes <- ('Probe' %in% names(selData) == FALSE)
   if(asGenes == TRUE) {
     seriesData <- allData %>%
-      filter(Gene %in% selData$Gene) %>%
-      select(Gene,one_of(selCols)) %>%
+      select(Gene, one_of(selCols)) %>%
+      filter(Gene %in% genesProbesSelected)
+    
+    # lets calc means first
+    meansData <- seriesData %>%
       group_by(Gene) %>%
-      summarise_at(vars(one_of(selCols)),mean, na.rm = TRUE) %>%
-      ungroup()
+      summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
+      ungroup() %>%
+      gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
+    
+    # now SEM
+    # semData <- seriesData %>%
+    #   group_by(Gene) %>%
+    #   summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
+    #   ungroup() %>%
+    #   gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
+    
+    seriesData <- meansData
   } else {
     seriesData <- allData %>%
-      filter(Probe %in% selData$Probe) %>%
-      select(Probe,Gene,one_of(selCols))
+      select(Probe,Gene,one_of(selCols)) %>%
+      filter(Probe %in% genesProbesSelected)%>%
+      gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
   }
   
-  seriesData <- seriesData %>%
-    gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE,one_of(selCols))
+  # seriesData <- seriesData %>%
+  #   gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
     
   if(facet == TRUE){
     seriesData <- seriesData %>%
@@ -501,7 +530,7 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
     } else {
       expressions <- expressions %>%
       mutate(Column = factor(Column, levels = series)) %>%
-      select(Treatment,Column,Module, everything()) %>%
+      select(Column,Module, everything()) %>%
       arrange(Module,Column)
     }
       

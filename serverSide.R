@@ -274,6 +274,7 @@ observeEvent(
   )
   
   
+  assign("genesOrProbes","Gene", envir = .GlobalEnv)
   
   observeEvent(
     topGenesAndModules(),
@@ -281,7 +282,7 @@ observeEvent(
       # these are non-reactive and need a manual reboot
       output$plotModuleSeries <- renderPlot({NULL})
       output$datatableModuleSeries <- renderDataTable({NULL})
-      # updateSelectInput(session, 'selectColumnForModuleSeries')
+
       updateSelectInput(session, 'selectColumnForModuleSeriesVaccines')
       updateSelectInput(session, 'selectColumnForModuleSeriesDays')
       
@@ -289,6 +290,12 @@ observeEvent(
       output$datatableTopGenesSeries <- renderDataTable({NULL})
       updateSelectInput(session, 'selectVaccinesForSeries')
       updateSelectInput(session, 'selectDaysForSeries')
+      # need to determine if Probes or genes
+      pgColname <- ifelse('Probe' %in% names(topGenesAndModules()[['genes']]) == FALSE,"Gene","Probe")
+      assign("genesOrProbes",pgColname, envir = .GlobalEnv)
+      updateSelectInput(session, 'selectGenesProbesForSeries', label = pgColname, choices = topGenesAndModules()[['genes']][[pgColname]], selected = topGenesAndModules()[['genes']][[pgColname]])
+      
+      
     }
   )
   
@@ -327,7 +334,7 @@ observeEvent(
     {
       columnsForSeries <- columnsFromVaccinesDays(input$selectVaccinesForSeries,input$selectDaysForSeries)
       assign("topGenesInSeries",
-             getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],columnsForSeries,input$checkboxSplitSeries), 
+             getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],columnsForSeries,input$checkboxSplitSeries,input$selectGenesProbesForSeries), 
              envir = .GlobalEnv)
       
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
@@ -335,7 +342,7 @@ observeEvent(
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
         input$checkboxShowPointsSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
         input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
-      
+
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries} ,res = 72)
       output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
                                                          plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight),
@@ -353,6 +360,8 @@ observeEvent(
   observeEvent(input$buttonRemoveAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = character(0))})
   observeEvent(input$buttonAddAllDaysSeries,{updateSelectInput(session, 'selectDaysForSeries', selected = vaccinesDaysFromColNames(allData$colNames)[['days']])})
   observeEvent(input$buttonRemoveAllDaysSeries,{updateSelectInput(session, 'selectDaysForSeries', selected = character(0))})
+  observeEvent(input$buttonAddAllGenesProbesSeries,{updateSelectInput(session, 'selectGenesProbesForSeries', choices = topGenesAndModules()[['genes']][[genesOrProbes]], selected = topGenesAndModules()[['genes']][[genesOrProbes]])})
+  observeEvent(input$buttonRemoveGenesProbesSeries,{updateSelectInput(session, 'selectGenesProbesForSeries', selected = character(0))})
   
   output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Probes-Genes Series.csv")},
      content = function(file) {write.csv(topGenesInSeries, file, row.names = FALSE)})

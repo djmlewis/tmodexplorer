@@ -192,12 +192,13 @@ plotTopGenesInSeries <- function(data2plot,
         select(-c(Probe))
     }
   
+
     plotData <- plotData %>%
       mutate(Gene = factor(Gene, levels = unique(Gene)))
     
     if(facet == FALSE) {
       plotData <- plotData %>%
-        mutate(Column = factor(Column, levels = unique(Column)))
+        mutate(Column = factor(Column, levels = unique(Column)))# unique() works - do not sort
     }
     
     plot <-   ggplot(data = plotData) +
@@ -217,9 +218,11 @@ plotTopGenesInSeries <- function(data2plot,
       {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.5, outlier.alpha = 1.0, show.legend = showlegend)}} +
       {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.5, outlier.alpha = 1.0, show.legend = FALSE)}} +
       {if (pointsBoxes == 'Lines') {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), size = 1, show.legend = showlegend)}} +
+      # {if(pointsBoxes == 'Lines' && asGenes){geom_ribbon(mapping = aes(x = Column, ymin = Value-SEM, ymax = Value+SEM, fill = Gene), alpha = 0.2, show.legend = showlegend)}} +
       {if(pointsBoxes == 'Lines' && showPoints){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), size = 2 ,show.legend = showlegend)}}
-
-
+    
+    
+    
     if (facet == TRUE) {
       plot <-  plot +
         scale_x_continuous(breaks = plotData$Column) +
@@ -291,7 +294,9 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
 
 
 getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facetted,boxRibbon,moduleValues) {
-  topGenesInSeries <- getTopGenesInSeries(allData,topGenes,selCols, facetted) %>%
+  #getTopGenesInSeries needs genesProbesSelected so we supply all in topGenes. topGenes is topGenesAndModules()[['genes']]
+  #so we have to supply Gene or Probe for the column based on get("genesOrProbes", envir = .GlobalEnv)
+  topGenesInSeries <- getTopGenesInSeries(allData,topGenes,selCols, facetted, unique(topGenes[[get("genesOrProbes", envir = .GlobalEnv)]])) %>%
     # need to add a psuedo module
     mutate(Module = 'Selected')
   # drop probe if we have it
@@ -299,14 +304,15 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
     topGenesInSeries <- topGenesInSeries %>%
       select(-Probe)
   }
+
   # dont factor if it is facetted and a ribbon, always factor boxplots 
   if(facetted == TRUE && boxRibbon == "Boxplot") {
     topGenesInSeries <- topGenesInSeries %>%
-      mutate(Column = as.factor(Column))
+      mutate(Column = as.factor(Column))# integers so as.factor
   } 
   if(facetted == FALSE) { #and when unfacetted
     topGenesInSeries <- topGenesInSeries %>%
-      mutate(Column = factor(Column, levels = selCols))
+      mutate(Column = factor(Column, levels = levels(moduleValues$Column)))
   }
   
   if(boxRibbon == "Lines") {
@@ -318,6 +324,7 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
       topGenesInSeries <- topGenesInSeries %>%
         group_by(Column,Module)
     }
+    
     topGenesInSeries <- topGenesInSeries %>%
       summarise(
         N = n(),
@@ -327,11 +334,12 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
         SEhi = Mean+SD/sqrt(N)
       ) %>%
       ungroup()
+    
+    
     # horrible again
     if(facetted == TRUE) {
       topGenesInSeries <- topGenesInSeries %>%
         select(Treatment, Module, Column,  Value = Mean, N, SD, SElo, SEhi)
-      
     } else {
       topGenesInSeries <- topGenesInSeries %>%
         select(Module, Column,  Value = Mean, N, SD, SElo, SEhi) %>%
@@ -339,15 +347,17 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
     }
   }
   
-  # Treatment is a factor, so fct_relevel our order from the box if as Lines - fudge..
+  # Treatment is a factor, so factor our order to match the Treatment inputSelect order if as Lines - fudge..
+  # Note fct_relevel instead of factor() gives an obscure warning 
+  # topGenesInSeries <- getTopGenesInSeries has used the selCols and returns topGenesInSeries$Treatment with the correct levels so use those
+  # 
   if(facetted == TRUE && boxRibbon == "Lines") {
     moduleValues <- moduleValues %>%
-      mutate(Treatment = fct_relevel(Treatment, levels = levels(topGenesInSeries$Treatment))) %>%
+      mutate(Treatment = factor(Treatment, levels = levels(topGenesInSeries$Treatment))) %>%
       select(Treatment, Module, Column, everything()) %>%
       arrange(Treatment, Module, Column)
   }
   
-
   # join our psuedo module to the others
   moduleValues <- moduleValues %>%
     bind_rows(topGenesInSeries)
