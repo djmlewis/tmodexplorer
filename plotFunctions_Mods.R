@@ -65,7 +65,6 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
     if(nrow(data2plot)>0) { # clicking Plot without endtering columns
 
       if(facet == TRUE) {
-        
         data2plot <- data2plot %>%
           separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%
           # preserve the order of entry
@@ -77,7 +76,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         data2plot <- data2plot %>%
           arrange(Treatment, Module, Column)
       } else {
-        data2plot <- data2plot %>% mutate(Column = factor(Column, levels = sort(unique(selCol))))
+        data2plot <- data2plot %>% mutate(Column = factor(Column, levels = unique(selCol)))
         data2plot <- data2plot %>%
           arrange(Module, Column)
       }
