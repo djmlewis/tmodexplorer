@@ -340,11 +340,11 @@ observeEvent(
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
-        input$checkboxShowPointsSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
+        input$checkboxShowPointsSeries,input$checkboxShowSEMSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
         input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
 
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries} ,res = 72)
-      output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
+      output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries != 'Boxplot'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
                                                          plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight),
                                                         hover = "hover_plotTopGenesSeries"))})
       output$buttonPNGplotTopGenesSeries <- downloadHandler(filename = function(){paste0("Selected Genes As Series.png")},

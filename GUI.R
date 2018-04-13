@@ -129,16 +129,16 @@ tagList(
                                          p(style = "color: #728f17; text-align: center;","Choose Some Variables To Plot")),
                         fluidRow(
                             column(6,
-                                   awesomeRadio(status = 'success', 'radioBoxLineProbesSeries', " ", choices = c('Lines','Boxplot')),
-                                   conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines'",
-                                    strong(p("Lines options:")),
-                                    conditionalPanel(condition = "input.checkboxSplitSeries == true",
-                                                     awesomeCheckbox(status = 'success', 'checkboxShowGridSeries', 'X gridlines', value = TRUE)),
-                                    awesomeCheckbox(status = 'success', 'checkboxShowPointsSeries', 'Points', value = FALSE)
+                                   awesomeRadio(status = 'warning', 'radioBoxLineProbesSeries', " ", choices = c(Means = 'Lines',Individual = 'Probes', Boxplot = 'Boxplot')),
+                                   conditionalPanel(condition = "input.radioBoxLineProbesSeries != 'Boxplot'",
+                                    awesomeCheckbox(status = 'success', 'checkboxShowPointsSeries', 'Points', value = FALSE),
+                                    awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE)
                                    )
                             ),
                             column(6,
                               awesomeCheckbox(status = 'success', 'checkboxSplitSeries', 'Split', value = TRUE),
+                              conditionalPanel(condition = "input.checkboxSplitSeries == true && input.radioBoxLineProbesSeries != 'Boxplot'",
+                                               awesomeCheckbox(status = 'success', 'checkboxShowGridSeries', 'X gridlines', value = TRUE)),
                               awesomeCheckbox(status = 'success', 'checkboxShowLegendSeries', 'Legend', value = FALSE),
                               awesomeCheckbox(status = 'success', 'checkboxShowZeroSeries', '0 |----', value = TRUE),
                               sliderInput("numberPlotTopGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotTopGenesSeriesSIZEheight", "Plot height")
@@ -248,7 +248,6 @@ tagList(
                           column(6,
                           awesomeRadio(status = 'success', 'radioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
                           conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",
-                                           strong(p("Lines options:")),
                                            conditionalPanel(condition = "input.checkboxShowFacetModuleSeries == true",
                                                             awesomeCheckbox(status = 'success', 'checkboxShowGridModuleSeries', 'X gridlines', value = TRUE)),
                                            awesomeCheckbox(status = 'success', 'checkboxShowPointsModuleSeries', 'Points', value = FALSE),
@@ -454,7 +453,6 @@ tagList(
                       column(6,
                         awesomeRadio(status = 'success', 'mradioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
                         conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
-                         strong(p("Lines options:")),
                          conditionalPanel(condition = "input.mcheckboxShowFacetModuleSeries == true",
                                           awesomeCheckbox(status = 'success', 'mcheckboxShowGridSeries', 'X gridlines', value = TRUE)),
                          awesomeCheckbox(status = 'success', 'mcheckboxShowPointsSeries', 'Points', value = FALSE),

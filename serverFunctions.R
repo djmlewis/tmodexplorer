@@ -206,12 +206,14 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
     # now SEM
     semData <- seriesData %>%
       group_by(Gene) %>%
-      summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
-      ungroup() %>%
+      summarise_at(vars(one_of(selCols)), function(col){
+        sem <- ifelse(length(col) > 1, sd(col, na.rm = TRUE)/sqrt(length(col)), 0)
+        return(sem)
+      }) %>%
       gather(key = 'Column', value = 'SEM', convert = TRUE, factor_key = FALSE, one_of(selCols))
-    
-    seriesData <- full_join(meansData, semData,by = c("Gene", "Column", "Value"))
-    print(head(seriesData))
+
+    seriesData <- full_join(meansData, semData,by = c("Gene", "Column"))
+
   } else {
     seriesData <- allData %>%
       select(Probe,Gene,one_of(selCols)) %>%
