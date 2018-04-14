@@ -356,7 +356,7 @@ observeEvent(
   
   observeEvent(
     input$hover_plotTopGenesSeries, 
-    {handleClick(topGenesInSeries,input$hover_plotTopGenesSeries,"hover_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
+    {if(input$radioBoxLineProbesSeries != 'Boxplot') handleClick(topGenesInSeries,input$hover_plotTopGenesSeries,"hover_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
   
   observeEvent(input$buttonAddAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
   observeEvent(input$buttonRemoveAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = character(0))})
@@ -486,7 +486,8 @@ observeEvent(
   output$buttonPNGplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.png")},
     content = function(file) {plotPlotPNG(ggplotModulesInSeries,file,session$clientData[["output_plotModuleSeries_height"]],session$clientData[["output_plotModuleSeries_width"]])})
   
-  observeEvent(input$hover_plotModuleSeries, {handleClick(moduleValues,input$hover_plotModuleSeries,"hover_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")})
+  observeEvent(input$hover_plotModuleSeries, 
+               {if(input$radioRibbonBoxModuleSeries != 'Boxplot') handleClick(moduleValues,input$hover_plotModuleSeries,"hover_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")})
   
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
     content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
@@ -735,7 +736,8 @@ observeEvent({
 output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Modules Series.png")},
   content = function(file) {plotPlotPNG(ggplotSelectedModulesSeries[['plot']],file,session$clientData[["output_mplotModuleSeries_height"]],session$clientData[["output_mplotModuleSeries_width"]])})
 
-observeEvent(input$hover_mplotModuleSeries, {handleClick(ggplotSelectedModulesSeries[['table']],input$hover_mplotModuleSeries,"hover_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
+observeEvent(input$hover_mplotModuleSeries, 
+             {if(input$mradioRibbonBoxModuleSeries != 'Boxplot') handleClick(ggplotSelectedModulesSeries[['table']],input$hover_mplotModuleSeries,"hover_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
 
 # observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
 # observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
