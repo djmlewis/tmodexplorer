@@ -176,17 +176,16 @@ plotTopGenesInSeries <- function(data2plot,
            showlegend,
            t,
            facet,
-           showZero,pointsBoxes,sortCol,xgrid) {
+           showZero,pointsBoxes,sortCol,xgrid,
+           splitGenes) {
     if (is.null(data2plot)) return(NULL)
-  
-  print(head(data2plot))
   
   showNotification("Please wait for plot output…", type = 'message', duration = 3)
   
-  # asGenes  detect whether it really is as genes based on the selData: if that lacks column Probe then it is
-  asGenes <- ('Probe' %in% names(data2plot) == FALSE)
+  # asGenes  detect whether it really is as genes based on genesOrProbes: cannot rely on lacking column Probe 
+  asGenes <- get("genesOrProbes", envir = .GlobalEnv) == "Gene" # ('Probe' %in% names(data2plot) == FALSE)
   
-    if (asGenes || pointsBoxes == 'Probes') {
+    if (asGenes) {
       # leave genes alone
       plotData <- data2plot
     } else {
@@ -218,15 +217,27 @@ plotTopGenesInSeries <- function(data2plot,
       plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
     }
     
-    plot <- plot +
-    {if (pointsBoxes == 'Probes') {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Probe), size = 1, show.legend = showlegend)}} + # group = Column is needed when we do not facet
-    {if(pointsBoxes == 'Boxplot' && facet == TRUE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.5, outlier.alpha = 1.0, show.legend = showlegend)}} +
-      {if(pointsBoxes == 'Boxplot' && facet == FALSE) {geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.5, outlier.alpha = 1.0, show.legend = FALSE)}} +
-      {if (pointsBoxes == 'Lines') {geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), size = 1, show.legend = showlegend)}} + # group = Gene is needed when we do not facet
-      {if(pointsBoxes == 'Lines' && asGenes && showSEM){geom_ribbon(mapping = aes(x = Column, ymin = Value-SEM, ymax = Value+SEM, fill = Gene), alpha = 0.2, show.legend = showlegend)}} +
-      {if(pointsBoxes == 'Lines' && showPoints){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), size = 2 ,show.legend = showlegend)}}
     
+    if(pointsBoxes == 'Boxplot') {
+      if(facet == TRUE) {
+        plot <- plot + geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.5, outlier.alpha = 1.0, show.legend = showlegend)
+      } else {
+        plot <- plot + geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.5, outlier.alpha = 1.0, show.legend = FALSE)
+      }
+    }
     
+    if(pointsBoxes == 'Lines') {
+      if(splitGenes == FALSE) {
+        plot <- plot + 
+          geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), size = 1, show.legend = showlegend) + # group = Gene is needed when we do not facet
+        {if(showSEM == TRUE && asGenes == TRUE){geom_ribbon(mapping = aes(x = Column, ymin = Value-SEM, ymax = Value+SEM, fill = Gene), alpha = 0.2, show.legend = showlegend)}} +
+        {if(showPoints == TRUE){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), size = 2 ,show.legend = showlegend)}}
+      } else {
+        plot <- plot + 
+          geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Probe), size = 1, show.legend = showlegend) + # group = Gene is needed when we do not facet
+        {if(showPoints == TRUE){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Probe), size = 2 ,show.legend = showlegend)}}
+      }
+    }
     
     if (facet == TRUE) {
       plot <-  plot +
@@ -301,7 +312,8 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
 getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facetted,boxRibbon,moduleValues) {
   #getTopGenesInSeries needs genesProbesSelected so we supply all in topGenes. topGenes is topGenesAndModules()[['genes']]
   #so we have to supply Gene or Probe for the column based on get("genesOrProbes", envir = .GlobalEnv)
-  topGenesInSeries <- getTopGenesInSeries(allData,topGenes,selCols, facetted, unique(topGenes[[get("genesOrProbes", envir = .GlobalEnv)]])) %>%
+  # we set the splitProbes to FALSE so we get gene means if we are using them
+  topGenesInSeries <- getTopGenesInSeries(allData,topGenes,selCols, facetted, unique(topGenes[[get("genesOrProbes", envir = .GlobalEnv)]]), FALSE) %>%
     # need to add a psuedo module
     mutate(Module = 'Selected')
   # drop probe if we have it

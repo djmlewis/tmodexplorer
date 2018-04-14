@@ -184,46 +184,80 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
   return(NULL)
 }
 
-getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSelected) {
+getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSelected, splitGenes) {
   if(is.null(allData) || length(selCols) == 0) return(NULL)
   # Note getSortedGenesForVaccDay is ...ForVaccDay, there is NO COLUMN variable in selData, it is just the selected day means
   # so we have to do all the calculations again, for each column now
   
   # asGenes: detect whether it really is as genes based on the selData: if that lacks column Probe then it is
-  asGenes <- ('Probe' %in% names(selData) == FALSE)
-  if(asGenes == TRUE) {
-    seriesData <- allData %>%
-      select(Gene, one_of(selCols)) %>%
-      filter(Gene %in% genesProbesSelected)
-    
-    # lets calc means first
-    meansData <- seriesData %>%
-      group_by(Gene) %>%
-      summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
-      ungroup() %>%
-      gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
-    
-    # now SEM
-    semData <- seriesData %>%
-      group_by(Gene) %>%
-      summarise_at(vars(one_of(selCols)), function(col){
-        sem <- ifelse(length(col) > 1, sd(col, na.rm = TRUE)/sqrt(length(col)), 0)
-        return(sem)
-      }) %>%
-      gather(key = 'Column', value = 'SEM', convert = TRUE, factor_key = FALSE, one_of(selCols))
+  # asGenes <- ('Probe' %in% names(selData) == FALSE)
+  asGenes <-   get("genesOrProbes", envir = .GlobalEnv) == "Gene"
 
-    seriesData <- full_join(meansData, semData,by = c("Gene", "Column"))
-
+  #at this point we have to decide whether to return gene & probe data non-meaned, or the mean
+  # I need to rewrite this as a casewhen or switch
+  if (asGenes == TRUE) {
+    if (splitGenes == FALSE) {
+      seriesData <- allData %>%
+        select(Gene, Probe, one_of(selCols)) %>%
+        filter(Gene %in% genesProbesSelected)
+      
+      # lets calc means first
+      meansData <- seriesData %>%
+        group_by(Gene) %>%
+        summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
+        ungroup() %>%
+        gather(
+          key = 'Column',
+          value = 'Value',
+          convert = TRUE,
+          factor_key = FALSE,
+          one_of(selCols)
+        )
+      
+      # now SEM
+      semData <- seriesData %>%
+        group_by(Gene) %>%
+        summarise_at(vars(one_of(selCols)), function(col) {
+          sem <-
+            ifelse(length(col) > 1, sd(col, na.rm = TRUE) / sqrt(length(col)), 0)
+          return(sem)
+        }) %>%
+        gather(
+          key = 'Column',
+          value = 'SEM',
+          convert = TRUE,
+          factor_key = FALSE,
+          one_of(selCols)
+        )
+      
+      seriesData <-
+        full_join(meansData, semData, by = c("Gene", "Column"))
+      
+    } else {
+      seriesData <- allData %>%
+        select(Gene, Probe, one_of(selCols)) %>%
+        filter(Gene %in% genesProbesSelected) %>%
+        gather(
+          key = 'Column',
+          value = 'Value',
+          convert = TRUE,
+          factor_key = FALSE,
+          one_of(selCols)
+        )
+    }
   } else {
     seriesData <- allData %>%
-      select(Probe,Gene,one_of(selCols)) %>%
-      filter(Probe %in% genesProbesSelected)%>%
-      gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
+      select(Probe, Gene, one_of(selCols)) %>%
+      filter(Probe %in% genesProbesSelected) %>%
+      gather(
+        key = 'Column',
+        value = 'Value',
+        convert = TRUE,
+        factor_key = FALSE,
+        one_of(selCols)
+      )
   }
   
-  # seriesData <- seriesData %>%
-  #   gather(key = 'Column', value = 'Value', convert = TRUE, factor_key = FALSE, one_of(selCols))
-    
   if(facet == TRUE){
     seriesData <- seriesData %>%
       separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%

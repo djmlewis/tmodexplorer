@@ -295,7 +295,8 @@ observeEvent(
       assign("genesOrProbes",pgColname, envir = .GlobalEnv)
       updateSelectInput(session, 'selectGenesProbesForSeries', label = pgColname, choices = topGenesAndModules()[['genes']][[pgColname]], selected = topGenesAndModules()[['genes']][[pgColname]])
       
-      
+      if(genesOrProbes == "Gene") {show(id = "spancheckboxShowProbesOfGenesSeries")} 
+      else {hide(id = "spancheckboxShowProbesOfGenesSeries")}
     }
   )
   
@@ -334,14 +335,15 @@ observeEvent(
     {
       columnsForSeries <- columnsFromVaccinesDays(input$selectVaccinesForSeries,input$selectDaysForSeries)
       assign("topGenesInSeries",
-             getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],columnsForSeries,input$checkboxSplitSeries,input$selectGenesProbesForSeries), 
+             getTopGenesInSeries(allData$data,topGenesAndModules()[['genes']],columnsForSeries,input$checkboxSplitSeries,
+                                 input$selectGenesProbesForSeries,input$checkboxShowProbesOfGenesSeries), 
              envir = .GlobalEnv)
       
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
         input$checkboxShowPointsSeries,input$checkboxShowSEMSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
-        input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries)
+        input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries,input$checkboxShowProbesOfGenesSeries)
 
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries} ,res = 72)
       output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries != 'Boxplot'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),

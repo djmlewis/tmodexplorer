@@ -129,10 +129,12 @@ tagList(
                                          p(style = "color: #728f17; text-align: center;","Choose Some Variables To Plot")),
                         fluidRow(
                             column(6,
-                                   awesomeRadio(status = 'warning', 'radioBoxLineProbesSeries', " ", choices = c(Means = 'Lines',Individual = 'Probes', Boxplot = 'Boxplot')),
+                                   awesomeRadio(status = 'warning', 'radioBoxLineProbesSeries', " ", choices = c(Lines = 'Lines',Boxplot = 'Boxplot')),
                                    conditionalPanel(condition = "input.radioBoxLineProbesSeries != 'Boxplot'",
+                                    span(id = "spancheckboxShowProbesOfGenesSeries",style = "color: red;",awesomeCheckbox(status = 'danger', 'checkboxShowProbesOfGenesSeries', 'Gene Probes', value = FALSE), 
+                                         bsTooltip("spancheckboxShowProbesOfGenesSeries", "When Selected The Value Of Individual Probes For Each Gene Will Be Plotted Instead Of Gene Averages")),
                                     awesomeCheckbox(status = 'success', 'checkboxShowPointsSeries', 'Points', value = FALSE),
-                                    awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE)
+                                    conditionalPanel(condition = "input.checkboxShowProbesOfGenesSeries != true", awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE))
                                    )
                             ),
                             column(6,
