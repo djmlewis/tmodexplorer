@@ -16,6 +16,7 @@
 */
 #shiny-notification-panel {
              width: 800px;
+             text-align: center;
 }
 
 html {
