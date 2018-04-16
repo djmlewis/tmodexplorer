@@ -178,7 +178,7 @@ plotTopGenesInSeries <- function(data2plot,
            facet,
            showZero,pointsBoxes,sortCol,xgrid,
            splitGenes) {
-    if (is.null(data2plot)) return(NULL)
+    if (is.null(data2plot) || nrow(data2plot) == 0) return(NULL)
   
   showNotification("Please wait for plot output…", type = 'message', duration = 3)
   
@@ -214,7 +214,8 @@ plotTopGenesInSeries <- function(data2plot,
     }
     
     if(xgrid == TRUE && pointsBoxes == 'Lines' && facet == TRUE) {
-      plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+      plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE) +
+        theme(panel.grid.major.y = element_line(color = 'grey80', linetype = 2))
     }
     
     
@@ -265,7 +266,8 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
  
 
     if(xg == TRUE && r == 'Lines' && f == TRUE) {
-      p <- p + geom_vline(xintercept = unique(d$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+      p <- p + geom_vline(xintercept = unique(d$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE) +
+        theme(panel.grid.major.y = element_line(color = 'grey80', linetype = 2))
     }
     
     if(z == TRUE) {

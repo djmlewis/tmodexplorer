@@ -295,8 +295,8 @@ observeEvent(
       assign("genesOrProbes",pgColname, envir = .GlobalEnv)
       updateSelectInput(session, 'selectGenesProbesForSeries', label = pgColname, choices = topGenesAndModules()[['genes']][[pgColname]], selected = topGenesAndModules()[['genes']][[pgColname]])
       
-      if(genesOrProbes == "Gene") {show(id = "spancheckboxShowProbesOfGenesSeries")} 
-      else {hide(id = "spancheckboxShowProbesOfGenesSeries")}
+      if(genesOrProbes == "Gene") {show(id = "checkboxShowProbesOfGenesSeries")} 
+      else {hide(id = "checkboxShowProbesOfGenesSeries")}
     }
   )
   

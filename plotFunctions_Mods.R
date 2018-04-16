@@ -95,7 +95,8 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         plot <-  plot + geom_hline(data = data2plot, yintercept = 0.0, linetype = 2, show.legend = FALSE)
       }
       if(xgrid == TRUE && boxRibbon == 'Lines' && facet == TRUE) {
-        plot <- plot + geom_vline(data = data2plot, xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE)
+        plot <- plot + geom_vline(data = data2plot, xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE) +
+          theme(panel.grid.major.y = element_line(color = 'grey80', linetype = 2))
       }
       
       
