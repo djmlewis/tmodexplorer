@@ -251,7 +251,7 @@ tagList(
                             p(style = "color: #728f17; text-align: center;","Choose Columns & Modules To Plot")),
                         fluidRow(
                           column(6,
-                          awesomeRadio(status = 'success', 'radioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
+                          awesomeRadio(status = 'warning', 'radioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
                           conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",
                                            conditionalPanel(condition = "input.checkboxShowFacetModuleSeries == true",
                                                             awesomeCheckbox(status = 'success', 'checkboxShowGridModuleSeries', 'Gridlines', value = TRUE)),
@@ -456,7 +456,7 @@ tagList(
                       p(style = "color: #728f17; text-align: center;","Choose Columns & Modules Or Titles To Plot")),
                     fluidRow(
                       column(6,
-                        awesomeRadio(status = 'success', 'mradioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
+                        awesomeRadio(status = 'warning', 'mradioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
                         conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
                          conditionalPanel(condition = "input.mcheckboxShowFacetModuleSeries == true",
                                           awesomeCheckbox(status = 'success', 'mcheckboxShowGridSeries', 'Gridlines', value = TRUE)),
