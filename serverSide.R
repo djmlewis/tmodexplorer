@@ -107,11 +107,11 @@ server <- function(input, output, session) {
     updatePickerInput(session, 'selectColumnVaccine', choices = vaccDays$vaccines)
     updatePickerInput(session, 'selectColumnDay', choices = vaccDays$days)
     
-    # updateSelectInput(session, 'selectColumnsForSeries', choices = allData$colNames, selected = character(0))
+    
     updateSelectInput(session, 'selectVaccinesForSeries', choices = vaccDays$vaccines, selected = character(0))
     updateSelectInput(session, 'selectDaysForSeries', choices = vaccDays$days, selected = character(0))
+    updatePickerInput(session, 'selectGenesProbesForSeries', choices = character(0), selected = character(0))
     
-    # updateSelectInput(session, 'selectColumnForModuleSeries', choices = allData$colNames, selected = character(0))
     updateSelectInput(session, 'selectColumnForModuleSeriesVaccines', choices = vaccDays$vaccines, selected = character(0))
     updateSelectInput(session, 'selectColumnForModuleSeriesDays', choices = vaccDays$days, selected = character(0))
     
