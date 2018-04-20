@@ -507,7 +507,7 @@ observeEvent(
   observeEvent({
     input$buttonGeneLookup
   },{
-    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot), envir = .GlobalEnv)
+    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot, input$radioGeneProbeLookup), envir = .GlobalEnv)
     output$datatableGeneLookup <- renderDataTable({lookedupGenes})
   })
   observeEvent({

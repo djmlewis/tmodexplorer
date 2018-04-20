@@ -92,6 +92,7 @@ getNewData <- function(allData, folderNme) {
         annotation <- read_rds(annotPath)
     allData$annot <- select(annotation,GeneName, SystematicName,Description,ProbeName)
     
+    # because the expression data has a dodgy
     annotation <- annotation %>%
       select(Probe = X1, Gene = GeneName, Description)
 
@@ -330,7 +331,7 @@ getGenesForSearch <- function(geneslist,search,column){
   return(selGenes)
 }
 
-lookupGenesProbes <- function(gene,annot) {
+lookupGenesProbes <- function(gene,annot, gorp) {
   if(is.null(gene) || is.null(annot)) return(NULL)
   if(grepl(' ',gene)) {
     showNotification("Spaces have been stripped", type = 'warning')
@@ -342,13 +343,13 @@ lookupGenesProbes <- function(gene,annot) {
   }
   probes <- 
     map_dfr(gene,function(g){
-      filter(annot,grepl(g,annot$GeneName, ignore.case = TRUE))
+      filter(annot,grepl(g,annot[[gorp]], ignore.case = TRUE))
     }) %>%
     select(GeneName,SystematicName,ProbeName,Description) %>%
     arrange(GeneName,SystematicName,ProbeName)
   
   if(nrow(probes) == 0) {
-    showNotification("No genes found", type = 'error')
+    showNotification("Nothing found", type = 'error')
     return(NULL)
   }
   

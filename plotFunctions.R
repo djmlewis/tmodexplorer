@@ -233,10 +233,25 @@ plotTopGenesInSeries <- function(data2plot,
           geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), size = 1, show.legend = showlegend) + # group = Gene is needed when we do not facet
         {if(showSEM == TRUE && asGenes == TRUE){geom_ribbon(mapping = aes(x = Column, ymin = Value-SEM, ymax = Value+SEM, fill = Gene), alpha = 0.2, show.legend = showlegend)}} +
         {if(showPoints == TRUE){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Gene), size = 2 ,show.legend = showlegend)}}
-      } else {
+      } else { # split genes to probes
+        dataWithShapes <- data2plot
+        if(showPoints == TRUE){
+          dataWithShapes <- data2plot %>%
+            distinct(Gene,Probe) %>%
+            group_by(Gene) %>%
+            mutate(Shape = rep_len(0:19,length.out = n())) %>%
+            ungroup() %>%
+            mutate(Shape = as.factor(Shape)) %>%
+            full_join(data2plot,by = c("Gene", "Probe"))
+          
+          showNotification("Shapes have been added to points to distinguish probes mapping the same gene")
+          
+          plot <- plot + 
+            geom_point(data = dataWithShapes,  mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Probe, shape = Shape), size = 4 ,show.legend = FALSE) +
+            scale_shape_manual(values = as.integer(levels(dataWithShapes$Shape)), guide = 'none')
+        }
         plot <- plot + 
-          geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Probe), size = 1, show.legend = showlegend) + # group = Gene is needed when we do not facet
-        {if(showPoints == TRUE){geom_point(mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Probe), size = 2 ,show.legend = showlegend)}}
+          geom_line(data = dataWithShapes,  mapping = aes(x = Column,y = Value,colour = Gene,group = Probe), size = 1, show.legend = showlegend) # group = Gene is needed when we do not facet
       }
     }
     

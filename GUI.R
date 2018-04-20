@@ -552,13 +552,14 @@ tagList(
 tabPanel('Lookup',
   navbarPage(span(style = 'color: #000000;','Lookup'), id = 'navLookup',
      #################### Gene Lookup ###################
-     tabPanel('Gene Lookup',
+     tabPanel('Probe-Gene Lookup',
               wellPanel(style = "background-color: #feffee;",
-                        h4(style = "margin-top: 0px;","Enter a gene name or partial name and click Lookup"),
-                        h5("Use commas to separate multiple genes. Alternatively, leave box empty and click Lookup to return all genes, then use search boxes above/below table to search"),
+                        h4(style = "margin-top: 0px;","Enter a probe or gene name or partial name and click Lookup"),
+                        h5("Use commas to separate multiple names. Alternatively, leave box empty and click Lookup to return all probes & genes, then use search boxes above/below table to search"),
                         fluidRow(
-                          column(8,textInput('textInputGeneLookup',NULL)),
-                          column(4,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
+                          column(6,textInput('textInputGeneLookup',NULL)),
+                          column(3, awesomeRadio('radioGeneProbeLookup',"Lookup Name Of", choices = c(Gene = "GeneName", Probe = "ProbeName"), inline = TRUE, status = 'success')),
+                          column(3,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
                         )),
               conditionalPanel(condition = "output.datatableGeneLookup != null",
                                downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Table')), hr(), 
