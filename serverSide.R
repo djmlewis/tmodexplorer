@@ -318,12 +318,33 @@ observeEvent(
     content = function(file) {write.csv(topGenesAndModules()[['genes']], file, row.names = FALSE)})
   
   output$buttonSaveListGenes <- downloadHandler(filename = function(){paste0("Selected Genes.txt")},
-   content = function(file) {write_lines(paste0(paste(unique(topGenesAndModules()[['genes']][['Gene']]), collapse = ','),'\n\n# ',dataFilterStr('g')), file)})
+   content = function(file) {write_lines(paste0(paste(unique(topGenesAndModules()[['genes']][["Gene"]]), collapse = ','),'\n\n# ',dataFilterStr('g')), file)})
+  
+  getProbeOrProbeNames <- function(probeOrProbeName){
+    probelist <- NULL
+    if(genesOrProbes == "Probe") {
+      selProbes <- unique(topGenesAndModules()[['genes']][['Probe']])
+      probelist <- switch(probeOrProbeName,
+                       "Probe" = selProbes,
+                       # ProbeName is not in topGenesAndModules, have to lookup probes and get names
+                       "ProbeName" <- unique(lookupGenesProbes(paste(selProbes, collapse = ','), allData$annot, "Probe",TRUE)[["ProbeName"]])
+                       )
+    } else { #asGenes
+      selgenes <- unique(topGenesAndModules()[['genes']][['Gene']])
+      if(!is.null(selgenes)) {
+        geneprobes <- lookupGenesProbes(paste(selgenes, collapse = ','), allData$annot, "GeneName",TRUE)
+        if(!is.null(geneprobes)) {probelist <- unique(geneprobes[[probeOrProbeName]])}
+      }
+    }
+    return(paste(probelist, collapse = ','))
+  }
   
   output$buttonSaveListProbes <- downloadHandler(filename = function(){paste0("Selected Probes.txt")},
-    content = function(file) {write_lines(paste0(paste(unique(topGenesAndModules()[['genes']][['Probe']]), collapse = ','),'\n\n# ',dataFilterStr('g')), file)})
+    content = function(file) {write_lines(paste0(getProbeOrProbeNames("Probe"),'\n\n# ',dataFilterStr('g')), file)})
   
-
+  output$buttonSaveListProbeNames <- downloadHandler(filename = function(){paste0("Selected ProbeNames.txt")},
+    content = function(file) {write_lines(paste0(getProbeOrProbeNames("ProbeName"),'\n\n# ',dataFilterStr('g')), file)})
+  
   #################### Top Probes Series #########################
   # topGenesInSeries <- NULL
   assign("topGenesInSeries",NULL, envir = .GlobalEnv)
@@ -507,7 +528,7 @@ observeEvent(
   observeEvent({
     input$buttonGeneLookup
   },{
-    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot, input$radioGeneProbeLookup), envir = .GlobalEnv)
+    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot, input$radioGeneProbeLookup,input$checkboxGeneLookupWholeWord), envir = .GlobalEnv)
     output$datatableGeneLookup <- renderDataTable({lookedupGenes})
   })
   observeEvent({

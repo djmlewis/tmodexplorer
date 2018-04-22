@@ -90,9 +90,8 @@ getNewData <- function(allData, folderNme) {
     showNotification("Please wait for data to load…", type = 'message', duration = 3)
 
         annotation <- read_rds(annotPath)
-    allData$annot <- select(annotation,GeneName, SystematicName,Description,ProbeName)
+    allData$annot <- select(annotation,GeneName, SystematicName,Description,Probe = X1, ProbeName)
     
-    # because the expression data has a dodgy
     annotation <- annotation %>%
       select(Probe = X1, Gene = GeneName, Description)
 
@@ -331,23 +330,29 @@ getGenesForSearch <- function(geneslist,search,column){
   return(selGenes)
 }
 
-lookupGenesProbes <- function(gene,annot, gorp) {
+lookupGenesProbes <- function(gene,annot, gorp, wholeWord) {
   if(is.null(gene) || is.null(annot)) return(NULL)
+
   if(grepl(' ',gene)) {
     showNotification("Spaces have been stripped", type = 'warning')
     gene <- gsub(" ","",gene)
   }
+
+  # we defeat regex for . at least. A bit messy really but some probe names have "."
+  # gene <- gsub('.','\\.',gene, fixed = TRUE)
+  
   if(grepl(',',gene)) {
     # multiple search
     gene <- unlist(strsplit(gene,','))
   }
   probes <- 
     map_dfr(gene,function(g){
-      filter(annot,grepl(g,annot[[gorp]], ignore.case = TRUE))
+      g <- ifelse(wholeWord == TRUE,paste0("^",g,"$"),g)
+      filter(annot,grepl(g,annot[[gorp]],ignore.case = TRUE))
     }) %>%
-    select(GeneName,SystematicName,ProbeName,Description) %>%
+    select(GeneName,SystematicName,ProbeName,Probe, Description) %>%
     arrange(GeneName,SystematicName,ProbeName)
-  
+
   if(nrow(probes) == 0) {
     showNotification("Nothing found", type = 'error')
     return(NULL)

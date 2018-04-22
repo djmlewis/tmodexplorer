@@ -112,7 +112,8 @@ tagList(
                 downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
                 downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG'),
                 downloadButton(class="btn-info",'buttonSaveListGenes', 'Gene List'), bsTooltip("buttonSaveListGenes", "Gene List To Paste Into regex Keyword Search"),
-                downloadButton(class="btn-info",'buttonSaveListProbes', 'Probe List'), bsTooltip("buttonSaveListProbes", "Probe List To Paste Into regex Keyword Search")
+                downloadButton(class="btn-info",'buttonSaveListProbes', 'Probe List'), bsTooltip("buttonSaveListProbes", "Probe List To Paste Into regex Keyword Search"),
+                downloadButton(class="btn-info",'buttonSaveListProbeNames', 'ProbeName List'), bsTooltip("buttonSaveListProbeNames", "ProbeName List To Paste Into regex Keyword Search")
                ),
              hr(),
                dataTableOutput('datatableTopGenesUp')
@@ -557,10 +558,13 @@ tabPanel('Lookup',
                         h4(style = "margin-top: 0px;","Enter a probe or gene name or partial name and click Lookup"),
                         h5("Use commas to separate multiple names. Alternatively, leave box empty and click Lookup to return all probes & genes, then use search boxes above/below table to search"),
                         fluidRow(
-                          column(6,textInput('textInputGeneLookup',NULL)),
-                          column(3, awesomeRadio('radioGeneProbeLookup',"Lookup Name Of", choices = c(Gene = "GeneName", Probe = "ProbeName"), inline = TRUE, status = 'success')),
+                          column(3,style = "margin-top: 10px;", awesomeRadio('radioGeneProbeLookup',NULL, choices = c(Gene = "GeneName", Probe = "Probe", ProbeName = "ProbeName"), inline = TRUE, status = 'success')),
+                          column(5,textInput('textInputGeneLookup',NULL)),
+                          column(1,awesomeCheckbox("checkboxGeneLookupWholeWord","Whole Word", FALSE,status = "danger")),
                           column(3,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
-                        )),
+                          ),
+                        h5("The search uses regex, but ignores case")
+              ),
               conditionalPanel(condition = "output.datatableGeneLookup != null",
                                downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Table')), hr(), 
               dataTableOutput('datatableGeneLookup')

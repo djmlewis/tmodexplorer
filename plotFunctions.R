@@ -228,7 +228,7 @@ plotTopGenesInSeries <- function(data2plot,
     }
     
     if(pointsBoxes == 'Lines') {
-      if(splitGenes == FALSE) {
+      if(asGenes == FALSE || (asGenes == TRUE && splitGenes == FALSE)) {
         plot <- plot + 
           geom_line(mapping = aes(x = Column,y = Value,colour = Gene,group = Gene), size = 1, show.legend = showlegend) + # group = Gene is needed when we do not facet
         {if(showSEM == TRUE && asGenes == TRUE){geom_ribbon(mapping = aes(x = Column, ymin = Value-SEM, ymax = Value+SEM, fill = Gene), alpha = 0.2, show.legend = showlegend)}} +
@@ -239,6 +239,7 @@ plotTopGenesInSeries <- function(data2plot,
           dataWithShapes <- data2plot %>%
             distinct(Gene,Probe) %>%
             group_by(Gene) %>%
+            # use rep_len in ulikely event that n()>20
             mutate(Shape = rep_len(0:19,length.out = n())) %>%
             ungroup() %>%
             mutate(Shape = as.factor(Shape)) %>%
