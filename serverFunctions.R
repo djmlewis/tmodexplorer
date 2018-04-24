@@ -93,7 +93,7 @@ getNewData <- function(allData, folderNme) {
     allData$annot <- select(annotation,GeneName, SystematicName,Description,Probe = X1, ProbeName)
     
     annotation <- annotation %>%
-      select(Probe = X1, Gene = GeneName, Description)
+      select(Probe = X1, ProbeName, Gene = GeneName, Description)
 
     allData$data<- read_rds(dataPath) %>%
       rename(Probe = X1) %>%
@@ -166,7 +166,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
         data4VaccDay <- data %>%
           # matches will find substrings so force it to match the whole string against colN
           # Description is available
-          select(Probe, Gene, Value = matches(paste0('^', colN, '$')), Description)
+          select(Probe, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), Description)
       }
 
       if (descend) {
@@ -295,7 +295,7 @@ getGenesForValues <- function(genes,Min,Max){
   return(filter(genes,between(Value,Min,Max)))
 }
 
-getGenesForSearch <- function(geneslist,search,column){
+getGenesForSearch <- function(geneslist,search,column,wholeWord){
   if(is.null(geneslist) || is.null(search)) return(NULL)
 
   # ignore an empty search
@@ -304,7 +304,7 @@ getGenesForSearch <- function(geneslist,search,column){
     return(NULL)
   }
   # strip spaces from genes and probes
-  if((column == "Gene" || column == "Probe") && grepl(' ',search)) {
+  if((column %in% c("Gene","Probe","ProbeName")) && grepl(' ',search)) {
     showNotification("Spaces have been stripped", type = 'warning')
     search <- gsub(" ","",search)
   }
@@ -312,6 +312,7 @@ getGenesForSearch <- function(geneslist,search,column){
   # multiple search ?
   if(grepl(',',search)) {
     searches <- unlist(strsplit(search,','))
+    if(wholeWord == TRUE) {searches <- paste0("^",searches,"$")}
     selGenes <- map_dfr(
       searches,
       function(s){
@@ -319,11 +320,12 @@ getGenesForSearch <- function(geneslist,search,column){
       }
     )
     if(nrow(selGenes)>0) {
-      # avoid duplicate Probes from multiple hits
+      # avoid duplicate Probes from multiple hits. THIS ASSUMES Probe is unique
       selGenes <- distinct(selGenes, Probe, .keep_all = TRUE)
     }
   } else {
     # no duplicates possible for single search term
+    if(wholeWord == TRUE) {search <- paste0("^",search,"$")}
     selGenes <- geneslist[grepl(search,geneslist[[column]], ignore.case = TRUE),]
   }
 
@@ -338,16 +340,17 @@ lookupGenesProbes <- function(gene,annot, gorp, wholeWord) {
     gene <- gsub(" ","",gene)
   }
 
-  # we defeat regex for . at least. A bit messy really but some probe names have "."
-  # gene <- gsub('.','\\.',gene, fixed = TRUE)
-  
   if(grepl(',',gene)) {
     # multiple search
     gene <- unlist(strsplit(gene,','))
   }
+  
+  if(wholeWord == TRUE) {
+    gene <- paste0('^', gene, '$')
+  }
+  
   probes <- 
     map_dfr(gene,function(g){
-      g <- ifelse(wholeWord == TRUE,paste0("^",g,"$"),g)
       filter(annot,grepl(g,annot[[gorp]],ignore.case = TRUE))
     }) %>%
     select(GeneName,SystematicName,ProbeName,Probe, Description) %>%

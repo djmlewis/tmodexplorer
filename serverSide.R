@@ -214,7 +214,7 @@ observeEvent(
               filterText <- ""
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
               if(input$checkboxSelectKeyword == TRUE) {
-                geneslist <- getGenesForSearch(allData$data,input$textInputKeyword,input$radioKeywordColumn)
+                geneslist <- getGenesForSearch(allData$data,input$textInputKeyword,input$radioKeywordColumn,input$checkboxGeneSearchWholeWord)
                 if(dataFrameOK(geneslist)) {
                   filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
                   # calculate topGenesAndModules() using geneslist
@@ -323,12 +323,7 @@ observeEvent(
   getProbeOrProbeNames <- function(probeOrProbeName){
     probelist <- NULL
     if(genesOrProbes == "Probe") {
-      selProbes <- unique(topGenesAndModules()[['genes']][['Probe']])
-      probelist <- switch(probeOrProbeName,
-                       "Probe" = selProbes,
-                       # ProbeName is not in topGenesAndModules, have to lookup probes and get names
-                       "ProbeName" <- unique(lookupGenesProbes(paste(selProbes, collapse = ','), allData$annot, "Probe",TRUE)[["ProbeName"]])
-                       )
+      probelist <- unique(topGenesAndModules()[['genes']][[probeOrProbeName]])
     } else { #asGenes
       selgenes <- unique(topGenesAndModules()[['genes']][['Gene']])
       if(!is.null(selgenes)) {

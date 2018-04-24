@@ -33,19 +33,19 @@ tagList(
             column(2,actionButton('buttonLoadDataFI',label = 'Load Dataset',class = "btn-success"))
       )))
     ),
-    hidden(h4(id = "textDataNameHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 10px; margin-right: 10px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;",textOutput('textDataName'))),
+    hidden(h4(id = "textDataNameHeader", style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; background-color: #4d600f; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;",textOutput('textDataName'))),
     conditionalPanel(condition = "output.datatableAll != null",downloadButton(class="btn-outline-primary",'buttonsavedatatableAll', 'Table')),
     hr(),
     dataTableOutput('datatableAll')
   ),
   # ############## PROBES #################
       tabPanel('Explore By Probe',
-        hidden(h4(id = "textDataNameProbesHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 10px; margin-right: 10px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameProbes')))),
+        hidden(h4(id = "textDataNameProbesHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 0px; margin-right: 0px; background-color: #4d600f; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameProbes')))),
          navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe', 
-                    header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 10px; margin-right: 10px; background-color: #feffee;padding-top: 10px; padding-bottom: 10px;", textOutput('textFiltersProbes'))))),
+                    header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #84a51c;padding-top: 10px; padding-bottom: 10px;", textOutput('textFiltersProbes'))))),
            #################### Selecting  ################
            tabPanel('Select Probes',
-                    hr(),
+                    
                     h4(style = "text-align: center;",'Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
                     conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                      fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-warning btn-block")),column(4))),
@@ -56,11 +56,12 @@ tagList(
                             conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                             wellPanel(style = "background-color: #feffee;",
                               awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
+                              conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces are stripped from Gene, Probe and ProbeName searches")),
+                              conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces are kept in Description searches")),
                               textInput('textInputKeyword',NULL),
                               h4(style = "margin-top: 0px;","Search:"),
-                              awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Description','Gene','Probe'), inline = TRUE),
-                              conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces are stripped from Gene and Probe names")),
-                              conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces are kept in search for Description"))
+                              awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Gene','Probe','ProbeName','Description'), inline = TRUE),
+                              awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", FALSE,status = "danger")
                           ))),
                           column(8,
                             wellPanel(style = "background-color: #ffffff;",
@@ -106,7 +107,7 @@ tagList(
            ),
            #################### Top Probes #######################
            tabPanel('Selected Probes',
-              hr(),
+              
                h4(style = "margin-top: 0px;",'Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Combination'),
                div(
                 downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
@@ -180,7 +181,7 @@ tagList(
                dataTableOutput('datatableTopGenesSeries')),
            #################### Genes->Modules ##################
            tabPanel('Genes->Modules',
-               hr(),
+               
                h4(style = "margin-top: 0px;",'Modules Associated With Selected Probes or Genes'),
                div(downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'), 
                downloadButton(class="btn-warning",'buttonSaveTableGenesModulesPlot', 'Table As PNG')),
@@ -317,14 +318,14 @@ tagList(
 ),# explore by probe
   ############## MODULES #################
   tabPanel('Explore By Module',
-    hidden(h4(id = "textDataNameModsHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; margin-left: 10px; margin-right: 10px; background-color: #f9feed;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameMods'))),
+    hidden(h4(id = "textDataNameModsHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; margin-left: 0px; margin-right: 0px; background-color: #4d600f; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameMods'))),
     navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule', 
                header = hidden(tagList(div(id = "navModuleHeader", 
-                                           h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 10px; margin-right: 10px; background-color: #feffee;padding-top: 10px; padding-bottom: 10px;", 
+                                           h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 10px; margin-right: 10px; color: #FFFFFF; background-color: #84a51c; padding-top: 10px; padding-bottom: 10px;", 
                                           textOutput('textFiltersMods'))))),
       #################### Selecting Modules ################
       tabPanel('Select Modules',
-      hr(),
+      
       h4(style = "text-align: center;", 'Apply filters to select modules for plotting. Selected filters are applied in order left → right'),
       fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
                                                     actionButton('mbuttonApplySelection','Apply Selections',class = "btn-warning btn-block")))),
@@ -563,7 +564,7 @@ tabPanel('Lookup',
                           column(1,awesomeCheckbox("checkboxGeneLookupWholeWord","Whole Word", FALSE,status = "danger")),
                           column(3,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
                           ),
-                        h5("The search uses regex, but ignores case")
+                        h5("The search uses regex, but ignores case and always removes spaces")
               ),
               conditionalPanel(condition = "output.datatableGeneLookup != null",
                                downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Table')), hr(), 
