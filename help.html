@@ -5,12 +5,80 @@
     <title>Help</title>
   </head>
   <body>
-    <h1> Introduction</h1>
+    <h1>Contents</h1>
+    <ul>
+      <li><a href="#Introduction">Introduction</a></li>
+      <ul>
+        <li><a href="#Plots">Plots</a></li>
+        <li><a href="#Data_Tables_">Data Tables</a></li>
+        <li><a href="#Saving_Gene_Probe_ProbeNames_and_">Saving Gene,
+            Probe, ProbeNames and Module Lists</a></li>
+      </ul>
+      <li><a href="#The_Datasets">The Datasets</a></li>
+      <ul>
+        <li><a href="#Transcriptomics_Data_">Transcriptomics Data</a></li>
+        <li><a href="#Cytokines_Data_">Cytokines Data</a></li>
+      </ul>
+      <li><a href="#Instructions_For_Use">Instructions For Use</a></li>
+      <ul>
+        <li><a href="#Password">Password</a></li>
+        <li><a href="#Loading_Transcriptomics_Data">Loading
+            Transcriptomics Data</a></li>
+        <li><a href="#Explore_Transcriptomics_By_Probe_tab">Explore
+            Transcriptomics By Probe</a></li>
+        <ul>
+          <li><a href="#Select_tab_-_probes_">Select tab - probes</a></li>
+          <ul>
+            <li><a href="#1._Regex_-_keyword_search_">Regex - keyword
+                search</a></li>
+            <li><a href="#2._Sorted_Column_Values">Sorted Column Values</a></li>
+            <li><a href="#3._Sorted_Column_Row_Numbers_">Sorted Column
+                Row Numbers</a></li>
+          </ul>
+          <li><a href="#Selected_Probes_tab">Selected Probes</a></li>
+          <li><a href="#Probes:Series_tab_">Probes:Series</a></li>
+          <li><a href="#Genes-Modules_tab_">Genes-&gt;Modules</a></li>
+          <li><a href="#Modules_tab_">Modules</a></li>
+          <li><a href="#Modules-Genes_Probes_tab">Modules-&gt;Genes</a></li>
+          <li><a href="#Modules:Series_Probes_tab">Modules:Series</a></li>
+        </ul>
+        <li><a href="#Explore_Transcriptomics_By_Module_tab">Explore
+            Transcriptomics By Module</a></li>
+        <ul>
+          <li><a href="#Select_modules_tab_">Select modules</a></li>
+          <li><a href="#Selected_Modules_Modules_tab_">Selected Modules</a></li>
+          <li><a href="#Modules-Genes_Modules_tab">Modules-&gt;Genes</a></li>
+          <li><a href="#Modules:Series_Modules_tab">Modules:Series</a></li>
+        </ul>
+        <li><a href="#Transcriptomics_Lookup_tab_">Transcriptomics
+            Lookup</a></li>
+        <ul>
+          <li><a href="#Gene_Lookup_tab">Gene Lookup</a></li>
+          <li><a href="#Module_Lookup_tab">Module Lookup</a></li>
+        </ul>
+        <li><a href="#Explore_Cytokines">Explore Cytokines</a></li>
+        <ul>
+          <li><a href="#Plot_Cytokines">Plot Cytokines</a></li>
+        </ul>
+      </ul>
+      <li><a href="#Disclaimer__Acknowledgements_">Disclaimer &amp;
+          Acknowledgements</a></li>
+      <li><a href="#Versions">Versions</a></li>
+    </ul>
+    <p><br>
+    </p>
+    <h1><a name="Introduction"></a>Introduction</h1>
     The purpose of this app is just to visualise the expression of genes
     as a time course after immunisation, either alone or when clustered
     into Blood Transcriptional Modules (BTMs); and to look inside the
     BTMs to observe how the individual genes are responding to the
-    vaccine stimulus.<br>
+    vaccine stimulus. <br>
+    <br>
+    The datasets are composed of rows of data where each row is a probe
+    on the chip, and the columns contain the group mean value (raw
+    expression or fold-increase from baseline) for that probe. The
+    groups are a specific <b>treatment~timepoint</b> combination: e.g.
+    Boostrix~Day 1, Placebo~Day 0, etc.<br>
     <br>
     The basic concept is to pick a particular time point and vaccine - <i>e.g.
 
@@ -37,36 +105,37 @@
 
 
 
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
-    probes or genes values present in the array as they are on that time
-    point in persons who received that vaccine. So you may have the
-    probes ordered in descending order by their value (fold-increase
-    from baseline or mean expression) at that time in those people who
-    got Boostrix. Why do this? Well, because with over 60k probes you
-    have to order them somehow. The grouping by <i><b>treatment</b></i>
-    (vaccine or placebo) ~ <i><b>time</b></i> combination is actually a
-    natural grouping, if a bit counter-intuitive when comparing between
-    vaccines. As the data consists of rows where each row is a probe,
-    and where each column has values for one treatment (vaccine or
-    placebo) ~ time combination, by sorting the rows according to the
-    values for one selected treatment ~ time combination, you also
-    impose the same order on the probes at other time points and
-    vaccines.<br>
+    probes or genes values present in the array as they are on that
+    timepoint ~ vaccine. So you may have the probes ordered in
+    descending order by their value (fold-increase from baseline or mean
+    expression) on day 1 in those people who got Boostrix. Why do this?
+    Well, because with over 60k probes you have to order them somehow.
+    The grouping by <i><b>treatment</b></i> (vaccine or placebo) ~ <i><b>time</b></i>
+    combination is actually a natural grouping, if a bit
+    counter-intuitive when comparing between vaccines. As the data
+    consists of rows where each row is a probe, and where each column
+    has values for one treatment (vaccine or placebo) ~ time
+    combination, by sorting the rows according to the values for one
+    selected treatment ~ time combination, you also impose the same
+    order on the probes at other time points and vaccines.<br>
     <br>
-    Having ordered the top or bottom probes, you can then select the
-    probes or genes into a group of interest - e.g. the top 10
-    fold-increased genes on day 7 after Boostrix. <i><b>This set of
-        selected genes becomes the core building-block of subsequent
-        analysis</b></i>. You can identify how the expression of these
-    genes changes over time; which modules these genes belong to;
-    observe how the other genes in those modules are responding over
-    time; or how the whole module responds over time. You can treat
-    these selected genes as a 'pseudo-module' and see how this module
-    changes over time in comparison with the predefined modules in tmod.
-    Other search options allow you to identify genes by their title or
-    description instead of (or as well as-) their expression values at a
-    specific treatment~time, and then follow these selected genes and
-    the modules that contain them over time.<br>
+    Having ordered the top or bottom probes, or found probes with values
+    between a range, you can then place the probes or genes into a group
+    of interest - e.g. the top 10 fold-increased genes on day 7 after
+    Boostrix. <i><b>This set of selected genes becomes the core
+        building-block of subsequent analysis</b></i>. You can identify
+    how the expression of these genes changes over time (in all the
+    treatment groups); which modules these genes belong to; observe how
+    the other genes in those modules are responding over time; or how
+    the whole module responds over time. You can treat these selected
+    genes as a 'pseudo-module' and see how this module changes over time
+    in comparison with the predefined modules in tmod. Other search
+    options allow you to identify genes by their title or description
+    instead of (or as well as-) their expression values at a specific
+    treatment~time, and then follow these selected genes and the modules
+    that contain them over time.<br>
     <br>
     The figures below illustrates this: the probes in the combined ABC
     Surrey dataset have been sorted in <i>descending order of their
@@ -85,7 +154,7 @@
     some non-responding modules. This reflects that fact that modules
     contain many genes that may not be responding to Stamaril at all, or
     even down-regulated, as&nbsp; the modules have been clustered by
-    their authors on the basis of other datasets:<br>
+    their authors on the basis of other criteria:<br>
     <img src="selmods.png" alt="Selected Modules" align="middle"
       width="550" height="249">&nbsp;&nbsp; <img
       src="selmodsseries.png" alt="Selected Modules Timecourse"
@@ -119,6 +188,7 @@
 
 
 
+
     <img src="topmodsseries.png" alt="Top Modules Timecourse"
       width="553" height="250"><br>
     <br>
@@ -128,7 +198,7 @@
     groupings that may be better? Do some modules have so many
     non-responding genes that they are not representative? Could we
     cluster new modules?<br>
-    <h3>Plots</h3>
+    <h3><a name="Plots"></a>Plots</h3>
     <p><b><em>Plots may take some time to appear - be patient!</em></b>
       The more rows you select for plotting the slower it will be.
       ggplot2 is not good at providing progress updates - so it may look
@@ -161,7 +231,7 @@
       use the slider above the plot to increase the height.<br>
     </p>
     <p> </p>
-    <h3>Data Tables<br>
+    <h3><a name="Data_Tables_"></a>Data Tables<br>
     </h3>
     The entire data table can be searched using the box above,&nbsp; or
     individual columns searched using the boxes below each column.
@@ -173,97 +243,90 @@
     image may be clipped or extra wide, but a transparent background
     will be generated.<br>
     <br>
-    <h3>Saving Gene, Probe and Module Lists<br>
+    <h3><a name="Saving_Gene_Probe_ProbeNames_and_"></a>Saving Gene,
+      Probe, ProbeNames and Module Lists<br>
     </h3>
     When you have selected genes, probes or modules using some filters,
     they can be downloaded as a text file in a comma-separated format
     suitable for pasting into the 'regex' search boxes.<br>
-    <h1>The Datasets</h1>
-    <h2>Transcriptomics Data<br>
+    <h1><a name="The_Datasets"></a>The Datasets</h1>
+    <h2><a name="Transcriptomics_Data_"></a>Transcriptomics Data<br>
     </h2>
     <p>The&nbsp; transcriptomics datasets have been uploaded to the
       server, but must be selected and loaded into the app before use.
       They come in two versions: <b>fold-increase in the log2
-        expression values</b> (by subtraction of the log2 values), <i>always
-
-
-
-
-
-
-
-
-        from day 0</i> <i>baseline</i> (in Surrey day -1 is calculated
-      as a time point preceding day 0); and <b>raw log2 expression
-        values</b>. Day 0 at 8AM was selected for Surrey as baseline as
-      participants entered the unit on day -1. The data were calculated
-      by initially grouping the raw data for each person-each probe-each
-      time point, into treatment and time point pools. Then row averages
-      for each probe within the treatment ~ time pool were calculated.
-      This gives the basic raw expression data which is the group mean
-      for each vaccination-day for each probe, i.e. the mean expression
-      for Probe X on day Y for participants who received vaccine Z.<br>
+        expression values</b> (by subtraction of the log2 expression
+      values), <i>always from day 0</i> <i>baseline</i> (in Surrey day
+      -1 is treated as a time point preceding day 0); and <b>raw log2
+        expression values</b>. Day 0 at 8AM was selected for Surrey as
+      baseline as participants entered the unit on day -1. The data were
+      calculated by initially grouping the raw data for each person -
+      each probe - each time point, into treatment and time point pools.
+      Then row averages for each probe within the treatment ~ time pool
+      were calculated. This gives the basic raw expression data which is
+      the group mean for each vaccination-day for each probe, i.e. the
+      mean expression for Probe X on day Y for participants who received
+      vaccine Z.<br>
     </p>
     <p>One group of datasets, based on <i><b>limma-normalised</b></i>
       expression values, consists of the <b> protocol-defined grouping
-        of the vaccines and associated placebo group</b> (<i>which may
-        have only 4-6 participants in Surrey, so when comparing with
-        placebo the combined ABC dataset described below may be better</i>):<br>
+        of the vaccines and associated placebo group</b>:<br>
     </p>
     <ul>
-      <li>A Surrey Stamaril-Varilrix-Placebo</li>
-      <li>C Surrey Aggrippal-Fluad-Placebo</li>
       <li>D Gent Fluad-Placebo (<i>NB only 6 in placebo group</i>)<br>
       </li>
       <li>D2 Gent Boostrix-Placebo (<i>NB days 2 and 3 contain mutually
-          exclusive halves of the cohort</i><i>, placebo = 20</i>)<br>
-      </li>
+          exclusive halves of the cohort</i><i>, placebo = 20</i>)</li>
     </ul>
-    <p>An exception is <b>Surrey Engerix B</b>. Here the participants
-      were naive and received a priming vaccination alongside a placebo
-      group: this is indicated as ENGERIXB and PLACEBO in the same way
-      as the others above. The same participants then had a second
-      immunisation (first boost) without any systems biology. They then
-      came for a third immunisation (second boost) on day 167. This is
-      represented in the dataset as EngerixB3 and PLACEBO3. The time
-      points for ENGERIXB3/PLACEBO3 have been adjusted so that 167
-      becomes -1, and 168 day 0. <i>Fold-increase is then calculated
-        from this adjusted day 0</i>, as the response to the third
-      immunisation. Thus the ENGERIXB and PLACEBO may be pooled with the
-      other Surrey trials, but the ENGERIXB3 and especially the PLACEBO3
-      (<i>which</i><i> has only 4 participants)</i> should be treated
-      with caution as they are the same persons repeated. This dataset
-      therefore has the pattern:<br>
-    </p>
+    The D and D2 data are derived from exported files, and are
+    problematic in that the rows do not have proper <b>Probe IDs</b>. I
+    have included a ProbeName identifier to link the Probe identifier
+    (row ID) to the chip Probe Identifier but there appear to be
+    duplications and other issues. <b>These two datasets must therefore
+      be treated with caution</b>. The lack of a proper consistent Probe
+    ID also prevents comparison with the Surrey data or between D and
+    D2.<br>
     <ul>
-      <li>B Surrey EngerixB-Placebo-EngerixB3-Placebo3</li>
     </ul>
-    I have also included a <b>combined Surrey dataset</b> in which the
-    vaccines in A, B and C are all together, based on <i><b>agilent</b></i><i><b>-normalised</b></i>
-    expression values. In this case the PLACEBO group contains all ~21
-    participants pooled from ABC - <i>without</i> <i>the PLACEBO3
-      group as described for</i> <i>B Surrey Engerix B</i> above.
-    PLACEBO3 (the subjects who repeated) are presented as a separate
-    group, but generally should probably be ignored. This is a large
-    dataset and so can be slow, but allows very convenient comparison
-    between vaccines. This dataset therefore has the pattern:
+    <p>I have also included a <b>combined Surrey dataset</b> in which
+      the vaccines in A, B and C are all together, based on <i><b>agilent</b></i><i><b>-normalised</b></i>
+      expression values. This dataset appears to be slightly better than
+      the D and D2, but has been normalised differently. In this dataset
+      the PLACEBO group contains all ~21 participants pooled from AB1C.
+      "A" = Stamaril, Varilrix and Placebo; "C" = Fluad, Agrippal &amp;
+      Placebo.&nbsp; For <b>Engerix B</b> the participants were naive
+      and received a priming vaccination alongside a placebo group: this
+      is indicated as ENGERIXB and PLACEBO in the same way as A &amp; C.
+      The same participants then had a second immunisation (first boost)
+      without any systems biology. They then came for a third
+      immunisation (second boost) on day 167. This is represented in the
+      dataset as EngerixB3 and PLACEBO3. The time points for
+      ENGERIXB3/PLACEBO3 have been adjusted so that Day 167 becomes -1,
+      and 168 day 0. <i>Fold-increase is then calculated from this
+        adjusted day 0</i>, as the response to the third immunisation.
+      Thus the ENGERIXB and PLACEBO have been pooled with the AC Surrey
+      trials, but the ENGERIXB3 and&nbsp; the PLACEBO3 (<i>which</i><i>
+        has only 4 participants)</i> are presented as a separate group,
+      and PLACEBO3 should probably be ignored. This is a large dataset
+      and so can be slow, but allows very convenient comparison between
+      vaccines. This dataset therefore has the pattern: </p>
     <ul>
-      <li>ABC Surrey Agilent</li>
+      <li>ABB3C Surrey Agilent</li>
     </ul>
-    <h2>Cytokines Data<br>
+    <h2><a name="Cytokines_Data_"></a>Cytokines Data<br>
     </h2>
     <p>The&nbsp; cytokines dataset has been uploaded to the server and
       loads automatically on start up. It is a single combined dataset
       with data from Surrey ABC trials, and Gent Fluad (D). No cytokine
-      data is available for the Gent Boostrix trial (D2). The data has
+      data are available for the Gent Boostrix trial (D2). The data have
       been handled in a similar way to the transcriptomics ABC Surrey
       Agilent (see above) with the addition of D. There is a single
       placebo group for Surrey AB1C, pooled from all participants, plus
       a separate PlaceboB3 group of those who had the second Engerix B
       immunisation. Fluad Gent is separate with its own placebo group
       (with only 6 participants), and also has only a subset of
-      available days. <br>
-      Two versions of data are available: <b>actual concentrations</b>,
+      available days.</p>
+    <p> Two versions of data are available: <b>actual concentrations</b>,
       and <b>fold-increase from day 0</b>, which can be selected using
       radio buttons on the Plot panel. For fold increase, if the day 0
       value was zero or absent for a particular participant, then no
@@ -273,36 +336,36 @@
       including NA and 0) and the N with usable data, so you can see the
       actual group size contributing to each day's mean/median value. As
       the data contain a lot of zero (below threshold of detection)
-      values, the option to remove zero values form calculation of means
+      values, the option to remove zero values from calculation of means
       and median/IQR also exists, so that the kinetics of only
       measurable responses can be plotted. For TREM1 there were some
       "OOR" values (out of range) which have just been replaced by NA on
       import, and hence deleted from calculations. No log
       transformations have been done, this is an option when plotting.<br>
     </p>
-    <h1>Instructions For Use</h1>
-    <h2> Password</h2>
+    <h1><a name="Instructions_For_Use"></a>Instructions For Use</h1>
+    <h2><a name="Password"></a> Password</h2>
     When running on the shinyapps.io server the software requires a
     password. This is to protect the datasets. Please contact
     d.j.lewis@surrey.ac.uk to be given the password. Enter the password
     and click the button to unlock the menus. When running locally no
     password is required. <br>
-    <h2> Loading Transcriptomics Data</h2>
+    <h2><a name="Loading_Transcriptomics_Data"></a> Loading
+      Transcriptomics Data</h2>
     You must load a transcriptomics dataset before you can do anything
     with transcriptomics data. The transcriptomics datasets are already
     uploaded to the server. Select a dataset. Click Load. All existing
-    plots and data tables will be cleared. Note that some
-    transcriptomics datasets are fold-increase from baseline, whereas
-    others are actual expression values. The fold-increase are more
-    useful. All data have been collated as a mean for each treatment
-    group on each day. All expression values and fold-increases are
-    log2. Once you click "Load" the name of the data set will appear
-    below the tabs, and two more tabs will appear:<br>
+    plots and data tables will be cleared. Once you click "Load" the
+    name of the data set will appear below the tabs, and two more tabs
+    will appear:<br>
     <ul>
-      <li>Explore By Probe</li>
-      <li>Explore By Module</li>
+      <li><a href="#Explore_Transcriptomics_By_Probe_tab">Explore By
+          Probe</a></li>
+      <li><a href="#Explore_Transcriptomics_By_Module_tab">Explore By
+          Module</a></li>
     </ul>
-    <h2>Explore Transcriptomics By Probe tab<br>
+    <h2><a name="Explore_Transcriptomics_By_Probe_tab"></a>Explore
+      Transcriptomics By Probe tab<br>
     </h2>
     Select this tab to explore the datasets using individual probes in
     the array. The idea is to choose a time point and a treatment, and
@@ -311,283 +374,265 @@
     then additionally filter by keyword search or value. Note - if you
     include more that 200 rows then plots are slow to draw. Do not click
     "Plot" buttons or "Apply" again as the cycle just repeats!<br>
-    <h3>Select tab - probes<br>
+    <h3><a name="Select_tab_-_probes_"></a>Select tab - probes<br>
     </h3>
-    You must click the green <b>Apply Selections</b> button before any
+    You must click the <b>Apply Selections</b> button before any
     filters or selections are applied, and again after any changes. This
-    is to speed-up calculations.<br>
-    Pick a&nbsp; <b>treatment ~ time combination</b> you want to
-    explore. This treatment~time "column" is the basic unit for
-    tmodExplorer - it combines a treatment and a time point, e.g.
-    "Boostrix_7" contains mean values on day 7 for participants who
-    received Boostrix. All data sets are based on these columns. Time
-    series plots will indicate the sorted column with <font
-      color="#ff0000">▼▲</font>.<br>
-    <b>Sort descending</b> for highest values in top rows. Select <b>Gene
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      Averages</b> to have expressions of individual probes that map to
-    a gene averaged into one row, otherwise it will be one probe per row
-    and genes may repeat. This is important if you restrict by "<b>Sorted
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      Row Numbers</b>": e.g. if you select 10 rows and have <b>Gene
-      Averages</b> selected you may include many more than 10 probes,
-    but if <b>Gene Averages</b> is not selected you just get the top 10
-    probes which may map to less than 10 genes. As the modules work in
-    genes, it is probably better to select <b>Gene Averages</b>, unless
-    you specifically want to follow distinct probes. A disadvantage of
-    gene averages is that you lose the gene descriptions, which are
-    probe-specific. Toggling between averaged and probe-alone settings
-    lets you see what these genes are, alternatively use the <b>Gene
-      Lookup tab</b> to lookup genes by their names and see the probe
-    descriptions.<br>
+    is to speed-up calculations. Once you click <b>Apply Selections</b>,
+    several other tabs will appear to allow visualisation of the genes
+    and modules. The search terms you included appear below the tabs.<br>
     <br>
-    Once you click <b>Apply Selections</b>, several other tabs will
-    appear to allow visualisation of the genes and modules. The search
-    terms you included appear below the tabs.<br>
-    <h4> Filters</h4>
-    Filters are applied one after another, left to right - first the
-    keyword <b>regex</b> search, then the <b>value</b> restriction,
-    finally which <b>rows</b> to include. Probably you will always use
-    <b>Sorted Column Row Numbers</b> to restrict the number of sorted
-    probes, possibly alone or in combination with either <b>regex</b>
-    or <b>Sorted Column Values</b>. Never, ever try to search with no
-    filters selected - it will return all 65k+ probes, <i>very slowly,
-      and I have set a block on this.</i><br>
-    <h5>Regex - keyword search<br>
-    </h5>
+    You must select at least one of the numbered filters. Filters are
+    applied one after another, left to right - first the keyword <b>regex</b>
+    search, then the <b>value</b> restriction, finally which <b>rows</b>
+    to include. Probably you will always use <b>Sorted Column Row
+      Numbers</b> to restrict the number of sorted probes, possibly
+    alone or in combination with either <b>regex</b> or <b>Sorted
+      Column Values</b>. Never, ever try to search with no filters
+    selected - it will return all 60k+ probes, <i>very slowly, and I
+      have set a block on this.</i><br>
+    <h4><a name="1._Regex_-_keyword_search_"></a>1. Regex - keyword
+      search<br>
+    </h4>
     "Regex" is a keyword, free-text search that uses regex, with some
-    limitations. In tmodExplorer multiple terms can be entered into the
-    box separated by commas and are OR'd (search returns as many of
-    those terms as it can find, treating each term separately). Do not
-    include spaces (especially after the comma) or quotation marks
-    unless you want them included in the search. Spaces will be
-    stripped-out automatically for you in <i>Gene</i> and <i>Probe</i>
-    name searches, so you can easily paste in lists copied from tables.
-    For <i>Description</i> searches the spaces are left in so beware:
-    regex is "literal" so if you type <tt>"B cell"</tt> it is going to
-    look for <tt>"B cell"</tt> - including the <tt>""</tt>. You can
-    enter partial terms e.g. interferon finds interferon and
-    interferons, as regex looks for those characters anywhere.
-    Upper/lower case is ignored. Commas are interpreted as search term
-    dividers and cannot be 'escaped'. Beware including <a
-      href="https://regexr.com" target="_blank">special regex characters</a>
-    by mistake. Select whether to search gene description or gene name,
-    or probe ID. Probe is least useful as they are not very standardised
-    between datasets.<br>
+    limitations. Multiple terms can be entered into the box <b>separated
+      by commas</b> and are OR'd (search returns as many of those terms
+    as it can find, treating each term separately). Commas are
+    interpreted as search term dividers and cannot be 'escaped'. Select
+    whether to search gene description or gene name, or probe ID
+    ("Probe") or ProbeName. Probe is least useful as they are not very
+    standardised between datasets.<br>
     <br>
-    Regex search actually ignores the selected column and any values -
-    it just finds rows in the data set that match the search. However,
-    those rows will be sorted in order of the value in the "Selected
-    Column", and filtered on these values. You may want to switch off
-    the <b>Sorted Column Row Numbers</b> when using regex as it may
-    reduce the number of free-text hits you would have found. However,
-    beware returning hundreds of rows as the app will freeze for a long
-    time. Consider setting some <b>Sorted Column Values</b> limits. You
-    can also <b>paste saved search lists</b> into the regex box that
-    you downloaded from the <b>Selected Probes tab</b>, or copied from
-    one of the <b>Lookup</b> tables - be sure to match Gene and Probe
-    Name. <b>This allows fairly easy repetition of searches across
-      datasets</b>.&nbsp;
-    <h5>Sorted Column Values</h5>
+    Spaces will be stripped-out automatically for you in <i>Gene</i>
+    and <i>Probe</i> name searches, so you can easily paste in lists
+    copied from tables. For <i>Description</i> searches the spaces are
+    left in so beware: regex is "literal" so if you type <tt>"B cell"</tt>
+    it is going to look for <tt>"B cell"</tt> - including the <tt>""</tt>.
+    <br>
+    <br>
+    You can enter partial terms e.g. interferon finds interferon and
+    interferons, as regex looks for those characters anywhere.
+    If you select "Whole Word" then interferon will only match
+    interferon. Whole Word is important when searching for genes and
+    probes as "CCL2" will find CCL2, CCL27 etc unless Whole Word is
+    selected.<br>
+    Upper/lower case is ignored. <br>
+    Beware including <a href="https://regexr.com" target="_blank">special
+      regex characters</a> by mistake.<br>
+    <br>
+    Regex search&nbsp; ignores the "Selected Column" and any values (see
+    below) - it just finds rows in the data set that match the search.
+    However, those rows will be sorted in order of the value in the
+    "Selected Column", and filtered on these values. You may want to
+    switch off the <b>Row Numbers Within Range</b> when using regex as
+    it may reduce the number of free-text hits you would have found.
+    However, beware returning hundreds of rows as the app will freeze
+    for a long time. Consider setting some <b>Values </b><b>Within
+      Range</b> limits.<br>
+    <br>
+    You can also <b>paste saved search lists</b> into the regex box
+    that you downloaded from the <b>Selected Probes tab</b>, or copied
+    from one of the <b>Lookup</b> tables - be sure to match Gene and
+    Probe / Name. <b>This allows fairly easy repetition of searches
+      across datasets</b>, at least for Genes.<br>
+    <h4><a name="2._Sorted_Column_Values"></a>2. Sorted Column Values</h4>
+    <p>Pick a&nbsp; <b>treatment ~ time combination</b> you want to
+      explore from the menus. This treatment~time "column" is the basic
+      unit for tmodExplorer - it combines a treatment and a time point,
+      e.g. "Boostrix_7" contains mean values on day 7 for participants
+      who received Boostrix. All data sets are based on these columns.
+      Time series plots will indicate the sorted column with <font
+        color="#ff0000">▼▲</font>.</p>
+    <p> <b>Sort descending</b> for highest values in top rows. <br>
+      Select <font color="#ff0000"><b>Gene Averages</b></font> to have
+      expressions of individual probes that map to a gene averaged into
+      one row, otherwise it will be one probe per row and genes may
+      repeat. This is important if you restrict by "<b>Sorted Row
+        Numbers</b>": e.g. if you select 10 rows and have <b>Gene
+        Averages</b> selected you may include many more than 10 probes,
+      but if <b>Gene Averages</b> is not selected you just get the top
+      10 probes which may map to less than 10 genes. As the modules work
+      in genes, it is probably better to select <b>Gene Averages</b>,
+      unless you specifically want to follow distinct probes. A
+      disadvantage of gene averages is that you lose the gene
+      descriptions, which are probe-specific. Copy the Gene list on the
+      <a href="#Selected_Probes_tab"><b>Selected Probes</b></a> tab and
+      use&nbsp; the <a href="#Gene_Lookup_tab"><b>Gene Lookup tab</b></a>
+      to lookup genes by their names and see the probe descriptions.</p>
     Max/min expression values will be pre-entered for you into the range
     boxes when selecting a column, using floor() and ceil() and so will
     deliberately exceed the actual values. Click <b>Column</b> to reset
     to max/min for selected column, or <b>Data</b> for max/min of whole
     dataset in all columns. Value restrictions apply only to values in
     the column selected for sort - <b>so you will filter based on the
-      values in the column you selected</b>.<br>
-    <h5>Sorted Column Row Numbers<br>
-    </h5>
-    It is probably a good idea to keep this selected, as over 200 rows
-    is slow to calculate and plot. You can restrict rows to have top N
-    or bottom N rows, or have a slice. If there are fewer rows available
-    after the previous selections than you requested you will get a
-    cryptic warning. Row restrictions apply&nbsp; to the sorted values
-    in the column selected for sort - <b>so you will filter based on
-      the values in the column you selected</b>.
-    <h3>Selected Probes tab</h3>
+      values in the column you selected</b>. This is important - these
+    restrictions do not affect other treatment~time columns.<br>
+    <h4><a name="3._Sorted_Column_Row_Numbers_"></a>3. Sorted Column Row
+      Numbers<br>
+    </h4>
+    This is probably the most useful restriction and it is probably a
+    good idea to keep this selected, as over 200 rows is slow to
+    calculate and plot. You can restrict rows to have top N or bottom N
+    rows, or have a slice. If there are fewer rows available after the
+    previous selections than you request you will get a cryptic warning.
+    Row restrictions apply&nbsp; to the sorted values in the column
+    selected for sort - <b>so you will filter based on the values in
+      the column you selected</b>.
+    <h3><a name="Selected_Probes_tab"></a>Selected Probes tab</h3>
     A data table showing the probes or genes (if averaged) that meet the
-    filter settings is shown and can be downloaded. The values shown are
-    those in the "Column" you selected. You may use the search boxes
-    above and below the table to further restrict the rows for viewing
-    in the table, but this has no effect on other tabs or plots. Click
-    "⤓ Gene List" or "⤓ Probe List" to save a comma-separated text file
-    that can be copy-pasted into the regex search box to quickly repeat
-    the search. Note a description appears when probes are displayed
-    individually, and disappears if "Gene Averages" is selected on the <b>Select</b>
+    filter settings is shown and can be downloaded as a csv file or as a
+    PNG picture. The <b>Vale</b> shown is the one in the "Column" you
+    selected. You may use the search boxes above and below the table to
+    further restrict the rows displayed in the table, but this has no
+    effect on other tabs or plots. Click "⤓ Gene List" or "⤓ Probe /
+    ProbeName List" to save a comma-separated text file that can be
+    copy-pasted into the regex search box to quickly repeat the search.
+    Note a description appears when probes are displayed individually,
+    and disappears if "Gene Averages" is selected on the <b>Select</b>
     tab. This is because descriptions are specific for probes.<br>
-    <h3> Probes:Series tab<br>
+    <h3><a name="Probes:Series_tab_"></a> Probes:Series tab<br>
     </h3>
     This allows the values of the probes or gene averages selected by
-    the filters to be plotted for over many treatment ~ time
-    combinations, to visualise a time course.<br>
-    <h4> Columns menu <br>
+    the filters to be plotted for different treatment ~ time
+    combinations, to visualise a time course. Use the slider to change
+    plot height, and browser window width to change plot width. The
+    selected treatment~time column is indicated by <font
+      color="#ff0000">▼▲<font color="#000000"> on the plot.</font><br>
+    </font>
+    <h4> Treatment, Days and Gene/Probe menus<br>
     </h4>
-    Click 'All' to enter all columns, or select one by one from pop-down
-    menu and they appear in the box. Click 'None' to clear. The order of
-    the columns as they appear in the box is respected for all boxes
-    like this - so the x axis will retain the sequence you enter here,
-    unless it is plotting as an XY scatter using numerical values. Use
-    the cursor to move between entries to add or delete a column at that
-    point. Select an entry and delete.<br>
-    <h4>Options</h4>
-    <b>Split</b>: the data are split by treatment using facet_wrap.
-    Column names are in the format VVV_TTT where VVV is a treatment name
-    and TTT is an integer value for time point. The app splits the
-    column name by '_' and facet_wraps by VVV while plotting TTT on the
-    x axis as a continuous variable.<br>
+    Click 'All' to enter all available, or select one by one from
+    pop-down menu and they appear in the box. Click 'None' to clear. The
+    order of the columns as they appear in the box is respected for all
+    boxes like this - so the plot axis will retain the sequence you
+    enter here, unless it is plotting as an XY scatter using numerical
+    values. Use the cursor to move between entries to add or delete a
+    column at that point. Select an entry and delete.<br>
+    <br>
+    <b> <b>Plot button</b>: </b>click this to draw the plot, and again
+    after changing any options.<b><br>
+      Split</b>: the data are split by treatment using facet_wrap.<br>
     <b>Lines / Boxplot</b>: XY graph of individual probes / genes, or a
-    boxplot summarising values when genes are averaged.<br>
-    <b>Points</b>, <b>Gridlines</b>: show/hide.<br>
-    <b>Legend</b> and
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <b>0 |---- (zero) line</b>: show/hide these features.<br>
-    <b>Plot button</b>: click this to draw the plot, and again after
-    changing any options.<br>
-    <h3> Genes-&gt;Modules tab<br>
+    boxplot summarising probe/gene values.<br>
+    <b> <b>0 |---- (zero) line</b>: Place a dotted line at Y = 0
+      (baseline).<br>
+      Points</b>, <b>Gridlines, </b><b>Legend</b>: show/hide.<br>
+    <b>SEM</b>: Appears when Lines selected - show the SEM as a ribbon<br>
+    <b>Gene⫷Probes</b>: Appears when <font color="#ff0000"><b>Gene
+        Averages</b></font> selected in <a href="#Select_tab_-_probes_"><b>Select
+        Probes</b></a> tab, and <b>Lines</b> selected to plot. Instead
+    of plotting a line for the average of the probe values mapping
+    individual genes (±SEM), individual lines are plotted for the probes
+    mapping to that gene - the lines are colour-coded to the gene, and
+    different symbols are used. This helps to show the behaviour of
+    different probes mapping the same gene. Hover over the points to
+    identify the probe.<br>
+    <h3><a name="Genes-Modules_tab_"></a> Genes-&gt;Modules tab<br>
     </h3>
     This panel lists the selected probes or genes and shows which - if
-    any - modules contain the gene. Some genes you selected may not be
+    any - modules contain that gene. Some genes you selected may not be
     included in any modules.<br>
-    <h3> Modules tab<br>
+    <h3><a name="Modules_tab_"></a> Modules tab<br>
     </h3>
-    A summary of the values of the individual probes contained in the
-    modules associated with the selected probes or genes is plotted
-    automatically. If you change any of the criteria on the <b>Select</b>
-    tab this plot will re-draw. There are options to show or hide the <b>legend</b>
-    and <b>0 |---- (zero) line</b>, and to have ggplot2 graphics which
-    are a bit nicer but slower. ggplot2 calculates the dimensions of the
-    box slightly differently to base graphics. The genes selected by the
-    filters can also be plotted as a "pseudo-module", for comparison
-    with&nbsp; the tmod modules. The table gives the summary statistics
-    and the number of probes mapped to the modules' genes (N).<br>
-    <h3> Modules-&gt;Genes tab</h3>
-    This expands the plot on the <b>Modules</b> tab&nbsp; to allow an
-    inspection of the modules, one by one, looking at all the genes each
-    module contains. The menu lists the modules associated with selected
-    genes or probes that were summarised on the <b>Modules</b> tab.
+    A boxplot summary of the values of the individual probes contained
+    in the modules associated with the selected probes or genes is
+    plotted automatically. Use the slider to change plot height, and
+    browser window width to change plot width. If you change any of the
+    criteria on the <b>Select</b> tab this plot will re-draw. <br>
+    <br>
+    Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b>, or
+    have ggplot2 graphics which are a bit nicer but slower. ggplot2
+    calculates the dimensions of the box slightly differently to base
+    graphics.<br>
+    <br>
+    Select "<b>Include Selected As Module</b>" and the genes selected by
+    the filters can also be plotted as a "pseudo-module", for comparison
+    with&nbsp; the tmod modules.<br>
+    "Module" plots one box per module, and "Title" groups the
+    modules&nbsp; by their functional / descriptive category titles
+    which may result in fewer boxes.<br>
+    The table gives the summary statistics and the number of probes
+    mapped to the modules' genes (N).<br>
+    <h3><a name="Modules-Genes_Probes_tab"></a> Modules-&gt;Genes
+      (Probes) tab</h3>
+    This expands the plot on the <a href="#Modules_tab_"><b>Modules</b></a>
+    tab&nbsp; to allow an inspection of the modules, one by one. Use the
+    slider to change plot height, and browser window width to change
+    plot width.<br>
+    <br>
     Select a module from the menu to see the expression of its component
     genes. As each gene may have many probes a summary boxplot of the
-    expression values of the probes mapping to each of the the genes
-    inside the selected module is plotted automatically. Note that a
-    module may also contain genes that are not in the selection created
-    by the <b>Select</b> tab. Genes within a module that are in your
-    selection are denoted by the ︎► symbol next to the y axis, and in
-    the data table. You may be surprised by how few genes in a module
-    overlap with your selected genes. Options to show or hide the <b>legend</b>
-    and <b>0 |---- (zero) line</b> are available, and to use <b>ggplot2</b>
-    instead of base graphics.&nbsp; ggplot2 uses a geom_boxplot with
-    default values. Unlike the Selected Probes tab which shows the gene
-    description in the table, the <b>Module-&gt;Genes</b> tab does not,
-    as the descriptions refer to the <i>probes</i>, and here gene
-    summaries are being shown.<br>
-    <h3>Modules:Series (Probes) tab</h3>
-    The <b>Modules</b> and <b>Modules-&gt;Genes</b> tabs only show the
-    expression values of probes in the one selected treatment ~ time
-    combination. The <b>Modules:Series</b> tab allows the expression of
-    the associated modules to be plotted for all treatment ~ time
+    expression values of the probes mapping to the genes inside the
+    selected module is plotted automatically. Note that a module may
+    also contain genes that are not in the selection created by the <b>Select</b>
+    tab. Genes within a module that are in your selection are denoted by
+    the ︎► symbol next to the y axis, and in the data table. You may be
+    surprised by how few genes in a module overlap with your selected
+    genes. <br>
+    <br>
+    Genes listed for the module but absent from the dataset rows, are
+    labelled "Missing" on the plot, which can be toggled on-off.<br>
+    <br>
+    Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b> , or
+    use <b>ggplot2</b> instead of base graphics.&nbsp; ggplot2 uses a
+    geom_boxplot with default values. Unlike the Selected Probes tab
+    which shows the gene description in the table, the <b>Module-&gt;Genes</b>
+    tab does not, as the descriptions refer to the <i>probes</i>, and
+    here gene summaries are being shown.<br>
+    <h3><a name="Modules:Series_Probes_tab"></a>Modules:Series (Probes)
+      tab</h3>
+    While the <b>Modules</b> and <b>Modules-&gt;Genes</b> tabs only
+    show the values of probes at one selected treatment ~ time
+    combination, the <b>Modules:Series</b> tab allows the values of the
+    associated modules to be plotted for all treatment ~ time
     combinations as a time course. To avoid delays when selecting
-    options, nothing is plotted or re-plotted until the green 'Plot'
-    button is clicked. Add treatment ~ time combinations to the <b>Columns</b>
-    menu. Add modules from the ones associated with your selected probes
-    or genes to the <b> Modules</b> menu. Use <b>All</b> or <b>None</b>
-    buttons to add all, or clear selections. Various plot options exist:<br>
-    <b>Boxplot</b> summarises the expression values of probes within the
-    module, while <b>Lines</b> plots a line graph of the mean
-    expression of probes in the modules.<b> SEM</b> appears when <b>Lines</b>
-    is selected allowing an SEM ribbon to be added.<br>
+    options, nothing is plotted or re-plotted until the 'Plot' button is
+    clicked. Use the slider to change plot height, and browser window
+    width to change plot width.<br>
+    <br>
+    Select treatment ~ time combinations from the menus. Select modules
+    from the <b>Modules</b> menu which lists ones mapped to your
+    selected probes or genes. Use <b>All</b> or <b>None</b> buttons to
+    add all, or clear selections.<br>
+    <br>
+    <b>Boxplot</b> summarises the values of probes within the module.<br>
+    <b>Lines</b> plots a line graph of the mean value of probes in the
+    modules<b>.<br>
+      SEM</b>, <b>Points</b> and <b>Gridlines </b>appear when <b>Lines</b>
+    is selected allowing an SEM ribbon,&nbsp; points and gridlines to be
+    plotted.<br>
     <b>Split</b> - uses facet_wrap to separate treatments into different
     panels. <br>
-    Options to show / hide the <b>legend</b> and <b>0 |---- (zero</b>)
-    line exist.<br>
+    Show / hide the <b>legend</b> and <b>0 |---- (zero</b>) line.<br>
     <h3> </h3>
-    <h2>Explore Transcriptomics By Module tab<br>
+    <h2><a name="Explore_Transcriptomics_By_Module_tab"></a>Explore
+      Transcriptomics By Module tab<br>
     </h2>
-    The concept is similar to the <b>Explore By Probe</b> tab. However,
-    here a data table is created in which the rows are sorted by the
-    mean or median value of the modules as expressed in the selected
-    treatment ~ time combination: e.g. the median expression of the
-    probes on day 7 after Boostrix. It is important to note that tmod
-    modules contain only a fraction of all the genes in the probeset,
-    but this tab allows for an exploration of responses of the modules
-    included in tmod.<br>
-    <h3> Select tab - modules<br>
+    The concept is similar to the <a
+      href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Probe</b></a>
+    tab. However, here a data table is created in which the rows are
+    sorted by the
+    <b> mean or median value of the modules</b> as expressed in the
+    selected treatment ~ time combination: e.g. the median expression of
+    the probes within a given module on day 7 after Boostrix. It is
+    important to note that tmod modules contain only a fraction of all
+    the genes in the probeset, but this tab allows for an exploration of
+    responses of the modules included in tmod.<br>
+    <h3><a name="Select_modules_tab_"></a> Select modules tab<br>
     </h3>
-    Like Select tab in <b>Explore By Probe</b> above, you first select
-    a column containing the treatment ~ time combination for which you
-    want to sort the modules. Then filter modules using the filters
-    (left to right) as described in Select tab for probes. In this case
-    the sorting is based on the mean or median expression (which you can
-    select) of the probes within the module. Sort descending has the
-    highest expression values in top rows. See the Select tab for
-    description of how to use <b>regex</b>, <b>Sorted Column Values</b>
-    and <b>Sorted Column Row Numbers</b>. Here it is the mean or median
-    expression of the module being sorted. Time series plots will
-    indicate the sorted column with <font color="#ff0000">▼▲</font>.<br>
+    Like <a href="#Select_tab_-_probes_">Select</a> tab in <a
+      href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Probe</b></a>
+    above, you select a treatment ~ time combination for which you want
+    to sort the modules. Then filter modules using the filters (left to
+    right) as described in <a href="#Select_tab_-_probes_">Select</a>
+    tab for probes. In this case the sorting is based on the mean or
+    median expression (which you can select) of the probes within the
+    module. Sort descending has the highest expression values in top
+    rows. See the Probe <a href="#Select_tab_-_probes_">Select</a> tab
+    for description of how to use <b>regex Keyword</b>, <b>Values
+      Within Range</b> and <b>Row Numbers Within Range</b> filters.
+    Time series plots will indicate the sorted treatment~time column
+    with <font color="#ff0000">▼▲</font>.<br>
     <br>
     <b>Regex</b> searches either the <b>Title</b> (which is a
     description of the module, e.g. "plasma cells") or <b>Module</b>
@@ -606,100 +651,143 @@
     <br>
     You must click the <b>Apply Selections</b> button to perform the
     selection or after any changes to options. Clicking the button
-    reveals more tabs to visualise the modules.<br>
-    <h3> Selected Modules tab<br>
+    reveals <b>Selected Modules</b>,&nbsp; <b>Modules-&gt;Genes</b>
+    and <b>Modules:Series</b> tabs to visualise the modules.<br>
+    <h3><a name="Selected_Modules_Modules_tab_"></a> Selected Modules
+      (Modules) tab<br>
     </h3>
-    Like the <b>Probes</b> tab this tab plots a boxplot summary of the
-    probe expressions in the modules you selected. Options to show /
-    hide the <b>legend</b> and <b>zero</b> line exist, and to plot
-    using ggplot2 which is nicer, slower and draws the boxes slightly
-    differently to base graphics. You can colour the boxes as individual
-    modules by selecting <b>Module</b>, or as groups by their category
-    using <b>Title.</b><br>
-    <h3> Modules-&gt;Genes tab</h3>
-    This expands the plot on the <b>Selected Modules</b> tab&nbsp; to
-    allow an inspection of the modules, one by one, looking at all the
-    genes each module contains. The menu lists the selected modules
-    summarised on the <b>Selected Modules</b> tab. Select a module from
-    the menu to see the expression of its component genes. As each gene
-    may have many probes a summary boxplot of the expression values of
-    the probes mapping to each of the the genes inside the selected
-    module is plotted automatically. Options to show or hide the <b>legend</b>
-    and <b>0 |---- (zero) line</b> are available, and to use <b>ggplot2</b>
-    instead of base graphics.&nbsp; ggplot2 uses a geom_boxplot with
-    default values.
-    <h3> Modules:Series (Modules) tab</h3>
-    This is very similar to the <b>Modules:Series (Probes) tab</b> as
-    it allows the expression of the selected modules to be plotted for
-    all treatment ~ time combinations as a time course. Select treatment
-    ~ time combinations to include from the <b>Columns</b> menu. Select
-    which modules to plot using one of the menus underneath:<br>
-    <b>Modules Selected By Filters</b> menu lists the modules displayed
-    in the <b>Selected Modules tab</b>. <b><br>
-      Titles In Dataset</b> menu lists all the available titles in this
-    dataset - which group&nbsp; modules into functional categories. You
-    can save the selection by clicking the download button - to repeat
-    this selection (e.g. on another dataset) you must paste the
-    comma-separated text into the <b>regex search box</b> on the select
-    tab. You cannot paste into this menu box.<br>
-    <b>Modules In Dataset</b> just lists all the modules available in
-    this dataset by their names. You can save the selection by clicking
-    the download button, but to repeat this selection (e.g. on another
-    dataset) you must paste the comma-separated text into the <b>regex
-      search box</b> on the select tab. You cannot paste into this menu
-    box.<br>
-    Various plot options are available:<br>
-    <b>Boxplot</b> plots a summary of the probe expressions in the
-    modules, whereas <b>Lines&nbsp; </b>plots the module mean
-    expression and reveals <b>SEM</b><b></b> to include an SEM ribbon.
-    <b>Split</b> plots each treatment in its own panel, and <b>legend</b>
-    and <b>zero</b> line can be shown or hidden. <br>
-    The bars can be coloured by individual modules when <b>Module</b>
-    is selected, or by category <b>Title</b>.<br>
-    Click <b>Plot</b> button to create the plot and data table, and
-    after any changes to module/column selections or options.<br>
-    <h2>Transcriptomics Lookup tab<br>
-    </h2>
-    <h3>Gene Lookup tab</h3>
-    <p>Enter a gene name or partial string and click <b>Lookup</b> to
-      see a table of matching genes. The search uses <b>regex</b>, so
-      see the entries above about filtering by keyword for issues with
-      regex. Spaces will always be stripped from this search as Gene
-      Names cannot have spaces. Multiple gene names can be entered
-      separated by commas. Alternatively, leave the box empty and click
-      <b>Lookup</b> to list all 65k genes. A list of probes with their
-      descriptions is shown. The search boxes above / below the table
-      can also be used.<br>
+    This tab plots a boxplot summary of the probe expressions mapping
+    the genes in the modules you selected. Use the slider to change plot
+    height, and browser window width to change plot width.<br>
+    <br>
+    Show / hide the <b>legend</b> and <b>0 |----</b> (zero) line,
+    and&nbsp; plot using ggplot2 which is nicer, slower and draws the
+    boxes slightly differently to base graphics. You can colour the
+    boxes as individual modules by selecting <b>Module</b>, or as
+    groups by their functional / descriptive category using <b>Title</b>,
+    which may result in fewer boxes when multiple modules are grouped
+    under one title.<br>
+    <h3><a name="Modules-Genes_Modules_tab"></a> Modules-&gt;Genes
+      (Modules) tab</h3>
+    This expands on the <b>Selected Modules</b> tab&nbsp; to allow an
+    inspection of the modules, one by one, looking at all the genes each
+    module contains. It is essentially identical to <a
+      href="#Modules-Genes_Probes_tab"><b>Modules-&gt;Genes</b></a> tab
+    under <b>Explore By Probe</b>. Use the slider to change plot
+    height, and browser window width to change plot width.<br>
+    <br>
+    Select a module from the menu to plot the summarised expression of
+    probes mapping to its component genes automatically. <br>
+    Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b>,
+    and&nbsp; use <b>ggplot2</b> instead of base graphics.&nbsp;
+    ggplot2 uses a geom_boxplot with default values.<br>
+    Genes listed for the module but absent from the dataset rows, are
+    labelled "Missing" on the plot, which can be toggled on-off.
+    <h3><a name="Modules:Series_Modules_tab"></a> Modules:Series
+      (Modules) tab</h3>
+    This is very similar to the <a href="#Modules:Series_Probes_tab"><b>Modules:Series
+        (Probes) tab</b></a> as it allows the expression of the selected
+    modules to be plotted for all treatment ~ time combinations as a
+    time course. Use the slider to change plot height, and browser
+    window width to change plot width. The selected treatment~time
+    column is indicated by <font color="#ff0000">▼▲<font
+        color="#000000"> on the plot.</font></font><br>
+    <br>
+    Select treatment ~ time combinations to include from the <b>Treatment</b>
+    and <b>Days</b> menus. <br>
+    <br>
+    Select which modules to plot using one of the menus underneath:<br>
+    <ul>
+      <li> <b>Modules You Selected With Filters</b>&nbsp; lists the
+        modules displayed in the <a
+          href="#Selected_Modules_Modules_tab_"><b>Selected Modules tab</b></a>.
+      </li>
+      <li> <b>All Modules In Dataset</b> lists all the modules
+        available in this dataset by their names.<br>
+      </li>
+      <li><b>All Module Titles In Dataset</b> menu lists all the
+        available functional / descriptive module titles in this dataset
+        - which group&nbsp; modules into categories.&nbsp;</li>
+    </ul>
+    <p>Once you have selected some modules or titles in the&nbsp; <b>All
+        Modules In Dataset</b> or <b>All Module Titles In Dataset</b>
+      you can save the list by clicking the download button that
+      appears. To repeat this selection (e.g. on another dataset) you
+      must paste this comma-separated text into the <b>regex search box</b>
+      on the <a href="#Select_modules_tab_"><b>Select Modules</b></a>
+      tab. You cannot paste into these menus directly.</p>
+    <p> Click <b>Plot</b> button to create the plot and data table, and
+      after any changes to module/treatment/day selections or options.<br>
     </p>
-    <h3>Module Lookup tab</h3>
+    <b>Boxplot</b> plots a summary of the probe expressions in the
+    modules<br>
+    <b>Lines&nbsp; </b>plots the module mean expression and reveals <b>SEM</b>
+    to include an SEM ribbon, plus <b>gridlines</b> and <b>points</b>.<br>
+    <b>Split</b> plots each treatment in its own panel<br>
+    <b>Legend</b> and<b> 0 |---- (zero)</b> line can be shown or hidden.
+    <br>
+    The bars can be coloured by individual modules when <b>Group By:</b>
+    <b>Module</b> is selected, or by module <b>Title</b>, which may
+    result in fewer boxes.<br>
+    <br>
+    <h2><a name="Transcriptomics_Lookup_tab_"></a>Transcriptomics Lookup
+      tab<br>
+    </h2>
+    <h3><a name="Gene_Lookup_tab"></a>Gene Lookup tab</h3>
+    <p>Enter a gene, probe or ProbeName and click <b>Lookup</b> to see
+      a table of matching genes. Select Whole Word to avoid matching
+      multiple stems (e.g. "CCL2" would match CCL2, CCL20, CCL21, etc.).
+      The search uses <b>regex</b>, and <b>commas</b> to separate
+      multiple search terms in the same way as selecting probes by
+      keyword: <a href="#1._Regex_-_keyword_search_"><b>see that
+          section for details</b></a>. Spaces will always be stripped
+      from this search as Gene
+      / Probe&nbsp; Names cannot have spaces. <br>
+    </p>
+    <p>You can paste the comma-separated lists downloaded by the various
+      buttons on other tabs, to quickly describe the genes/probes.<br>
+    </p>
+    <p>Alternatively, leave the search box empty and click <b>Lookup</b>
+      to list all 65k genes. The search boxes above / below the table
+      can also be used to narrow the rows displayed.<br>
+    </p>
+    <h3><a name="Module_Lookup_tab"></a>Module Lookup tab</h3>
     <p>Enter a module name (e.g. <tt>DC.M4.1)</tt> or partial string
       (e.g. <tt>DC.M4</tt>) and click <b>Lookup</b> to see a table of
-      matching modules. The search uses <b>regex</b>, so see the
-      entries above about filtering by keyword for issues with regex.
+      matching modules. The search uses <b>regex</b>, and <b>commas</b>
+      to separate multiple search terms in the same way as selecting
+      probes by keyword: <a
+href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help.html#1._Regex_-_keyword_search_"><b>see
+          that section for details</b></a>. <br>
       Spaces will always be stripped from this search as Module Names
-      cannot have spaces. Multiple module names can be entered separated
-      by commas. Alternatively, leave the box empty and click <b>Lookup</b>
-      to list all modules. The search boxes above / below the table can
+      cannot have spaces.<br>
+    </p>
+    <p>Alternatively, leave the box empty and click <b>Lookup</b> to
+      list all modules. The search boxes above / below the table can
       also be used. A list of modules with their descriptions and
-      associated genes is shown. These gene lists can be copied and
-      directly pasted into the regex search boxes that accept Gene
-      Names, spaces will be stripped for you.<br>
+      associated genes is shown. These gene lists can be copied from the
+      table and directly pasted into the regex search boxes that accept
+      Gene Names - spaces will be stripped for you.<br>
     </p>
-    <h2>Explore Cytokines</h2>
+    <h2><a name="Explore_Cytokines"></a>Explore Cytokines</h2>
     <p>The cytokines data is preloaded and immediately available. For
-      details of the ABCD dataset see above. <br>
+      details of the ABCD dataset <a href="#The_Datasets">see above</a>.
+      This is a highly experimental tab and very slow to plot.<br>
     </p>
-    <h3>Plot Tab</h3>
-    <p> Use the menus to select some cytokines, vaccine treatments and
-      days. The order in which you enter the cytokines is respected in
-      the plots. Click <b>Plot</b> to create plot, and to re-draw if
-      you change any options. <b>This plot will take a long time if
-        more than a few panels are plotted.</b><br>
+    <h3><a name="Plot_Cytokines"></a>Plot Cytokines</h3>
+    <p> Use the menus to select some cytokines, vaccines and days. The
+      order in which you enter the cytokines is respected in the plots.
+      <br>
+      Once you have selected some vaccines, days and cytokines you can
+      click <b>Plot</b> to create plot, and to re-draw if you change
+      any options. <b><br>
+        This plot will take a long time if more than a few panels are
+        plotted.</b><br>
     </p>
     <ul>
-      <li><b>Fold Increase ~ Concentration</b>. Use the radio buttons to
-        switch between <b>actual concentration values</b> or <b>fold
-          increase</b> from day 0 when plotting. </li>
+      <li><b>FI ~ Conc</b>. Use the radio buttons to switch between <b>actual
+          concentration values</b> or <b>fold increase</b> from day 0
+        when plotting. </li>
       <li><b>Lines ~ Boxplot ~ Violin.</b><b> </b>Select which type of
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
@@ -710,16 +798,19 @@
 
 
 
+
           Y,</b> which zooms the plot to the IQR for the whole dataset -
-        useful when extreme outliers squash the scale.<br>
+        may be useful when extreme outliers squash the scale.<br>
         <b>Lines</b> plots the mean of the cytokine~treatment
         combination on each day. Further options appear when selected:<br>
       </li>
       <ul>
         <li><b>Points</b> adds a point to the lines.</li>
-        <li><b>No Error</b>, <b>Ribbon</b>, <b>Bars</b> allows for SEM
+        <li><b>No Error ~ </b><b>Ribbon</b> ~ <b>Bars</b> : SEM
           plotted as ribbon or error bars</li>
       </ul>
+      <li> Select<b> • |----&nbsp;</b> to plot a horizontal line at Y =
+        1 or 0 (depends on whether log transformed). </li>
       <li><b>Exclude Zero Values</b>. The dataset already includes
         missing values (as NAs) where there was no data or "OOR"
         entered, or where a fold-increase could not be calculated (when
@@ -750,8 +841,8 @@
         number may also be reduced by data missing from the dataset
         (e.g. if one participant skipped a visit that reduces the group
         size for that day by 1). Useful if <b>Exclude Zero Y Values</b>
-        selected. Some group sizes may be reduced if there was missing
-        data for one day.</li>
+        selected.<br>
+      </li>
       <li><b>Fixed Y.</b> When selected the Y axis max-min range will be
         fixed for each cytokine across all treatments. Each cytokine
         will still have its own range, but the overall max - min will be
@@ -763,8 +854,6 @@
         <b>Vac→Cyt↓</b> does the reverse, with panels grouped by
         cytokine: vaccine treatments wrap in the columns, and then a new
         block starts with each cytokine.</li>
-      <li> <b>• |----&nbsp;</b> plot a horizontal line at Y = 1 or 0
-        (depends on whether log transformed). </li>
       <li>A box to enter the <b>maximum</b><b> number of panels per row</b>,
         and slider to control the <b>height of the plot</b>, offer some
         control over the image. Widening or narrowing the window also
@@ -774,35 +863,15 @@
     The plot can be copied at low resolution by right-clicking, or a
     Hi-Res image downloaded by clicking the button. The data table can
     be downloaded by clicking the button.<br>
-    <h1>Disclaimer &amp; Acknowledgements<br>
+    <h1><a name="Disclaimer__Acknowledgements_"></a>Disclaimer &amp;
+      Acknowledgements<br>
     </h1>
-    <b>This is beta software and may experience bugs and crashes. </b>The
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    software depends on the R package tmod '<cite>Feature Set Enrichment
-      Analysis for Metabolomics and Transcriptomics</cite>' (<a
+    <b>This is beta software and may experience bugs and crashes.</b>
+    Please (politely) report any bugs to d.j.lewis@surrey.ac.uk.<br>
+    <br>
+    The software depends on the R package <b><font size="+1">tmod</font>
+      '</b><b><cite>Feature Set Enrichment Analysis for Metabolomics and
+        Transcriptomics</cite></b><b>'</b> (<a
 href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf"
       target="_blank">description</a>), created by January Weiner. I
     have reverse engineered some aspects of tmod and any errors arising
@@ -810,9 +879,11 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
       href="https://doi.org/10.7287/peerj.preprints.2420v1/supp-2"
       target="_blank">tmod documentation</a> or <a
       href="https://d3amtssd1tejdt.cloudfront.net/2016/2420/1/tmod.pdf"
-      target="_blank">vignette</a> for a description of the modules.The
-    transcriptomics and cytokines datasets are from the BIOVACSAFE
+      target="_blank">vignette</a> for a description of the modules.<br>
+    <br>
+    The transcriptomics and cytokines datasets are from the BIOVACSAFE
     project (<a href="http://www.biovacsafe.eu" target="_blank">www.biovacsafe.eu</a>),
+
 
 
 
@@ -850,13 +921,16 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     and were generated by the group of Stefan Kaufmann at MPIIB, Berlin
     and provided by Jeroen Maertzdorf and January Weiner. I have
     generated&nbsp; averages per treatment ~ time point and
-    fold-increases, and any errors there are mine. The trials were
-    conducted at the University of Gent by Geert Leroux-Roels, and at
-    the University of Surrey by me. Source files for the shiny app are
-    available at <a href="http://www.github.com/djmlewis/tmodexplorer"
-      target="_blank"> www.github.com/djmlewis/tmodexplorer</a>. The
-    shiny app is online at <a
-      href="http://djmlewis.shinyapps.io/tmodexplorer" target="_blank">djmlewis.shinyapps.io/tmodexplorer</a><br>
+    fold-increases, and any errors there are mine.<br>
+    <br>
+    The trials were conducted at the University of Gent by Geert
+    Leroux-Roels, and at the University of Surrey by me.<br>
+    <br>
+    Source files for the shiny app are available at <a
+      href="http://www.github.com/djmlewis/tmodexplorer" target="_blank">
+      www.github.com/djmlewis/tmodexplorer</a>. The shiny app is online
+    at <a href="http://djmlewis.shinyapps.io/tmodexplorer"
+      target="_blank">djmlewis.shinyapps.io/tmodexplorer</a><br>
     <br>
     tmodExplorer is written in R: R Core Team (2017). R: A language and
     environment for statistical computing. R Foundation for Statistical
@@ -866,8 +940,9 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     tidyverse packages (<a href="https://www.tidyverse.org"
       target="_blank">https://www.tidyverse.org</a>) extensively
     especially dplyr, purrr, readr, ggplot2 and tibble.<br>
-    <h1> Versions</h1>
-    2.0beta. 09 April 2018. Most features included and bugs trapped.<br>
+    <h1><a name="Versions"></a> Versions</h1>
+    2.1 <i>"Pawnee Zoo"</i> 24 April 2018. Most features included and
+    bugs trapped.<br>
     <br>
     University Of Surrey © 2018. E&amp;OE David JM Lewis&nbsp;
     🏴󠁧󠁢󠁷󠁬󠁳󠁿<br>

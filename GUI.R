@@ -2,9 +2,9 @@
 ui <-
 tagList(
   useShinyjs(),  # Set up shinyjs
-  navbarPage(span(style = 'color: #fefc78;','tmodExplorer'), id = 'navbarTop', position = "fixed-top", theme = "theme.css", windowTitle = 'tmodExplorer',
+  navbarPage(span(style = 'color: #fefc78;','tmodExplorer'), id = 'navbarTop', position = "static-top", theme = "theme.css", windowTitle = 'tmodExplorer',
              inverse = TRUE,
-             header = tagList(tags$style(type="text/css", "body {padding-top: 70px;}")),
+             header = tagList(tags$style(type="text/css", "body {padding-top: 0px;}")),
              
   ######################  TABS  #########
   
@@ -31,7 +31,8 @@ tagList(
           fluidRow(
             column(10,pickerInput(inputId = 'selectDataFI', choices = NULL, options = list(`style` = "btn-success"))),
             column(2,actionButton('buttonLoadDataFI',label = 'Load Dataset',class = "btn-success"))
-      )))
+      ))
+      )
     ),
     hidden(h4(id = "textDataNameHeader", style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; background-color: #4d600f; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;",textOutput('textDataName'))),
     conditionalPanel(condition = "output.datatableAll != null",downloadButton(class="btn-outline-primary",'buttonsavedatatableAll', 'Table')),
@@ -321,7 +322,7 @@ tagList(
     hidden(h4(id = "textDataNameModsHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; margin-left: 0px; margin-right: 0px; background-color: #4d600f; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameMods'))),
     navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule', 
                header = hidden(tagList(div(id = "navModuleHeader", 
-                                           h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 10px; margin-right: 10px; color: #FFFFFF; background-color: #84a51c; padding-top: 10px; padding-bottom: 10px;", 
+                                           h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #84a51c; padding-top: 10px; padding-bottom: 10px;", 
                                           textOutput('textFiltersMods'))))),
       #################### Selecting Modules ################
       tabPanel('Select Modules',
@@ -650,12 +651,12 @@ tabPanel('Cytokines',
 ),
 ###########   READ ME  ##########
 tabPanel('ReadMe', icon = icon('info-circle'),
-           includeHTML("help.html")
-  ),
+  includeHTML("help.html")
+),
   ##### 
     # ),# top tabset
   hr(),
-  div( img(src = 'surrey.png'), img(src = 'ugent.png'), img(src = 'mpiib.png'),img(src = 'icl.png'), img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')),
+  div( img(src = 'surrey.png'), img(src = 'ugent.png'), img(src = 'mpiib.png'),img(src = 'icl.png'), img(align = 'right', src = 'BIOVACSAFE_EEI.png')), #img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')
   hr()
   )# navpage top
 )# tagList top
