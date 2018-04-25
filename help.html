@@ -66,6 +66,9 @@
 
 
 
+
+
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
     probes or genes values present in the array as they are on that
     timepoint ~ vaccine. So you may have the probes ordered in
@@ -99,10 +102,12 @@
     <br>
     The figures below illustrates this: the probes in the combined ABC
     Surrey dataset have been sorted in <i>descending order of their
-      expression value in the vaccinees 7 days after receiving Stamaril</i>.
-    The top 10 probes have been selected and the time series plotted as
-    individual lines for Stamaril, Fluad and Placebo, or as a boxplot
-    for these probes treated as though they belonged to a pseudo-module.<br>
+      fold-increase from baseline (day 0) in log2 expression value in
+      the vaccinees 7 days after receiving Stamaril</i>. The top 10
+    probes with the highest fold-increase have been selected and the
+    time series plotted as individual lines for Stamaril, Fluad and
+    Placebo, or as a boxplot for these probes treated as though they
+    belonged to a pseudo-module.<br>
     <br>
     <div align="center"><img src="selgenesseries.png" alt="Selected
         Probes" height="250" width="554"> &nbsp;<img
@@ -158,7 +163,7 @@
     <br>
     There is also an option to go straight to exploring by modules, in
     which case you just select tmod modules and observe their response
-    over time. Modules can be selected in the the same way as individual
+    over time. Modules can be selected in the same way as individual
     probes or genes - by identifying those most up- or down-regulated
     modules for a selected treatment ~ time; or by searching for modules
     by name or category. The basic concept is the same, as shown here
@@ -167,9 +172,11 @@
     further selected by <i>Title</i> and <i>Category</i>. The plots
     below actually show the 8 <i>Titles</i> that these top 10 modules
     belong to. Note that the kinetics is more clear-cut because we have
-    forced the selection to focus on the aggregate expression of modules
-    - this may not be very representative of the actual responding genes
-    (as shown above): <br>
+    forced the selection to filter on the mean or median expression
+    value or fold-increase of modules. However, as we have selected by
+    module this may not be very representative of the actual top
+    responding genes (as shown above), because the important genes may
+    be clustered with non-responding genes in other modules. <br>
     <div align="center"><img src="topmods.png" alt="Top Modules"
         height="250" width="553">&nbsp;&nbsp; <img
         src="topmodsseries.png" alt="Top Modules Timecourse"
@@ -232,7 +239,16 @@
     </h3>
     When you have selected genes, probes or modules using some filters,
     they can be downloaded as a text file in a comma-separated format
-    suitable for pasting into the 'regex' search boxes.<br>
+    suitable for pasting into the 'regex' search boxes. <font
+      color="#ff0000"><b>However, there is a significant problem with
+        the datasets as the rows do not always contain proper probe IDs.
+        I have tried to mitigate this by including "Probe" - an unique
+        row ID, and "ProbeName" which has the correct Affymetrix Probe
+        ID. But caution must be exercised when copying between
+        ABC&lt;-&gt;D&lt;-&gt;D2. Hopefully, in due course we will have
+        proper </b><b><i>SummarisedExperiment</i></b><b> R objects for
+        me to use.</b> <font color="#000000">Gene and Module names at
+        least are standardised.</font></font><br>
     <h1><a name="The_Datasets"></a>The Datasets</h1>
     <h2><a name="Transcriptomics_Data_"></a>Transcriptomics Data<br>
     </h2>
