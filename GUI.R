@@ -653,7 +653,20 @@ tabPanel('Cytokines',
 ),
 ###########   READ ME  ##########
 tabPanel('ReadMe', icon = icon('info-circle'),
-  includeHTML("help.html")
+  tabsetPanel(
+    tabPanel("Quick Start",
+             includeHTML("QuickStart.html")
+    ),
+    tabPanel("Overview",
+             includeHTML("help.html")
+    ),
+    tabPanel("Instructions For Use",
+             includeHTML("help2.html")
+    ),
+    tabPanel("Acknowledgements, etc.",
+             includeHTML("help3.html")
+    )
+  )
 ),
   ##### 
     # ),# top tabset
