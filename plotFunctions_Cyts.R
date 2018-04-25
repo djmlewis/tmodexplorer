@@ -118,7 +118,7 @@ logTransformY <- function(data2trans, trans) {
   )
 }
 
-getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols,FIraw, showPoints,Ytrans,logMeans,show1) { 
+getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols,FIraw, showPoints,Ytrans,logMeans,show1,monochrome) { 
   if (is.null(data2plot) || nrow(data2plot) == 0) return(list(data = NULL, plot = NULL))
   
   showNotification("Please wait for data table and plot output. This may take a long time if many cytokines ~ vaccines selected…", type = 'message', duration = 10)
@@ -178,7 +178,7 @@ getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,
   return(list(
                 data = dataFiltered,
                 datagroups = dataGroups,
-                plot =  ggplotCytokinesForTreatmentDay(dataFiltered,dataGroups,wrap, plottype,error,zoom,
+                plot =  ggplotCytokinesForTreatmentDay(dataFiltered,dataGroups,wrap, plottype,error,zoom,monochrome,
                 getCytokineMaxMins(dataFiltered,fixedy,plottype,error),showN,nCols,FIraw, showPoints,Ytrans,show1)
               )
          )
@@ -203,7 +203,7 @@ nData <- function(data2N,plottype) {
 }
 
 ggplotCytokinesForTreatmentDay <-
-  function(data2plot, dataGroups,wrap, plottype,error,zoom,yMaxMins,showN,nCols,FIraw,showPoints,Ytrans,show1) {
+  function(data2plot, dataGroups,wrap, plottype,error,zoom,monochrome, yMaxMins,showN,nCols,FIraw,showPoints,Ytrans,show1) {
     if (is.null(data2plot) || nrow(data2plot) == 0)
       return(NULL)
     
@@ -211,6 +211,8 @@ ggplotCytokinesForTreatmentDay <-
             'TC' = {v1 <- "ACTARMCD"; v2 <- "CYTOKINE"},
             'CT' = {v2 <- "ACTARMCD"; v1 <- "CYTOKINE"}
     )
+
+    if(monochrome){plotColours <- c("black")} else {plotColours <- cytokineColours}
 
     grbs <- lapply(unique(data2plot[[v1]]), function(vv1) {
       # if I understood enquo, quo and !! I could do this in one go without switches
@@ -233,8 +235,8 @@ ggplotCytokinesForTreatmentDay <-
               mapping = aes(x = DAY)
             ) +
             themeCyto +
-            scale_color_manual(values = cytokineColours, guide = 'none') +
-            scale_fill_manual(values = cytokineColours, guide = 'none') +
+            scale_color_manual(values = plotColours, guide = 'none') +
+            scale_fill_manual(values = plotColours, guide = 'none') +
             ylab(ylabForTransform(FIraw,Ytrans))
           
           if(show1 == TRUE) {

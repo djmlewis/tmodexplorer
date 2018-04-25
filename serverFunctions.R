@@ -526,6 +526,8 @@ getExpressionsForModules <- function(topgenesmods, actarmcdDay, allExpressionDat
 getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   expressions <- NULL
   if(!is.null(genesdata) && !is.null(modules) && !is.null(series)) {
+
+    
     expressions <- map_dfr(modules,function(mod){
       # strip the treatment in () from module name
       modcode <- sub(' .*$', '', mod)
@@ -557,8 +559,8 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
     if(facet == TRUE){
       expressions <- expressions %>%
         separate(Column,into = c('Treatment','Column'),sep = '_', convert = TRUE) %>%
-        # preserve the order entered into the box
-        mutate(Treatment = factor(Treatment, levels = unique(Treatment)))
+        # preserve the order entered into the box, but need to strip out days from series which is treatment_day
+        mutate(Treatment = factor(Treatment, levels = unique(sub("_.*","",series))))
       if(ribbon == "Boxplot") {
         expressions <- expressions %>%
         mutate(Column = as.factor(Column))
@@ -572,7 +574,7 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
       select(Column,Module, everything()) %>%
       arrange(Module,Column)
     }
-      
+    
   }
   
 

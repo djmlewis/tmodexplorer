@@ -106,6 +106,10 @@
 
 
 
+
+
+
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
     probes or genes values present in the array as they are on that
     timepoint ~ vaccine. So you may have the probes ordered in
@@ -144,9 +148,9 @@
     individual lines for Stamaril, Fluad and Placebo, or as a boxplot
     for these probes treated as though they belonged to a pseudo-module.<br>
     <br>
-    <img src="selgenesseries.png" alt="Selected Probes" width="554"
-      height="250"> &nbsp;<img src="selgenesseriesbox.png" alt="Selected
-      Probes Boxplot" width="554" height="250"> <br>
+    <img src="selgenesseries.png" alt="Selected Probes" height="250"
+      width="554"> &nbsp;<img src="selgenesseriesbox.png" alt="Selected
+      Probes Boxplot" height="250" width="554"> <br>
     <br>
     We can then identify the modules to which those genes belong, and
     plot the changes in those modules over time. Note that while the
@@ -155,10 +159,25 @@
     contain many genes that may not be responding to Stamaril at all, or
     even down-regulated, as&nbsp; the modules have been clustered by
     their authors on the basis of other criteria:<br>
-    <img src="selmods.png" alt="Selected Modules" align="middle"
-      width="550" height="249">&nbsp;&nbsp; <img
+    <img src="selmods.png" alt="Selected Modules" height="249"
+      align="middle" width="550">&nbsp;&nbsp; <img
       src="selmodsseries.png" alt="Selected Modules Timecourse"
-      align="middle" width="550" height="249"><br>
+      height="249" align="middle" width="550"><br>
+    <br>
+    When plotting the time-course of genes as an average of the probes,
+    it may become apparent by wide SEM ribbons that probes mapping the
+    same gene are behaving discordantly. It is possible to split the
+    gene averages back into the component probes to identify which genes
+    have aberrant probes using the <a href="#Gene%E2%AB%B7Probes"><b>Gene⫷Probes</b></a>
+    option. For example, as shown in the figure below for some top genes
+    upregulated on day 7 after Stamaril, while the two IFIT2 probes
+    (red) respond similarly, one of the OAS2 probes (green) is a log2
+    lower than the other two, and the two RSAD2 probes are far apart
+    (blue). These discrepancies are also seen in the wide SEM ribbons.<br>
+    <div align="center"><img src="probessplit.png" alt="Genes Split Into
+        Probes" height="250" width="640"><br>
+    </div>
+    <br>
     <br>
     There is also an option to go straight to exploring by modules, in
     which case you just select tmod modules and observe their response
@@ -174,7 +193,11 @@
     forced the selection to focus on the aggregate expression of modules
     - this may not be very representative of the actual responding genes
     (as shown above): <br>
-    <img src="topmods.png" alt="Top Modules" width="553" height="250">&nbsp;&nbsp;
+    <img src="topmods.png" alt="Top Modules" height="250" width="553">&nbsp;&nbsp;
+
+
+
+
 
 
 
@@ -190,7 +213,7 @@
 
 
     <img src="topmodsseries.png" alt="Top Modules Timecourse"
-      width="553" height="250"><br>
+      height="250" width="553"><br>
     <br>
     By visualising the changes in gene and module expression we can ask
     how do the tmod modules respond after immunisation and how does this
@@ -207,8 +230,8 @@
       ggplot2 (slower but may be prettier). Other plots have a <b>Plot</b>
       button, and will only draw or update when that is clicked, to
       avoid slow refreshes when you alter several options. Plots have a
-      slider control&nbsp;<img alt="" src="slider.png" width="82"
-        height="20"> to change the height. Plot width always resizes
+      slider control&nbsp;<img alt="" src="slider.png" height="20"
+        width="82"> to change the height. Plot width always resizes
       automatically with the window width. A low resolution image of
       plots can be copied or saved by right-clicking on the plot, while
       clicking <b>⤓ Plot As PNG</b> button downloads a high resolution
@@ -396,6 +419,10 @@
     </h4>
     "Regex" is a keyword, free-text search that uses regex, with some
     limitations. Multiple terms can be entered into the box <b>separated
+
+
+
+
       by commas</b> and are OR'd (search returns as many of those terms
     as it can find, treating each term separately). Commas are
     interpreted as search term dividers and cannot be 'escaped'. Select
@@ -411,13 +438,16 @@
     <br>
     <br>
     You can enter partial terms e.g. interferon finds interferon and
-    interferons, as regex looks for those characters anywhere.
-    If you select "Whole Word" then interferon will only match
-    interferon. Whole Word is important when searching for genes and
-    probes as "CCL2" will find CCL2, CCL27 etc unless Whole Word is
-    selected.<br>
+    interferons, as regex looks for those characters anywhere. If you
+    select "Whole Word" then interferon will only match interferon.
+    Whole Word is important when searching for genes and probes as
+    "CCL2" will find CCL2, CCL27 etc unless Whole Word is selected.<br>
     Upper/lower case is ignored. <br>
     Beware including <a href="https://regexr.com" target="_blank">special
+
+
+
+
       regex characters</a> by mistake.<br>
     <br>
     Regex search&nbsp; ignores the "Selected Column" and any values (see
@@ -518,15 +548,15 @@
       (baseline).<br>
       Points</b>, <b>Gridlines, </b><b>Legend</b>: show/hide.<br>
     <b>SEM</b>: Appears when Lines selected - show the SEM as a ribbon<br>
-    <b>Gene⫷Probes</b>: Appears when <font color="#ff0000"><b>Gene
-        Averages</b></font> selected in <a href="#Select_tab_-_probes_"><b>Select
-        Probes</b></a> tab, and <b>Lines</b> selected to plot. Instead
-    of plotting a line for the average of the probe values mapping
-    individual genes (±SEM), individual lines are plotted for the probes
-    mapping to that gene - the lines are colour-coded to the gene, and
-    different symbols are used. This helps to show the behaviour of
-    different probes mapping the same gene. Hover over the points to
-    identify the probe.<br>
+    <b><a name="Gene⫷Probes"></a>Gene⫷Probes</b>: Appears when <font
+      color="#ff0000"><b>Gene Averages</b></font> selected in <a
+      href="#Select_tab_-_probes_"><b>Select Probes</b></a> tab, and <b>Lines</b>
+    selected to plot. Instead of plotting a line for the average of the
+    probe values mapping individual genes (±SEM), individual lines are
+    plotted for the probes mapping to that gene - the lines are
+    colour-coded to the gene, and different symbols are used. This helps
+    to show the behaviour of different probes mapping the same gene.
+    Hover over the points to identify the probe. <br>
     <h3><a name="Genes-Modules_tab_"></a> Genes-&gt;Modules tab<br>
     </h3>
     This panel lists the selected probes or genes and shows which - if
@@ -611,13 +641,12 @@
     The concept is similar to the <a
       href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Probe</b></a>
     tab. However, here a data table is created in which the rows are
-    sorted by the
-    <b> mean or median value of the modules</b> as expressed in the
-    selected treatment ~ time combination: e.g. the median expression of
-    the probes within a given module on day 7 after Boostrix. It is
-    important to note that tmod modules contain only a fraction of all
-    the genes in the probeset, but this tab allows for an exploration of
-    responses of the modules included in tmod.<br>
+    sorted by the <b> mean or median value of the modules</b> as
+    expressed in the selected treatment ~ time combination: e.g. the
+    median expression of the probes within a given module on day 7 after
+    Boostrix. It is important to note that tmod modules contain only a
+    fraction of all the genes in the probeset, but this tab allows for
+    an exploration of responses of the modules included in tmod.<br>
     <h3><a name="Select_modules_tab_"></a> Select modules tab<br>
     </h3>
     Like <a href="#Select_tab_-_probes_">Select</a> tab in <a
@@ -686,6 +715,10 @@
     <h3><a name="Modules:Series_Modules_tab"></a> Modules:Series
       (Modules) tab</h3>
     This is very similar to the <a href="#Modules:Series_Probes_tab"><b>Modules:Series
+
+
+
+
         (Probes) tab</b></a> as it allows the expression of the selected
     modules to be plotted for all treatment ~ time combinations as a
     time course. Use the slider to change plot height, and browser
@@ -710,6 +743,10 @@
         - which group&nbsp; modules into categories.&nbsp;</li>
     </ul>
     <p>Once you have selected some modules or titles in the&nbsp; <b>All
+
+
+
+
         Modules In Dataset</b> or <b>All Module Titles In Dataset</b>
       you can save the list by clicking the download button that
       appears. To repeat this selection (e.g. on another dataset) you
@@ -741,8 +778,7 @@
       multiple search terms in the same way as selecting probes by
       keyword: <a href="#1._Regex_-_keyword_search_"><b>see that
           section for details</b></a>. Spaces will always be stripped
-      from this search as Gene
-      / Probe&nbsp; Names cannot have spaces. <br>
+      from this search as Gene / Probe&nbsp; Names cannot have spaces. <br>
     </p>
     <p>You can paste the comma-separated lists downloaded by the various
       buttons on other tabs, to quickly describe the genes/probes.<br>
@@ -758,6 +794,10 @@
       to separate multiple search terms in the same way as selecting
       probes by keyword: <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help.html#1._Regex_-_keyword_search_"><b>see
+
+
+
+
           that section for details</b></a>. <br>
       Spaces will always be stripped from this search as Module Names
       cannot have spaces.<br>
@@ -785,13 +825,22 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         plotted.</b><br>
     </p>
     <ul>
-      <li><b>FI ~ Conc</b>. Use the radio buttons to switch between <b>actual
-          concentration values</b> or <b>fold increase</b> from day 0
-        when plotting. </li>
+      <li><b>FI ~ Conc</b>. Use the radio buttons to switch between <b>fold
+
+
+
+          increase </b>(from day 0) or <b>actual concentration values</b>
+        when plotting.FI may give some wide error bars if a few outliers
+        have big changes.<br>
+      </li>
       <li><b>Lines ~ Boxplot ~ Violin.</b><b> </b>Select which type of
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
+
+
+
 
 
 
@@ -854,6 +903,11 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         <b>Vac→Cyt↓</b> does the reverse, with panels grouped by
         cytokine: vaccine treatments wrap in the columns, and then a new
         block starts with each cytokine.</li>
+      <li><b>Monochrome</b> - when selected all plots are in black and
+        white. Otherwise I have pre-allocated fixed colours to the
+        cytokines which do not change even when the number of cytokines
+        plotted is changed.<br>
+      </li>
       <li>A box to enter the <b>maximum</b><b> number of panels per row</b>,
         and slider to control the <b>height of the plot</b>, offer some
         control over the image. Widening or narrowing the window also
@@ -918,6 +972,10 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
 
 
 
+
+
+
+
     and were generated by the group of Stefan Kaufmann at MPIIB, Berlin
     and provided by Jeroen Maertzdorf and January Weiner. I have
     generated&nbsp; averages per treatment ~ time point and
@@ -936,10 +994,13 @@ href="http://bioinfo.mpiib-berlin.mpg.de/tmod/tmod_paper_peerjpreprints_2016.pdf
     environment for statistical computing. R Foundation for Statistical
     Computing, Vienna,<br>
     &nbsp; Austria. URL <a href="https://www.R-project.org/."
-      target="_blank">https://www.R-project.org/. </a>tmodExplorer uses
-    tidyverse packages (<a href="https://www.tidyverse.org"
-      target="_blank">https://www.tidyverse.org</a>) extensively
-    especially dplyr, purrr, readr, ggplot2 and tibble.<br>
+      target="_blank">https://www.R-project.org/. </a><br>
+    tmodExplorer uses tidyverse packages (<a
+      href="https://www.tidyverse.org" target="_blank">https://www.tidyverse.org</a>)
+    extensively especially dplyr, purrr, readr, ggplot2 and tibble. <br>
+    Other packages to acknowledge are shineythemes, forcats,
+    shinydashboard, shinyWidgets, shinyBS, shinyjs, grid, gridExtra,
+    utf8, stringr and cowplot.<br>
     <h1><a name="Versions"></a> Versions</h1>
     2.1 <i>"Pawnee Zoo"</i> 24 April 2018. Most features included and
     bugs trapped.<br>

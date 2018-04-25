@@ -473,15 +473,15 @@ observeEvent(
     output$plotModuleSeries <- renderPlot({NULL})
     assign("moduleValues",
            getModuleValuesForSeries(allData$data,
-                                    input$selectModuleForSeries,columnsFromVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays), 
-                                    input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries), 
+            input$selectModuleForSeries,columnsFromVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays), 
+            input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries), 
            envir = .GlobalEnv)
     
     if(!is.null(moduleValues) && input$checkboxShowPseudoModuleModuleSeries == TRUE) {
       assign("moduleValues",
              getTopGenesInSeriesToPlotWithModules(allData$data, topGenesAndModules()[['genes']],
-                                                  columnsFromVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays),input$checkboxShowFacetModuleSeries,
-                                                  input$radioRibbonBoxModuleSeries,moduleValues), 
+              columnsFromVaccinesDays(input$selectColumnForModuleSeriesVaccines,input$selectColumnForModuleSeriesDays),
+              input$checkboxShowFacetModuleSeries,input$radioRibbonBoxModuleSeries,moduleValues), 
              envir = .GlobalEnv)
     }
     
@@ -820,7 +820,8 @@ observeEvent(input$buttonPlotCytokines, {
     input$cradioCytokinesPlotType,input$cradioCytokinesErrorType, input$ccheckboxZoomQuantile, input$ccheckboxFixedY,
     input$ccheckboxOmit0, input$ccheckboxShowN,input$cnumericNumPanels,input$cradioCytoMeansRaw,
     input$ccheckboxShowPoints, input$cradioCytokinesTransformY, input$ccheckboxLogMeans,
-    (input$ccheckboxShow1 & input$cradioCytoMeansRaw == 'Fold Increase'))# calc if we plot --- at 1
+    (input$ccheckboxShow1 & input$cradioCytoMeansRaw == 'Fold Increase'),# calc if we plot --- at 1
+    input$ccheckboxMonochrome)
   cytokinesDataAndPlot$data <- cdp$data
   cytokinesDataAndPlot$plot <- cdp$plot
     
