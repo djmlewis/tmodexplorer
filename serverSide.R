@@ -15,6 +15,7 @@ server <- function(input, output, session) {
   # hide the explores until load
   hideTab(inputId = "navbarTop", target = "Explore By Probe")
   hideTab(inputId = "navbarTop", target = "Explore By Module")
+  # hideTab(inputId = "navbarTop", target = "Cells")
   hideTab(inputId = "navbarTop", target = "Lookup")
   
   # sortCol_Probes <- NULL
@@ -74,6 +75,7 @@ server <- function(input, output, session) {
     # show hide the nav tabs to reflect we have loaded data, rehide any needing rehiding post select
     showTab(inputId = "navbarTop", target = "Explore By Probe")
     showTab(inputId = "navbarTop", target = "Explore By Module")
+    # showTab(inputId = "navbarTop", target = "Cells")
     showTab(inputId = "navbarTop", target = "Lookup")
     
     # we may have been on a different pane so re-select Select
@@ -755,9 +757,6 @@ output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste
 observeEvent(input$hover_mplotModuleSeries, 
              {if(input$mradioRibbonBoxModuleSeries != 'Boxplot') handleClick(ggplotSelectedModulesSeries[['table']],input$hover_mplotModuleSeries,"hover_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
 
-# observeEvent(input$mbuttonAddAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = allData$colNames)})
-# observeEvent(input$mbuttonRemoveAllColumnsModuleSeries,{updateSelectInput(session, 'mselectColumnForModuleSeries', selected = character(0))})
-
 observeEvent(input$mbuttonAddAllColumnsModuleSeriesVaccines,{updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
 observeEvent(input$mbuttonRemoveAllColumnsModuleSeriesVaccines,{updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', selected = character(0))})
 observeEvent(input$mbuttonAddAllColumnsModuleSeriesDays,{updateSelectInput(session, 'mselectColumnForModuleSeriesDays', selected = vaccinesDaysFromColNames(allData$colNames)[['days']])})
@@ -805,6 +804,57 @@ observeEvent({
 
 output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){paste0("Module Lookup.csv")},
   content = function(file) {write.csv(lookedupMods, file, row.names = FALSE)})
+
+#################### Cells #########################
+assign("cellsData",NULL, envir = .GlobalEnv)
+
+observeEvent(input$buttonLoadCells, {
+  cellsdataPath <- "cellsdata.rds" #paste0(allData$folderpath,"/","cellsdata.rds")
+  if (file.exists(cellsdataPath)) {
+    assign("cellsData",read_rds(cellsdataPath), envir = .GlobalEnv)
+    if(!is.null(cellsData)) {
+      updateSelectInput(session, "selectColumnForCellsSeriesVaccines", choices = levels(cellsData$means$Treatment), selected = character(0))
+      updateSelectInput(session, "selectColumnForCellsSeriesDays", choices = unique(cellsData$means$Day), selected = character(0))
+      updateSelectInput(session, "selectCellsForSeries", choices = levels(cellsData$means$Cells), selected = character(0))
+      
+      hide("divLoadCells")
+      show("divCells", anim = TRUE)
+    } else {
+      showNotification("White Blood Cells Data File Cannot Be Loaded", type = "error")
+    }
+  } else {
+    showNotification("No White Blood Cells Data File Found", type = "error")
+  }
+})
+
+observeEvent(input$buttonAddAllColumnsCellsSeriesVaccines,{updateSelectInput(session, 'selectColumnForCellsSeriesVaccines', selected = levels(cellsData$means$Treatment))})
+observeEvent(input$buttonRemoveAllColumnsCellsSeriesVaccines,{updateSelectInput(session, 'selectColumnForCellsSeriesVaccines', selected = character(0))})
+observeEvent(input$buttonAddAllColumnsCellsSeriesDays,{updateSelectInput(session, 'selectColumnForCellsSeriesDays', selected = unique(cellsData$means$Day))})
+observeEvent(input$buttonRemoveAllColumnsCellsSeriesDays,{updateSelectInput(session, 'selectColumnForCellsSeriesDays', selected = character(0))})
+observeEvent(input$buttonAddAllCellsCellsSeries,{updateSelectInput(session, 'selectCellsForSeries', selected = levels(cellsData$means$Cells))})
+observeEvent(input$buttonRemoveAllCellsCellsSeries,{updateSelectInput(session, 'selectCellsForSeries',selected = character(0))})
+
+observeEvent({
+  input$buttonPlotCellsSeries
+},{
+
+  assign("ggplotSelectedCellsSeries",
+         plotSelectedCellsSeries(cellsData,input$radioMeanFCCellsSeries,
+                                input$selectColumnForCellsSeriesVaccines,input$selectColumnForCellsSeriesDays,input$selectCellsForSeries,
+                                input$radioRibbonBoxCellsSeries, allData$folder,
+                                input$checkboxShowLegendCellsSeries,input$checkboxShowZeroCellsSeries, input$checkboxShowFacetCellsSeries,
+                                input$checkboxShowSECellsSeries, input$checkboxShowGridCellsSeries, input$checkboxShowPointsCellsSeries,
+                                input$checkboxFreeYCellsSeries),
+         envir = .GlobalEnv)
+  
+  
+  output$plotCellsSeries <- renderPlot({ggplotSelectedCellsSeries[['plot']]} ,res = 72)
+  output$plotCellsSeriesSIZE <- renderUI({plotOutput("plotCellsSeries", height = isolate(input$numericPlotCellSeriesSIZEheight))})
+
+  output$datatableCellsSeries <- renderDataTable({ggplotSelectedCellsSeries[['table']]})
+  
+})
+
 
 #################### Cytokines #########################
 #   load cytokines and update

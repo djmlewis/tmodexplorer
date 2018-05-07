@@ -4,7 +4,7 @@
 library(tools)
 library(shiny)
 library(readr)
-library(dplyr)
+library(dplyr) 
 library(purrr)
 library(tidyr)
 library(tmod)
@@ -33,6 +33,7 @@ source('serverFunctions_Mods.R')
 source('plotFunctions.R')
 source('plotFunctions_Mods.R')
 source('plotFunctions_Cyts.R')
+source('plotFunctions_Cells.R')
 
 # Define UI 
 source('GUI.R')
