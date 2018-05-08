@@ -813,9 +813,9 @@ observeEvent(input$buttonLoadCells, {
   if (file.exists(cellsdataPath)) {
     assign("cellsData",read_rds(cellsdataPath), envir = .GlobalEnv)
     if(!is.null(cellsData)) {
-      updateSelectInput(session, "selectColumnForCellsSeriesVaccines", choices = levels(cellsData$means$Treatment), selected = character(0))
-      updateSelectInput(session, "selectColumnForCellsSeriesDays", choices = unique(cellsData$means$Day), selected = character(0))
-      updateSelectInput(session, "selectCellsForSeries", choices = levels(cellsData$means$Cells), selected = character(0))
+      updateSelectInput(session, "selectColumnForCellsSeriesVaccines", choices = levels(cellsData$Mean$Treatment), selected = character(0))
+      updateSelectInput(session, "selectColumnForCellsSeriesDays", choices = unique(cellsData$Mean$Day), selected = character(0))
+      updateSelectInput(session, "selectCellsForSeries", choices = levels(cellsData$Mean$Cells), selected = character(0))
       
       hide("divLoadCells")
       show("divCells", anim = TRUE)
@@ -827,11 +827,11 @@ observeEvent(input$buttonLoadCells, {
   }
 })
 
-observeEvent(input$buttonAddAllColumnsCellsSeriesVaccines,{updateSelectInput(session, 'selectColumnForCellsSeriesVaccines', selected = levels(cellsData$means$Treatment))})
+observeEvent(input$buttonAddAllColumnsCellsSeriesVaccines,{updateSelectInput(session, 'selectColumnForCellsSeriesVaccines', selected = levels(cellsData$Mean$Treatment))})
 observeEvent(input$buttonRemoveAllColumnsCellsSeriesVaccines,{updateSelectInput(session, 'selectColumnForCellsSeriesVaccines', selected = character(0))})
-observeEvent(input$buttonAddAllColumnsCellsSeriesDays,{updateSelectInput(session, 'selectColumnForCellsSeriesDays', selected = unique(cellsData$means$Day))})
+observeEvent(input$buttonAddAllColumnsCellsSeriesDays,{updateSelectInput(session, 'selectColumnForCellsSeriesDays', selected = unique(cellsData$Mean$Day))})
 observeEvent(input$buttonRemoveAllColumnsCellsSeriesDays,{updateSelectInput(session, 'selectColumnForCellsSeriesDays', selected = character(0))})
-observeEvent(input$buttonAddAllCellsCellsSeries,{updateSelectInput(session, 'selectCellsForSeries', selected = levels(cellsData$means$Cells))})
+observeEvent(input$buttonAddAllCellsCellsSeries,{updateSelectInput(session, 'selectCellsForSeries', selected = levels(cellsData$Mean$Cells))})
 observeEvent(input$buttonRemoveAllCellsCellsSeries,{updateSelectInput(session, 'selectCellsForSeries',selected = character(0))})
 
 observeEvent({
@@ -844,7 +844,7 @@ observeEvent({
                                 input$radioRibbonBoxCellsSeries, allData$folder,
                                 input$checkboxShowLegendCellsSeries,input$checkboxShowZeroCellsSeries, input$checkboxShowFacetCellsSeries,
                                 input$checkboxShowSECellsSeries, input$checkboxShowGridCellsSeries, input$checkboxShowPointsCellsSeries,
-                                input$checkboxFreeYCellsSeries),
+                                input$checkboxFreeYCellsSeries,input$numericNumPanelsCellsSeries),
          envir = .GlobalEnv)
   
   

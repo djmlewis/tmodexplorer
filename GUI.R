@@ -616,8 +616,8 @@ ui <-
                                                                                  p(style = "color: #728f17; text-align: center;","Choose Treatment~Times & Cells To Plot")),
                                                                 fluidRow(
                                                                   column(6,
-                                                                         awesomeRadio(status = 'warning', 'radioRibbonBoxCellsSeries'," ",choices = c(Boxplot = 'all',Lines = 'means')),
-                                                                         conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'means'",
+                                                                         awesomeRadio(status = 'warning', 'radioRibbonBoxCellsSeries'," ",choices = c(Lines = 'Mean',Boxplot = 'Value')),
+                                                                         conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'Mean'",
                                                                                           awesomeCheckbox(status = 'danger', 'checkboxShowGridCellsSeries', 'Gridlines', value = TRUE),
                                                                                           awesomeCheckbox(status = 'danger', 'checkboxShowPointsCellsSeries', 'Points', value = FALSE),
                                                                                           awesomeCheckbox(status = 'danger', 'checkboxShowSECellsSeries', 'SEM', value = FALSE),
@@ -626,11 +626,13 @@ ui <-
                                                                          )
                                                                   ),
                                                                   column(6,
-                                                                         conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'means'",
+                                                                         conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'Mean'",
                                                                                           awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',Mean = ''))),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowFacetCellsSeries', 'Split Cells', value = TRUE),
-                                                                         awesomeCheckbox(status = 'success', 'checkboxShowLegendCellsSeries', 'Legend', value = FALSE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxFreeYCellsSeries', 'Free Y', value = FALSE),
+                                                                         awesomeCheckbox(status = 'success', 'checkboxShowLegendCellsSeries', 'Legend', value = FALSE),
+                                                                         numericInput("numericNumPanelsCellsSeries",NULL,value = 3, min = 1, step = 1), 
+                                                                         bsTooltip("numericNumPanelsCellsSeries", "Maximum number of panels per plot row"),
                                                                          sliderInput("numericPlotCellSeriesSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
                                                                          bsTooltip("numericPlotCellSeriesSIZEheight", "Plot height")
                                                                   )
