@@ -606,7 +606,6 @@ ui <-
                         hidden(div(id = "divCells",
                                    wellPanel(style = "background-color: #FFFFFF;",
                                              h4(style = "margin-top: 0px;",'Time Course Of White Blood Cell Populations'),
-                                             h5(style = "text-align: center;",'Select Some Treatment ~ Times And A Cell Type, And Click Plot'),
                                              fluidRow(
                                                column(3,
                                                       wellPanel(style = "background-color: #fff2e2;",
@@ -627,7 +626,7 @@ ui <-
                                                                   ),
                                                                   column(6,
                                                                          conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'Mean'",
-                                                                                          awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',Mean = ''))),
+                                                                                          awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',`Mean Value` = ''))),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowFacetCellsSeries', 'Split Cells', value = TRUE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxFreeYCellsSeries', 'Free Y', value = FALSE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowLegendCellsSeries', 'Legend', value = FALSE),

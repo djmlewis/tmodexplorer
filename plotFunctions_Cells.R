@@ -1,11 +1,24 @@
+boxPlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,leg,zero, splitCells,sem, xgrid, point, freeY) {
+  plotCell <-
+  ggplot(data = data4cell) +
+    ggtitle(cellT) + 
+    themeBase(rotate = FALSE) +
+    theme(panel.grid.major.x = element_blank())
+
+
+  plotCell <- plotCell +
+  geom_boxplot(mapping = aes(x = Day, y = yColumn, color = Cells, fill = Cells), alpha = 0.5, outlier.alpha = 1.0,show.legend=leg)
+  return(plotCell)
+}
+
 linePlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,leg,zero, splitCells,sem, xgrid, point, freeY) {
   plotCell <-
     ggplot(data = data4cell) +
-    ggtitle(cellT) + #paste0('White Blood Cell Responses\n',titles)) +
+    ggtitle(cellT) + 
     themeBase(rotate = FALSE) +
     theme(panel.grid.major.x = element_blank())
   
-  if(freeY == FALSE && splitCells == TRUE) {
+  if(freeY == FALSE) {
     plotCell <- plotCell +
       scale_y_continuous(limits = yLims)
   }
@@ -26,6 +39,7 @@ linePlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, v
       geom_vline(xintercept = xbreaks, color = 'grey80', alpha = 0.5, show.legend = FALSE) +
       theme(panel.grid.major.y = element_line(color = 'grey80', linetype = 2))
   }
+  return(plotCell)
 }
 
 plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, titles,leg,zero, splitCells,sem, xgrid, point, freeY,numPlotCols) {
@@ -60,16 +74,22 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
       yColumnMax <- yColumn
       yColumnMin <- yColumn
     }
-    maxmins <- data2plot %>%
-      group_by(Cells) %>%
-      summarise(
-        # .data calls the supplied data object and allows us to use [[ stringVar ]]
-        Max = max(.data[[yColumnMax]],na.rm = TRUE),
-        Min = min(.data[[yColumnMin]],na.rm = TRUE)
-      )
-    maxs <-  set_names(maxmins$Max,maxmins$Cells)
-    mins <-  set_names(maxmins$Min,maxmins$Cells)
-
+    if(splitCells == TRUE) {
+      # make a max and min list for each cell type
+      maxmins <- data2plot %>%
+        group_by(Cells) %>%
+        summarise(
+          # .data calls the supplied data object and allows us to use [[ stringVar ]]
+          Max = max(.data[[yColumnMax]],na.rm = TRUE),
+          Min = min(.data[[yColumnMin]],na.rm = TRUE)
+        )
+      maxs <-  set_names(maxmins$Max,maxmins$Cells)
+      mins <-  set_names(maxmins$Min,maxmins$Cells)
+    } else {
+      # make a max and min list for all data
+      maxs = list(Max = max(data2plot[[yColumnMax]],na.rm = TRUE))
+      mins = list(Min = min(data2plot[[yColumnMin]],na.rm = TRUE))
+    }
     if(boxlines == "Mean") {
       # lines plots
       xbreaks <- unique(data2plot$Day)
@@ -86,14 +106,21 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
           # end plots lapply
         })
         } else {
-          # plot in one go without cells split
-          plotsList <- list(linePlot(data4cell,c(NA,NA), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,leg,zero, splitCells,sem, xgrid, point, freeY))
+          # plot in one go without cells split. maxs and mins have only one entry each
+          plotsList <- list(linePlot(data4cell,c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,leg,zero, splitCells,sem, xgrid, point, freeY))
         }
         
-        return(arrangeGrob(grobs = plotsList, ncol = min(numPlotCols, length(plotsList)), top = treat))
+        return(arrangeGrob(grobs = plotsList, ncol = min(numPlotCols, length(plotsList)),
+                           top = textGrob(as.character(treat), gp=gpar(fontface="bold",fontsize=20, padding = 2))
+        ))
         # end treat lapply
       })
-      plot2plot <- marrangeGrob(treatList, ncol = 1, nrow = length(treatments), top = NULL)
+      # if splitCells == F then we can arrange the treatments on a row using numPlotCols, otherwise keep ncol = 1
+      ncols <- ifelse(splitCells == TRUE,1,min(numPlotCols, length(treatList)))
+      # harness the flexibility of arrangeGrob to flow the rows according to ncol. 
+      # marrangeGrob demands nrow and ncol to be specified which is tricky to calculate, so leave at 1,1
+      arrangedTreats <- list(arrangeGrob(grobs = treatList, ncol = ncols))
+      plot2plot <- marrangeGrob(arrangedTreats, ncol = 1, nrow = 1, top = NULL)
                     
     } else {
       # box plots
@@ -108,12 +135,6 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
         geom_boxplot(mapping = aes(x = Day, y = yColumn, color = Cells, fill = Cells), alpha = 0.5, outlier.alpha = 1.0,show.legend=leg)      
     }
   
-    # if(splitCells == TRUE) {
-    #   plot2plot <- plot2plot + facet_wrap(Treatment~Cells, scales = ifelse(freeY,"free_y","fixed"))
-    # } else {
-    #   plot2plot <- plot2plot + facet_wrap(~Treatment, scales = ifelse(freeY,"free_y","fixed"))
-    # }
-    
   }
   return(list(plot = plot2plot, table = data2plot))
 }
