@@ -807,15 +807,19 @@ output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){pas
 
 #################### Cells #########################
 assign("cellsData",NULL, envir = .GlobalEnv)
+assign("cellsColours",NULL, envir = .GlobalEnv)
+assign("cellTypesInData",NULL, envir = .GlobalEnv)
 
 observeEvent(input$buttonLoadCells, {
   cellsdataPath <- "cellsdata.rds" #paste0(allData$folderpath,"/","cellsdata.rds")
   if (file.exists(cellsdataPath)) {
     assign("cellsData",read_rds(cellsdataPath), envir = .GlobalEnv)
     if(!is.null(cellsData)) {
-      updateSelectInput(session, "selectColumnForCellsSeriesVaccines", choices = levels(cellsData$Mean$Treatment), selected = character(0))
+      assign("cellTypesInData",unique(cellsData[["Mean"]][["Cells"]]), envir = .GlobalEnv)
+      assign("cellsColours",set_names(brewer.pal(length(cellTypesInData),"Dark2"), cellTypesInData), envir = .GlobalEnv)
+      updateSelectInput(session, "selectColumnForCellsSeriesVaccines", choices = unique(cellsData$Mean$Treatment), selected = character(0))
       updateSelectInput(session, "selectColumnForCellsSeriesDays", choices = unique(cellsData$Mean$Day), selected = character(0))
-      updateSelectInput(session, "selectCellsForSeries", choices = levels(cellsData$Mean$Cells), selected = character(0))
+      updateSelectInput(session, "selectCellsForSeries", choices = unique(cellsData$Mean$Cells), selected = character(0))
       
       hide("divLoadCells")
       show("divCells", anim = TRUE)
@@ -827,11 +831,11 @@ observeEvent(input$buttonLoadCells, {
   }
 })
 
-observeEvent(input$buttonAddAllColumnsCellsSeriesVaccines,{updateSelectInput(session, 'selectColumnForCellsSeriesVaccines', selected = levels(cellsData$Mean$Treatment))})
+observeEvent(input$buttonAddAllColumnsCellsSeriesVaccines,{updateSelectInput(session, 'selectColumnForCellsSeriesVaccines', selected = unique(cellsData$Mean$Treatment))})
 observeEvent(input$buttonRemoveAllColumnsCellsSeriesVaccines,{updateSelectInput(session, 'selectColumnForCellsSeriesVaccines', selected = character(0))})
 observeEvent(input$buttonAddAllColumnsCellsSeriesDays,{updateSelectInput(session, 'selectColumnForCellsSeriesDays', selected = unique(cellsData$Mean$Day))})
 observeEvent(input$buttonRemoveAllColumnsCellsSeriesDays,{updateSelectInput(session, 'selectColumnForCellsSeriesDays', selected = character(0))})
-observeEvent(input$buttonAddAllCellsCellsSeries,{updateSelectInput(session, 'selectCellsForSeries', selected = levels(cellsData$Mean$Cells))})
+observeEvent(input$buttonAddAllCellsCellsSeries,{updateSelectInput(session, 'selectCellsForSeries', selected = unique(cellsData$Mean$Cells))})
 observeEvent(input$buttonRemoveAllCellsCellsSeries,{updateSelectInput(session, 'selectCellsForSeries',selected = character(0))})
 
 observeEvent({
@@ -842,7 +846,7 @@ observeEvent({
          plotSelectedCellsSeries(cellsData,input$radioMeanFCCellsSeries,
                                 input$selectColumnForCellsSeriesVaccines,input$selectColumnForCellsSeriesDays,input$selectCellsForSeries,
                                 input$radioRibbonBoxCellsSeries, allData$folder,
-                                input$checkboxShowLegendCellsSeries,input$checkboxShowZeroCellsSeries, input$checkboxShowFacetCellsSeries,
+                                input$checkboxShowLegendSumCellsSeries,input$checkboxShowLegendAllCellsSeries,input$checkboxShowZeroCellsSeries, input$checkboxShowFacetCellsSeries,
                                 input$checkboxShowSECellsSeries, input$checkboxShowGridCellsSeries, input$checkboxShowPointsCellsSeries,
                                 input$checkboxFreeYCellsSeries,input$numericNumPanelsCellsSeries),
          envir = .GlobalEnv)
@@ -855,6 +859,11 @@ observeEvent({
   
 })
 
+output$buttonPNGplotCellsSeries <- downloadHandler(filename = function(){paste0("Cell Kinetics.png")},
+  content = function(file) {plotPlotPNG(ggplotSelectedCellsSeries[['plot']],file,session$clientData[["output_plotCellsSeries_height"]],session$clientData[["output_plotCellsSeries_width"]])})
+
+output$buttonSaveTableCellsSeries <- downloadHandler(filename = function(){paste0("Cell Kinetics.csv")},
+  content = function(file) {write.csv(ggplotSelectedCellsSeries[['table']], file, row.names = FALSE)})
 
 #################### Cytokines #########################
 #   load cytokines and update

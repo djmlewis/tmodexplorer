@@ -592,12 +592,12 @@ ui <-
                         )
                ),
                ###########   Cells  ##########
-               tabPanel(value = 'Cells', title = span(style = "color: #ffd2ca;", "Cells"),
+               tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                         div(id = "divLoadCells",
                             h4(style = "text-align: center; margin-top: 0px;",'Cells Data Are Not Loaded Automatically. Click The Button To Load White Blood Cells Data For This Protocol'),
                             fluidRow(
                               column(6, offset = 3,
-                                     wellPanel(style = "background-color: #fff2e2;",
+                                     wellPanel(style = "background-color: #fff4e5;",
                                                fluidRow(
                                                  column(4,offset = 4, actionButton('buttonLoadCells','Load Cells Data',class = "btn-success btn-block"))
                                                )
@@ -608,7 +608,7 @@ ui <-
                                              h4(style = "margin-top: 0px;",'Time Course Of White Blood Cell Populations'),
                                              fluidRow(
                                                column(3,
-                                                      wellPanel(style = "background-color: #fff2e2;",
+                                                      wellPanel(style = "background-color: #fff4e5;",
                                                                 conditionalPanel(condition = "input.selectColumnForCellsSeriesVaccines != null && input.selectColumnForCellsSeriesDays != null && input.selectCellsForSeries != null",
                                                                                  actionButton('buttonPlotCellsSeries','Plot',class = "btn-warning btn-block")),
                                                                 conditionalPanel(condition = "input.selectColumnForCellsSeriesVaccines == null || input.selectColumnForCellsSeriesDays == null || input.selectCellsForSeries == null",
@@ -616,19 +616,20 @@ ui <-
                                                                 fluidRow(
                                                                   column(6,
                                                                          awesomeRadio(status = 'warning', 'radioRibbonBoxCellsSeries'," ",choices = c(Lines = 'Mean',Boxplot = 'Value')),
+                                                                         conditionalPanel(condition = "input.radioMeanFCCellsSeries == '.FC'",
+                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowZeroCellsSeries', '• |----', value = TRUE)),
                                                                          conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'Mean'",
                                                                                           awesomeCheckbox(status = 'danger', 'checkboxShowGridCellsSeries', 'Gridlines', value = TRUE),
                                                                                           awesomeCheckbox(status = 'danger', 'checkboxShowPointsCellsSeries', 'Points', value = FALSE),
-                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowSECellsSeries', 'SEM', value = FALSE),
-                                                                            conditionalPanel(condition = "input.radioMeanFCCellsSeries == '.FC'",
-                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowZeroCellsSeries', '• |----', value = TRUE))
+                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowSECellsSeries', 'SEM', value = FALSE)
                                                                          )
                                                                   ),
                                                                   column(6,
                                                                          awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',`Mean Value` = '')),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowFacetCellsSeries', 'Split Cells', value = TRUE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxFreeYCellsSeries', 'Free Y', value = FALSE),
-                                                                         awesomeCheckbox(status = 'success', 'checkboxShowLegendCellsSeries', 'Legend', value = FALSE),
+                                                                         awesomeCheckbox(status = 'success', 'checkboxShowLegendSumCellsSeries', 'Summary Legend', value = TRUE),
+                                                                         awesomeCheckbox(status = 'success', 'checkboxShowLegendAllCellsSeries', 'Plot Legends', value = FALSE),
                                                                          numericInput("numericNumPanelsCellsSeries",NULL,value = 3, min = 1, step = 1), 
                                                                          bsTooltip("numericNumPanelsCellsSeries", "Maximum number of panels per plot row"),
                                                                          sliderInput("numericPlotCellSeriesSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
@@ -638,7 +639,7 @@ ui <-
                                                       )
                                                ),
                                                column(9,
-                                                      wellPanel(style = "background-color: #fff2e2;",
+                                                      wellPanel(style = "background-color: #fff4e5;",
                                                                 fluidRow(
                                                                   column(6,
                                                                          fluidRow(
@@ -657,7 +658,7 @@ ui <-
                                                                   )
                                                                 )
                                                       ),
-                                                      wellPanel(style = "background-color: #fff2e2;",
+                                                      wellPanel(style = "background-color: #fff4e5;",
                                                                 fluidRow(
                                                                   column(9, selectInput('selectCellsForSeries', label = 'Cell Types', character(0), multiple = TRUE)),
                                                                   column(3, div(style = "margin-top: 20px;",
@@ -681,7 +682,7 @@ ui <-
                         ))# div
                ),
                ###########   Cytokines  ##########
-               tabPanel(value = 'Cytokines', title = span(style = "color: #b1cd46;", 'Cytokines'),
+               tabPanel(value = 'Cytokines', title = span(style = "color: #8df900;", 'Cytokines'),
                         navbarPage(span(style = 'color: #000000;','Cytokines'), id = 'navCytokines',
                                    tabPanel('Plot',
                                             wellPanel(style = "background-color: #f3fbe0;",
