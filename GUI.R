@@ -625,8 +625,7 @@ ui <-
                                                                          )
                                                                   ),
                                                                   column(6,
-                                                                         conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'Mean'",
-                                                                                          awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',`Mean Value` = ''))),
+                                                                         awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',`Mean Value` = '')),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowFacetCellsSeries', 'Split Cells', value = TRUE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxFreeYCellsSeries', 'Free Y', value = FALSE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowLegendCellsSeries', 'Legend', value = FALSE),
