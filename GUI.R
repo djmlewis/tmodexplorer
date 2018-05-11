@@ -594,7 +594,7 @@ ui <-
                ###########   Cells  ##########
                tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                         div(id = "divLoadCells",
-                            h4(style = "text-align: center; margin-top: 0px;",'Cells Data Are Not Loaded Automatically. Click The Button To Load White Blood Cells Data For This Protocol'),
+                            h4(style = "text-align: center; margin-top: 0px;",'Cells Data Are Not Loaded Automatically. Click The Button To Load White Blood Cells Data'),
                             fluidRow(
                               column(6, offset = 3,
                                      wellPanel(style = "background-color: #fff4e5;",
@@ -625,7 +625,7 @@ ui <-
                                                                          )
                                                                   ),
                                                                   column(6,
-                                                                         awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',`Mean Value` = '')),
+                                                                         awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',`Cell Count` = '')),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowFacetCellsSeries', 'Split Cells', value = TRUE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxFreeYCellsSeries', 'Free Y', value = FALSE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowLegendSumCellsSeries', 'Summary Legend', value = TRUE),

@@ -18,6 +18,8 @@
       <ul>
         <li><a href="#Transcriptomics_Data_">Transcriptomics Data</a></li>
         <li><a href="#Cytokines_Data_">Cytokines Data</a></li>
+        <li><a href="#Cells_Data">Cells Data</a><br>
+        </li>
       </ul>
     </ul>
     <h1><a name="Introduction"></a>Introduction</h1>
@@ -34,6 +36,7 @@
     Boostrix~Day 1, Placebo~Day 0, etc.<br>
     <br>
     The basic concept is to pick a particular time point and vaccine - <i>e.g.
+
 
 
 
@@ -110,9 +113,9 @@
     belonged to a pseudo-module.<br>
     <br>
     <div align="center"><img src="selgenesseries.png" alt="Selected
-        Probes" height="250" width="554"> &nbsp;<img
+        Probes" width="554" height="250"> &nbsp;<img
         src="selgenesseriesbox.png" alt="Selected Probes Boxplot"
-        height="250" width="554"><br>
+        width="554" height="250"><br>
     </div>
     <br>
     We can then identify the modules to which those genes belong, and
@@ -123,9 +126,9 @@
     even down-regulated, as&nbsp; the modules have been clustered by
     their authors on the basis of other criteria:<br>
     <div align="center"><img src="selmods.png" alt="Selected Modules"
-        height="249" align="middle" width="550">&nbsp;&nbsp; <img
+        align="middle" width="550" height="249">&nbsp;&nbsp; <img
         src="selmodsseries.png" alt="Selected Modules Timecourse"
-        height="249" align="middle" width="550"><br>
+        align="middle" width="550" height="249"><br>
     </div>
     <br>
     When plotting the time-course of genes as an average of the probes,
@@ -139,7 +142,7 @@
     lower than the other two, and the two RSAD2 probes are far apart
     (blue). These discrepancies are also seen in the wide SEM ribbons.<br>
     <div align="center"><img src="probessplit.png" alt="Genes Split Into
-        Probes" height="250" width="640"><br>
+        Probes" width="640" height="250"><br>
     </div>
     <br>
     <br>
@@ -152,11 +155,11 @@
     10 day 7 genes map to any tmod modules. Sorting on day 5 brings up a
     new set of genes together with some of the day 7 genes.<br>
     <div align="center"><img src="day1genesmodules.png" alt=""
-        height="250" width="311"><img src="day7genesmodules.png" alt=""
-        height="250" width="348"><br>
-      <img src="day1genes.png" alt="" height="250" width="679"><img
-        src="day7genes.png" alt="" height="250" width="679"><br>
-      <img src="day5genes.png" alt="" height="250" width="679"><br>
+        width="311" height="250"><img src="day7genesmodules.png" alt=""
+        width="348" height="250"><br>
+      <img src="day1genes.png" alt="" width="679" height="250"><img
+        src="day7genes.png" alt="" width="679" height="250"><br>
+      <img src="day5genes.png" alt="" width="679" height="250"><br>
     </div>
     <br>
     <br>
@@ -178,9 +181,9 @@
     responding genes (as shown above), because the important genes may
     be clustered with non-responding genes in other modules. <br>
     <div align="center"><img src="topmods.png" alt="Top Modules"
-        height="250" width="553">&nbsp;&nbsp; <img
-        src="topmodsseries.png" alt="Top Modules Timecourse"
-        height="250" width="553"><br>
+        width="553" height="250">&nbsp;&nbsp; <img
+        src="topmodsseries.png" alt="Top Modules Timecourse" width="553"
+        height="250"><br>
     </div>
     <br>
     By visualising the changes in gene and module expression we can ask
@@ -198,8 +201,8 @@
       ggplot2 (slower but may be prettier). Other plots have a <b>Plot</b>
       button, and will only draw or update when that is clicked, to
       avoid slow refreshes when you alter several options. Plots have a
-      slider control&nbsp;<img alt="" src="slider.png" height="20"
-        width="82"> to change the height. Plot width always resizes
+      slider control&nbsp;<img alt="" src="slider.png" width="82"
+        height="20"> to change the height. Plot width always resizes
       automatically with the window width. A low resolution image of
       plots can be copied or saved by right-clicking on the plot, while
       clicking <b>⤓ Plot As PNG</b> button downloads a high resolution
@@ -322,7 +325,7 @@
       been handled in a similar way to the transcriptomics ABC Surrey
       Agilent (see above) with the addition of D. There is a single
       placebo group for Surrey AB1C, pooled from all participants, plus
-      a separate PlaceboB3 group of those who had the second Engerix B
+      a separate PlaceboB3 group of those who had the third Engerix B
       immunisation. Fluad Gent is separate with its own placebo group
       (with only 6 participants), and also has only a subset of
       available days.</p>
@@ -343,5 +346,24 @@
       import, and hence deleted from calculations. No log
       transformations have been done, this is an option when plotting.<br>
     </p>
+    <h2><a name="Cells_Data"></a> Cells Data</h2>
+    The&nbsp; white cells dataset has been uploaded to the server but
+    does not load automatically on start up - you need to click the
+    button. It is a single combined dataset with data from Surrey ABC
+    trials, Gent Fluad (D) and Gent Boostrix (D2). The data have been
+    handled in a similar way to the transcriptomics ABC Surrey Agilent
+    (see above) with the addition of D and D2. There is a single placebo
+    group for Surrey AB1C, pooled from all participants undergoing their
+    [first] immunisation, plus a separate Placebo 3 group of those who
+    had the third Engerix B immunisation. The Engerix subjects are
+    similarly divided into B1 and B3. Fluad Gent is separate with its
+    own placebo group (with only 6 participants), and also has only a
+    subset of available days. The same applies to Boostrix Gent (D2)
+    which has a separate and larger placebo group, n = 20. The raw cell
+    counts data are available, together with pre-processed means and
+    medians with SD and SEM. A <b>Fold Change</b> from day 0 baseline
+    is also calculated for each cell type. Beware mixing Surrey and Gent
+    raw data as normal ranges will vary between sites. Fold Change
+    should harmonise things between sites.<br>
   </body>
 </html>

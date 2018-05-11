@@ -6,18 +6,23 @@ yTitleForMeanFC <- function(meanFC, boxlines) {
     TRUE ~ ""
   )
 }
-makeLegend <- function(legSum, cells,boxlines) {
+makeLegend <- function(legSum, cells,boxlines,sem,point) {
   if(legSum == FALSE) return(NULL)
-  p <- ggplot(data.frame(Cells = cells, stringsAsFactors = FALSE),
-              mapping = aes(x = Cells, y = Cells, color = Cells, fill = Cells)) + 
-    theme_base() + theme(legend.position = 'top', legend.direction = 'horizontal',
-                         legend.title = element_blank(), legend.text = element_text(size = 16)) +
+  p <- ggplot(data.frame(Cells = cells, stringsAsFactors = FALSE),mapping = aes(x = Cells, y = Cells)) + 
+    theme_base() + 
+    theme(legend.position = 'top', legend.direction = 'horizontal',legend.title = element_blank(), legend.text = element_text(size = 16)) +
     scale_color_manual(values = cellsColours) +
-    scale_fill_manual(values = cellsColours) +
-    switch (boxlines,
-            "Mean" = geom_line(size = 2, show.legend = TRUE),
-            "Value" = geom_boxplot(alpha = 0.5, show.legend = TRUE)
-    )
+    scale_fill_manual(values = cellsColours)
+  
+  if (boxlines == "Mean") {
+    p <- p +
+      geom_line(mapping = aes(color = Cells), size = 2, show.legend = TRUE)
+    if (sem == TRUE) {p <- p + geom_ribbon(mapping = aes(ymin = Cells, ymax = Cells, fill = Cells),alpha = 0.2,show.legend = TRUE)}
+    if (point ==  TRUE) {p <- p + geom_point(mapping = aes(color = Cells), size = 2, show.legend = TRUE)
+    }
+  } else {
+    p <- p + geom_boxplot(mapping = aes(color = Cells, fill = Cells),alpha = 0.5, show.legend = TRUE)
+  }
   return(get_legend(p))
 }
 setupGGplot <- function(data4cell, yLims, cellT, meanFC, zero,freeY) {
@@ -55,7 +60,7 @@ linePlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, v
   
   if(xgrid == TRUE) {
     plotCell <- plotCell + 
-      geom_vline(xintercept = xbreaks, color = 'grey80', alpha = 0.5, show.legend = FALSE) +
+      geom_vline(xintercept = data4cell$Day, color = 'grey80', alpha = 0.5, show.legend = FALSE) +
       theme(panel.grid.major.y = element_line(color = 'grey80', linetype = 2))
   }
   return(plotCell)
@@ -147,7 +152,7 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     # instead, harness the flexibility of arrangeGrob to flow the rows according to ncol. 
     arrangedTreats <- list(arrangeGrob(grobs = treatList, ncol = ncols))
     plot2plot <- marrangeGrob(arrangedTreats, ncol = 1, nrow = 1, 
-                              top = makeLegend(legSum,cells,boxlines), 
+                              top = makeLegend(legSum,cells,boxlines,sem,point), 
                               bottom = textGrob("Days After Immunisation", gp=gpar(fontsize=16)),
                               left = textGrob(yTitleForMeanFC(meanFC, boxlines), gp=gpar(fontsize=16), rot = 90),
                               padding = unit(0.5, "line"))
