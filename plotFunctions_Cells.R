@@ -9,7 +9,7 @@ yTitleForMeanFC <- function(meanFC, boxlines) {
 makeLegend <- function(legSum, cells,boxlines,sem,point) {
   if(legSum == FALSE) return(NULL)
   p <- ggplot(data.frame(Cells = cells, stringsAsFactors = FALSE),mapping = aes(x = Cells, y = Cells)) + 
-    theme_base() + 
+    themeBase() + 
     theme(legend.position = 'top', legend.direction = 'horizontal',legend.title = element_blank(), legend.text = element_text(size = 16)) +
     scale_color_manual(values = cellsColours) +
     scale_fill_manual(values = cellsColours)
@@ -154,8 +154,9 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     plot2plot <- marrangeGrob(arrangedTreats, ncol = 1, nrow = 1, 
                               top = makeLegend(legSum,cells,boxlines,sem,point), 
                               bottom = textGrob("Days After Immunisation", gp=gpar(fontsize=16)),
-                              left = textGrob(yTitleForMeanFC(meanFC, boxlines), gp=gpar(fontsize=16), rot = 90),
-                              padding = unit(0.5, "line"))
+                              padding = unit(0.5, "line"),
+                              left = textGrob(yTitleForMeanFC(meanFC, boxlines), gp=gpar(fontsize=16), rot = 90)
+    )
   }
   return(list(plot = plot2plot, table = data2plot))
 }

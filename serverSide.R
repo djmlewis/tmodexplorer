@@ -8,6 +8,7 @@ server <- function(input, output, session) {
   if(is_local == FALSE) {
     hideTab(inputId = "navbarTop", target = "Load transcriptomics")
     hideTab(inputId = "navbarTop", target = "ReadMe")
+    hideTab(inputId = "navbarTop", target = "Cells")
     hideTab(inputId = "navbarTop", target = "Cytokines")
   } else {
     hideTab(inputId = "navbarTop", target = "Password")
@@ -28,6 +29,7 @@ server <- function(input, output, session) {
       hideTab(inputId = "navbarTop", target = "Password")
       showTab(inputId = "navbarTop", target = "Load transcriptomics", select = TRUE)
       showTab(inputId = "navbarTop", target = "ReadMe")
+      showTab(inputId = "navbarTop", target = "Cells")
       showTab(inputId = "navbarTop", target = "Cytokines")
     }
     })
@@ -811,16 +813,19 @@ assign("cellsColours",NULL, envir = .GlobalEnv)
 assign("cellTypesInData",NULL, envir = .GlobalEnv)
 
 observeEvent(input$buttonLoadCells, {
-  cellsdataPath <- "cellsdata.rds" #paste0(allData$folderpath,"/","cellsdata.rds")
+  cellsdataPath <- "cellsdata.rds"
   if (file.exists(cellsdataPath)) {
     assign("cellsData",read_rds(cellsdataPath), envir = .GlobalEnv)
     if(!is.null(cellsData)) {
       assign("cellTypesInData",unique(cellsData[["Mean"]][["Cells"]]), envir = .GlobalEnv)
-      assign("cellsColours",set_names(brewer.pal(length(cellTypesInData),"Dark2"), cellTypesInData), envir = .GlobalEnv)
+      allCols <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666")
+      assign("cellsColours",set_names(allCols[1:length(cellTypesInData)], cellTypesInData), envir = .GlobalEnv)
       updateSelectInput(session, "selectColumnForCellsSeriesVaccines", choices = unique(cellsData$Mean$Treatment), selected = character(0))
       updateSelectInput(session, "selectColumnForCellsSeriesDays", choices = unique(cellsData$Mean$Day), selected = character(0))
       updateSelectInput(session, "selectCellsForSeries", choices = unique(cellsData$Mean$Cells), selected = character(0))
-      
+
+      showNotification("White Blood Cells Data File Loaded")
+
       hide("divLoadCells")
       show("divCells", anim = TRUE)
     } else {

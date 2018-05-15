@@ -108,7 +108,7 @@ getCytokineMaxMins <- function(data2Max,fixedy,plottype,error) {
 }
 
 logTransformY <- function(data2trans, trans) {
-  switch (trans,
+  data2return <- switch (trans,
           'log' = log(data2trans),
           'log10' = log10(data2trans),
           'log2' = log2(data2trans),
@@ -116,6 +116,9 @@ logTransformY <- function(data2trans, trans) {
           'identity' = data2trans,
           data2trans
   )
+  # Infinite values crash the plots so remove them
+  data2return[is.infinite(data2return)] <- NA
+  return(data2return)
 }
 
 getCytokinesDataAndPlot <- function(data2plot, cyts, days, acts, wrap, plottype,error,zoom,fixedy,omit0,showN,nCols,FIraw, showPoints,Ytrans,logMeans,show1,monochrome) { 
@@ -341,7 +344,7 @@ ggplotCytokinesForTreatmentDay <-
         return(arrangeGrob(pg,
                             ncol = 1,
                             nrow = 1,
-                            top = textGrob(as.character(vv1), gp=gpar(fontface="bold",fontsize=20, padding = 2))
+                            top = textGrob(as.character(vv1), gp=gpar(fontface="bold",fontsize=20, padding = 2)) #
                            ))
       })
 
