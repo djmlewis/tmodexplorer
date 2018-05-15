@@ -3,7 +3,7 @@ server <- function(input, output, session) {
   
 #   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
-  removeUI(selector = "#myid", immediate = TRUE)
+  # removeUI(selector = "#myid", immediate = TRUE)
   # initial hidden setup
   if(is_local == FALSE) {
     hideTab(inputId = "navbarTop", target = "Load transcriptomics")
@@ -19,6 +19,7 @@ server <- function(input, output, session) {
   # hideTab(inputId = "navbarTop", target = "Cells")
   hideTab(inputId = "navbarTop", target = "Lookup")
   
+  show("hiddenDiv")
   # sortCol_Probes <- NULL
   assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   

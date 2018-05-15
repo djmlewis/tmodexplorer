@@ -3,6 +3,7 @@ ui <-
   tagList(
     useShinyjs(),  # Set up shinyjs
     tags$style(".fa-info-circle {color:#fefc78};"),
+    hidden(div(id = "hiddenDiv",
     navbarPage(span(style = 'color: #fefc78;','tmodExplorer'), id = 'navbarTop', position = "static-top", theme = "theme.css", windowTitle = 'tmodExplorer',
                inverse = TRUE,
                header = tagList(tags$style(type="text/css", "body {padding-top: 0px;};")),
@@ -766,4 +767,5 @@ ui <-
                  hr()
                )
   )# navpage top
+)) #hidden Div
 )# tagList top
