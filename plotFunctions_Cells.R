@@ -107,7 +107,8 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
   data2plot <- NULL
   # cellsD is a list
   if(!is.null(cellsD)) {
-    showNotification("Please wait for data table and plot output. This may take a while if many cell types ~ vaccines selected…", type = 'message', duration = 6)
+    removeNotification(id = "plotSelectedCellsSeries")
+    showNotification(id = "plotSelectedCellsSeries","Please wait for data table and plot output. This may take a while if many cell types ~ vaccines selected…", type = 'message', duration = 6)
     
     # we must override splitVaccs if it is a boxPlot as we always split boxplots by treatment
     # Do it once here and avoids a lot of extra ifs below

@@ -115,6 +115,7 @@
 
 
 
+
       by commas</b> and are OR'd (search returns as many of those terms
     as it can find, treating each term separately). Commas are
     interpreted as search term dividers and cannot be 'escaped'. Select
@@ -136,6 +137,7 @@
     "CCL2" will find CCL2, CCL27 etc unless Whole Word is selected.<br>
     Upper/lower case is ignored. <br>
     Beware including <a href="https://regexr.com" target="_blank">special
+
 
 
 
@@ -419,6 +421,7 @@
 
 
 
+
         (Probes) tab</b></a> as it allows the expression of the selected
     modules to be plotted for all treatment ~ time combinations as a
     time course. Use the slider to change plot height, and browser
@@ -443,6 +446,7 @@
         - which group&nbsp; modules into categories.&nbsp;</li>
     </ul>
     <p>Once you have selected some modules or titles in the&nbsp; <b>All
+
 
 
 
@@ -506,6 +510,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           that section for details</b></a>. <br>
       Spaces will always be stripped from this search as Module Names
       cannot have spaces.<br>
@@ -541,6 +546,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           increase </b>(from day 0) or <b>actual concentration values</b>
         when plotting.FI may give some wide error bars if a few outliers
         have big changes.<br>
@@ -549,6 +555,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
 
 
 
@@ -657,7 +664,11 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
             selected:<br>
           </li>
           <ul>
-            <li><b>Points</b> adds a point to the lines</li>
+            <li><b>Points</b> adds a point to the lines. Points are
+              always shown when <b>Split Vaccines</b> is unselected as
+              otherwise it is not possible to distinguish the different
+              vaccines plotted together.<br>
+            </li>
             <li><b>SEM</b> : SEM plotted as ribbon</li>
             <li><b>Gridlines</b><br>
             </li>
@@ -666,6 +677,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       </ul>
       <li><b>Fold Change ~ Cell Count</b>. Use the radio buttons to
         switch between plotting <b>fold increase </b>(from day 0) or <b>actual
+
           cell values</b> when plotting.<br>
         When Cell Count Selected, the individual participant's cell
         counts are summarised on box plots, or the mean for the group
@@ -674,11 +686,18 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         <li> Select<b> • |----&nbsp;</b> to plot a horizontal line at Y
           = 1 when plotting <b>Fold Change</b></li>
       </ul>
-      <li><b>Split Cells</b> creates a new panel to plot each cell type
-        under each vaccine sub-heading. If unselected then each cell
-        type is plotted on one combined plot per vaccine: only really
-        useful when Fold Change selected due to variations in normal
-        ranges.</li>
+      <li><b>Split Cells</b> creates a new panel to plot each cell type.
+        If unselected then each cell type is plotted on one combined
+        plot per vaccine: only really useful when Fold Change selected
+        due to variations in normal ranges.</li>
+      <li><b>Split Vaccines</b> creates a new row of plot panels to plot
+        each cell type under a vaccine sub-heading when <b>Lines</b> is
+        selected. If unselected then each cell type is plotted on one
+        combined plot for all vaccines, or as a row if <b>Split Cells</b>
+        is selected. <b>Split Vaccines</b> is always TRUE for box plots
+        as it would be impossible to identify the vaccines if they were
+        plotted on one plot.<br>
+      </li>
       <li><b>Free Y</b>: When selected each plot panel has its own Y
         scale - useful only for looking at patterns. When unselected the
         Y scales are fixed by cell type across vaccines, but allowed to
