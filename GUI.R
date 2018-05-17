@@ -608,7 +608,7 @@ ui <-
                                    wellPanel(style = "background-color: #FFFFFF;",
                                              h4(style = "margin-top: 0px;",'Time Course Of White Blood Cell Populations'),
                                              fluidRow(
-                                               column(3,
+                                               column(4,
                                                       wellPanel(style = "background-color: #fff4e5;",
                                                                 conditionalPanel(condition = "input.selectColumnForCellsSeriesVaccines != null && input.selectColumnForCellsSeriesDays != null && input.selectCellsForSeries != null",
                                                                                  actionButton('buttonPlotCellsSeries','Plot',class = "btn-warning btn-block")),
@@ -617,17 +617,19 @@ ui <-
                                                                 fluidRow(
                                                                   column(6,
                                                                          awesomeRadio(status = 'warning', 'radioRibbonBoxCellsSeries'," ",choices = c(Lines = 'Mean',Boxplot = 'Value')),
-                                                                         conditionalPanel(condition = "input.radioMeanFCCellsSeries == '.FC'",
-                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowZeroCellsSeries', '• |----', value = TRUE)),
+                                                                         awesomeCheckbox(status = 'warning', 'checkboxShowFacetCellsSeries', 'Split Cells', value = TRUE),
                                                                          conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'Mean'",
-                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowGridCellsSeries', 'Gridlines', value = TRUE),
-                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowPointsCellsSeries', 'Points', value = FALSE),
-                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowSECellsSeries', 'SEM', value = FALSE)
+                                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowFacetVaccsSeries', 'Split Treatments', value = TRUE),
+                                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowGridCellsSeries', 'Gridlines', value = TRUE),
+                                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowSECellsSeries', 'SEM', value = FALSE),
+                                                                                          conditionalPanel(condition = "input.checkboxShowFacetVaccsSeries == true",
+                                                                                            awesomeCheckbox(status = 'warning', 'checkboxShowPointsCellsSeries', 'Points', value = FALSE))
                                                                          )
                                                                   ),
                                                                   column(6,
                                                                          awesomeRadio(status = 'danger', 'radioMeanFCCellsSeries'," ",choices = c(`Fold Change` = '.FC',`Cell Count` = '')),
-                                                                         awesomeCheckbox(status = 'success', 'checkboxShowFacetCellsSeries', 'Split Cells', value = TRUE),
+                                                                         conditionalPanel(condition = "input.radioMeanFCCellsSeries == '.FC'",
+                                                                                          awesomeCheckbox(status = 'danger', 'checkboxShowZeroCellsSeries', '• |----', value = TRUE)),
                                                                          awesomeCheckbox(status = 'success', 'checkboxFreeYCellsSeries', 'Free Y', value = FALSE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowLegendSumCellsSeries', 'Summary Legend', value = TRUE),
                                                                          awesomeCheckbox(status = 'success', 'checkboxShowLegendAllCellsSeries', 'Plot Legends', value = FALSE),
@@ -639,7 +641,7 @@ ui <-
                                                                 )
                                                       )
                                                ),
-                                               column(9,
+                                               column(8,
                                                       wellPanel(style = "background-color: #fff4e5;",
                                                                 fluidRow(
                                                                   column(6,

@@ -19,7 +19,6 @@ server <- function(input, output, session) {
   # hideTab(inputId = "navbarTop", target = "Cells")
   hideTab(inputId = "navbarTop", target = "Lookup")
   
-  show("hiddenDiv")
   # sortCol_Probes <- NULL
   assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   
@@ -811,6 +810,8 @@ output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){pas
 #################### Cells #########################
 assign("cellsData",NULL, envir = .GlobalEnv)
 assign("cellsColours",NULL, envir = .GlobalEnv)
+assign("vaccineShapes",NULL, envir = .GlobalEnv)
+assign("vaccineNames",NULL, envir = .GlobalEnv)
 assign("cellTypesInData",NULL, envir = .GlobalEnv)
 
 observeEvent(input$buttonLoadCells, {
@@ -819,8 +820,12 @@ observeEvent(input$buttonLoadCells, {
     assign("cellsData",read_rds(cellsdataPath), envir = .GlobalEnv)
     if(!is.null(cellsData)) {
       assign("cellTypesInData",unique(cellsData[["Mean"]][["Cells"]]), envir = .GlobalEnv)
+      assign("vaccineNames",unique(cellsData[["Mean"]][["Treatment"]]), envir = .GlobalEnv)
       allCols <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666")
       assign("cellsColours",set_names(allCols[1:length(cellTypesInData)], cellTypesInData), envir = .GlobalEnv)
+      # 12 vaccines but be flexible, if 12 then use predefined shapes, or if less a subset of those, or if more then a sequence
+      # vacShapesIndices <- ifelse(length(vaccineNames)>12,0:length(vaccineNames)-1,c(15:25,1)[1:length(vaccineNames)])
+      assign("vaccineShapes",set_names(c(15:18,21:25,0:2), vaccineNames), envir = .GlobalEnv)
       updateSelectInput(session, "selectColumnForCellsSeriesVaccines", choices = unique(cellsData$Mean$Treatment), selected = character(0))
       updateSelectInput(session, "selectColumnForCellsSeriesDays", choices = unique(cellsData$Mean$Day), selected = character(0))
       updateSelectInput(session, "selectCellsForSeries", choices = unique(cellsData$Mean$Cells), selected = character(0))
@@ -852,7 +857,8 @@ observeEvent({
          plotSelectedCellsSeries(cellsData,input$radioMeanFCCellsSeries,
                                 input$selectColumnForCellsSeriesVaccines,input$selectColumnForCellsSeriesDays,input$selectCellsForSeries,
                                 input$radioRibbonBoxCellsSeries, allData$folder,
-                                input$checkboxShowLegendSumCellsSeries,input$checkboxShowLegendAllCellsSeries,input$checkboxShowZeroCellsSeries, input$checkboxShowFacetCellsSeries,
+                                input$checkboxShowLegendSumCellsSeries,input$checkboxShowLegendAllCellsSeries,input$checkboxShowZeroCellsSeries,
+                                input$checkboxShowFacetCellsSeries,input$checkboxShowFacetVaccsSeries,
                                 input$checkboxShowSECellsSeries, input$checkboxShowGridCellsSeries, input$checkboxShowPointsCellsSeries,
                                 input$checkboxFreeYCellsSeries,input$numericNumPanelsCellsSeries),
          envir = .GlobalEnv)
@@ -910,4 +916,7 @@ observeEvent(input$cbuttonAddNoneCytokineDays,{updateSelectInput(session, 'csele
 
 
   #################### End Of Server #########################
+
+show("hiddenDiv")
+
 } # end of server
