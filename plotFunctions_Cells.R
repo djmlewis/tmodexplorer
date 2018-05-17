@@ -65,7 +65,8 @@ linePlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, v
     scale_x_continuous(breaks = xbreaks) +
     geom_line(mapping = aes_string(x= "Day", y = yColumn, color = "Cells"), size = 1 ,show.legend=legAll)
   
-  if(sem) plotCell <- plotCell + geom_ribbon(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), fill = "Cells"), alpha = 0.2,show.legend=FALSE)
+  if(sem == 'ribbon') plotCell <- plotCell + geom_ribbon(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), fill = "Cells"), alpha = 0.2,show.legend=FALSE)
+  if(sem == 'errorbar') plotCell <- plotCell + geom_errorbar(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), color = "Cells"), width = 0.2, size = 0.4,show.legend=FALSE)
   if(point ==  TRUE) plotCell <- plotCell + geom_point(mapping = aes_string(x= "Day", y = yColumn, color = "Cells"), fill = "white", size = 5 ,show.legend=legAll)
   
   if(xgrid == TRUE) {
@@ -114,7 +115,7 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     # Do it once here and avoids a lot of extra ifs below
     if(boxlines == "Value") splitVaccs <- TRUE
     # ditto showPoints always if splitVaccs == F
-    if(splitVaccs == FALSE) point <- TRUE
+    # if(splitVaccs == FALSE) point <- TRUE
     
     # boxlines == Lines "Mean", Box: "Value"
     data2plot <- cellsD[[boxlines]] %>%
@@ -134,7 +135,7 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     treatments <- levels(data2plot$Treatment)
 
     # Calc the MAX MIn for Y - have to allow for the SEM ribbon
-    if(boxlines == "Mean" && sem == TRUE) {
+    if(boxlines == "Mean" && sem != 'none') {
       yColumnMax <- paste0("SEMU",meanFC)
       yColumnMin <- paste0("SEML",meanFC)
     } else {

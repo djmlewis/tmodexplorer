@@ -619,11 +619,12 @@ ui <-
                                                                          awesomeRadio(status = 'warning', 'radioRibbonBoxCellsSeries'," ",choices = c(Lines = 'Mean',Boxplot = 'Value')),
                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowFacetCellsSeries', 'Split Cells', value = TRUE),
                                                                          conditionalPanel(condition = "input.radioRibbonBoxCellsSeries == 'Mean'",
-                                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowFacetVaccsSeries', 'Split Treatments', value = TRUE),
-                                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowGridCellsSeries', 'Gridlines', value = TRUE),
-                                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowSECellsSeries', 'SEM', value = FALSE),
-                                                                                          conditionalPanel(condition = "input.checkboxShowFacetVaccsSeries == true",
-                                                                                            awesomeCheckbox(status = 'warning', 'checkboxShowPointsCellsSeries', 'Points', value = FALSE))
+                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowFacetVaccsSeries', 'Split Treatments', value = TRUE),
+                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowGridCellsSeries', 'Gridlines', value = TRUE),
+                                                                          awesomeCheckbox(status = 'warning', 'checkboxShowPointsCellsSeries', 'Points', value = FALSE),
+                                                                          prettyRadioButtons('radioCellsErrorType', NULL, choiceValues = list('none','ribbon','errorbar'),
+                                                                            choiceNames = list('No Error','Ribbon','Bars'), selected = 'ribbon', inline = FALSE, outline = TRUE, status = "warning"),
+                                                                          bsTooltip("radioCellsErrorType", "Plot SEM as ribbon, error bars or omitted")
                                                                          )
                                                                   ),
                                                                   column(6,
@@ -754,10 +755,13 @@ ui <-
                           tabPanel("Overview",
                                    includeHTML("help.html")
                           ),
+                          tabPanel("Datasets",
+                                   includeHTML("helpDatasets.html")
+                          ),
                           tabPanel("Instructions For Use",
                                    includeHTML("help2.html")
                           ),
-                          tabPanel("Acknowledgements, etc.",
+                          tabPanel("Acknowledgements…",
                                    includeHTML("help3.html")
                           )
                         )

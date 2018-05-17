@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Help</title>
+  </head>
+  <body>
+    <h1>Contents</h1>
+    <ul>
+      <li><a href="#The_Datasets">The Datasets</a></li>
+      <ul>
+        <li><a href="#Placebo_groups">Placebo Groups</a><br>
+        </li>
+        <li><a href="#Transcriptomics_Data_">Transcriptomics Data</a></li>
+        <li><a href="#Cytokines_Data_">Cytokines Data</a></li>
+        <li><a href="#Cells_Data">Cells Data</a><br>
+        </li>
+      </ul>
+    </ul>
+    <h1><a name="The_Datasets"></a>The Datasets</h1>
+    <h2><a name="Placebo_groups"></a>Placebo groups</h2>
+    <p>There are various placebo groups included in the various datasets
+      and are described below. In general terms I would advise caution
+      with the PLACEBO B3 / PLACEBO3 set as it has only 4 members, and I
+      would suggest ignoring it. The PLACEBO AB1C is a pooled group and
+      some statisticians would demur as it is pooled from sub-groups
+      running alongside the 3 protocols in Surrey. However, to have a
+      placebo group of only 4 or 6 that were randomised alongside the 20
+      or so vaccine groups that match the sub-protocol seems inferior to
+      me than to use the larger group which was the intention all along.
+      The Surrey trials were highly controlled and I think it is
+      reasonable to take the AB1C as a single group. This group is
+      important as between the day 5 and day 7 samples the Surrey
+      participants left the inpatient unit and in several variables a
+      marked jump occurs - see the neutrophils for example. Similarly
+      the Day -1 sample is often abnormal. For these reasons I suggest
+      that Surrey data be limited to days 0-5. An exception may be
+      Stamaril where it looks like the incubation period places the peak
+      effects between days 5 - 7.<br>
+    </p>
+    <p>More problematic is the FLUAD D GENT PLACEBO group, which has
+      only 6 members. I would suggest that the BOOSTRIX D2 PLACEBO group
+      with 20 members gives a better picture of the biology, even if the
+      subjects were not randomised with the D trial and are separated
+      from it in time. Finally, the BOOSTRIX D2 GENT protocol was very
+      complex with half the cohort split to attend on day 2 or 3 but not
+      both. There are also splits between day 21 and 28. So the mean
+      values that are presented will flip between the whole cohort and
+      mutually exclusive members on days 2 and 3.<br>
+    </p>
+    <h2><a name="Transcriptomics_Data_"></a>Transcriptomics Data<br>
+    </h2>
+    <p>The&nbsp; transcriptomics datasets have been uploaded to the
+      server, but must be selected and loaded into the app before use.
+      They come in two versions: <b>fold-increase in the log2
+        expression values</b> (by subtraction of the log2 expression
+      values), <i>always from day 0</i> <i>baseline</i> (in Surrey day
+      -1 is treated as a time point preceding day 0); and <b>raw log2
+        expression values</b>. Day 0 at 8AM was selected for Surrey as
+      baseline as participants entered the unit on day -1. The data were
+      calculated by initially grouping the raw data for each person -
+      each probe - each time point, into treatment and time point pools.
+      Then row averages for each probe within the treatment ~ time pool
+      were calculated. This gives the basic raw expression data which is
+      the group mean for each vaccination-day for each probe, i.e. the
+      mean expression for Probe X on day Y for participants who received
+      vaccine Z.<br>
+    </p>
+    <p>One group of datasets, based on <i><b>limma-normalised</b></i>
+      expression values, consists of the <b> protocol-defined grouping
+        of the vaccines and associated placebo group</b>:<br>
+    </p>
+    <ul>
+      <li>D Gent Fluad-Placebo (<i>NB only 6 in placebo group</i>)<br>
+      </li>
+      <li>D2 Gent Boostrix-Placebo (<i>NB days 2 and 3 contain mutually
+          exclusive halves of the cohort</i><i>, placebo = 20</i>)</li>
+    </ul>
+    The D and D2 data are derived from exported files, and are
+    problematic in that the rows do not have proper <b>Probe IDs</b>. I
+    have included a ProbeName identifier to link the Probe identifier
+    (row ID) to the chip Probe Identifier but there appear to be
+    duplications and other issues. <b>These two datasets must therefore
+      be treated with caution</b>. The lack of a proper consistent Probe
+    ID also prevents comparison with the Surrey data or between D and
+    D2.<br>
+    <ul>
+    </ul>
+    <p>I have also included a <b>combined Surrey dataset</b> in which
+      the vaccines in A, B and C are all together, based on <i><b>agilent</b></i><i><b>-normalised</b></i>
+      expression values. This dataset appears to be slightly better than
+      the D and D2, but has been normalised differently. In this dataset
+      the PLACEBO group contains all ~21 participants pooled from AB1C.
+      "A" = Stamaril, Varilrix and Placebo; "C" = Fluad, Agrippal &amp;
+      Placebo.&nbsp; For <b>Engerix B</b> the participants were naive
+      and received a priming vaccination alongside a placebo group: this
+      is indicated as ENGERIXB and PLACEBO in the same way as A &amp; C.
+      The same participants then had a second immunisation (first boost)
+      without any systems biology. They then came for a third
+      immunisation (second boost) on day 167. This is represented in the
+      dataset as EngerixB3 and PLACEBO3. The time points for
+      ENGERIXB3/PLACEBO3 have been adjusted so that Day 167 becomes -1,
+      and 168 day 0. <i>Fold-increase is then calculated from this
+        adjusted day 0</i>, as the response to the third immunisation.
+      Thus the ENGERIXB and PLACEBO have been pooled with the AC Surrey
+      trials, but the ENGERIXB3 and&nbsp; the PLACEBO3 (<i>which</i><i>
+        has only 4 participants)</i> are presented as a separate group,
+      and PLACEBO3 should probably be ignored. This is a large dataset
+      and so can be slow, but allows very convenient comparison between
+      vaccines. This dataset therefore has the pattern: </p>
+    <ul>
+      <li>ABB3C Surrey Agilent</li>
+    </ul>
+    <h2><a name="Cytokines_Data_"></a>Cytokines Data<br>
+    </h2>
+    <p>The&nbsp; cytokines dataset has been uploaded to the server and
+      loads automatically on start up. It is a single combined dataset
+      with data from Surrey ABC trials, and Gent Fluad (D). No cytokine
+      data are available for the Gent Boostrix trial (D2). The data have
+      been handled in a similar way to the transcriptomics ABC Surrey
+      Agilent (see above) with the addition of D. There is a single
+      placebo group for Surrey AB1C, pooled from all participants, plus
+      a separate PlaceboB3 group of those who had the third Engerix B
+      immunisation. Fluad Gent is separate with its own placebo group
+      (with only 6 participants), and also has only a subset of
+      available days.</p>
+    <p> Two versions of data are available: <b>actual concentrations</b>,
+      and <b>fold-increase from day 0</b>, which can be selected using
+      radio buttons on the Plot panel. For fold increase, if the day 0
+      value was zero or absent for a particular participant, then no
+      fold increase can be calculated and the participant's data for
+      that cytokine is absent from all calculations. The plot gives the
+      option to show the group size per day (available data at import
+      including NA and 0) and the N with usable data, so you can see the
+      actual group size contributing to each day's mean/median value. As
+      the data contain a lot of zero (below threshold of detection)
+      values, the option to remove zero values from calculation of means
+      and median/IQR also exists, so that the kinetics of only
+      measurable responses can be plotted. For TREM1 there were some
+      "OOR" values (out of range) which have just been replaced by NA on
+      import, and hence deleted from calculations. No log
+      transformations have been done, this is an option when plotting.<br>
+    </p>
+    <h2><a name="Cells_Data"></a> Cells Data</h2>
+    The&nbsp; white cells dataset has been uploaded to the server but
+    does not load automatically on start up - you need to click the
+    button. It is a single combined dataset with data from Surrey ABC
+    trials, Gent Fluad (D) and Gent Boostrix (D2). The data have been
+    handled in a similar way to the transcriptomics ABC Surrey Agilent
+    (see above) with the addition of D and D2. There is a single placebo
+    group for Surrey AB1C, pooled from all participants undergoing their
+    [first] immunisation, plus a separate Placebo 3 group of those who
+    had the third Engerix B immunisation. The Engerix subjects are
+    similarly divided into B1 and B3. Fluad Gent is separate with its
+    own placebo group (with only 6 participants), and also has only a
+    subset of available days. The same applies to Boostrix Gent (D2)
+    which has a separate and larger placebo group, n = 20. The raw cell
+    counts data are available, together with pre-processed means and
+    medians with SD and SEM. A <b>Fold Change</b> from day 0 baseline
+    is also calculated for each cell type. Beware mixing Surrey and Gent
+    raw data as normal ranges will vary between sites. Fold Change
+    should harmonise things between sites.<br>
+  </body>
+</html>

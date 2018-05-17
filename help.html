@@ -14,13 +14,6 @@
         <li><a href="#Saving_Gene_Probe_ProbeNames_and_">Saving Gene,
             Probe, ProbeNames and Module Lists</a></li>
       </ul>
-      <li><a href="#The_Datasets">The Datasets</a></li>
-      <ul>
-        <li><a href="#Transcriptomics_Data_">Transcriptomics Data</a></li>
-        <li><a href="#Cytokines_Data_">Cytokines Data</a></li>
-        <li><a href="#Cells_Data">Cells Data</a><br>
-        </li>
-      </ul>
     </ul>
     <h1><a name="Introduction"></a>Introduction</h1>
     The purpose of this app is just to visualise the expression of genes
@@ -36,6 +29,7 @@
     Boostrix~Day 1, Placebo~Day 0, etc.<br>
     <br>
     The basic concept is to pick a particular time point and vaccine - <i>e.g.
+
 
 
 
@@ -113,9 +107,9 @@
     belonged to a pseudo-module.<br>
     <br>
     <div align="center"><img src="selgenesseries.png" alt="Selected
-        Probes" width="554" height="250"> &nbsp;<img
+        Probes" height="250" width="554"> &nbsp;<img
         src="selgenesseriesbox.png" alt="Selected Probes Boxplot"
-        width="554" height="250"><br>
+        height="250" width="554"><br>
     </div>
     <br>
     We can then identify the modules to which those genes belong, and
@@ -126,9 +120,9 @@
     even down-regulated, as&nbsp; the modules have been clustered by
     their authors on the basis of other criteria:<br>
     <div align="center"><img src="selmods.png" alt="Selected Modules"
-        align="middle" width="550" height="249">&nbsp;&nbsp; <img
+        height="249" align="middle" width="550">&nbsp;&nbsp; <img
         src="selmodsseries.png" alt="Selected Modules Timecourse"
-        align="middle" width="550" height="249"><br>
+        height="249" align="middle" width="550"><br>
     </div>
     <br>
     When plotting the time-course of genes as an average of the probes,
@@ -142,7 +136,7 @@
     lower than the other two, and the two RSAD2 probes are far apart
     (blue). These discrepancies are also seen in the wide SEM ribbons.<br>
     <div align="center"><img src="probessplit.png" alt="Genes Split Into
-        Probes" width="640" height="250"><br>
+        Probes" height="250" width="640"><br>
     </div>
     <br>
     <br>
@@ -155,11 +149,11 @@
     10 day 7 genes map to any tmod modules. Sorting on day 5 brings up a
     new set of genes together with some of the day 7 genes.<br>
     <div align="center"><img src="day1genesmodules.png" alt=""
-        width="311" height="250"><img src="day7genesmodules.png" alt=""
-        width="348" height="250"><br>
-      <img src="day1genes.png" alt="" width="679" height="250"><img
-        src="day7genes.png" alt="" width="679" height="250"><br>
-      <img src="day5genes.png" alt="" width="679" height="250"><br>
+        height="250" width="311"><img src="day7genesmodules.png" alt=""
+        height="250" width="348"><br>
+      <img src="day1genes.png" alt="" height="250" width="679"><img
+        src="day7genes.png" alt="" height="250" width="679"><br>
+      <img src="day5genes.png" alt="" height="250" width="679"><br>
     </div>
     <br>
     <br>
@@ -181,9 +175,9 @@
     responding genes (as shown above), because the important genes may
     be clustered with non-responding genes in other modules. <br>
     <div align="center"><img src="topmods.png" alt="Top Modules"
-        width="553" height="250">&nbsp;&nbsp; <img
-        src="topmodsseries.png" alt="Top Modules Timecourse" width="553"
-        height="250"><br>
+        height="250" width="553">&nbsp;&nbsp; <img
+        src="topmodsseries.png" alt="Top Modules Timecourse"
+        height="250" width="553"><br>
     </div>
     <br>
     By visualising the changes in gene and module expression we can ask
@@ -201,8 +195,8 @@
       ggplot2 (slower but may be prettier). Other plots have a <b>Plot</b>
       button, and will only draw or update when that is clicked, to
       avoid slow refreshes when you alter several options. Plots have a
-      slider control&nbsp;<img alt="" src="slider.png" width="82"
-        height="20"> to change the height. Plot width always resizes
+      slider control&nbsp;<img alt="" src="slider.png" height="20"
+        width="82"> to change the height. Plot width always resizes
       automatically with the window width. A low resolution image of
       plots can be copied or saved by right-clicking on the plot, while
       clicking <b>⤓ Plot As PNG</b> button downloads a high resolution
@@ -252,118 +246,5 @@
         proper </b><b><i>SummarisedExperiment</i></b><b> R objects for
         me to use.</b> <font color="#000000">Gene and Module names at
         least are standardised.</font></font><br>
-    <h1><a name="The_Datasets"></a>The Datasets</h1>
-    <h2><a name="Transcriptomics_Data_"></a>Transcriptomics Data<br>
-    </h2>
-    <p>The&nbsp; transcriptomics datasets have been uploaded to the
-      server, but must be selected and loaded into the app before use.
-      They come in two versions: <b>fold-increase in the log2
-        expression values</b> (by subtraction of the log2 expression
-      values), <i>always from day 0</i> <i>baseline</i> (in Surrey day
-      -1 is treated as a time point preceding day 0); and <b>raw log2
-        expression values</b>. Day 0 at 8AM was selected for Surrey as
-      baseline as participants entered the unit on day -1. The data were
-      calculated by initially grouping the raw data for each person -
-      each probe - each time point, into treatment and time point pools.
-      Then row averages for each probe within the treatment ~ time pool
-      were calculated. This gives the basic raw expression data which is
-      the group mean for each vaccination-day for each probe, i.e. the
-      mean expression for Probe X on day Y for participants who received
-      vaccine Z.<br>
-    </p>
-    <p>One group of datasets, based on <i><b>limma-normalised</b></i>
-      expression values, consists of the <b> protocol-defined grouping
-        of the vaccines and associated placebo group</b>:<br>
-    </p>
-    <ul>
-      <li>D Gent Fluad-Placebo (<i>NB only 6 in placebo group</i>)<br>
-      </li>
-      <li>D2 Gent Boostrix-Placebo (<i>NB days 2 and 3 contain mutually
-          exclusive halves of the cohort</i><i>, placebo = 20</i>)</li>
-    </ul>
-    The D and D2 data are derived from exported files, and are
-    problematic in that the rows do not have proper <b>Probe IDs</b>. I
-    have included a ProbeName identifier to link the Probe identifier
-    (row ID) to the chip Probe Identifier but there appear to be
-    duplications and other issues. <b>These two datasets must therefore
-      be treated with caution</b>. The lack of a proper consistent Probe
-    ID also prevents comparison with the Surrey data or between D and
-    D2.<br>
-    <ul>
-    </ul>
-    <p>I have also included a <b>combined Surrey dataset</b> in which
-      the vaccines in A, B and C are all together, based on <i><b>agilent</b></i><i><b>-normalised</b></i>
-      expression values. This dataset appears to be slightly better than
-      the D and D2, but has been normalised differently. In this dataset
-      the PLACEBO group contains all ~21 participants pooled from AB1C.
-      "A" = Stamaril, Varilrix and Placebo; "C" = Fluad, Agrippal &amp;
-      Placebo.&nbsp; For <b>Engerix B</b> the participants were naive
-      and received a priming vaccination alongside a placebo group: this
-      is indicated as ENGERIXB and PLACEBO in the same way as A &amp; C.
-      The same participants then had a second immunisation (first boost)
-      without any systems biology. They then came for a third
-      immunisation (second boost) on day 167. This is represented in the
-      dataset as EngerixB3 and PLACEBO3. The time points for
-      ENGERIXB3/PLACEBO3 have been adjusted so that Day 167 becomes -1,
-      and 168 day 0. <i>Fold-increase is then calculated from this
-        adjusted day 0</i>, as the response to the third immunisation.
-      Thus the ENGERIXB and PLACEBO have been pooled with the AC Surrey
-      trials, but the ENGERIXB3 and&nbsp; the PLACEBO3 (<i>which</i><i>
-        has only 4 participants)</i> are presented as a separate group,
-      and PLACEBO3 should probably be ignored. This is a large dataset
-      and so can be slow, but allows very convenient comparison between
-      vaccines. This dataset therefore has the pattern: </p>
-    <ul>
-      <li>ABB3C Surrey Agilent</li>
-    </ul>
-    <h2><a name="Cytokines_Data_"></a>Cytokines Data<br>
-    </h2>
-    <p>The&nbsp; cytokines dataset has been uploaded to the server and
-      loads automatically on start up. It is a single combined dataset
-      with data from Surrey ABC trials, and Gent Fluad (D). No cytokine
-      data are available for the Gent Boostrix trial (D2). The data have
-      been handled in a similar way to the transcriptomics ABC Surrey
-      Agilent (see above) with the addition of D. There is a single
-      placebo group for Surrey AB1C, pooled from all participants, plus
-      a separate PlaceboB3 group of those who had the third Engerix B
-      immunisation. Fluad Gent is separate with its own placebo group
-      (with only 6 participants), and also has only a subset of
-      available days.</p>
-    <p> Two versions of data are available: <b>actual concentrations</b>,
-      and <b>fold-increase from day 0</b>, which can be selected using
-      radio buttons on the Plot panel. For fold increase, if the day 0
-      value was zero or absent for a particular participant, then no
-      fold increase can be calculated and the participant's data for
-      that cytokine is absent from all calculations. The plot gives the
-      option to show the group size per day (available data at import
-      including NA and 0) and the N with usable data, so you can see the
-      actual group size contributing to each day's mean/median value. As
-      the data contain a lot of zero (below threshold of detection)
-      values, the option to remove zero values from calculation of means
-      and median/IQR also exists, so that the kinetics of only
-      measurable responses can be plotted. For TREM1 there were some
-      "OOR" values (out of range) which have just been replaced by NA on
-      import, and hence deleted from calculations. No log
-      transformations have been done, this is an option when plotting.<br>
-    </p>
-    <h2><a name="Cells_Data"></a> Cells Data</h2>
-    The&nbsp; white cells dataset has been uploaded to the server but
-    does not load automatically on start up - you need to click the
-    button. It is a single combined dataset with data from Surrey ABC
-    trials, Gent Fluad (D) and Gent Boostrix (D2). The data have been
-    handled in a similar way to the transcriptomics ABC Surrey Agilent
-    (see above) with the addition of D and D2. There is a single placebo
-    group for Surrey AB1C, pooled from all participants undergoing their
-    [first] immunisation, plus a separate Placebo 3 group of those who
-    had the third Engerix B immunisation. The Engerix subjects are
-    similarly divided into B1 and B3. Fluad Gent is separate with its
-    own placebo group (with only 6 participants), and also has only a
-    subset of available days. The same applies to Boostrix Gent (D2)
-    which has a separate and larger placebo group, n = 20. The raw cell
-    counts data are available, together with pre-processed means and
-    medians with SD and SEM. A <b>Fold Change</b> from day 0 baseline
-    is also calculated for each cell type. Beware mixing Surrey and Gent
-    raw data as normal ranges will vary between sites. Fold Change
-    should harmonise things between sites.<br>
   </body>
 </html>

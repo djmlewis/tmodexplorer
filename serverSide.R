@@ -859,7 +859,7 @@ observeEvent({
                                 input$radioRibbonBoxCellsSeries, allData$folder,
                                 input$checkboxShowLegendSumCellsSeries,input$checkboxShowLegendAllCellsSeries,input$checkboxShowZeroCellsSeries,
                                 input$checkboxShowFacetCellsSeries,input$checkboxShowFacetVaccsSeries,
-                                input$checkboxShowSECellsSeries, input$checkboxShowGridCellsSeries, input$checkboxShowPointsCellsSeries,
+                                input$radioCellsErrorType, input$checkboxShowGridCellsSeries, input$checkboxShowPointsCellsSeries,
                                 input$checkboxFreeYCellsSeries,input$numericNumPanelsCellsSeries),
          envir = .GlobalEnv)
   
