@@ -47,74 +47,99 @@ ui <-
                         navbarPage(span(style = 'color: #000000;','Probe'), id = 'navProbe',
                                    header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #84a51c;padding-top: 10px; padding-bottom: 10px;", textOutput('textFiltersProbes'))))),
                                    #################### Selecting  ################
-                                   tabPanel('Select Probes',
-                                            
-                                            h4(style = "text-align: center;",'Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
-                                            conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                             fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-warning btn-block")),column(4))),
-                                            br(),
-                                            wellPanel(style = "background-color: #FFFFFF;",
-                                                      fluidRow(
-                                                        column(4,
-                                                               conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                                                wellPanel(style = "background-color: #feffee;",
-                                                                                          awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
-                                                                                          conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces are stripped from Gene, Probe and ProbeName searches")),
-                                                                                          conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces are kept in Description searches")),
-                                                                                          textInput('textInputKeyword',NULL),
-                                                                                          h4(style = "margin-top: 0px;","Search:"),
-                                                                                          awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Gene','Probe','ProbeName','Description'), inline = TRUE),
-                                                                                          awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", FALSE,status = "danger")
-                                                                                ))),
-                                                        column(8,
-                                                               wellPanel(style = "background-color: #ffffff;",
-                                                                         h4(style = "text-align: left; margin-top: 0px;", "Select a treatment~time combination to filter by value and sort probes by value"),
-                                                                         fluidRow(
-                                                                           column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
-                                                                           column(3,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                                                           column(3,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending', value = TRUE)),
-                                                                           column(3,span(id = "spancheckboxProbesGenes", style = "color: red; font-weight: bold; font-family: Verdana;",
-                                                                                         awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', 'Gene Averages', value = FALSE),
-                                                                                         bsTooltip("spancheckboxProbesGenes", "When Selected The Individual Probe Expressions Mapping To Individual Genes Will Be Averaged And Then The Gene Means Ranked. They Can Be Split Again When Plotting Probe Series.")))
-                                                                         ),
-                                                                         fluidRow(
-                                                                           column(6,
-                                                                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                                                                   wellPanel(style = "background-color: #feffee;",
-                                                                                                             awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px;",'2. Values Within Range:'), value = FALSE),
-                                                                                                             fluidRow(
-                                                                                                               column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)),
-                                                                                                               column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
-                                                                                                             ),
-                                                                                                             conditionalPanel(condition = "input.checkboxProbesGenes == true",p(style = "color: #44b84b;","Probes Averaged By Gene Before Applying Limits")),
-                                                                                                             actionButton('buttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
-                                                                                                             actionButton('buttonResetValuesRangeData','Dataset', class = 'btn-outline-primary')
-                                                                                                   ))
-                                                                           ),
-                                                                           column(6,
-                                                                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                                                                   wellPanel(style = "background-color: #feffee;",
-                                                                                                             awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px;",'3. Row Numbers Within Range:'), value = TRUE),
-                                                                                                             fluidRow(
-                                                                                                               column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)),
-                                                                                                               column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
-                                                                                                             ),
-                                                                                                             conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
-                                                                                                   ))
-                                                                           )
-                                                                         )
-                                                               )
-                                                        )#column
-                                                      )
-                                            )
-                                   ),
+   tabPanel('Select Probes',
+            
+            h4(style = "text-align: center;",'Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
+            conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                             fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-warning btn-block")),column(4))),
+            br(),
+            wellPanel(style = "background-color: #FFFFFF;",
+                      fluidRow(
+                        column(3,
+                               conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                                wellPanel(style = "background-color: #feffee;",
+                                                          awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
+                                                          conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces are stripped from Gene, Probe and ProbeName searches")),
+                                                          conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces are kept in Description searches")),
+                                                          textInput('textInputKeyword',NULL),
+                                                          h4(style = "margin-top: 0px;","Search:"),
+                                                          awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Gene','Probe','ProbeName','Description'), inline = FALSE),
+                                                          awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", FALSE,status = "danger")
+                                                ))),
+                        column(5,
+                               wellPanel(style = "background-color: #ffffff;",
+                                         h4(style = "text-align: center; margin-top: 0px;", "Select a treatment~time combination to filter by value and sort probes by value"),
+                                         fluidRow(
+                                           column(6,
+                                                  pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success")),
+                                                  awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending', value = TRUE)),
+                                           column(6,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success")),
+                                                  span(id = "spancheckboxProbesGenes", style = "color: red; font-weight: bold; font-family: Verdana;",
+                                                       awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', 'Gene Averages', value = FALSE),
+                                                       bsTooltip("spancheckboxProbesGenes", "When Selected The Individual Probe Expressions Mapping To Individual Genes Will Be Averaged And Then The Gene Means Ranked. They Can Be Split Again When Plotting Probe Series.")))
+                                         ),
+                                         fluidRow(
+                                           column(6,
+                                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                                                   wellPanel(style = "background-color: #feffee;",
+                                                                             awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px;",'2. Values In Range:'), value = FALSE),
+                                                                             fluidRow(
+                                                                               column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)),
+                                                                               column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
+                                                                             ),
+                                                                             conditionalPanel(condition = "input.checkboxProbesGenes == true",p(style = "color: #44b84b;","Probes Averaged By Gene Before Applying Limits")),
+                                                                             actionButton('buttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
+                                                                             actionButton('buttonResetValuesRangeData','Dataset', class = 'btn-outline-primary')
+                                                                   ))
+                                           ),
+                                           column(6,
+                                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                                                   wellPanel(style = "background-color: #feffee;",
+                                                                             awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px;",'3. Rows In Range:'), value = TRUE),
+                                                                             fluidRow(
+                                                                               column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)),
+                                                                               column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
+                                                                             ),
+                                                                             conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
+                                                                   ))
+                                           )
+                                         )
+                               )
+                        ),#column
+                        column(4,
+                               wellPanel(style = "background-color: #feffee;",
+                                  awesomeCheckbox(status = 'success', 'checkboxSelectShape', label = h4(style = "margin-top: 0px;",'4. Match Kinetics:'), value = FALSE),
+                                  fluidRow(
+                                    column(7,fileInput('buttonLoadShapeKinetics', NULL,accept = c(".rds"))),
+                                    column(5, div(
+                                      downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', NULL),
+                                      actionButton('buttonResetKinetics','Reset',class = "btn-warning")))
+                                  ),
+                                plotOutput("plotShapeMiniplot", height = "150px"),hr(),
+                                fluidRow(
+                                  column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                  column(4,awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Exclude Day", value = TRUE)),
+                                  column(3,actionButton('buttonShapeSaveDay','Set', class = 'btn-warning'))
+                                ),
+                                conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                 fluidRow(
+                                   column(4,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
+                                   column(4,numericInput("numberShapeDayMax", "Highest:", value = 0)),
+                                   column(4,style = "margin-top: 25px;", actionButton('buttonResetValuesShapeData','Dataset', class = 'btn-outline-primary'))
+                                 )
+                                )
+                               )
+                        )# column
+                      )
+            )
+   ),
                                    #################### Top Probes #######################
                                    tabPanel('Selected Probes',
                                             
                                             h4(style = "margin-top: 0px;",'Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Combination'),
                                             div(
                                               downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
-                                              downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG'),
+                                              downloadButton(class="btn-primary",'buttonSaveTableTopGenesUpPlot', 'Table As PNG'),
                                               downloadButton(class="btn-info",'buttonSaveListGenes', 'Gene List'), bsTooltip("buttonSaveListGenes", "Gene List To Paste Into regex Keyword Search"),
                                               downloadButton(class="btn-info",'buttonSaveListProbes', 'Probe List'), bsTooltip("buttonSaveListProbes", "Probe List To Paste Into regex Keyword Search"),
                                               downloadButton(class="btn-info",'buttonSaveListProbeNames', 'ProbeName List'), bsTooltip("buttonSaveListProbeNames", "ProbeName List To Paste Into regex Keyword Search")
@@ -177,7 +202,7 @@ ui <-
                                                       wellPanel(style = "background-color: #FFFFFF;",
                                                                 uiOutput("plotTopGenesSeriesSIZE")),
                                                       conditionalPanel(condition = "output.plotTopGenesSeries != null",
-                                                                       downloadButton(class="btn-warning",'buttonPNGplotTopGenesSeries', 'HiRes PNG'))
+                                                                       downloadButton(class="btn-primary",'buttonPNGplotTopGenesSeries', 'HiRes PNG'))
                                             ),
                                             conditionalPanel(condition = "output.datatableTopGenesSeries != null",
                                                              downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Table')), hr(),
@@ -187,7 +212,7 @@ ui <-
                                             
                                             h4(style = "margin-top: 0px;",'Modules Associated With Selected Probes or Genes'),
                                             div(downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'),
-                                                downloadButton(class="btn-warning",'buttonSaveTableGenesModulesPlot', 'Table As PNG')),
+                                                downloadButton(class="btn-primary",'buttonSaveTableGenesModulesPlot', 'Table As PNG')),
                                             hr(),
                                             dataTableOutput('datatableGenesModules')),
                                    #################### Modules #########################
@@ -208,13 +233,13 @@ ui <-
                                                                 uiOutput("plotGenesModulesSIZE")
                                                       ),
                                                       fluidRow(
-                                                        column(1,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'HiRes PNG')),
+                                                        column(1,downloadButton(class="btn-primary",'buttonPNGplotGenesModules', 'HiRes PNG')),
                                                         column(11, p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                                                       )),
                                             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Table'),
                                             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Dataset'),
-                                            downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
-                                            downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG'),
+                                            downloadButton(class="btn-primary",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
+                                            downloadButton(class="btn-primary",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG'),
                                             downloadButton(class="btn-info",'buttonSaveTableModulesSummaryList', 'Modules & Titles List'), bsTooltip("buttonSaveTableModulesSummaryList", "Modules & Titles List To Paste Into regex Keyword Search"),
                                             hr(),
                                             dataTableOutput('datatableSelModulesOnly')),
@@ -234,7 +259,7 @@ ui <-
                                                                 uiOutput("plotModuleGenesSIZE")
                                                       ),
                                                       fluidRow(
-                                                        column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleGenes', 'HiRes PNG')),
+                                                        column(1,downloadButton(class="btn-primary",'buttonPNGplotModuleGenes', 'HiRes PNG')),
                                                         column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                                                       )),
                                             downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Table'),
@@ -307,7 +332,7 @@ ui <-
                                                                 uiOutput("plotModuleSeriesSIZE")
                                                       ),
                                                       fluidRow(conditionalPanel(condition = "output.plotModuleSeries != null",
-                                                                                column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG')),
+                                                                                column(1,downloadButton(class="btn-primary",'buttonPNGplotModuleSeries', 'HiRes PNG')),
                                                                                 column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                                                       ))
                                             ),
@@ -351,7 +376,6 @@ ui <-
                                                                wellPanel(style = "background-color: #FFFFFF;",
                                                                          h4(style = "text-align: center; margin-top: 0px;", "Select a treatment~time column to filter by value and sort modules by value"),
                                                                          fluidRow(
-                                                                           # column(4, pickerInput(inputId = 'mselectColumn', label = NULL, choices = NULL, options = list(`style` = "btn-success"))),
                                                                            column(3,pickerInput('mselectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
                                                                            column(3,pickerInput('mselectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
                                                                            column(3,awesomeCheckbox(status = 'success', 'mcheckboxDescending', 'Sort Descending', value = TRUE)),
@@ -406,12 +430,12 @@ ui <-
                                                                 uiOutput("mplotSelectedModulesSIZE")
                                                       ),
                                                       fluidRow(
-                                                        column(1, downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'HiRes PNG')),
+                                                        column(1, downloadButton(class="btn-primary",'buttonPNGmplotSelectedModules', 'HiRes PNG')),
                                                         column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised")))
                                             ),
                                             div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
-                                                downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
-                                                downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG'),
+                                                downloadButton(class="btn-primary",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
+                                                downloadButton(class="btn-primary",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG'),
                                                 downloadButton(class="btn-info",'mbuttonSaveListTopModules', 'Modules List'), bsTooltip("mbuttonSaveListTopModules", "Modules List To Paste Into regex Keyword Search"),
                                                 downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitles', 'Titles List'), bsTooltip("mbuttonSaveListTopModuleTitles", "Titles List To Paste Into regex Keyword Search"),
                                                 downloadButton(class="btn-info",'mbuttonSaveListTopModuleCategory', 'Categories List'), bsTooltip("mbuttonSaveListTopModuleCategory", "Categories List To Paste Into regex Keyword Search")
@@ -434,7 +458,7 @@ ui <-
                                                                 uiOutput("mplotModuleGenesSIZE")
                                                       ),
                                                       fluidRow(
-                                                        column(1,downloadButton(class="btn-warning",'mbuttonPNGplotModuleGenes', 'HiRes PNG')),
+                                                        column(1,downloadButton(class="btn-primary",'mbuttonPNGplotModuleGenes', 'HiRes PNG')),
                                                         column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                                                       )),
                                             downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesGenes', 'Table'),
@@ -544,7 +568,7 @@ ui <-
                                                       uiOutput("mplotModuleSeriesSIZE")
                                             ),
                                             fluidRow(conditionalPanel(condition = "output.mplotModuleSeries != null",
-                                                                      column(1,downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG')),
+                                                                      column(1,downloadButton(class="btn-primary",'buttonPNGmplotModuleSeries', 'HiRes PNG')),
                                                                       column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))))
                                                         ),
                                             conditionalPanel(condition = "output.mdatatableModuleSeries != null",
@@ -676,7 +700,7 @@ ui <-
                                                        uiOutput("plotCellsSeriesSIZE")
                                              ),
                                              fluidRow(conditionalPanel(condition = "output.plotCellsSeries != null",
-                                                                       column(1,downloadButton(class="btn-warning",'buttonPNGplotCellsSeries', 'HiRes PNG'))
+                                                                       column(1,downloadButton(class="btn-primary",'buttonPNGplotCellsSeries', 'HiRes PNG'))
                                              ))
                                    ),
                                    conditionalPanel(condition = "output.datatableCellsSeries != null",
@@ -738,7 +762,7 @@ ui <-
                                                                 uiOutput("cplotCytokinesSIZE")
                                                       ),
                                                       conditionalPanel(condition = "output.cplotCytokines != null",
-                                                                       downloadButton(class="btn-warning",'cbuttonPNGplotCytokines', 'HiRes PNG'))
+                                                                       downloadButton(class="btn-primary",'cbuttonPNGplotCytokines', 'HiRes PNG'))
                                             ),
                                             conditionalPanel(condition = "output.cdatatableCytokines != null",
                                                              downloadButton(class="btn-outline-primary",'buttonSaveTableCytokines', 'Table')), hr(),

@@ -19,8 +19,10 @@ server <- function(input, output, session) {
   # hideTab(inputId = "navbarTop", target = "Cells")
   hideTab(inputId = "navbarTop", target = "Lookup")
   
-  # sortCol_Probes <- NULL
   assign("sortCol_Probes",NULL, envir = .GlobalEnv)
+  assign("expressionValueRange",list(Max = 0, Min = 0), envir = .GlobalEnv)
+  assign("dataValueRange",expressionValueRange, envir = .GlobalEnv)
+  selectShapesKinetics <- reactiveVal(NULL)
   
 #   #################### Password #########################
   password <- read_rds("p")
@@ -50,10 +52,11 @@ server <- function(input, output, session) {
   
   output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
   
-  
   updateExpressionMinMax <- function(selCol){
     if(!is.null(selCol)){
       expressionValueRange <- getMaxMinValueFromData(allData$data,c(selCol))
+      assign("expressionValueRange",expressionValueRange, envir = .GlobalEnv)
+      
       updateNumericInput(session,'numberExpressionMin',value = expressionValueRange[['Min']])
       updateNumericInput(session,'numberExpressionMax',value = expressionValueRange[['Max']])
       
@@ -71,6 +74,71 @@ server <- function(input, output, session) {
       showNotification(id = "updateModuleMinMax", paste0("Module Max Min Reset To ", ifelse(length(selCol)==1,"Selected Column","Whole Dataset"), " Max Min"))
     }
   }
+  
+# KINETICS MATCHING ###############
+  resetShapeNumericsToDataset <- function() {  
+    updateNumericInput(session,"numberShapeDayMin",value = dataValueRange[["Min"]])
+    updateNumericInput(session,"numberShapeDayMax",value = dataValueRange[["Max"]])
+  }
+  
+  setupKineticsFromDataset <- function(days,expressionValueRange) {
+    updatePickerInput(session, 'selectShapeDay', choices = days)
+    selectShapesKinetics(set_names(replicate(length(days),{data_frame(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = FALSE)}, simplify = FALSE),days))
+    resetShapeNumericsToDataset()
+  }
+  
+  observeEvent(
+    input$selectShapeDay,
+    {
+      df <- selectShapesKinetics()[[input$selectShapeDay]]
+      updateNumericInput(session,"numberShapeDayMin",value = df$Min[[1]])
+      updateNumericInput(session,"numberShapeDayMax",value = df$Max[[1]])
+      updateAwesomeCheckbox(session,"checkboxShapeSkipDay",value = df$Exclude[[1]])
+    }
+  )
+  
+  observeEvent(
+    input$buttonResetValuesRangeData,
+    {
+      resetShapeNumericsToDataset()
+    }
+  )
+  
+  observeEvent(
+    input$buttonResetKinetics,
+    {
+      setupKineticsFromDataset(vaccinesDaysFromColNames(allData$colNames)$days,dataValueRange)
+    }
+  )
+  
+  observeEvent(
+    input$buttonShapeSaveDay,
+    {
+      curKinetics <- selectShapesKinetics()
+      if(input$checkboxShapeSkipDay == TRUE) {
+        curKinetics[[input$selectShapeDay]] <- data_frame(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = TRUE)
+        resetShapeNumericsToDataset()
+      } else {
+        curKinetics[[input$selectShapeDay]] <- data_frame(Min = input$numberShapeDayMin,Max = input$numberShapeDayMax, Exclude = input$checkboxShapeSkipDay)
+      }
+      selectShapesKinetics(curKinetics)
+    }
+  )
+  output$buttonSaveShapeKinetics <- downloadHandler(filename = function(){paste0("Match Kinetics.rds")},
+                                                    content = function(file) {write_rds(selectShapesKinetics(), file)})
+  observeEvent(
+    input$buttonLoadShapeKinetics,
+    {
+      if(!is.null(input$buttonLoadShapeKinetics)) {
+        selectShapesKinetics(read_rds(input$buttonLoadShapeKinetics$datapath))
+        #input$buttonLoadShapeKinetics$name is the filename
+      }
+    }
+  )
+  
+  output$plotShapeMiniplot <- renderPlot({getGGplotShapeMiniplot(selectShapesKinetics(),dataValueRange)})
+  
+  # LOADING ##########
   
   updateLoadControls <- function(){
     
@@ -147,7 +215,10 @@ server <- function(input, output, session) {
     # based on menu we just update calc max min as the event is not triggered.
     updateExpressionMinMax(allData$colNames)
     updateModuleMinMax(allData$colNames)
-    
+    # setup the data min max one time
+    assign("dataValueRange",expressionValueRange, envir = .GlobalEnv)
+    # setup kinetics
+    setupKineticsFromDataset(vaccDays$days,dataValueRange)
   }
 
   # these do resopnd OK outside this scope but put here for neatness
@@ -167,7 +238,7 @@ output$textFiltersMods <- renderText({paste0("\U1F50D ",modulesAndFiltersText())
   #################### Selecting Columns #########################
   # select the genes and identify associated modules
 
-  ### selecting events - probes
+### selecting events - probes
   observeEvent(
     {
       input$selectColumnDay

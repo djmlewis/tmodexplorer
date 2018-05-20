@@ -438,3 +438,19 @@ plotPlotPNG <- function(plot2plot,file, h,w) {
     
   }
 }
+
+
+getGGplotShapeMiniplot <- function(kinetics,dataValueRange) {
+  if(is.null(kinetics)) return(NULL)
+  df <-  unnest(enframe(kinetics, name = "Day")) %>%
+    mutate_if(is.character,as.numeric)
+    plot <- ggplot(df, aes(xmin = Day-0.3, xmax = Day+0.3, ymin = Min, ymax = Max)) +
+      scale_x_continuous(breaks = df$Day) +
+      geom_rect(mapping = aes(fill = Exclude, color = Exclude), alpha = 0.3, show.legend = FALSE) +
+      scale_fill_manual(values = c(`TRUE` = "white", `FALSE` = "#44b84b")) +
+      scale_color_manual(values = c(`TRUE` = "grey20", `FALSE` = "black")) +
+      geom_hline(yintercept = c(dataValueRange[["Min"]],dataValueRange[["Max"]]), linetype = 2, color = 'grey50')
+  
+  return(plot)
+}
+
