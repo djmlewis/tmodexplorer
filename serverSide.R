@@ -22,7 +22,7 @@ server <- function(input, output, session) {
   assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   assign("expressionValueRange",list(Max = 0, Min = 0), envir = .GlobalEnv)
   assign("dataValueRange",expressionValueRange, envir = .GlobalEnv)
-  selectShapesKinetics <- reactiveVal(NULL)
+  shapeKinetics <- reactiveVal(NULL)
   
 #   #################### Password #########################
   password <- read_rds("p")
@@ -76,21 +76,34 @@ server <- function(input, output, session) {
   }
   
 # KINETICS MATCHING ###############
+  vaccDaysInDataset <- function() {
+    vaccinesDaysFromColNames(allData$colNames)$days
+  }
   resetShapeNumericsToDataset <- function() {  
     updateNumericInput(session,"numberShapeDayMin",value = dataValueRange[["Min"]])
     updateNumericInput(session,"numberShapeDayMax",value = dataValueRange[["Max"]])
   }
   
+  defaultKineticsForDataset <- function() {
+    days <- vaccDaysInDataset()
+    set_names(replicate(length(days),
+                        {data_frame(Min = dataValueRange[["Min"]],
+                                    Max = dataValueRange[["Max"]], 
+                                    Exclude = FALSE)}, 
+                        simplify = FALSE),
+              days)
+  }
+  
   setupKineticsFromDataset <- function(days,expressionValueRange) {
     updatePickerInput(session, 'selectShapeDay', choices = days)
-    selectShapesKinetics(set_names(replicate(length(days),{data_frame(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = FALSE)}, simplify = FALSE),days))
+    shapeKinetics(defaultKineticsForDataset())
     resetShapeNumericsToDataset()
   }
   
   observeEvent(
     input$selectShapeDay,
     {
-      df <- selectShapesKinetics()[[input$selectShapeDay]]
+      df <- shapeKinetics()[[input$selectShapeDay]]
       updateNumericInput(session,"numberShapeDayMin",value = df$Min[[1]])
       updateNumericInput(session,"numberShapeDayMax",value = df$Max[[1]])
       updateAwesomeCheckbox(session,"checkboxShapeSkipDay",value = df$Exclude[[1]])
@@ -107,36 +120,61 @@ server <- function(input, output, session) {
   observeEvent(
     input$buttonResetKinetics,
     {
-      setupKineticsFromDataset(vaccinesDaysFromColNames(allData$colNames)$days,dataValueRange)
+      setupKineticsFromDataset(vaccDaysInDataset(),dataValueRange)
     }
   )
   
   observeEvent(
     input$buttonShapeSaveDay,
     {
-      curKinetics <- selectShapesKinetics()
+      curKinetics <- shapeKinetics()
       if(input$checkboxShapeSkipDay == TRUE) {
         curKinetics[[input$selectShapeDay]] <- data_frame(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = TRUE)
         resetShapeNumericsToDataset()
       } else {
         curKinetics[[input$selectShapeDay]] <- data_frame(Min = input$numberShapeDayMin,Max = input$numberShapeDayMax, Exclude = input$checkboxShapeSkipDay)
       }
-      selectShapesKinetics(curKinetics)
-    }
-  )
-  output$buttonSaveShapeKinetics <- downloadHandler(filename = function(){paste0("Match Kinetics.rds")},
-                                                    content = function(file) {write_rds(selectShapesKinetics(), file)})
-  observeEvent(
-    input$buttonLoadShapeKinetics,
-    {
-      if(!is.null(input$buttonLoadShapeKinetics)) {
-        selectShapesKinetics(read_rds(input$buttonLoadShapeKinetics$datapath))
-        #input$buttonLoadShapeKinetics$name is the filename
-      }
+      shapeKinetics(curKinetics)
     }
   )
   
-  output$plotShapeMiniplot <- renderPlot({getGGplotShapeMiniplot(selectShapesKinetics(),dataValueRange)})
+  output$buttonSaveShapeKinetics <- downloadHandler(filename = function(){paste0(allData$folder,"_Kinetics.rds")},
+                                                    content = function(file) {write_rds(list(KinsType = "actualKinetics", Kinetics = shapeKinetics()), file)})
+  observeEvent(input$buttonLoadShapeKinetics,
+   {
+     # check its a valid kinetics file
+     if (!is.null(input$buttonLoadShapeKinetics)) {
+       kinsfile <- read_rds(input$buttonLoadShapeKinetics$datapath)
+       if (!is.null(kinsfile) && !is.null(kinsfile[["KinsType"]])) {
+         # get a default kinetics first as we may have different days and can keep the defaults in
+         newkins <- kinsfile[["Kinetics"]]
+         defkins <- defaultKineticsForDataset()
+         defnames <- names(defkins)
+         # amend the kinetics with the new one where days match, dont add irrelevant ones
+         walk(names(newkins), function(name) {
+           if (name %in% defnames) {
+             defkins[[name]] <<- newkins[[name]]
+           }
+         })
+         shapeKinetics(defkins)
+         #input$buttonLoadShapeKinetics$name is the filename
+         if(identical(defnames,names(newkins))) showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name),type = "message")
+         else showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name," - however they seem to be from a different dataset and so may be incorrect"),type = "warning")
+       } else {
+         showNotification(paste0(input$buttonLoadShapeKinetics$name, " appears not to contain valid kinetics"),type = "error")
+       }
+     } else {
+       showNotification(
+         paste0(
+           "There was noting to import from ",
+           input$buttonLoadShapeKinetics$name
+         ),
+         type = "error"
+       )
+     }
+   })
+  
+  output$plotShapeMiniplot <- renderPlot({getGGplotShapeMiniplot(shapeKinetics(),dataValueRange)})
   
   # LOADING ##########
   

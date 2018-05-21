@@ -108,27 +108,27 @@ ui <-
                         ),#column
                         column(4,
                                wellPanel(style = "background-color: #feffee;",
-                                  awesomeCheckbox(status = 'success', 'checkboxSelectShape', label = h4(style = "margin-top: 0px;",'4. Match Kinetics:'), value = FALSE),
+                                awesomeCheckbox(status = 'success', 'checkboxSelectShape', label = h4(style = "margin-top: 0px;",'4. Match Kinetics:'), value = FALSE),
+                                conditionalPanel(condition = "input.checkboxSelectShape == true",
                                   fluidRow(
-                                    column(7,fileInput('buttonLoadShapeKinetics', NULL,accept = c(".rds"))),
-                                    column(5, div(
-                                      downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', NULL),
-                                      actionButton('buttonResetKinetics','Reset',class = "btn-warning")))
+                                    column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', NULL)),
+                                    column(8,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds"))),
+                                    column(2,actionButton('buttonResetKinetics',NULL, icon = icon("trash", "fa-1.5x"),class = "btn-warning"))
                                   ),
-                                plotOutput("plotShapeMiniplot", height = "150px"),hr(),
-                                fluidRow(
-                                  column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                  column(4,awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Exclude Day", value = TRUE)),
-                                  column(3,actionButton('buttonShapeSaveDay','Set', class = 'btn-warning'))
-                                ),
-                                conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                 fluidRow(
-                                   column(4,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
-                                   column(4,numericInput("numberShapeDayMax", "Highest:", value = 0)),
-                                   column(4,style = "margin-top: 25px;", actionButton('buttonResetValuesShapeData','Dataset', class = 'btn-outline-primary'))
-                                 )
-                                )
-                               )
+                                  plotOutput("plotShapeMiniplot", height = "150px"),hr(),
+                                  fluidRow(
+                                    column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                    column(4,awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore Day", value = TRUE)),
+                                    column(3,actionButton('buttonShapeSaveDay','Set', class = 'btn-warning'))
+                                  ),
+                                  conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                   fluidRow(
+                                     column(4,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
+                                     column(4,numericInput("numberShapeDayMax", "Highest:", value = 0)),
+                                     column(4,style = "margin-top: 25px;", actionButton('buttonResetValuesShapeData','Dataset', class = 'btn-outline-primary'))
+                                   ))
+                               )# conpan
+                               )# well
                         )# column
                       )
             )
