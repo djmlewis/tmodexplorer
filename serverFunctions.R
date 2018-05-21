@@ -4,6 +4,7 @@ load('tmod.rda')
 
 
 ###### Functions
+
 dataFrameNotOK <- function(data2check) {
   return(!dataFrameOK(data2check))
 }
@@ -293,6 +294,27 @@ getGenesForValues <- function(genes,Min,Max){
   # selGenes <- genes %>%
   #   filter(between(Value,Min,Max))
   return(filter(genes,between(Value,Min,Max)))
+}
+
+getGenesForKinetics <- function(data2Match,kinetics,vacc) {
+  kineticsdf <-  unnest(enframe(kinetics, name = "Day")) %>%
+    mutate_if(is.character,as.numeric) %>%
+    filter(Exclude == FALSE)
+
+  datamatching <- data2Match
+  probes <- map(kineticsdf$Day, function(day){
+    Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
+    Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
+    print(paste(day,Min,Max))
+    d <- datamatching %>%
+      select(Probe, Value = one_of(paste0(vacc,"_",day))) %>%
+      filter(between(Value,Min,Max))
+    print(unique(d$Probe))
+    return(unique(d$Probe))
+    })
+  print(reduce(probes, intersect))
+  
+  return(NULL)
 }
 
 getGenesForSearch <- function(geneslist,search,column,wholeWord){

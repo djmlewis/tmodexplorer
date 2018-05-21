@@ -48,14 +48,14 @@ ui <-
                                    header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #84a51c;padding-top: 10px; padding-bottom: 10px;", textOutput('textFiltersProbes'))))),
                                    #################### Selecting  ################
    tabPanel('Select Probes',
-            
-            h4(style = "text-align: center;",'Apply filters to select probes for plotting. Selected filters are applied in order left → right'),
             conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                              fluidRow(column(4,offset = 4, actionButton('buttonApplySelection','Apply Selections',class = "btn-warning btn-block")),column(4))),
             br(),
             wellPanel(style = "background-color: #FFFFFF;",
+                      h4(style = "text-align: center;",'Apply filters to select probes for plotting. Filters 1-2-3 are applied in order left → right. Match Kinetics works alone and ignores filters 1-2-3'),
+                      conditionalPanel(condition = "input.checkboxSelectShape == false",
                       fluidRow(
-                        column(3,
+                        column(4,
                                conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                                 wellPanel(style = "background-color: #feffee;",
                                                           awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
@@ -66,7 +66,7 @@ ui <-
                                                           awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Gene','Probe','ProbeName','Description'), inline = FALSE),
                                                           awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", FALSE,status = "danger")
                                                 ))),
-                        column(5,
+                        column(8,
                                wellPanel(style = "background-color: #ffffff;",
                                          h4(style = "text-align: center; margin-top: 0px;", "Select a treatment~time combination to filter by value and sort probes by value"),
                                          fluidRow(
@@ -105,32 +105,43 @@ ui <-
                                            )
                                          )
                                )
-                        ),#column
-                        column(4,
-                               wellPanel(style = "background-color: #feffee;",
-                                awesomeCheckbox(status = 'success', 'checkboxSelectShape', label = h4(style = "margin-top: 0px;",'4. Match Kinetics:'), value = FALSE),
+                        )#column
+                      )),# row cpanel
+                      wellPanel(style = "background-color: #feffee;",
+                                awesomeCheckbox(status = 'success', 'checkboxSelectShape', label = h4(style = "margin-top: 0px;",'Match Probe Kinetics:'), value = FALSE),
                                 conditionalPanel(condition = "input.checkboxSelectShape == true",
-                                  fluidRow(
-                                    column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', NULL)),
-                                    column(8,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds"))),
-                                    column(2,actionButton('buttonResetKinetics',NULL, icon = icon("trash", "fa-1.5x"),class = "btn-warning"))
-                                  ),
-                                  plotOutput("plotShapeMiniplot", height = "150px"),hr(),
-                                  fluidRow(
-                                    column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                    column(4,awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore Day", value = TRUE)),
-                                    column(3,actionButton('buttonShapeSaveDay','Set', class = 'btn-warning'))
-                                  ),
-                                  conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                   fluidRow(
-                                     column(4,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
-                                     column(4,numericInput("numberShapeDayMax", "Highest:", value = 0)),
-                                     column(4,style = "margin-top: 25px;", actionButton('buttonResetValuesShapeData','Dataset', class = 'btn-outline-primary'))
-                                   ))
-                               )# conpan
-                               )# well
-                        )# column
-                      )
+                                                 fluidRow(
+                                                  column(6,
+                                                    pickerInput('selectShapeVaccine', label = h4("Treatment To Filter Values On:"), choices = NULL, options = list(`style` = "btn-success")),
+                                                    fluidRow(
+                                                     column(3,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export kinetics")),
+                                                     column(3, offset = 6, actionButton('buttonResetKinetics',"Reset kinetics", class = "btn-warning"))
+                                                    ),
+                                                    br(),
+                                                    fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import kinetics…", accept = c(".rds"))
+                                                  ),
+                                                  column(6,
+                                                    plotOutput("plotShapeMiniplot", height = "150px"),hr(),
+                                                    fluidRow(
+                                                     column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                                     column(4,awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore Day", value = TRUE)),
+                                                     column(3,actionButton('buttonShapeSaveDay','Set', class = 'btn-warning'))
+                                                   ),
+                                                    conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                      fluidRow(
+                                                        column(3,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
+                                                        column(3,numericInput("numberShapeDayMax", "Highest:", value = 0)),
+                                                        column(6,style = "margin-top: 25px;", 
+                                                               div(
+                                                               actionButton('buttonResetValuesShapeVaccine','Treatment', class = 'btn-outline-primary'),
+                                                               actionButton('buttonResetValuesShapeData','Dataset', class = 'btn-outline-primary')
+                                                               ))
+                                                      )
+                                                    )
+                                                  )
+                                                 )# row
+                                )# conpan
+                      )# well
             )
    ),
                                    #################### Top Probes #######################

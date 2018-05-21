@@ -75,13 +75,19 @@ server <- function(input, output, session) {
     }
   }
   
-# KINETICS MATCHING ###############
+  # KINETICS MATCHING ###############
   vaccDaysInDataset <- function() {
     vaccinesDaysFromColNames(allData$colNames)$days
   }
   resetShapeNumericsToDataset <- function() {  
     updateNumericInput(session,"numberShapeDayMin",value = dataValueRange[["Min"]])
     updateNumericInput(session,"numberShapeDayMax",value = dataValueRange[["Max"]])
+  }
+  
+  resetShapeNumericsToVaccine <- function(){
+    expressionValueRange <- getMaxMinValueFromData(allData$data,paste0(input$selectShapeVaccine,"_",vaccDaysInDataset()))
+    updateNumericInput(session,"numberShapeDayMin",value = expressionValueRange[["Min"]])
+    updateNumericInput(session,"numberShapeDayMax",value = expressionValueRange[["Max"]])
   }
   
   defaultKineticsForDataset <- function() {
@@ -94,7 +100,7 @@ server <- function(input, output, session) {
               days)
   }
   
-  setupKineticsFromDataset <- function(days,expressionValueRange) {
+  setupKineticsFromDataset <- function(days) {
     updatePickerInput(session, 'selectShapeDay', choices = days)
     shapeKinetics(defaultKineticsForDataset())
     resetShapeNumericsToDataset()
@@ -103,24 +109,38 @@ server <- function(input, output, session) {
   observeEvent(
     input$selectShapeDay,
     {
+      resetShapeNumericsToVaccine()
       df <- shapeKinetics()[[input$selectShapeDay]]
-      updateNumericInput(session,"numberShapeDayMin",value = df$Min[[1]])
-      updateNumericInput(session,"numberShapeDayMax",value = df$Max[[1]])
       updateAwesomeCheckbox(session,"checkboxShapeSkipDay",value = df$Exclude[[1]])
     }
   )
   
   observeEvent(
-    input$buttonResetValuesRangeData,
+    input$selectShapeVaccine,
+    {
+      resetShapeNumericsToVaccine()
+    }
+  )
+  
+  observeEvent(
+    input$buttonResetValuesShapeData,
     {
       resetShapeNumericsToDataset()
     }
   )
   
+  
+  observeEvent(
+    input$buttonResetValuesShapeVaccine,
+    {
+      resetShapeNumericsToVaccine()
+    }
+  )
+
   observeEvent(
     input$buttonResetKinetics,
     {
-      setupKineticsFromDataset(vaccDaysInDataset(),dataValueRange)
+      setupKineticsFromDataset(vaccDaysInDataset())
     }
   )
   
@@ -256,7 +276,8 @@ server <- function(input, output, session) {
     # setup the data min max one time
     assign("dataValueRange",expressionValueRange, envir = .GlobalEnv)
     # setup kinetics
-    setupKineticsFromDataset(vaccDays$days,dataValueRange)
+    updatePickerInput(session, 'selectShapeVaccine', choices = vaccDays$vaccines)
+    setupKineticsFromDataset(vaccDays$days)
   }
 
   # these do resopnd OK outside this scope but put here for neatness
@@ -311,7 +332,7 @@ observeEvent(
     input$buttonApplySelection,
     {
         if(!is.null(sortCol_Probes)) {
-          if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE) {
+          if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE && input$checkboxSelectShape == FALSE) {
             sendSweetAlert(session, type = 'error', title = "Too Many Probes", text = "You must have at least one filter selected or it will try to return and plot over 60,000 probes")
             } else {
               showNotification("Please wait for filters to be applied…", type = 'message', duration = 3, id = "buttonApplySelection")
@@ -325,28 +346,33 @@ observeEvent(
               showTab(inputId = "navProbe", target = "Modules:Series")
               
               filterText <- ""
-              # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
-              if(input$checkboxSelectKeyword == TRUE) {
-                geneslist <- getGenesForSearch(allData$data,input$textInputKeyword,input$radioKeywordColumn,input$checkboxGeneSearchWholeWord)
-                if(dataFrameOK(geneslist)) {
-                  filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
-                  # calculate topGenesAndModules() using geneslist
-                  geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
-                }
+              
+              if(input$checkboxSelectShape == TRUE) {
+                geneslist <- getGenesForKinetics(allData$data,shapeKinetics(), input$selectShapeVaccine)
               } else {
-                # calculate topGenesAndModules() using allData
-                geneslist <- getSortedGenesForVaccDay(allData$data,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
+                # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
+                if(input$checkboxSelectKeyword == TRUE) {
+                  geneslist <- getGenesForSearch(allData$data,input$textInputKeyword,input$radioKeywordColumn,input$checkboxGeneSearchWholeWord)
+                  if(dataFrameOK(geneslist)) {
+                    filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
+                    # calculate topGenesAndModules() using geneslist
+                    geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
+                  }
+                } else {
+                  # calculate topGenesAndModules() using allData
+                  geneslist <- getSortedGenesForVaccDay(allData$data,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
+                }
+                
+                if(input$checkboxSelectValues == TRUE && dataFrameOK(geneslist)){
+                  geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
+                  filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
+                }
+                if(input$checkboxSelectRows == TRUE && dataFrameOK(geneslist)){
+                  geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
+                  filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
+                }
               }
               
-              if(input$checkboxSelectValues == TRUE && dataFrameOK(geneslist)){
-                geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
-                filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
-              }
-              if(input$checkboxSelectRows == TRUE && dataFrameOK(geneslist)){
-                geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
-                filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
-              }
-
               if(dataFrameOK(geneslist)) {
                 if(nchar(filterText) > 0) {
                   filtersText(
