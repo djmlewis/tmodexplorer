@@ -301,20 +301,20 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc) {
     mutate_if(is.character,as.numeric) %>%
     filter(Exclude == FALSE)
 
-  datamatching <- data2Match
   probes <- map(kineticsdf$Day, function(day){
     Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
     Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
     print(paste(day,Min,Max))
-    d <- datamatching %>%
+    d <- data2Match %>%
       select(Probe, Value = one_of(paste0(vacc,"_",day))) %>%
       filter(between(Value,Min,Max))
-    print(unique(d$Probe))
     return(unique(d$Probe))
     })
-  print(reduce(probes, intersect))
   
-  return(NULL)
+  probesmatching <- reduce(probes, intersect)
+  datamatching <- data2Match %>%
+    filter(Probe %in% probesmatching)
+  return(datamatching)
 }
 
 getGenesForSearch <- function(geneslist,search,column,wholeWord){

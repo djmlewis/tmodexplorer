@@ -150,6 +150,7 @@ plotModuleGenes <- function(d,m,t,l,z,gg,showmiss) {
 }
 
 addSortColPlot <- function(sortCol,facet,plot,ll) {
+  if(get("selectKinetics", envir = .GlobalEnv) == TRUE) return(plot)
   if(facet == TRUE) {
     # we have a Treatment and Column 
     dy = as.integer(unlist(str_split(sortCol, "_"))[2])
