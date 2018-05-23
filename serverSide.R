@@ -519,7 +519,9 @@ observeEvent(
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
         input$checkboxShowPointsSeries,input$checkboxShowSEMSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
-        input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries,input$checkboxShowProbesOfGenesSeries)
+        input$checkboxShowZeroSeries,input$radioBoxLineProbesSeries,sortCol_Probes, input$checkboxShowGridSeries,input$checkboxShowProbesOfGenesSeries,
+        shapeKinetics(),
+        input$checkboxShowKineticsSeries & selectKinetics) # AND the checkbox and we are using kinetics
 
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries} ,res = 72)
       output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries != 'Boxplot'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),

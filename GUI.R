@@ -186,7 +186,9 @@ ui <-
                                                                                                         awesomeCheckbox(status = 'danger', 'checkboxShowProbesOfGenesSeries', 'Gene⫷Probes', value = FALSE),
                                                                                                         bsTooltip("spancheckboxShowProbesOfGenesSeries", "When Selected The Value Of Individual Probes For Each Gene Will Be Plotted Instead Of Gene Averages")),
                                                                                                    awesomeCheckbox(status = 'success', 'checkboxShowPointsSeries', 'Points', value = FALSE),
-                                                                                                   conditionalPanel(condition = "input.checkboxShowProbesOfGenesSeries != true", awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE))
+                                                                                                   conditionalPanel(condition = "input.checkboxShowProbesOfGenesSeries != true", awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE)),
+                                                                                                   conditionalPanel(condition = "input.radioFilterByRowKinetics != 'row' && input.checkboxSplitSeries == true", 
+                                                                                                    awesomeCheckbox(status = 'danger', 'checkboxShowKineticsSeries', 'Kinetics Filters', value = TRUE))
                                                                                   )
                                                                            ),
                                                                            column(6,
@@ -546,7 +548,7 @@ ui <-
                                                                  radioGroupButtons('radioModulesModulesSeries', NULL,
                                                                                    choiceValues = list('Filters', 'Modules','Titles'),
                                                                                    choiceNames = list(' Modules You Selected With Filters', ' All Modules In Dataset',' All Module Titles In Dataset'),
-                                                                                   individual = FALSE, justified = TRUE, status = "success",
+                                                                                   individual = FALSE, justified = TRUE, status = "primary",
                                                                                    checkIcon = list(yes = tags$i(class = "fa fa-circle",
                                                                                                                  style = "color: gold"),
                                                                                                     no = tags$i(class = "fa fa-circle-o",

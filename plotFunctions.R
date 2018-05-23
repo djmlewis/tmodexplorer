@@ -178,7 +178,8 @@ plotTopGenesInSeries <- function(data2plot,
            t,
            facet,
            showZero,pointsBoxes,sortCol,xgrid,
-           splitGenes) {
+           splitGenes,
+           kinetics, showkinetics) {
     if (is.null(data2plot) || nrow(data2plot) == 0) return(NULL)
   
   showNotification("Please wait for plot output…", type = 'message', duration = 3)
@@ -267,6 +268,14 @@ plotTopGenesInSeries <- function(data2plot,
     if (sortCol %in% data2plot$Column || (facet == TRUE &&(unlist(str_split(sortCol, "_"))[1] %in% unique(data2plot$Treatment) &&
                                                            unlist(str_split(sortCol, "_"))[2] %in% unique(data2plot$Column)))) {
       plot <- addSortColPlot(sortCol,facet,plot,levels(data2plot$Column))
+    }
+    
+    if(showkinetics == TRUE && !is.null(kinetics) && pointsBoxes == 'Lines' && facet == TRUE) {
+      df <-  unnest(enframe(kinetics, name = "Day")) %>%
+        mutate_if(is.character,as.numeric) %>%
+        filter(Exclude == FALSE, Day %in% data2plot$Column)
+      plot <- plot +
+        geom_rect(data = df, mapping = aes(xmin = Day-0.2, xmax = Day+0.2, ymin = Min, ymax = Max), fill = 'black', color = 'grey20', alpha = 0.1, show.legend = FALSE)
     }
     
     return(plot)

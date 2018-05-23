@@ -304,7 +304,6 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc) {
   probes <- map(kineticsdf$Day, function(day){
     Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
     Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
-    print(paste(day,Min,Max))
     d <- data2Match %>%
       select(Probe, Value = one_of(paste0(vacc,"_",day))) %>%
       filter(between(Value,Min,Max))
