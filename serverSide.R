@@ -326,7 +326,7 @@ observeEvent(
     input$buttonApplySelection,
     {
         if(!is.null(sortCol_Probes)) {
-          if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE && input$checkboxSelectShape == FALSE) {
+          if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE && input$radioFilterByRowKinetics == 'row') {
             sendSweetAlert(session, type = 'error', title = "Too Many Probes", text = "You must have at least one filter selected or it will try to return and plot over 60,000 probes")
             } else {
               showNotification("Please wait for filters to be applied…", type = 'message', duration = 3, id = "buttonApplySelection")
@@ -342,7 +342,7 @@ observeEvent(
               filterText <- ""
               geneslist <- NULL
               
-              if(input$checkboxSelectShape == TRUE) {
+              if(input$radioFilterByRowKinetics == 'kinetics') {
                 # using filter KINETICS no genes only probes
                 assign("selectKinetics",TRUE, envir = .GlobalEnv)
                 assign("genesOrProbes","Probe", envir = .GlobalEnv)
@@ -350,6 +350,16 @@ observeEvent(
                 matchedData <- getGenesForKinetics(allData$data,shapeKinetics(), input$selectColumnVaccine)
                 geneslist <- getSortedGenesForVaccDay(matchedData,sortCol_Probes,TRUE,"Probe")
                 
+                if(dataFrameOK(geneslist)) {
+                  filtersText(
+                    paste0(' select individual probes by matching kinetics for ',gsub('_',' (showing day ',sortCol_Probes),")")
+                    )
+                  dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+                } else {
+                  filtersText("")
+                  dataAndFiltersText("")
+                }
+
               } else {
                 # using filters 1-2-3
                 assign("selectKinetics",FALSE, envir = .GlobalEnv)
@@ -376,26 +386,29 @@ observeEvent(
                   filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
                 }
                 
+                if(dataFrameOK(geneslist)) {
+                  if(nchar(filterText) > 0) {
+                    filtersText(
+                      paste0(gsub('_',' day ',sortCol_Probes),' ',filterText,' ',
+                             ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
+                             ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
+                      ))
+                    dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+                  } else {
+                    filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
+                    dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+                  }
+                } else {
+                  filtersText("")
+                  dataAndFiltersText("")
+                }
                 
                 
               }
               
               if(dataFrameOK(geneslist)) {
-                if(nchar(filterText) > 0) {
-                  filtersText(
-                    paste0(gsub('_',' day ',sortCol_Probes),' ',filterText,' ',
-                           ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
-                    ))
-                  dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
-                } else {
-                  filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
-                  dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
-                }
                 show(id = "navProbeHeader")
               } else {
-                filtersText("")
-                dataAndFiltersText("")
                 hide(id = "navProbeHeader")
               }
     
@@ -406,11 +419,12 @@ observeEvent(
                   removeNotification(id = "buttonApplySelection")
                   showNotification(paste0("Found: ",nrow(topGenesAndModules()[['genes']]),
                     ifelse(input$checkboxProbesGenes == TRUE, ' genes', ' probes'), " and ",
-                    length(unique(topGenesAndModules()[['modules']][["Module"]])), " modules"), type = 'message')
+                    length(unique(topGenesAndModules()[['modules']][["Module"]])), " modules",
+                    " using filter: ", filtersText()), type = 'message')
               } else {
                 topGenesAndModules(list(genes = NULL, modules = NULL, modsOnly = NULL))
                 removeNotification(id = "buttonApplySelection")
-                showNotification(paste0("Found 0 Probes and 0 Modules"), type = 'warning')
+                showNotification(paste0("Found 0 Probes and 0 Modules"," using filter: ", filtersText()), type = 'warning')
               }
             }
         } else {
