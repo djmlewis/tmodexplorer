@@ -133,7 +133,7 @@ ui <-
                                                            column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
                                                            column(8,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
                                                          ),
-                                                         plotOutput("plotShapeMiniplot", height = "150px"),
+                                                         plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot"),
                                                          fluidRow(
                                                            column(1,style = "margin-top: 25px;",actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
                                                            column(2,style = "margin-top: 25px;",pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),

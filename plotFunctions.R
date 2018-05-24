@@ -452,12 +452,14 @@ plotPlotPNG <- function(plot2plot,file, h,w) {
 
 getGGplotShapeMiniplot <- function(kinetics,dataValueRange) {
   if(is.null(kinetics)) return(NULL)
-  df <-  unnest(enframe(kinetics, name = "Day")) %>%
-    mutate_if(is.character,as.numeric)
+  df <-  kineticsDF(kinetics)
+    
     plot <- ggplot(df, aes(xmin = Day-0.3, xmax = Day+0.3, ymin = Min, ymax = Max)) +
-      ggtitle("Kinetics Filter Windows") +
+      theme(axis.title = element_blank()) +
+      ggtitle("Click * to select day") +
       scale_x_continuous(breaks = df$Day) +
       geom_rect(mapping = aes(fill = Exclude, color = Exclude), alpha = 0.3, show.legend = FALSE) +
+      geom_point(aes(x = Day, y = Y), shape = 8, size = 3) +
       scale_fill_manual(values = c(`TRUE` = "white", `FALSE` = "#44b84b")) +
       scale_color_manual(values = c(`TRUE` = "grey20", `FALSE` = "black")) +
       geom_hline(yintercept = c(dataValueRange[["Min"]],dataValueRange[["Max"]]), linetype = 2, color = 'grey50')

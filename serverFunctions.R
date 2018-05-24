@@ -4,6 +4,25 @@ load('tmod.rda')
 
 
 ###### Functions
+kineticsDF <- function(kinetics, filterExclude = FALSE) {
+  df <- unnest(enframe(kinetics, name = "Day")) %>%
+    mutate_if(is.character,as.numeric) %>%
+    mutate(Y = Max-(Max-Min)/2)
+  
+  if(filterExclude) df <- filter(df,Exclude == FALSE)
+  return(df)
+}
+
+
+kineticsString <- function(kinetics) {
+  if(is.null(kinetics)) return(NULL)
+  df <- kineticsDF(kinetics,TRUE) %>%
+    
+    mutate(
+      Str = paste0("{",Day," ",paste0(Min,"|",Max),"}")
+    )
+  return(paste0(df$Str, collapse = ""))
+}
 
 dataFrameNotOK <- function(data2check) {
   return(!dataFrameOK(data2check))
@@ -297,8 +316,7 @@ getGenesForValues <- function(genes,Min,Max){
 }
 
 getGenesForKinetics <- function(data2Match,kinetics,vacc) {
-  kineticsdf <-  unnest(enframe(kinetics, name = "Day")) %>%
-    mutate_if(is.character,as.numeric) %>%
+  kineticsdf <-  kineticsDF(kinetics) %>%
     filter(Exclude == FALSE)
 
   probes <- map(kineticsdf$Day, function(day){
