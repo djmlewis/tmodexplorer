@@ -94,20 +94,25 @@ server <- function(input, output, session) {
     updateNumericInput(session,"numberShapeDayMax",value = rangeVAD[["Max"]])
   }
   
-  defaultKineticsForDataset <- function() {
+  defaultKineticsForDataset <- function(data) {
     days <- vaccDaysInDataset()
     set_names(replicate(length(days),
-                        {data_frame(Min = dataValueRange[["Min"]],
-                                    Max = dataValueRange[["Max"]], 
+                        {data_frame(Min = data[["Min"]],
+                                    Max = data[["Max"]], 
                                     Exclude = FALSE)}, 
                         simplify = FALSE),
               days)
   }
   
-  setupKineticsFromDataset <- function(days) {
+  setupKineticsFromDataset <- function(days,data) {
     updatePickerInput(session, 'selectShapeDay', choices = days)
-    shapeKinetics(defaultKineticsForDataset())
-    resetShapeNumericsToDataset()
+    if(data == "data") {
+      shapeKinetics(defaultKineticsForDataset(dataValueRange))
+      resetShapeNumericsToDataset()
+    } else {
+      resetShapeNumericsToVaccine()
+      shapeKinetics(defaultKineticsForDataset(expressionValueRangeVaccAllDays()))
+    }
   }
   
   observeEvent(
@@ -136,9 +141,16 @@ server <- function(input, output, session) {
   )
 
   observeEvent(
-    input$buttonResetKinetics,
+    input$buttonResetKineticsData,
     {
-      setupKineticsFromDataset(vaccDaysInDataset())
+      setupKineticsFromDataset(vaccDaysInDataset(),"data")
+    }
+  )
+  
+  observeEvent(
+    input$buttonResetKineticsTreat,
+    {
+      setupKineticsFromDataset(vaccDaysInDataset(),"treat")
     }
   )
   
@@ -287,7 +299,7 @@ server <- function(input, output, session) {
     # setup the data min max one time
     assign("dataValueRange",expressionValueRangeVaccDay, envir = .GlobalEnv)
     # setup kinetics
-    setupKineticsFromDataset(vaccDays$days)
+    setupKineticsFromDataset(vaccDays$days, "data")
   }
 
   # these do resopnd OK outside this scope but put here for neatness

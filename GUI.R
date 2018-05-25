@@ -48,106 +48,96 @@ ui <-
                                    header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #84a51c;padding-top: 10px; padding-bottom: 10px;", textOutput('textFiltersProbes'))))),
                                    #################### Selecting  ################
                          tabPanel('Select Probes',
-                                  h4(style = "text-align: center;",'Apply filters to select probes or genes for plotting'),
+                                  h4(style = "text-align: center;",'Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting'),
                                   conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                   fluidRow(
-                                                     column(4,style = "margin-top: 4px; color: black ", actionButton('buttonApplySelection','Apply Filters',class = "btn-warning btn-block")),
-                                                     column(8,radioGroupButtons('radioFilterByRowKinetics', NULL,
-                                                              choiceValues = list('row', 'kinetics'),choiceNames = list(' Filter By Row Value', ' Filter By Kinetics'),
-                                                              individual = FALSE, justified = TRUE, status = "primary",
-                                                              checkIcon = list(yes = tags$i(class = "fa fa-circle",style = "color: gold"),
-                                                                               no = tags$i(class = "fa fa-circle-o",style = "color: white")))
-                                                     )
+                                                   fluidRow(style = "margin-bottom:10px;",
+                                                     column(4,offset = 4, style = "margin-top: 4px; color: black ", actionButton('buttonApplySelection','Apply Filters',class = "btn-warning btn-block"))
                                                    )),
-                                  span(style = "text-align: center;color: #44b84b;",
-                                  conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
-                                                   p('Filters 1-2-3 are applied in order left → right.')),
-                                  conditionalPanel(condition = "input.radioFilterByRowKinetics != 'row'",
-                                                   p('Filter By Kinetics works alone and ignores filters 1-2-3'))),
                                   fluidRow(
-                                    conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
-                                    column(4,# keywrd column
+                                    column(2,# keywrd column
                                       wellPanel(style = "background-color: #feffee;",
                                           conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                          awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'1. Using regex keyword search'), value = FALSE),
-                                          conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces are stripped from Gene, Probe and ProbeName searches")),
-                                          conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces are kept in Description searches")),
+                                          awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
+                                          conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces will be stripped")),
+                                          conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces will be kept")),
                                           textInput('textInputKeyword',NULL),
                                           h4(style = "margin-top: 0px;","Search:"),
                                           awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Gene','Probe','ProbeName','Description'), inline = FALSE),
                                           awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", FALSE,status = "danger")
-                                      )))),
-                                    column(8, # other seraches
+                                      ))),
+                                    column(10, # other seraches
                                            wellPanel(style = "background-color: #ffffff;",
                                                      fluidRow( # vacc - day pickers
                                                        column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
                                                        column(2,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                                       column(7,style = "text-align: center;color: #44b84b;vertical-align: middle;margin-top: 10px;",
-                                                        conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
-                                                          p('Select treatment ~ time combination to filter by value')),
-                                                        conditionalPanel(condition = "input.radioFilterByRowKinetics != 'row'",
-                                                          p('Select treatment to filter by kinetics, and time for module responses'))
-                                                       )
+                                                       column(7,
+                                                        fluidRow(
+                                                          fluidRow(
+                                                            column(6,awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending', value = TRUE)),
+                                                            column(6,
+                                                             conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
+                                                              div(id = "spancheckboxProbesGenes", style = "color: #b90600; font-weight: bold; font-family: Verdana;",
+                                                                  awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', 'Gene Averages', value = FALSE),
+                                                                  bsTooltip("spancheckboxProbesGenes", "When Selected The Individual Probe Expressions Mapping To Individual Genes Will Be Averaged And Then The Gene Means Ranked. They Can Be Split Again When Plotting Probe Series. Not available when filtering by Value ~ Kinetics")))
+                                                          ))))
                                                      ),# vacc day
                                                      ### searches 1 & 2
-                                                        conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
-                                                          fluidRow( # vacc - day pickers
-                                                           column(6,
-                                                                  awesomeCheckbox(status = 'success', 'checkboxDescending', 'Sort Descending', value = TRUE)),
-                                                           column(6,
-                                                                  span(id = "spancheckboxProbesGenes", style = "color: red; font-weight: bold; font-family: Verdana;",
-                                                                       awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', 'Gene Averages', value = FALSE),
-                                                                       bsTooltip("spancheckboxProbesGenes", "When Selected The Individual Probe Expressions Mapping To Individual Genes Will Be Averaged And Then The Gene Means Ranked. They Can Be Split Again When Plotting Probe Series.")))
-                                                         ),# checkboxes
                                                          fluidRow(
-                                                           column(6,
-                                                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                                                   wellPanel(style = "background-color: #feffee;",
-                                                                                             awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE),
-                                                                                             fluidRow(
-                                                                                               column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)),
-                                                                                               column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
-                                                                                             ),
-                                                                                             conditionalPanel(condition = "input.checkboxProbesGenes == true",p(style = "color: #44b84b;","Probes Averaged By Gene Before Applying Limits")),
-                                                                                             actionButton('buttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
-                                                                                             actionButton('buttonResetValuesRangeData','Dataset', class = 'btn-outline-primary')
-                                                                                   ))
+                                                          column(9,
+                                                                conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                                                wellPanel(style = "background-color: #feffee;",
+                                                                  fluidRow(
+                                                                    column(4,awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)),
+                                                                    column(8,radioGroupButtons('radioFilterByRowKinetics', NULL,
+                                                                             choiceValues = list('row', 'kinetics'),choiceNames = list('Treat~Time', 'Kinetics'),
+                                                                             individual = FALSE, justified = TRUE, status = "primary")
+                                                                    )
+                                                                  ),
+                                                                  conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
+                                                                    fluidRow(
+                                                                      column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)),
+                                                                      column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
+                                                                    ),
+                                                                    conditionalPanel(condition = "input.checkboxProbesGenes == true",p(style = "color: #44b84b;","Probes Averaged By Gene Before Applying Limits")),
+                                                                    actionButton('buttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
+                                                                    actionButton('buttonResetValuesRangeData','Dataset', class = 'btn-outline-primary')
+                                                                  ),
+                                                              conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
+                                                                 fluidRow(
+                                                                   column(2, actionButton('buttonResetKineticsData',"Reset Data", class = "btn-warning")),
+                                                                   column(2, actionButton('buttonResetKineticsTreat',"Reset Treat", class = "btn-warning")),
+                                                                   column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
+                                                                   column(6,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
+                                                                 ),
+                                                                 plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot"),
+                                                                 fluidRow(
+                                                                   column(1,style = "margin-top: 25px;",actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
+                                                                   column(2,style = "margin-top: 25px;",pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                                                   column(2,style = "margin-top: 25px;",awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE)),
+                                                                   conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                                                    column(2,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
+                                                                                    column(2,numericInput("numberShapeDayMax", "Highest:", value = 0)),
+                                                                                    column(3,style = "margin-top: 25px;",
+                                                                                           actionButton('buttonResetValuesShapeVaccine','Treat', class = 'btn-outline-primary'),
+                                                                                           actionButton('buttonResetValuesShapeData','Data', class = 'btn-outline-primary'))
+                                                                   )
+                                                              ))
+                                                                  
+                                                           )) # well conpan pickers
                                                            ),
-                                                           column(6,
-                                                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                                                   wellPanel(style = "background-color: #feffee;",
-                                                                                             awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
-                                                                                             fluidRow(
-                                                                                               column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)),
-                                                                                               column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
-                                                                                             ),
-                                                                                             conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
-                                                                                   ))
+                                                           column(3,
+                                                            conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                                             wellPanel(style = "background-color: #feffee;",
+                                                                       awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
+                                                                       fluidRow(
+                                                                         column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)),
+                                                                         column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
+                                                                       ),
+                                                                       conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
+                                                             ))
                                                            )
                                                          ) # Searches 1 & 2
-                                                       ), # conpan #well
-                                                      conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
-                                                        wellPanel(style = "background-color: #feffee;",
-                                                         fluidRow(
-                                                           column(2, actionButton('buttonResetKinetics',"Reset", class = "btn-warning btn-block")),
-                                                           column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
-                                                           column(8,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
-                                                         ),
-                                                         plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot"),
-                                                         fluidRow(
-                                                           column(1,style = "margin-top: 25px;",actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
-                                                           column(2,style = "margin-top: 25px;",pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                                           column(2,style = "margin-top: 25px;",awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE)),
-                                                           conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                                           column(2,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
-                                                           column(2,numericInput("numberShapeDayMax", "Highest:", value = 0)),
-                                                           column(3,style = "margin-top: 25px;",
-                                                                  actionButton('buttonResetValuesShapeVaccine','Treat', class = 'btn-outline-primary'),
-                                                                  actionButton('buttonResetValuesShapeData','Data', class = 'btn-outline-primary'))
-                                                           )
-                                                         )
-                                                       )# well)
-                                                      )
+
                                            )
                                     )#column
                                   )# row
@@ -389,8 +379,8 @@ ui <-
                                                                                           h4(style = "margin-top: 0px;","Search:"),
                                                                                           awesomeRadio(status = 'success', 'mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
                                                                                           bsTooltip("mradioKeywordColumn", "Search in Module Names or Module Titles"),
-                                                                                          conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #44b84b;","Spaces are stripped from Module name search")),
-                                                                                          conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces are kept for Title name search"))
+                                                                                          conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #44b84b;","Spaces will be stripped")),
+                                                                                          conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces will be kept"))
                                                                                 ))
                                                         ),
                                                         column(8,

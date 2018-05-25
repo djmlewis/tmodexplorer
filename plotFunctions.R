@@ -460,8 +460,8 @@ getGGplotShapeMiniplot <- function(kinetics,dataValueRange) {
       scale_x_continuous(breaks = df$Day) +
       geom_rect(mapping = aes(fill = Exclude, color = Exclude), alpha = 0.3, show.legend = FALSE) +
       geom_point(aes(x = Day, y = Y), shape = 8, size = 3) +
-      scale_fill_manual(values = c(`TRUE` = "white", `FALSE` = "#44b84b")) +
-      scale_color_manual(values = c(`TRUE` = "grey20", `FALSE` = "black")) +
+      scale_fill_manual(values = c(`TRUE` = "white", `FALSE` = "#f9b800")) +
+      scale_color_manual(values = c(`TRUE` = "grey20", `FALSE` = "#f9b800")) +
       geom_hline(yintercept = c(dataValueRange[["Min"]],dataValueRange[["Max"]]), linetype = 2, color = 'grey50')
   
   return(plot)
