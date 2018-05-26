@@ -54,7 +54,6 @@ server <- function(input, output, session) {
   output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
   
   updateExpressionValueRangeVaccDay <- function(selCol){
-    print(selCol)
     if(!is.null(selCol)){
       exprangeVD <- getMaxMinValueFromData(allData$data,c(selCol))
       assign("expressionValueRangeVaccDay",exprangeVD, envir = .GlobalEnv)
@@ -146,7 +145,6 @@ server <- function(input, output, session) {
       setupKineticsFromDataset(vaccDaysInDataset(),"data")
     }
   )
-  
   observeEvent(
     input$buttonResetKineticsTreat,
     {
@@ -212,12 +210,9 @@ server <- function(input, output, session) {
       }
     })
   
-  
   output$buttonSaveShapeKinetics <- downloadHandler(filename = function(){
     return(paste0(allData$folder,kineticsString(shapeKinetics()), ".rds"))},
     content = function(file) {write_rds(list(KinsType = "actualKinetics", Kinetics = shapeKinetics()), file)})
-  
-  
   
   # LOADING ##########
   
@@ -299,7 +294,7 @@ server <- function(input, output, session) {
     # setup the data min max one time
     assign("dataValueRange",expressionValueRangeVaccDay, envir = .GlobalEnv)
     # setup kinetics
-    setupKineticsFromDataset(vaccDays$days, "data")
+    setupKineticsFromDataset(vaccDays$days,"data")
   }
 
   # these do resopnd OK outside this scope but put here for neatness
@@ -343,15 +338,17 @@ respondToChangeColumn <- function(picker) {
   }
 }
 
+
 observeEvent(
     input$buttonResetValuesRangeCol,
     {
       updateExpressionValueRangeVaccDay(sortCol_Probes)})
-  observeEvent(
+
+observeEvent(
     input$buttonResetValuesRangeData,
     {
       updateExpressionValueRangeVaccDay(allData$colNames)})
-  
+
   # warnedAboutProbeRows <- FALSE
   assign("warnedAboutProbeRows",FALSE, envir = .GlobalEnv)
   observeEvent(
@@ -361,7 +358,7 @@ observeEvent(
       assign("warnedAboutProbeRows",TRUE, envir = .GlobalEnv)
     }})
   
-  
+############### Apply Selection ### ####
   topGenesAndModules <- reactiveVal()
   topGenesAndModules(NULL)
   observeEvent(
@@ -381,73 +378,56 @@ observeEvent(
               showTab(inputId = "navProbe", target = "Module->Genes")
               showTab(inputId = "navProbe", target = "Modules:Series")
               
-              filterText <- ""
-              geneslist <- NULL
+              filterSubText <-  ""
+              # keyword acts on allData$data, ignores genes/probes so start with that to reduce
+              geneslist <- allData$data
               
-              if(input$radioFilterByRowKinetics == 'kinetics') {
-                # using filter KINETICS no genes only probes
-                assign("selectKinetics",TRUE, envir = .GlobalEnv)
-                assign("genesOrProbes","Probe", envir = .GlobalEnv)
-
-                matchedData <- getGenesForKinetics(allData$data,shapeKinetics(), input$selectColumnVaccine)
-                geneslist <- getSortedGenesForVaccDay(matchedData,sortCol_Probes,TRUE,"Probe")
-                
-                if(dataFrameOK(geneslist)) {
-                  filtersText(
-                    paste0(" match ",kineticsString(shapeKinetics()),' for ',gsub('_',' (day ',sortCol_Probes),")")
-                    )
-                  dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
-                } else {
-                  filtersText("")
-                  dataAndFiltersText("")
-                }
-
-              } else {
-                # using filters 1-2-3
-                assign("selectKinetics",FALSE, envir = .GlobalEnv)
-
-                # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
-                if(input$checkboxSelectKeyword == TRUE) {
-                  geneslist <- getGenesForSearch(allData$data,input$textInputKeyword,input$radioKeywordColumn,input$checkboxGeneSearchWholeWord)
-                  if(dataFrameOK(geneslist)) {
-                    filterText <- paste0(filterText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')
-                    # calculate topGenesAndModules() using geneslist
-                    geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
-                  }
-                } else {
-                  # calculate topGenesAndModules() using allData
-                  geneslist <- getSortedGenesForVaccDay(allData$data,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
-                }
-                
-                if(input$checkboxSelectValues == TRUE && dataFrameOK(geneslist)){
-                  geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
-                  filterText <- paste0(filterText,'Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
-                }
-                if(input$checkboxSelectRows == TRUE && dataFrameOK(geneslist)){
-                  geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
-                  filterText <- paste0(filterText,'Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
-                }
-                
-                if(dataFrameOK(geneslist)) {
-                  if(nchar(filterText) > 0) {
-                    filtersText(
-                      paste0(gsub('_',' day ',sortCol_Probes),' ',filterText,' ',
-                             ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                             ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
-                      ))
-                    dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
-                  } else {
-                    filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
-                    dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
-                  }
-                } else {
-                  filtersText("")
-                  dataAndFiltersText("")
-                }
-                
-                
+              # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
+              if(input$checkboxSelectKeyword == TRUE) {
+                geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$radioKeywordColumn,input$checkboxGeneSearchWholeWord)
+                if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')}
+              } 
+              
+              # kinetics also acts on allData$data, working on probes so continue with that to reduce
+              assign("selectKinetics",input$radioFilterByRowKinetics == 'kinetics', envir = .GlobalEnv)
+              if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics' && dataFrameOK(geneslist)) {
+                geneslist <- getGenesForKinetics(geneslist,shapeKinetics(), input$selectColumnVaccine)
+                if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText," match ",kineticsString(shapeKinetics()),' for ',gsub('_',' (day ',sortCol_Probes),")")} 
               }
               
+              # all the other filters used sorted and possibly gene averaged data so get that now
+              geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
+              
+              # single column value filter
+              if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics != 'kinetics' && dataFrameOK(geneslist)){
+                geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
+                filterSubText <-  paste0(filterSubText,' Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
+              }
+              
+              # rows filter 
+              if(input$checkboxSelectRows == TRUE && dataFrameOK(geneslist)){
+                geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
+                filterSubText <-  paste0(filterSubText,' Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
+              }
+                
+              # finalise the filters text
+              if(dataFrameOK(geneslist)) {
+                if(nchar(filterSubText) > 0) {
+                  filtersText(
+                    paste0(gsub('_',' day ',sortCol_Probes),' ',filterSubText,' ',
+                           ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
+                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
+                    ))
+                  dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+                } else {
+                  filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
+                  dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
+                }
+              } else {
+                filtersText("")
+                dataAndFiltersText("")
+              }
+
               if(dataFrameOK(geneslist)) {
                 show(id = "navProbeHeader")
               } else {
@@ -796,12 +776,13 @@ observeEvent(
           
           assign("sortCol_Mods",columnsFromVaccinesDays(input$mselectColumnVaccine, input$mselectColumnDay), envir = .GlobalEnv)
           
-          filterText <- ""
+          filterSubText <-  ""
           # apply the filters sequentially
+          
           if(input$mcheckboxSelectKeyword == TRUE){
             mods <- getModulesForSearch(allData$modulesMeans,input$mtextInputKeyword,input$mradioKeywordColumn)
             if(dataFrameOK(mods)) {
-              filterText <- paste0(filterText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
+              filterSubText <-  paste0(filterSubText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
               mods <- getSortedModulesForVaccDay(mods,sortCol_Mods,input$mcheckboxDescending,input$mcheckboxModuleMedians)
             }
           } else {
@@ -811,17 +792,17 @@ observeEvent(
           
           if(input$mcheckboxSelectValues == TRUE && dataFrameOK(mods)){
             mods <- getModulesForValues(mods,input$mnumberExpressionMin,input$mnumberExpressionMax,input$mcheckboxModuleMedians)
-            filterText <- paste0(filterText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
+            filterSubText <-  paste0(filterSubText,'Value from ',input$mnumberExpressionMin,' to ',input$mnumberExpressionMax,' ')
           }
           if(input$mcheckboxSelectRows == TRUE && dataFrameOK(mods)){
             mods <- getModulesForRows(mods,input$mnumberModsStart,input$mnumberModsEnd)
-            filterText <- paste0(filterText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
+            filterSubText <-  paste0(filterSubText,'Rows from ',input$mnumberModsStart,' to ',input$mnumberModsEnd,' ')
           }
       
           if(dataFrameOK(mods)) {
-            if(nchar(filterText) > 0) {
+            if(nchar(filterSubText) > 0) {
               modulesAndFiltersText(
-                paste0(sortCol_Mods,' ',filterText,' ',
+                paste0(sortCol_Mods,' ',filterSubText,' ',
                        ifelse(input$mcheckboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
                        ifelse(input$mcheckboxModuleMedians == TRUE, ' Use Median ',' Use Mean ')
                 ))

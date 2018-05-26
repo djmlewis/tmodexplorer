@@ -316,8 +316,7 @@ getGenesForValues <- function(genes,Min,Max){
 }
 
 getGenesForKinetics <- function(data2Match,kinetics,vacc) {
-  kineticsdf <-  kineticsDF(kinetics) %>%
-    filter(Exclude == FALSE)
+  kineticsdf <-  kineticsDF(kinetics, TRUE)
 
   probes <- map(kineticsdf$Day, function(day){
     Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]

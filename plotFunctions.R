@@ -150,7 +150,6 @@ plotModuleGenes <- function(d,m,t,l,z,gg,showmiss) {
 }
 
 addSortColPlot <- function(sortCol,facet,plot,ll) {
-  if(get("selectKinetics", envir = .GlobalEnv) == TRUE) return(plot)
   if(facet == TRUE) {
     # we have a Treatment and Column 
     dy = as.integer(unlist(str_split(sortCol, "_"))[2])
@@ -271,9 +270,8 @@ plotTopGenesInSeries <- function(data2plot,
     }
     
     if(showkinetics == TRUE && !is.null(kinetics) && pointsBoxes == 'Lines' && facet == TRUE) {
-      df <-  unnest(enframe(kinetics, name = "Day")) %>%
-        mutate_if(is.character,as.numeric) %>%
-        filter(Exclude == FALSE, Day %in% data2plot$Column)
+      df <-  kineticsDF(kinetics, TRUE) %>%
+        filter(Day %in% data2plot$Column)
       plot <- plot +
         geom_rect(data = df, mapping = aes(xmin = Day-0.2, xmax = Day+0.2, ymin = Min, ymax = Max), fill = 'black', color = 'grey20', alpha = 0.1, show.legend = FALSE)
     }
