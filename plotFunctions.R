@@ -454,7 +454,7 @@ getGGplotShapeMiniplot <- function(kinetics,dataValueRange) {
     
     plot <- ggplot(df, aes(xmin = Day-0.3, xmax = Day+0.3, ymin = Min, ymax = Max)) +
       theme(axis.title = element_blank()) +
-      ggtitle("Click * to select day") +
+      # ggtitle("Click * to select day, double-click to toggle Ignore") +
       scale_x_continuous(breaks = df$Day) +
       geom_rect(mapping = aes(fill = Exclude, color = Exclude), alpha = 0.3, show.legend = FALSE) +
       geom_point(aes(x = Day, y = Y), shape = 8, size = 3) +

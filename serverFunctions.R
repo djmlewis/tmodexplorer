@@ -320,41 +320,44 @@ getGenesForValues <- function(genes,Min,Max){
 
 getGenesForKinetics <- function(data2Match,kinetics,vacc, asGenes) {
   kineticsdf <-  kineticsDF(kinetics, TRUE)
-  datamatching <- data2Match
-  
+  col2match <- ifelse(asGenes == TRUE,"Gene","Probe")
+
   if(asGenes == TRUE) {
     selCols <- paste0(vacc,"_",kineticsdf$Day)
     # if asGenes calc means first
-    meansData <- data2Match %>%
+    datamatching <- data2Match %>%
       group_by(Gene) %>%
       summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
       ungroup()
-
-    genes <- map(kineticsdf$Day, function(day){
-      Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
-      Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
-      d <- meansData %>%
-        select(Gene, Value = one_of(paste0(vacc,"_",day))) %>%
-        filter(between(Value,Min,Max))
-      return(unique(d$Gene))
-    })
-    genesmatching <- reduce(genes, intersect)
-    datamatching <- data2Match %>%
-      filter(Gene %in% genesmatching)
-  
   } else {
-  probes <- map(kineticsdf$Day, function(day){
+    datamatching <- data2Match
+  }
+  
+  matching <- map(kineticsdf$Day, function(day){
     Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
     Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
-    d <- data2Match %>%
-      select(Probe, Value = one_of(paste0(vacc,"_",day))) %>%
+    d <- datamatching %>%
+      select(MatchCol = c(col2match), Value = one_of(paste0(vacc,"_",day))) %>%
       filter(between(Value,Min,Max))
-    return(unique(d$Probe))
-    })
-  probesmatching <- reduce(probes, intersect)
+    return(unique(d$MatchCol))
+  })
+  rowssmatching <- reduce(matching, intersect)
   datamatching <- data2Match %>%
-    filter(Probe %in% probesmatching)
-  }
+    filter_at(c(col2match),any_vars(. %in% rowssmatching))
+  
+  # } else {
+  # probes <- map(kineticsdf$Day, function(day){
+  #   Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
+  #   Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
+  #   d <- data2Match %>%
+  #     select(Probe, Value = one_of(paste0(vacc,"_",day))) %>%
+  #     filter(between(Value,Min,Max))
+  #   return(unique(d$Probe))
+  #   })
+  # probesmatching <- reduce(probes, intersect)
+  # datamatching <- data2Match %>%
+  #   filter(Probe %in% probesmatching)
+  # }
   
   
   return(datamatching)
@@ -646,7 +649,7 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   return(expressions)
 }
 
-handleClick <- function(data,click,cid,facet,fact,yv) {
+handleHover <- function(data,click,cid,facet,fact,yv) {
   data <- as.data.frame(data)
   if(facet == TRUE) {
     res <- nearPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment') 

@@ -114,13 +114,16 @@ server <- function(input, output, session) {
     }
   }
   
+  updateDayKineticsToDF <- function(df) {
+    updateAwesomeCheckbox(session,"checkboxShapeSkipDay",value = df$Exclude[[1]])
+    updateNumericInput(session,"numberShapeDayMin",value = df$Min[[1]])
+    updateNumericInput(session,"numberShapeDayMax",value = df$Max[[1]])
+  }
+  
   observeEvent(
     input$selectShapeDay,
     {
-      df <- shapeKinetics()[[input$selectShapeDay]]
-      updateAwesomeCheckbox(session,"checkboxShapeSkipDay",value = df$Exclude[[1]])
-      updateNumericInput(session,"numberShapeDayMin",value = df$Min[[1]])
-      updateNumericInput(session,"numberShapeDayMax",value = df$Max[[1]])
+      updateDayKineticsToDF(shapeKinetics()[[input$selectShapeDay]])
     }
   )
   
@@ -152,19 +155,41 @@ server <- function(input, output, session) {
     }
   )
   
+  
+  saveKineticsDayValues <- function(ignore,day,minVal,maxVal) {
+    curKinetics <- shapeKinetics()
+    if(ignore == TRUE) {
+      curKinetics[[day]] <- data_frame(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = TRUE)
+      resetShapeNumericsToDataset()
+    } else {
+      curKinetics[[day]] <- data_frame(Min = minVal,Max = maxVal, Exclude = ignore)
+    }
+    shapeKinetics(curKinetics)
+  }
+  
+  observeEvent(
+    input$dblclick_plotShapeMiniplot, 
+    {
+      res <- nearPoints(kineticsDF(shapeKinetics()), input$dblclick_plotShapeMiniplot, xvar = "Day", yvar = "Y", maxpoints = 1,threshold = 10) 
+      if(nrow(res)>0) {
+        selday <- as.character(res$Day[1])
+        selKinDF <- shapeKinetics()[[selday]]
+        saveKineticsDayValues(!selKinDF$Exclude[1],selday,dataValueRange[["Min"]],dataValueRange[["Max"]])
+        updatePickerInput(session,"selectShapeDay", selected = selday)
+        updateDayKineticsToDF(shapeKinetics()[[selday]])
+      }
+    })
+  
   observeEvent(
     input$buttonShapeSaveDay,
     {
-      curKinetics <- shapeKinetics()
-      if(input$checkboxShapeSkipDay == TRUE) {
-        curKinetics[[input$selectShapeDay]] <- data_frame(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = TRUE)
-        resetShapeNumericsToDataset()
-      } else {
-        curKinetics[[input$selectShapeDay]] <- data_frame(Min = input$numberShapeDayMin,Max = input$numberShapeDayMax, Exclude = input$checkboxShapeSkipDay)
-      }
-      shapeKinetics(curKinetics)
+      saveKineticsDayValues(input$checkboxShapeSkipDay,input$selectShapeDay,input$numberShapeDayMin,input$numberShapeDayMax)
     }
   )
+  
+  output$buttonSaveShapeKinetics <- downloadHandler(filename = function(){
+    return(paste0(allData$folder,kineticsString(shapeKinetics()), ".rds"))},
+    content = function(file) {write_rds(list(KinsType = "actualValue", Kinetics = shapeKinetics()), file)})
   
   observeEvent(input$buttonLoadShapeKinetics,
    {
@@ -174,18 +199,21 @@ server <- function(input, output, session) {
        if (!is.null(kinsfile) && !is.null(kinsfile[["KinsType"]])) {
          # get a default kinetics first as we may have different days and can keep the defaults in
          newkins <- kinsfile[["Kinetics"]]
-         defkins <- defaultKineticsForDataset()
+         defkins <- defaultKineticsForDataset(dataValueRange)
+
          defnames <- names(defkins)
          # amend the kinetics with the new one where days match, dont add irrelevant ones
+
          walk(names(newkins), function(name) {
            if (name %in% defnames) {
              defkins[[name]] <<- newkins[[name]]
            }
          })
          shapeKinetics(defkins)
+
          #input$buttonLoadShapeKinetics$name is the filename
-         if(identical(defnames,names(newkins))) showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name),type = "message")
-         else showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name," - however they seem to be from a different dataset and so may be incorrect"),type = "warning")
+         # if(identical(defnames,names(newkins))) showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name),type = "message")
+         # else showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name," - however they seem to be from a different dataset and so may be incorrect"),type = "warning")
        } else {
          showNotification(paste0(input$buttonLoadShapeKinetics$name, " appears not to contain valid kinetics"),type = "error")
        }
@@ -210,9 +238,6 @@ server <- function(input, output, session) {
       }
     })
   
-  output$buttonSaveShapeKinetics <- downloadHandler(filename = function(){
-    return(paste0(allData$folder,kineticsString(shapeKinetics()), ".rds"))},
-    content = function(file) {write_rds(list(KinsType = "actualKinetics", Kinetics = shapeKinetics()), file)})
   
   # LOADING ##########
   
@@ -559,7 +584,7 @@ observeEvent(
   
   observeEvent(
     input$hover_plotTopGenesSeries, 
-    {if(input$radioBoxLineProbesSeries != 'Boxplot') handleClick(topGenesInSeries,input$hover_plotTopGenesSeries,"hover_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
+    {if(input$radioBoxLineProbesSeries != 'Boxplot') handleHover(topGenesInSeries,input$hover_plotTopGenesSeries,"hover_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
   
   observeEvent(input$buttonAddAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
   observeEvent(input$buttonRemoveAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = character(0))})
@@ -690,7 +715,7 @@ observeEvent(
     content = function(file) {plotPlotPNG(ggplotModulesInSeries,file,session$clientData[["output_plotModuleSeries_height"]],session$clientData[["output_plotModuleSeries_width"]])})
   
   observeEvent(input$hover_plotModuleSeries, 
-               {if(input$radioRibbonBoxModuleSeries != 'Boxplot') handleClick(moduleValues,input$hover_plotModuleSeries,"hover_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")})
+               {if(input$radioRibbonBoxModuleSeries != 'Boxplot') handleHover(moduleValues,input$hover_plotModuleSeries,"hover_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")})
   
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
     content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
@@ -941,7 +966,7 @@ output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste
   content = function(file) {plotPlotPNG(ggplotSelectedModulesSeries[['plot']],file,session$clientData[["output_mplotModuleSeries_height"]],session$clientData[["output_mplotModuleSeries_width"]])})
 
 observeEvent(input$hover_mplotModuleSeries, 
-             {if(input$mradioRibbonBoxModuleSeries != 'Boxplot') handleClick(ggplotSelectedModulesSeries[['table']],input$hover_mplotModuleSeries,"hover_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
+             {if(input$mradioRibbonBoxModuleSeries != 'Boxplot') handleHover(ggplotSelectedModulesSeries[['table']],input$hover_mplotModuleSeries,"hover_mplotModuleSeries",input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
 
 observeEvent(input$mbuttonAddAllColumnsModuleSeriesVaccines,{updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
 observeEvent(input$mbuttonRemoveAllColumnsModuleSeriesVaccines,{updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', selected = character(0))})
@@ -966,7 +991,7 @@ output$mbuttonSaveListTopModulesSeries <- downloadHandler(filename = function(){
   content = function(file) {write_lines(paste0(paste(unique(modNameFromMenuTitle(input$mselectModuleAllModules)), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
 
 
-  #################### Modules Lookup #########################
+#################### Modules Lookup #########################
 # lookedupMods <- NULL
 assign("lookedupMods",NULL, envir = .GlobalEnv)
 
