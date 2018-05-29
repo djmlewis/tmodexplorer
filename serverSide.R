@@ -391,12 +391,15 @@ observeEvent(
               # kinetics also acts on allData$data, working on probes so continue with that to reduce
               assign("selectKinetics",input$radioFilterByRowKinetics == 'kinetics', envir = .GlobalEnv)
               if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics' && dataFrameOK(geneslist)) {
-                geneslist <- getGenesForKinetics(geneslist,shapeKinetics(), input$selectColumnVaccine)
-                if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText," match ",kineticsString(shapeKinetics()),' for ',gsub('_',' (day ',sortCol_Probes),")")} 
+                geneslist <- getGenesForKinetics(geneslist,shapeKinetics(), input$selectColumnVaccine,input$checkboxProbesGenes)
+                if(dataFrameOK(geneslist)) {
+                  filterSubText <-  paste0(filterSubText," match ",kineticsString(shapeKinetics()),' for ',gsub('_',' (day ',sortCol_Probes),")")
+                } 
               }
               
               # all the other filters used sorted and possibly gene averaged data so get that now
               geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
+              
               
               # single column value filter
               if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics != 'kinetics' && dataFrameOK(geneslist)){

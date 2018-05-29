@@ -212,12 +212,15 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
   # asGenes: detect whether it really is as genes based on the selData: if that lacks column Probe then it is
   # asGenes <- ('Probe' %in% names(selData) == FALSE)
   asGenes <-   get("genesOrProbes", envir = .GlobalEnv) == "Gene"
-
+  
+  
   #at this point we have to decide whether to return gene & probe data non-meaned, or the mean
   # I need to rewrite this as a casewhen or switch
   if (asGenes == TRUE) {
+    seriesData <- allData
+  
     if (splitGenes == FALSE) {
-      seriesData <- allData %>%
+      seriesData <- seriesData %>%
         select(Gene, Probe, one_of(selCols)) %>%
         filter(Gene %in% genesProbesSelected)
       
@@ -254,7 +257,7 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
         full_join(meansData, semData, by = c("Gene", "Column"))
       
     } else {
-      seriesData <- allData %>%
+      seriesData <- seriesData %>%
         select(Gene, Probe, one_of(selCols)) %>%
         filter(Gene %in% genesProbesSelected) %>%
         gather(
@@ -315,9 +318,31 @@ getGenesForValues <- function(genes,Min,Max){
   return(filter(genes,between(Value,Min,Max)))
 }
 
-getGenesForKinetics <- function(data2Match,kinetics,vacc) {
+getGenesForKinetics <- function(data2Match,kinetics,vacc, asGenes) {
   kineticsdf <-  kineticsDF(kinetics, TRUE)
+  datamatching <- data2Match
+  
+  if(asGenes == TRUE) {
+    selCols <- paste0(vacc,"_",kineticsdf$Day)
+    # if asGenes calc means first
+    meansData <- data2Match %>%
+      group_by(Gene) %>%
+      summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
+      ungroup()
 
+    genes <- map(kineticsdf$Day, function(day){
+      Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
+      Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
+      d <- meansData %>%
+        select(Gene, Value = one_of(paste0(vacc,"_",day))) %>%
+        filter(between(Value,Min,Max))
+      return(unique(d$Gene))
+    })
+    genesmatching <- reduce(genes, intersect)
+    datamatching <- data2Match %>%
+      filter(Gene %in% genesmatching)
+  
+  } else {
   probes <- map(kineticsdf$Day, function(day){
     Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
     Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
@@ -326,10 +351,12 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc) {
       filter(between(Value,Min,Max))
     return(unique(d$Probe))
     })
-  
   probesmatching <- reduce(probes, intersect)
   datamatching <- data2Match %>%
     filter(Probe %in% probesmatching)
+  }
+  
+  
   return(datamatching)
 }
 
