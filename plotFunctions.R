@@ -273,7 +273,7 @@ plotTopGenesInSeries <- function(data2plot,
       df <-  kineticsDF(kinetics, TRUE) %>%
         filter(Day %in% data2plot$Column)
       plot <- plot +
-        geom_rect(data = df, mapping = aes(xmin = Day-0.2, xmax = Day+0.2, ymin = Min, ymax = Max), fill = 'black', color = 'grey20', alpha = 0.1, show.legend = FALSE)
+        geom_rect(data = df, mapping = aes(xmin = Day-0.2, xmax = Day+0.2, ymin = Min, ymax = Max), fill = NA, color = 'grey20', alpha = 1, show.legend = FALSE)
     }
     
     return(plot)

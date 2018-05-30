@@ -189,7 +189,7 @@ server <- function(input, output, session) {
   
   output$buttonSaveShapeKinetics <- downloadHandler(filename = function(){
     return(paste0(allData$folder,kineticsString(shapeKinetics()), ".rds"))},
-    content = function(file) {write_rds(list(KinsType = "actualValue", Kinetics = shapeKinetics()), file)})
+    content = function(file) {write_rds(list(FileName = allData$folder, KinsType = "actual", Kinetics = shapeKinetics()), file)})
   
   observeEvent(input$buttonLoadShapeKinetics,
    {
@@ -212,20 +212,10 @@ server <- function(input, output, session) {
          shapeKinetics(defkins)
 
          #input$buttonLoadShapeKinetics$name is the filename
-         # if(identical(defnames,names(newkins))) showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name),type = "message")
-         # else showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name," - however they seem to be from a different dataset and so may be incorrect"),type = "warning")
-       } else {
-         showNotification(paste0(input$buttonLoadShapeKinetics$name, " appears not to contain valid kinetics"),type = "error")
-       }
-     } else {
-       showNotification(
-         paste0(
-           "There was noting to import from ",
-           input$buttonLoadShapeKinetics$name
-         ),
-         type = "error"
-       )
-     }
+         if(identical(defnames,names(newkins))) showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name),type = "message")
+         else showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name," - however they seem to be from a different dataset and so may be incorrect"),type = "warning")
+       } else {showNotification(paste0(input$buttonLoadShapeKinetics$name, " appears not to contain valid kinetics"),type = "error")}
+     } else {showNotification(paste0("There was noting to import from ",input$buttonLoadShapeKinetics$name),type = "error")}
    })
   
   output$plotShapeMiniplot <- renderPlot({getGGplotShapeMiniplot(shapeKinetics(),expressionValueRangeVaccAllDays())})

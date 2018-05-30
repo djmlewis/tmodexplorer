@@ -84,7 +84,9 @@ ui <-
                                                                 conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                                                 wellPanel(style = "background-color: #feffee;",
                                                                   fluidRow(
-                                                                    column(4,awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)),
+                                                                    column(4,
+                                                                      awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)
+                                                                    ),
                                                                     conditionalPanel(condition = "input.checkboxSelectValues == true",
                                                                     column(8,radioGroupButtons('radioFilterByRowKinetics', NULL,
                                                                              choiceValues = list('row', 'kinetics'),choiceNames = list('Treat~Day', 'Treat~Kinetics'),
@@ -92,43 +94,41 @@ ui <-
                                                                     ))
                                                                   ),
                                                                   conditionalPanel(condition = "input.checkboxSelectValues == true",
+                                                                  conditionalPanel(condition = "input.checkboxProbesGenes == true",
+                                                                    p(style = "margin-top: 0px; margin-bottom: 3px; text-align: center;font-weight: bold;  color: #b90600; font-size: 0.9em","Averaged Probe Values Filtered")),
                                                                   conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
-                                                                   fluidRow(
+                                                                  fluidRow(
                                                                       column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)),
                                                                       column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
-                                                                    ),
+                                                                  ),
                                                                    fluidRow(
                                                                       column(6,
                                                                         actionButton('buttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
-                                                                        actionButton('buttonResetValuesRangeData','Dataset', class = 'btn-outline-primary')),
-                                                                      conditionalPanel(condition = "input.checkboxProbesGenes == true",
-                                                                      column(6,p(style = "text-align: center; color: #b90600;font-weight: bold;","Probe Values Averaged By Gene Before Filter")))
+                                                                        actionButton('buttonResetValuesRangeData','Dataset', class = 'btn-outline-primary'))
                                                                    )
                                                                   ),
                                                                   conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
-                                                                       fluidRow(
-                                                                       column(2, actionButton('buttonResetKineticsData',"Reset Data", class = "btn-warning")),
-                                                                       column(2, actionButton('buttonResetKineticsTreat',"Reset Treat", class = "btn-warning")),
-                                                                       column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
-                                                                       column(6,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
-                                                                     ),
-                                                                     plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
-                                                                     bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore"),
-                                                                     fluidRow(
-                                                                       column(1,style = "margin-top: 25px;",pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                                                    plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
+                                                                    bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top'),
+                                                                    fluidRow(
+                                                                       column(2,style = "margin-top: 25px;",pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
                                                                        column(2,style = "margin-top: 25px;",awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE)),
                                                                        conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
                                                                                         column(2,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
                                                                                         column(2,numericInput("numberShapeDayMax", "Highest:", value = 0)),
-                                                                                        column(2,style = "margin-top: 25px;",
+                                                                                        column(3,style = "margin-top: 25px;",
                                                                                                actionButton('buttonResetValuesShapeVaccine','Treat', class = 'btn-outline-primary'),
                                                                                                actionButton('buttonResetValuesShapeData','Data', class = 'btn-outline-primary'))
                                                                        ),
-                                                                       column(1,style = "margin-top: 25px;",actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
-                                                                       conditionalPanel(condition = "input.checkboxProbesGenes == true",
-                                                                        column(2,p(style = "margin-top: 25px; text-align: right; color: #b90600; font-size: 0.9em","Probe Values Averaged By Gene Before Filter")))
-                                                                  ))
-                                                                  
+                                                                       column(1,style = "margin-top: 25px;",actionButton('buttonShapeSaveDay','Set', class = 'btn-warning'))
+                                                                  ),
+                                                                  fluidRow(style = "margin-bottom: 0px;",
+                                                                    column(2, actionButton('buttonResetKineticsData',"Reset Data", class = "btn-warning")),
+                                                                    column(2, actionButton('buttonResetKineticsTreat',"Reset Treat", class = "btn-warning")),
+                                                                    column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
+                                                                    column(6,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
+                                                                  )
+                                                                )
                                                            ))) # well conpan pickers
                                                            ),
                                                            column(3,
@@ -141,7 +141,7 @@ ui <-
                                                                          column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
                                                                        ),
                                                                        conditionalPanel(condition = "input.checkboxProbesGenes == true",
-                                                                        p(style = "text-align: center; color: #b90600;font-weight: bold;","Probe Values Averaged By Gene Before Filter")),
+                                                                        p(style = "text-align: center; color: #b90600;font-weight: bold; font-size: 0.9em","Averaged Probe Values Filtered")),
                                                                        conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
                                                              )))
                                                            )
@@ -170,7 +170,7 @@ ui <-
                                             wellPanel(style = "background-color: #FFFFFF",
                                                       h4(style = "margin-top: 0px;",'Time Course Of Probes Or Genes Meeting The Filters, By Treatment~Time'),
                                                       fluidRow(
-                                                        column(3,
+                                                        column(4,
                                                                wellPanel(style = "background-color: #feffee;",
                                                                          conditionalPanel(condition = "input.selectVaccinesForSeries != null && input.selectDaysForSeries != null && input.selectGenesProbesForSeries != null",
                                                                                           actionButton('buttonPlotSeries','Plot',class = "btn-warning btn-block")),
@@ -185,20 +185,20 @@ ui <-
                                                                                                         bsTooltip("spancheckboxShowProbesOfGenesSeries", "When Selected The Value Of Individual Probes For Each Gene Will Be Plotted Instead Of Gene Averages")),
                                                                                                    awesomeCheckbox(status = 'success', 'checkboxShowPointsSeries', 'Points', value = FALSE),
                                                                                                    conditionalPanel(condition = "input.checkboxShowProbesOfGenesSeries != true", awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE)),
-                                                                                                   conditionalPanel(condition = "input.radioFilterByRowKinetics != 'row' && input.checkboxSplitSeries == true", 
-                                                                                                    awesomeCheckbox(status = 'danger', 'checkboxShowKineticsSeries', 'Kinetics Filters', value = TRUE))
+                                                                                                   conditionalPanel(condition = "input.radioFilterByRowKinetics != 'row' && input.checkboxSplitSeries == true", style = "color: #4178b6;",
+                                                                                                    awesomeCheckbox(status = 'primary', 'checkboxShowKineticsSeries', 'Kinetics Filters', value = TRUE))
                                                                                   )
                                                                            ),
                                                                            column(6,
                                                                                   awesomeCheckbox(status = 'success', 'checkboxSplitSeries', 'Split', value = TRUE),
                                                                                   conditionalPanel(condition = "input.checkboxSplitSeries == true && input.radioBoxLineProbesSeries != 'Boxplot'",
-                                                                                                   awesomeCheckbox(status = 'success', 'checkboxShowGridSeries', 'Gridlines', value = TRUE)),
+                                                                                    awesomeCheckbox(status = 'success', 'checkboxShowGridSeries', 'Gridlines', value = TRUE)),
                                                                                   awesomeCheckbox(status = 'success', 'checkboxShowZeroSeries', '0 |----', value = TRUE),
                                                                                   awesomeCheckbox(status = 'success', 'checkboxShowLegendSeries', 'Legend', value = FALSE),
                                                                                   sliderInput("numberPlotTopGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotTopGenesSeriesSIZEheight", "Plot height")
                                                                            ))
                                                                )),
-                                                        column(9,
+                                                        column(8,
                                                                wellPanel(style = "background-color: #feffee;",
                                                                          fluidRow(
                                                                            column(4,selectInput('selectVaccinesForSeries', label = "Treatment", choices = character(0), multiple = TRUE)),
@@ -772,7 +772,7 @@ ui <-
                                                         column(2,prettyRadioButtons('cradioCytokinesWrap', NULL, choiceValues = list('TC','CT'), choiceNames = list('Vac↓ Cyt→', 'Cyt↓ Vac→'),
                                                                                     inline = TRUE, outline = TRUE, status = "success"),bsTooltip("cradioCytokinesWrap", "How to order the panels when plotting: Cytokines across and vaccines downwards, or reverse.")),
                                                         column(1, style = "margin-top: 10px;",
-                                                               span(id = "spanccheckboxMonochrome",awesomeCheckbox(status = 'success', 'ccheckboxMonochrome', 'Monochrome', value = FALSE)),bsTooltip("spanccheckboxMonochrome", "Plot in black & white")),
+                                                               span(id = "spanccheckboxMonochrome",awesomeCheckbox(status = 'success', 'ccheckboxMonochrome', 'Grey', value = FALSE)),bsTooltip("spanccheckboxMonochrome", "Plot in black & white")),
                                                         column(1, style = "margin-top: 10px;",numericInput("cnumericNumPanels",NULL,value = 3, min = 1, step = 1), bsTooltip("cnumericNumPanels", "Maximum number of panels per plot row")),
                                                         column(1,sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 4000), bsTooltip("cnumberPlotCytokinesSIZEheight", "Plot height"))
                                                       ),
