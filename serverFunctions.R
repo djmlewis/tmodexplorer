@@ -368,7 +368,7 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
 
   # ignore an empty search
   if(search == "") {
-    showNotification("Empty searches are ignored", type = 'error')
+    showNotification("Empty Keyword regex searches are ignored", type = 'error')
     return(NULL)
   }
   # strip spaces from genes and probes

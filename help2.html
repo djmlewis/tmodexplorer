@@ -17,11 +17,24 @@
         <ul>
           <li><a href="#Select_tab_-_probes_">Select tab - probes</a></li>
           <ul>
-            <li><a href="#1._Regex_-_keyword_search_">Regex - keyword
+            <li><a href="#1._Regex_-_keyword_search_">1. Regex - keyword
                 search</a></li>
-            <li><a href="#2._Sorted_Column_Values">Sorted Column Values</a></li>
-            <li><a href="#3._Sorted_Column_Row_Numbers_">Sorted Column
-                Row Numbers</a></li>
+            <li><a href="#2_and_3:_Values_In_Range_">2 &amp; 3: Values
+                In Range and Rows In Range</a></li>
+            <ul>
+              <li><a href="#Sort_descending">Sort descending</a><br>
+              </li>
+              <li><a href="#Gene_Averages">Gene Averages</a></li>
+              <li><a href="#2._Values_In_Range">2. Values In Range</a></li>
+              <ul>
+                <li><a href="#Single_TreatmentTime_combination">Single
+                    Treatment~Time combination</a></li>
+                <li><a href="#Matching_kinetics_for_one_treatment">Matching&nbsp;
+                    kinetics for one treatment over different times</a></li>
+              </ul>
+              <li><a href="#3._Rows_In_Range_">3. Rows In Range</a><br>
+              </li>
+            </ul>
           </ul>
           <li><a href="#Selected_Probes_tab">Selected Probes</a></li>
           <li><a href="#Probes:Series_tab_">Probes:Series</a></li>
@@ -117,6 +130,8 @@
 
 
 
+
+
       by commas</b> and are OR'd (search returns as many of those terms
     as it can find, treating each term separately). Commas are
     interpreted as search term dividers and cannot be 'escaped'. Select
@@ -148,6 +163,8 @@
 
 
 
+
+
       regex characters</a> by mistake.<br>
     <br>
     Regex search&nbsp; ignores the "Selected Column" and any values (see
@@ -165,49 +182,160 @@
     from one of the <b>Lookup</b> tables - be sure to match Gene and
     Probe / Name. <b>This allows fairly easy repetition of searches
       across datasets</b>, at least for Genes.<br>
-    <h4><a name="2._Sorted_Column_Values"></a>2. Sorted Column Values</h4>
-    <p>Pick a&nbsp; <b>treatment ~ time combination</b> you want to
-      explore from the menus. This treatment~time "column" is the basic
-      unit for tmodExplorer - it combines a treatment and a time point,
-      e.g. "Boostrix_7" contains mean values on day 7 for participants
-      who received Boostrix. All data sets are based on these columns.
-      Time series plots will indicate the sorted column with <font
-        color="#ff0000">▼▲</font>.</p>
-    <p> <b>Sort descending</b> for highest values in top rows. <br>
+    <h4><a name="2_and_3:_Values_In_Range_"></a>2 and 3: Values In Range
+      and Rows In Range<br>
+    </h4>
+    <p>In both cases you must pick a&nbsp; <b>treatment ~ time
+        combination</b> you want to explore from the menus. This
+      treatment~time "column" is the basic unit for tmodExplorer - it
+      combines a treatment and a time point, e.g. "Boostrix_7" contains
+      mean values on day 7 for participants who received Boostrix. All
+      data sets are based on these columns. Time series plots will
+      indicate the sorted column with <font color="#ff0000">▼▲</font>.
+      The selected treatment-time column also determines the
+      treatment-time combination used to display module expression
+      values, which are shown for only one treatment-time combination,
+      unless the plot modules series option is used.<br>
+      <br>
+      Max/min expression values will be pre-entered for you into the
+      range boxes when selecting a column, using floor() and ceil() and
+      so will deliberately exceed the actual values to avoid issues with
+      floating-point maths. Click <b>Column</b> to reset to max/min for
+      selected column, or <b>Data</b> for max/min of whole dataset in
+      all columns.</p>
+    <h5><a name="Sort_descending"></a><b>Sort descending</b></h5>
+    <p>Select<b> Sort descending</b> for highest values in top rows, or
+      deselect to have lowest values in top rows (in which case top N
+      rows is the N most down-regulated).<br>
+    </p>
+    <h5><a name="Gene_Averages"></a>Gene Averages</h5>
+    <p>Probes are arranged in rows - one unique probe per row. However,
+      many probes may map to a single gene. You can filter by the values
+      of the individual probes or have tmodExplorer group the probes by
+      Gene and then calculate a mean Gene value by which to filter.
       Select <font color="#ff0000"><b>Gene Averages</b></font> to have
       expressions of individual probes that map to a gene averaged into
       one row, otherwise it will be one probe per row and genes may
-      repeat. This is important if you restrict by "<b>Sorted Row
-        Numbers</b>": e.g. if you select 10 rows and have <b>Gene
-        Averages</b> selected you may include many more than 10 probes,
-      but if <b>Gene Averages</b> is not selected you just get the top
-      10 probes which may map to less than 10 genes. As the modules work
-      in genes, it is probably better to select <b>Gene Averages</b>,
-      unless you specifically want to follow distinct probes. A
+      repeat. If your main purpose is to identify probes of interest
+      then avoid gene averaging which has multiple consequences.
+      However, as the modules work in genes, it is probably better to
+      select Gene Averages if your main interest is to study modules -
+      as this way you increase the number of genes identified. A
       disadvantage of gene averages is that you lose the gene
-      descriptions, which are probe-specific. Copy the Gene list on the
-      <a href="#Selected_Probes_tab"><b>Selected Probes</b></a> tab and
-      use&nbsp; the <a href="#Gene_Lookup_tab"><b>Gene Lookup tab</b></a>
-      to lookup genes by their names and see the probe descriptions.</p>
-    Max/min expression values will be pre-entered for you into the range
-    boxes when selecting a column, using floor() and ceil() and so will
-    deliberately exceed the actual values. Click <b>Column</b> to reset
-    to max/min for selected column, or <b>Data</b> for max/min of whole
-    dataset in all columns. Value restrictions apply only to values in
-    the column selected for sort - <b>so you will filter based on the
-      values in the column you selected</b>. This is important - these
-    restrictions do not affect other treatment~time columns.<br>
-    <h4><a name="3._Sorted_Column_Row_Numbers_"></a>3. Sorted Column Row
-      Numbers<br>
-    </h4>
+      descriptions, which are probe-specific. To find lookup the gene
+      functions copy the <b>Gene list</b> on the <a
+href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Selected_Probes_tab"><b>Selected
+
+          Probes</b></a> tab and use&nbsp; the <a
+href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Gene_Lookup_tab"><b>Gene
+
+          Lookup tab</b></a> to lookup genes by their names and see the
+      probe descriptions.</p>
+    <h5><a name="2._Values_In_Range"></a>2. Values In Range</h5>
+    <p>This operates in two ways - on a <b>single Treatment~Time
+        combination</b> (one "column"), or by <b>matching the kinetics
+        for one treatment over different times</b> (a "multi-column"
+      value filter)<br>
+    </p>
+    <h6><a name="Single_TreatmentTime_combination"></a><b>Single
+        Treatment~Time combination</b></h6>
+    <p>This is the simplest way to filter by value and uses the
+      Treatment~Time combination you selected in the menus. Probes or
+      Genes will be selected if the Probe value or Gene mean value falls
+      between the Lowest - Highest values in the Treatment~Time column
+      you have selected. e.g. select probes whose value falls in this
+      range on Day 1 after Fluad. The purpose is to select probes or
+      genes (in rows) of interest in the response to a specific
+      treatment, on a specific day. The response of these probes after
+      other treatments on other days can then be plotted as well.<br>
+    </p>
+    <h6><a name="Matching_kinetics_for_one_treatment"></a><b>Matching&nbsp;
+        kinetics for one treatment over different times</b></h6>
+    <p>This is really just a multi-column version of the single time
+      filter. Importantly, the filters are applied only to the
+      expression of probes / genes after the treatment you have selected
+      in the menu. Its purpose is to filter on the shape of the kinetics
+      curve of the probe / gene means responses. For example: You may
+      want to identify probes whose expression is high only on day 1
+      after Fluad and then falls to baseline thereafter; or those that
+      remain high on days 1 &amp; 2 and then go to baseline; or probes
+      that go high and then go low over time - - possibly matching the
+      kinetics of different cell types.</p>
+    <p>Initially a plot appears showing the maximum and minimum values
+      (dotted lines) for the treatment you selected in the menu, and
+      "windows" are created for every time point set to the maximum -
+      minimum values for the whole dataset (all treatments - all times).
+      Do not click "Apply Filters" with these windows as it just returns
+      all 60k probes! It may be a good idea to leave "3. Rows In Range"
+      filter set until you are sure your pattern will not return too
+      many genes, then turn it off for reasons explained below.<br>
+    </p>
+    <p>Use the menu below the plot to pick a time point, enter the
+      lowest : highest values and click <b>Set</b>. Click <b>Treat</b>
+      to reset to max/min for selected treatment, or <b>Data</b> for
+      max/min of whole dataset. <b>Remember to click Set otherwise
+        changes will be lost. </b>The plot re-draws the new window. <br>
+    </p>
+    <p>To have a day ignored (no filter) select <b>Ignore</b>&nbsp; -
+      the lowest : highest boxes are hidden and the plot draws an empty
+      window set to the dataset min-max to illustrate that all values
+      will be accepted. When filtering fold-change data it is probably
+      worth ignoring day 0 (always 0 value) to save time.<br>
+    </p>
+    <p>You can quickly select a time point by clicking on the * inside a
+      window on the plot. If you double-click it toggles ignore on / off
+      and saves the change.<b><br>
+      </b>To reset all the windows to the max min for the treatment
+      selected or whole dataset click <b>Reset Treat</b> or <b>Reset
+        Data</b>. To save the windows click <b>Export</b>, and to
+      import a saved profile click <b>Import</b>…. Note that the app
+      will try hard to import any profile even if saved from dataset,
+      and will warn you if they appear not to match the current dataset.<br>
+    </p>
+    <p>Be very careful if you also set to filter by <b>3. Rows In Range</b>.
+      While the kinetics windows over-ride the <b>time</b> selected in
+      the menus, it is still important! This time point is used to sort
+      the rows by value for the <b>3. Rows In Range</b> filter, and so
+      it may exclude or include unexpected rows if mismatched to the
+      kinetics filter. <br>
+    </p>
+    <p>The selected treatment-time column also determines the
+      treatment-time combination used to display module expression
+      values, which are shown for only one treatment-time combination,
+      unless the plot modules series option is used. So if you filter
+      probes / genes by the kinetics after a specific treatment, you may
+      have to try different time selections to view the modules on
+      different days within your kinetics. Just click "Apply Filter"
+      after each time you select a different time.</p>
+    <h5><a name="3._Rows_In_Range_"></a>3. Rows In Range<br>
+    </h5>
     This is probably the most useful restriction and it is probably a
     good idea to keep this selected, as over 200 rows is slow to
     calculate and plot. You can restrict rows to have top N or bottom N
     rows, or have a slice. If there are fewer rows available after the
     previous selections than you request you will get a cryptic warning.
-    Row restrictions apply&nbsp; to the sorted values in the column
-    selected for sort - <b>so you will filter based on the values in
-      the column you selected</b>.
+    <br>
+    <br>
+    Row restrictions apply to the <b>sorted values</b> in the <b>Treatment~Time
+
+      combination</b> (column) selected in the menus - <b>so you will
+      filter based on the values in the column you selected</b>. This is
+    extremely important, as whatever filters you have applied before you
+    get to this one (keyword, kinetics) will then be re-filtered based
+    on the values in the selected treatment~time column. This may have
+    unexpected effects when filtering by kinetics, so <b>pay</b><b>
+      attention to the time selected</b> if you have filtered by <b>kinetics</b>:
+    for example if you set up a kinetics profile that filters on days 2
+    &amp; 3 but then restrict the number of rows with day 7 selected in
+    the treatment~time combination it will pull out the top rows based
+    on the expressions on day 7, which is probably not what you want.
+    Generally be careful with this filter when filtering with kinetics,
+    and probably it is best not to include it.<br>
+    <br>
+    If you have <b>Gene Averages</b> selected this affects the result:
+    e.g. if you filter to the first 10 rows you may include 10 probes,
+    but if <b>Gene Averages</b> is selected you get the top 10 genes
+    which may map to more than 10 probes.<br>
     <h3><a name="Selected_Probes_tab"></a>Selected Probes tab</h3>
     A data table showing the probes or genes (if averaged) that meet the
     filter settings is shown and can be downloaded as a csv file or as a
@@ -257,6 +385,13 @@
     colour-coded to the gene, and different symbols are used. This helps
     to show the behaviour of different probes mapping the same gene.
     Hover over the points to identify the probe. <br>
+    <b>Kinetics Filters</b> - if you filtered using <b>2: Filter By
+      Value</b> and used kinetics, this option appears to draw
+    rectangles for the windows used to filter values at each time point.
+    It is instructive to use this when <b>Gene Average</b> was
+    selected, in combination with<b> </b><b>Gene⫷Probes</b> to identify
+    probes that fall outside the windows but were included within the
+    gene mean.
     <h3><a name="Genes-Modules_tab_"></a> Genes-&gt;Modules tab<br>
     </h3>
     This panel lists the selected probes or genes and shows which - if
@@ -425,6 +560,8 @@
 
 
 
+
+
         (Probes) tab</b></a> as it allows the expression of the selected
     modules to be plotted for all treatment ~ time combinations as a
     time course. Use the slider to change plot height, and browser
@@ -449,6 +586,8 @@
         - which group&nbsp; modules into categories.&nbsp;</li>
     </ul>
     <p>Once you have selected some modules or titles in the&nbsp; <b>All
+
+
 
 
 
@@ -516,6 +655,8 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
           that section for details</b></a>. <br>
       Spaces will always be stripped from this search as Module Names
       cannot have spaces.<br>
@@ -553,6 +694,8 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
           increase </b>(from day 0) or <b>actual concentration values</b>
         when plotting.FI may give some wide error bars if a few outliers
         have big changes.<br>
@@ -561,6 +704,8 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
+
 
 
 
@@ -599,44 +744,54 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         are filtered to remove zeros before means/medians/densities
         calculated.</li>
       <li><b>Log transforms</b>. Use the radio buttons to plot
-        untransformed <b>Y</b>, or various log transforms. ln1p plots
-        ln(1+Y) which is useful when there are zero values or Y &lt;&lt;
-        1. For Boxplot and Violin plots the actual Y values are log
+        untransformed <b>Y</b>, or various log transforms. It is
+        possible to efficiently mangle the data beyond all recognition
+        or comprehension with these various options.<br>
+        <b>ln1p</b> plots ln(1+Y) which is useful when there are zero
+        values or Y &lt;&lt; 1.<br>
+        For Boxplot and Violin plots the actual Y values are log
         transformed before any mean/medians are then calculated, so bear
-        this in mind. For Line plots the raw Y values are also
-        transformed before calculating the mean - unless the <b>Means</b>
-        checkbox is selected, in which case the mean is calculated from
+        this in mind.<br>
+        For Line plots the raw Y values are also transformed before
+        calculating the mean - unless the <b>Means</b> checkbox is
+        selected, in which case the mean is calculated from
         untransformed data then log transformed (equivalent to plotting
         on a log scale), and the SE is set to 0 (as log transformation
-        of variance is tricky). The raw data can always be downloaded
-        from the data table to do your own transformations. Zero values
-        are removed before transformation if <b>Exclude Zero Y</b><b>
-          Values</b> option is selected<br>
+        of variance is tricky).<br>
+        The raw data can always be downloaded from the data table to do
+        your own transformations. <br>
+        Zero values are removed <b>before any log transformation</b> if
+        <b>Exclude Zero Y</b><b> Values</b> option is selected<br>
       </li>
       <li><b>Show N</b>. This prints the number of available data points
         per day at the bottom of the plot, and the actual number used at
-        the top. The top number may be reduced by missing data in the
-        dataset, or when zero values have been omitted. The bottom
-        number may also be reduced by data missing from the dataset
-        (e.g. if one participant skipped a visit that reduces the group
-        size for that day by 1). Useful if <b>Exclude Zero Y Values</b>
-        selected.<br>
+        the top. The top number may be already be reduced by missing
+        data in the dataset (NAs in the data), or when zero values have
+        been omitted using <b>Exclude Zero Y</b><b> Values</b> option.
+        The bottom number may also be reduced by data missing from the
+        dataset (e.g. if one participant skipped a visit that reduces
+        the group size for that day by 1). This plot is useful if <b>Exclude
+
+          Zero Y Values</b> selected as it highlights how many
+        participants have been excluded - or conversely how many do have
+        useful data.<br>
       </li>
       <li><b>Fixed Y.</b> When selected the Y axis max-min range will be
-        fixed for each cytokine across all treatments. Each cytokine
-        will still have its own range, but the overall max - min will be
-        imposed. This is relevant for placebo groups. If unselected,
-        each panel has its own Y axis range.</li>
+        <b> fixed for each cytokine</b> across all treatments. Each
+        cytokine will still have its own range, but the overall max -
+        min will be imposed. This is relevant for placebo groups. If
+        unselected, each panel has its own Y axis range.</li>
       <li><b>Vac↓ Cyt→</b> creates panels grouped by vaccine: cytokines
         wrap in the columns, and then a new block starts with each
         vaccine treatment. <br>
         <b>Vac→Cyt↓</b> does the reverse, with panels grouped by
         cytokine: vaccine treatments wrap in the columns, and then a new
         block starts with each cytokine.</li>
-      <li><b>Monochrome</b> - when selected all plots are in black and
-        white. Otherwise I have pre-allocated fixed colours to the
-        cytokines which do not change even when the number of cytokines
-        plotted is changed.<br>
+      <li><b>Grey</b> - when selected all plots are in greyscale.
+        Otherwise I have pre-allocated <b>fixed colours to the
+          cytokines</b> which do not change even when the number of
+        cytokines plotted is changed. This allows easy cross-reference
+        between plots with different combinations of cytokines.<br>
       </li>
       <li>A box to enter the <b>maximum</b><b> number of panels per row</b>,
         and slider to control the <b>height of the plot</b>, offer some
@@ -654,7 +809,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
     trials ABC, D and D2.<br>
     Use the menus to select some cell types, vaccines and days. The
     order in which you enter the selections is respected in the plots,
-    except for days on a continuous X axis. <br>
+    except for days on a continuous x-axis. <br>
     Once you have selected some vaccines, days and cell types you can
     click <b>Plot</b> to create plot, and to re-draw if you change any
     options. <b><br>
@@ -684,6 +839,8 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       </ul>
       <li><b>Fold Change ~ Cell Count</b>. Use the radio buttons to
         switch between plotting <b>fold increase </b>(from day 0) or <b>actual
+
+
 
 
           cell values</b> when plotting.<br>

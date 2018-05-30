@@ -330,6 +330,7 @@ output$textFiltersMods <- renderText({paste0("\U1F50D ",modulesAndFiltersText())
   # select the genes and identify associated modules
 
 ### selecting events - probes
+
 observeEvent(
   {
     input$selectColumnDay
@@ -404,8 +405,8 @@ observeEvent(
               } 
               
               # kinetics also acts on allData$data, working on probes so continue with that to reduce
-              assign("selectKinetics",input$radioFilterByRowKinetics == 'kinetics', envir = .GlobalEnv)
-              if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics' && dataFrameOK(geneslist)) {
+              assign("selectKinetics",input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics', envir = .GlobalEnv)
+              if(selectKinetics == TRUE && dataFrameOK(geneslist)) {
                 geneslist <- getGenesForKinetics(geneslist,shapeKinetics(), input$selectColumnVaccine,input$checkboxProbesGenes)
                 if(dataFrameOK(geneslist)) {
                   filterSubText <-  paste0(filterSubText," match ",kineticsString(shapeKinetics()),' for ',gsub('_',' (day ',sortCol_Probes),")")

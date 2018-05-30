@@ -89,7 +89,7 @@ ui <-
                                                                     ),
                                                                     conditionalPanel(condition = "input.checkboxSelectValues == true",
                                                                     column(8,radioGroupButtons('radioFilterByRowKinetics', NULL,
-                                                                             choiceValues = list('row', 'kinetics'),choiceNames = list('Treat~Day', 'Treat~Kinetics'),
+                                                                             choiceValues = list('row', 'kinetics'),choiceNames = list('Treat~Time', 'Treat~Kinetics'),
                                                                              individual = FALSE, justified = TRUE, status = "primary")
                                                                     ))
                                                                   ),
@@ -137,8 +137,8 @@ ui <-
                                                                        awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
                                                                        conditionalPanel(condition = "input.checkboxSelectRows == true",
                                                                         fluidRow(
-                                                                         column(6,numericInput("numberGenesStart", "From Row:", 0, min = 0, max = NA, step = 5)),
-                                                                         column(6,numericInput("numberGenesEnd", "To Row:", 10, min = 0, max = NA, step = 5))
+                                                                         column(6,numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5)),
+                                                                         column(6,numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5))
                                                                        ),
                                                                        conditionalPanel(condition = "input.checkboxProbesGenes == true",
                                                                         p(style = "text-align: center; color: #b90600;font-weight: bold; font-size: 0.9em","Averaged Probe Values Filtered")),
