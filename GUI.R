@@ -80,7 +80,7 @@ ui <-
                                                      ),# vacc day
                                                      ### searches 1 & 2
                                                          fluidRow(
-                                                          column(9,
+                                                          column(10,
                                                                 conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                                                 wellPanel(style = "background-color: #feffee;",
                                                                   fluidRow(
@@ -103,24 +103,29 @@ ui <-
                                                                   ),
                                                                    fluidRow(
                                                                       column(6,
-                                                                        actionButton('buttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
-                                                                        actionButton('buttonResetValuesRangeData','Dataset', class = 'btn-outline-primary'))
+                                                                        actionButton('buttonResetValuesRangeCol',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
+                                                                        actionButton('buttonResetValuesRangeData',NULL, icon = icon("folder-open"), class = 'btn-outline-primary'))
                                                                    )
                                                                   ),
                                                                   conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
                                                                     plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
                                                                     bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top'),
                                                                     fluidRow(
-                                                                       column(2,style = "margin-top: 25px;",pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                                                      column(1,style = "margin-top: 25px;",actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
+                                                                      column(2,style = "margin-top: 25px;",pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
                                                                        column(2,style = "margin-top: 25px;",awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE)),
                                                                        conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
                                                                                         column(2,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
-                                                                                        column(2,numericInput("numberShapeDayMax", "Highest:", value = 0)),
+                                                                                        column(2,numericInput("numberShapeDayMax", "Highest:", value = 0))),
                                                                                         column(3,style = "margin-top: 25px;",
-                                                                                               actionButton('buttonResetValuesShapeVaccine','Treat', class = 'btn-outline-primary'),
-                                                                                               actionButton('buttonResetValuesShapeData','Data', class = 'btn-outline-primary'))
-                                                                       ),
-                                                                       column(1,style = "margin-top: 25px;",actionButton('buttonShapeSaveDay','Set', class = 'btn-warning'))
+                                                                                               fluidRow(
+                                                                                               column(6, conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                                                                actionButton('buttonResetValuesShapeVaccine',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
+                                                                                                actionButton('buttonResetValuesShapeData',NULL, icon = icon("folder-open"),class = 'btn-outline-primary'))),
+                                                                                               column(6, 
+                                                                                                actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-primary'),
+                                                                                                actionButton('buttonPasteValuesShapeData',NULL, icon = icon("paste"), class = 'btn-warning'))
+                                                                                        ))
                                                                   ),
                                                                   fluidRow(style = "margin-bottom: 0px;",
                                                                     column(2, actionButton('buttonResetKineticsData',"Reset Data", class = "btn-warning")),
@@ -131,15 +136,17 @@ ui <-
                                                                 )
                                                            ))) # well conpan pickers
                                                            ),
-                                                           column(3,
+                                                           column(2,
                                                             conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                                              wellPanel(style = "background-color: #feffee;",
                                                                        awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
                                                                        conditionalPanel(condition = "input.checkboxSelectRows == true",
-                                                                        fluidRow(
-                                                                         column(6,numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5)),
-                                                                         column(6,numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5))
-                                                                       ),
+                                                                        numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5),
+                                                                        numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5),
+                                                                       #  fluidRow(
+                                                                       #   column(6,numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5)),
+                                                                       #   column(6,numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5))
+                                                                       # ),
                                                                        conditionalPanel(condition = "input.checkboxProbesGenes == true",
                                                                         p(style = "text-align: center; color: #b90600;font-weight: bold; font-size: 0.9em","Averaged Probe Values Filtered")),
                                                                        conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
@@ -374,7 +381,7 @@ ui <-
                                             
                                             h4(style = "text-align: center;", 'Apply filters to select modules for plotting. Selected filters are applied in order left → right'),
                                             fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
-                                                                                          actionButton('mbuttonApplySelection','Apply Selections',class = "btn-warning btn-block")))),
+                                                                                          actionButton('mbuttonApplySelection','Apply Filters',class = "btn-warning btn-block")))),
                                             br(),
                                             wellPanel(style = "background-color: #FFFFFF;",
                                                       fluidRow(
@@ -411,8 +418,8 @@ ui <-
                                                                                                                ),
                                                                                                                conditionalPanel(condition = "input.mcheckboxModuleMedians == true",p(style = "color: #44b84b;","Limits Applied To Module Medians, Not Gene Values")),
                                                                                                                conditionalPanel(condition = "input.mcheckboxModuleMedians == false",p(style = "color: #44b84b;","Limits Applied To Module Means, Not Gene Values")),
-                                                                                                               actionButton('mbuttonResetValuesRangeCol','Treat~Time', class = 'btn-outline-primary'),
-                                                                                                               actionButton('mbuttonResetValuesRangeData','Dataset', class = 'btn-outline-primary')
+                                                                                                               actionButton('mbuttonResetValuesRangeCol',NULL, icon = icon("tag"), class = 'btn-outline-primary'),
+                                                                                                               actionButton('mbuttonResetValuesRangeData',NULL, icon = icon("folder-open"), class = 'btn-outline-primary')
                                                                                                      ))),
                                                                              column(6,
                                                                                     conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",

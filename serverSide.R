@@ -77,6 +77,9 @@ server <- function(input, output, session) {
   }
   
   # KINETICS MATCHING ###############
+  assign("copiedDayKinetics",NULL, envir = .GlobalEnv)
+  
+  
   vaccDaysInDataset <- function() {
     vaccinesDaysFromColNames(allData$colNames)$days
   }
@@ -124,6 +127,23 @@ server <- function(input, output, session) {
     input$selectShapeDay,
     {
       updateDayKineticsToDF(shapeKinetics()[[input$selectShapeDay]])
+    }
+  )
+  
+  observeEvent(
+    input$buttonCopyValuesShapeData,
+    {
+      assign("copiedDayKinetics",data_frame(Exclude = input$checkboxShapeSkipDay ,Min = input$numberShapeDayMin, Max = input$numberShapeDayMax), envir = .GlobalEnv)
+    }
+  )
+  
+  observeEvent(
+    input$buttonPasteValuesShapeData,
+    {
+      if(!is.null(copiedDayKinetics)) {
+        saveKineticsDayValues(copiedDayKinetics$Exclude[1],input$selectShapeDay,copiedDayKinetics$Min[1],copiedDayKinetics$Max[1])
+        updateDayKineticsToDF(copiedDayKinetics)
+      }
     }
   )
   
