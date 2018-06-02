@@ -34,6 +34,8 @@ server <- function(input, output, session) {
       showTab(inputId = "navbarTop", target = "ReadMe")
       showTab(inputId = "navbarTop", target = "Cells")
       showTab(inputId = "navbarTop", target = "Cytokines")
+    } else {
+      sendSweetAlert(session, type = 'error', title = "Password", text = "That password is not recognised")
     }
     })
   

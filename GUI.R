@@ -108,26 +108,31 @@ ui <-
                                                                    )
                                                                   ),
                                                                   conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
-                                                                    plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
-                                                                    bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top'),
-                                                                    fluidRow(
-                                                                      column(1,style = "margin-top: 25px;",actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
-                                                                      column(2,style = "margin-top: 25px;",pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                                                       column(2,style = "margin-top: 25px;",awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE)),
-                                                                       conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                                                                        column(2,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
-                                                                                        column(2,numericInput("numberShapeDayMax", "Highest:", value = 0))),
-                                                                                        column(3,style = "margin-top: 25px;",
-                                                                                               fluidRow(
-                                                                                               column(6, conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                                                                                actionButton('buttonResetValuesShapeVaccine',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
-                                                                                                actionButton('buttonResetValuesShapeData',NULL, icon = icon("folder-open"),class = 'btn-outline-primary'))),
-                                                                                               column(6, 
-                                                                                                actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-primary'),
-                                                                                                actionButton('buttonPasteValuesShapeData',NULL, icon = icon("paste"), class = 'btn-warning'))
-                                                                                        ))
-                                                                  ),
-                                                                  fluidRow(style = "margin-bottom: 0px;",
+                                                                  fluidRow(
+                                                                    column(7, plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
+                                                                    bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top')),
+                                                                    column(5, 
+                                                                      fluidRow(
+                                                                        column(2, actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
+                                                                        column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                                                         column(5,awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE))
+                                                                      ),
+                                                                      fluidRow(  
+                                                                        conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                                                         column(6,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
+                                                                                         column(6,numericInput("numberShapeDayMax", "Highest:", value = 0)))
+                                                                      ),
+                                                                      fluidRow(
+                                                                        column(6, 
+                                                                               actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-primary'),
+                                                                               actionButton('buttonPasteValuesShapeData',NULL, icon = icon("paste"), class = 'btn-warning')),
+                                                                        conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                                        column(6, 
+                                                                          actionButton('buttonResetValuesShapeVaccine',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
+                                                                          actionButton('buttonResetValuesShapeData',NULL, icon = icon("folder-open"),class = 'btn-outline-primary')))
+                                                                      )
+                                                                    )),
+                                                                  fluidRow(style = "margin-top: 10px;",
                                                                     column(2, actionButton('buttonResetKineticsData',"Reset Data", class = "btn-warning")),
                                                                     column(2, actionButton('buttonResetKineticsTreat',"Reset Treat", class = "btn-warning")),
                                                                     column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
@@ -143,10 +148,6 @@ ui <-
                                                                        conditionalPanel(condition = "input.checkboxSelectRows == true",
                                                                         numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5),
                                                                         numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5),
-                                                                       #  fluidRow(
-                                                                       #   column(6,numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5)),
-                                                                       #   column(6,numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5))
-                                                                       # ),
                                                                        conditionalPanel(condition = "input.checkboxProbesGenes == true",
                                                                         p(style = "text-align: center; color: #b90600;font-weight: bold; font-size: 0.9em","Averaged Probe Values Filtered")),
                                                                        conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
