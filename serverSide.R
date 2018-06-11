@@ -14,7 +14,7 @@ server <- function(input, output, session) {
     hideTab(inputId = "navbarTop", target = "Password")
   }
   # hide the explores until load
-  hideTab(inputId = "navbarTop", target = "Explore By Probe")
+  hideTab(inputId = "navbarTop", target = "Explore By Gene")
   hideTab(inputId = "navbarTop", target = "Explore By Module")
   # hideTab(inputId = "navbarTop", target = "Cells")
   hideTab(inputId = "navbarTop", target = "Lookup")
@@ -44,7 +44,8 @@ server <- function(input, output, session) {
 #   
   # list local data files on the server
   files <- sort(basename(list.dirs(path = 'datafiles', recursive = FALSE)))
-  updatePickerInput(session, 'selectDataFI', choices = list(`Fold Increase From Baseline` = files[grepl("Fold", files)], `Raw Expression Values` = files[!grepl("Fold", files)]))
+  print(files)
+  updatePickerInput(session, 'selectDataFI', choices = files) # list(`Fold Increase From Baseline` = files[grepl("Fold", files)], `Raw Expression Values` = files[!grepl("Fold", files)]))
 
   allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, annot = NULL)
   observeEvent(input$buttonLoadDataFI, {if (getNewData(allData,input$selectDataFI) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
@@ -256,15 +257,15 @@ server <- function(input, output, session) {
   updateLoadControls <- function(){
     
     # show hide the nav tabs to reflect we have loaded data, rehide any needing rehiding post select
-    showTab(inputId = "navbarTop", target = "Explore By Probe")
+    showTab(inputId = "navbarTop", target = "Explore By Gene")
     showTab(inputId = "navbarTop", target = "Explore By Module")
     # showTab(inputId = "navbarTop", target = "Cells")
     showTab(inputId = "navbarTop", target = "Lookup")
     
     # we may have been on a different pane so re-select Select
-    updateNavbarPage(session,'navProbe',selected = 'Select Probes')
-    hideTab(inputId = "navProbe", target = "Selected Probes")
-    hideTab(inputId = "navProbe", target = "Probes:Series")
+    updateNavbarPage(session,'navProbe',selected = 'Select Genes')
+    hideTab(inputId = "navProbe", target = "Selected Genes")
+    hideTab(inputId = "navProbe", target = "Genes:Series")
     hideTab(inputId = "navProbe", target = "Genes->Modules")
     hideTab(inputId = "navProbe", target = "Modules")
     hideTab(inputId = "navProbe", target = "Module->Genes")
@@ -404,13 +405,13 @@ observeEvent(
     {
         if(!is.null(sortCol_Probes)) {
           if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE && input$radioFilterByRowKinetics == 'row') {
-            sendSweetAlert(session, type = 'error', title = "Too Many Probes", text = "You must have at least one filter selected or it will try to return and plot over 60,000 probes")
+            sendSweetAlert(session, type = 'error', title = "Too Many Spots", text = "You must have at least one filter selected or it will try to return and plot over 60,000 probes")
             } else {
               showNotification("Please wait for filters to be applied…", type = 'message', duration = 3, id = "buttonApplySelection")
 
                             # show the tabs as we have selected probes
-              showTab(inputId = "navProbe", target = "Selected Probes")
-              showTab(inputId = "navProbe", target = "Probes:Series")
+              showTab(inputId = "navProbe", target = "Selected Genes")
+              showTab(inputId = "navProbe", target = "Genes:Series")
               showTab(inputId = "navProbe", target = "Genes->Modules")
               showTab(inputId = "navProbe", target = "Modules")
               showTab(inputId = "navProbe", target = "Module->Genes")
@@ -457,11 +458,11 @@ observeEvent(
                   filtersText(
                     paste0(gsub('_',' day ',sortCol_Probes),' ',filterSubText,' ',
                            ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')
+                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Spots ')
                     ))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 } else {
-                  filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Probes ')))
+                  filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Spots ')))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 }
               } else {
@@ -487,7 +488,7 @@ observeEvent(
               } else {
                 topGenesAndModules(list(genes = NULL, modules = NULL, modsOnly = NULL))
                 removeNotification(id = "buttonApplySelection")
-                showNotification(paste0("Found 0 Probes and 0 Modules"," using filter: ", filtersText()), type = 'warning')
+                showNotification(paste0("Found 0 Spots and 0 Modules"," using filter: ", filtersText()), type = 'warning')
               }
             }
         } else {
@@ -513,8 +514,8 @@ observeEvent(
       output$datatableTopGenesSeries <- renderDataTable({NULL})
       updateSelectInput(session, 'selectVaccinesForSeries')
       updateSelectInput(session, 'selectDaysForSeries')
-      # need to determine if Probes or genes
-      pgColname <- ifelse('Probe' %in% names(topGenesAndModules()[['genes']]) == FALSE,"Gene","Probe")
+      # need to determine if Spots or genes
+      pgColname <- ifelse('Spot' %in% names(topGenesAndModules()[['genes']]) == FALSE,"Gene","Spot")
       assign("genesOrProbes",pgColname, envir = .GlobalEnv)
       updateSelectInput(session, 'selectGenesProbesForSeries', label = pgColname, choices = topGenesAndModules()[['genes']][[pgColname]], selected = topGenesAndModules()[['genes']][[pgColname]])
       
@@ -524,10 +525,10 @@ observeEvent(
   )
   
   
-  #################### Top Probes #########################
+  #################### Top Spots #########################
   # output top genes
   output$datatableTopGenesUp <- renderDataTable({topGenesAndModules()[['genes']]})
-  output$buttonSaveTableTopGenesUpPlot <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.png")},
+  output$buttonSaveTableTopGenesUpPlot <- downloadHandler(filename = function(){paste0("Selected Spots-Genes.png")},
     content = function(file) {plotDataTable(topGenesAndModules()[['genes']],file,35)})
   
   dataFilterStr <- function(t) {
@@ -537,7 +538,7 @@ observeEvent(
     )
   }
   
-  output$buttonSaveTableProbes <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.csv")},
+  output$buttonSaveTableProbes <- downloadHandler(filename = function(){paste0("Selected Spots-Genes.csv")},
     content = function(file) {write.csv(topGenesAndModules()[['genes']], file, row.names = FALSE)})
   
   output$buttonSaveListGenes <- downloadHandler(filename = function(){paste0("Selected Genes.txt")},
@@ -545,25 +546,25 @@ observeEvent(
   
   getProbeOrProbeNames <- function(probeOrProbeName){
     probelist <- NULL
-    if(genesOrProbes == "Probe") {
+    if(genesOrProbes == "Spot") {
       probelist <- unique(topGenesAndModules()[['genes']][[probeOrProbeName]])
     } else { #asGenes
       selgenes <- unique(topGenesAndModules()[['genes']][['Gene']])
       if(!is.null(selgenes)) {
-        geneprobes <- lookupGenesProbes(paste(selgenes, collapse = ','), allData$annot, "GeneName",TRUE)
+        geneprobes <- lookupGenesProbes(paste(selgenes, collapse = ','), allData$annot, "Gene",TRUE)
         if(!is.null(geneprobes)) {probelist <- unique(geneprobes[[probeOrProbeName]])}
       }
     }
     return(paste(probelist, collapse = ','))
   }
   
-  output$buttonSaveListProbes <- downloadHandler(filename = function(){paste0("Selected Probes.txt")},
-    content = function(file) {write_lines(paste0(getProbeOrProbeNames("Probe"),'\n\n# ',dataFilterStr('g')), file)})
+  output$buttonSaveListProbes <- downloadHandler(filename = function(){paste0("Selected Spots.txt")},
+    content = function(file) {write_lines(paste0(getProbeOrProbeNames("Spot"),'\n\n# ',dataFilterStr('g')), file)})
   
   output$buttonSaveListProbeNames <- downloadHandler(filename = function(){paste0("Selected ProbeNames.txt")},
     content = function(file) {write_lines(paste0(getProbeOrProbeNames("ProbeName"),'\n\n# ',dataFilterStr('g')), file)})
   
-  #################### Top Probes Series #########################
+  #################### Top Spots Series #########################
   # topGenesInSeries <- NULL
   assign("topGenesInSeries",NULL, envir = .GlobalEnv)
   
@@ -606,7 +607,7 @@ observeEvent(
   observeEvent(input$buttonAddAllGenesProbesSeries,{updateSelectInput(session, 'selectGenesProbesForSeries', choices = topGenesAndModules()[['genes']][[genesOrProbes]], selected = topGenesAndModules()[['genes']][[genesOrProbes]])})
   observeEvent(input$buttonRemoveGenesProbesSeries,{updateSelectInput(session, 'selectGenesProbesForSeries', selected = character(0))})
   
-  output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Probes-Genes Series.csv")},
+  output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Spots-Genes Series.csv")},
      content = function(file) {write.csv(topGenesInSeries, file, row.names = FALSE)})
   
 

@@ -109,15 +109,15 @@ getNewData <- function(allData, folderNme) {
   if (file.exists(dataPath) && file.exists(annotPath)) {
     showNotification("Please wait for data to load…", type = 'message', duration = 3)
 
-        annotation <- read_rds(annotPath)
-    allData$annot <- select(annotation,GeneName, SystematicName,Description,Probe = X1, ProbeName)
+    annotation <- read_rds(annotPath) 
+    allData$annot <- annotation # select(annotation,Gene, SystematicName,Description,Spot = X1, ProbeName)
     
-    annotation <- annotation %>%
-      select(Probe = X1, ProbeName, Gene = GeneName, Description)
+    # annotation <- annotation %>%
+    #   select(Spot = X1, ProbeName, Gene = Gene, Description)
 
     allData$data<- read_rds(dataPath) %>%
-      rename(Probe = X1) %>%
-      full_join(annotation, by = 'Probe')
+      # rename(Spot = X1) %>%
+      full_join(annotation, by = 'Spot')
 
     allData$colNames <-
       names(allData$data)[grepl('_', names(allData$data))]
@@ -143,11 +143,11 @@ loadUploadedData <- function(allData, infiles,fileName) {
     dataPath <- infiles[infiles$name == 'data.rds',][['datapath']]
     if(!is.null(annotPath)&& !is.null(dataPath)) {
       annotation <- read_rds(annotPath) %>%
-        select(Probe = X1, Gene = GeneName, Description)
+        select(Spot = X1, Gene, Description)
       
       allData$data <- read_rds(dataPath) %>%
-        rename(Probe = X1) %>%
-        full_join(annotation, by = 'Probe')
+        rename(Spot = X1) %>%
+        full_join(annotation, by = 'Spot')
       
       allData$colNames <-
         names(allData$data)[grepl('_', names(allData$data))]
@@ -170,7 +170,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
       if (asGenes == TRUE) {
         data4VaccDay <- data %>%
           # matches will find substrings so force it to match the whole string against colN
-          select(Value = matches(paste0('^', colN, '$')), Gene, Description,Probe) %>%
+          select(Value = matches(paste0('^', colN, '$')), Gene, Description,Spot) %>%
           # Description is missing from asGenes as it is probe-specific
           group_by(Gene) %>%
           summarise(
@@ -186,7 +186,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
         data4VaccDay <- data %>%
           # matches will find substrings so force it to match the whole string against colN
           # Description is available
-          select(Probe, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), Description)
+          select(Spot, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), Description)
       }
 
       if (descend) {
@@ -209,19 +209,16 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
   # Note getSortedGenesForVaccDay is ...ForVaccDay, there is NO COLUMN variable in selData, it is just the selected day means
   # so we have to do all the calculations again, for each column now
   
-  # asGenes: detect whether it really is as genes based on the selData: if that lacks column Probe then it is
-  # asGenes <- ('Probe' %in% names(selData) == FALSE)
+  # asGenes: detect whether it really is as genes based on the selData: if that lacks column Spot then it is
+  # asGenes <- ('Spot' %in% names(selData) == FALSE)
   asGenes <-   get("genesOrProbes", envir = .GlobalEnv) == "Gene"
-  
-  
+
   #at this point we have to decide whether to return gene & probe data non-meaned, or the mean
   # I need to rewrite this as a casewhen or switch
   if (asGenes == TRUE) {
-    seriesData <- allData
-  
     if (splitGenes == FALSE) {
-      seriesData <- seriesData %>%
-        select(Gene, Probe, one_of(selCols)) %>%
+      seriesData <- allData %>%
+        select(Gene, Spot, one_of(selCols)) %>%
         filter(Gene %in% genesProbesSelected)
       
       # lets calc means first
@@ -257,8 +254,8 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
         full_join(meansData, semData, by = c("Gene", "Column"))
       
     } else {
-      seriesData <- seriesData %>%
-        select(Gene, Probe, one_of(selCols)) %>%
+      seriesData <- allData %>%
+        select(Gene, Spot, one_of(selCols)) %>%
         filter(Gene %in% genesProbesSelected) %>%
         gather(
           key = 'Column',
@@ -270,8 +267,8 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
     }
   } else {
     seriesData <- allData %>%
-      select(Probe, Gene, one_of(selCols)) %>%
-      filter(Probe %in% genesProbesSelected) %>%
+      select(Spot, Gene, one_of(selCols)) %>%
+      filter(Spot %in% genesProbesSelected) %>%
       gather(
         key = 'Column',
         value = 'Value',
@@ -318,48 +315,22 @@ getGenesForValues <- function(genes,Min,Max){
   return(filter(genes,between(Value,Min,Max)))
 }
 
-getGenesForKinetics <- function(data2Match,kinetics,vacc, asGenes) {
-  kineticsdf <-  kineticsDF(kinetics, TRUE)
-  col2match <- ifelse(asGenes == TRUE,"Gene","Probe")
+getGenesForKinetics <- function(data2Match,kinetics,vacc) {
+  kineticsdf <-  kineticsDF(kinetics) %>%
+    filter(Exclude == FALSE)
 
-  if(asGenes == TRUE) {
-    selCols <- paste0(vacc,"_",kineticsdf$Day)
-    # if asGenes calc means first
-    datamatching <- data2Match %>%
-      group_by(Gene) %>%
-      summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
-      ungroup()
-  } else {
-    datamatching <- data2Match
-  }
-  
-  matching <- map(kineticsdf$Day, function(day){
+  probes <- map(kineticsdf$Day, function(day){
     Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
     Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
-    d <- datamatching %>%
-      select(MatchCol = c(col2match), Value = one_of(paste0(vacc,"_",day))) %>%
+    d <- data2Match %>%
+      select(Spot, Value = one_of(paste0(vacc,"_",day))) %>%
       filter(between(Value,Min,Max))
-    return(unique(d$MatchCol))
-  })
-  rowssmatching <- reduce(matching, intersect)
+    return(unique(d$Spot))
+    })
+  
+  probesmatching <- reduce(probes, intersect)
   datamatching <- data2Match %>%
-    filter_at(c(col2match),any_vars(. %in% rowssmatching))
-  
-  # } else {
-  # probes <- map(kineticsdf$Day, function(day){
-  #   Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
-  #   Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
-  #   d <- data2Match %>%
-  #     select(Probe, Value = one_of(paste0(vacc,"_",day))) %>%
-  #     filter(between(Value,Min,Max))
-  #   return(unique(d$Probe))
-  #   })
-  # probesmatching <- reduce(probes, intersect)
-  # datamatching <- data2Match %>%
-  #   filter(Probe %in% probesmatching)
-  # }
-  
-  
+    filter(Spot %in% probesmatching)
   return(datamatching)
 }
 
@@ -368,11 +339,11 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
 
   # ignore an empty search
   if(search == "") {
-    showNotification("Empty Keyword regex searches are ignored", type = 'error')
+    showNotification("Empty searches are ignored", type = 'error')
     return(NULL)
   }
   # strip spaces from genes and probes
-  if((column %in% c("Gene","Probe","ProbeName")) && grepl(' ',search)) {
+  if((column %in% c("Gene","Spot","ProbeName")) && grepl(' ',search)) {
     showNotification("Spaces have been stripped", type = 'warning')
     search <- gsub(" ","",search)
   }
@@ -388,8 +359,8 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
       }
     )
     if(nrow(selGenes)>0) {
-      # avoid duplicate Probes from multiple hits. THIS ASSUMES Probe is unique
-      selGenes <- distinct(selGenes, Probe, .keep_all = TRUE)
+      # avoid duplicate Probes from multiple hits. THIS ASSUMES Spot is unique
+      selGenes <- distinct(selGenes, Spot, .keep_all = TRUE)
     }
   } else {
     # no duplicates possible for single search term
@@ -421,8 +392,8 @@ lookupGenesProbes <- function(gene,annot, gorp, wholeWord) {
     map_dfr(gene,function(g){
       filter(annot,grepl(g,annot[[gorp]],ignore.case = TRUE))
     }) %>%
-    select(GeneName,SystematicName,ProbeName,Probe, Description) %>%
-    arrange(GeneName,SystematicName,ProbeName)
+    select(Gene,SystematicName,ProbeName,Spot, Description) %>%
+    arrange(Gene,SystematicName,ProbeName)
 
   if(nrow(probes) == 0) {
     showNotification("Nothing found", type = 'error')
@@ -483,7 +454,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
       # extract just the module name from the name-Title
       selModName <- modNameFromMenuTitle(mod)
       actarmDayExpressionData <- allExpressionData %>%
-        select(matches(actarmcdDay), Gene, Probe)
+        select(matches(actarmcdDay), Gene, Spot)
       
       if (ncol(actarmDayExpressionData) > 1) {
         genesInMod <- tmod::getModuleMembers(selModName)[[selModName]]
@@ -498,7 +469,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
                 Module = selModName,
                 Gene = gene,
                 Value = exprV[[actarmcdDay]],
-                Probe = exprV[['Probe']],
+                Spot = exprV[['Spot']],
                 stringsAsFactors = FALSE
               )
             return(df)
@@ -508,7 +479,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
               Module = selModName,
               Gene = gene,
               Value = NA,
-              Probe = NA,
+              Spot = NA,
               stringsAsFactors = FALSE
             )
           )

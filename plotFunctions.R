@@ -183,8 +183,8 @@ plotTopGenesInSeries <- function(data2plot,
   
   showNotification("Please wait for plot output…", type = 'message', duration = 3)
   
-  # asGenes  detect whether it really is as genes based on genesOrProbes: cannot rely on lacking column Probe 
-  asGenes <- get("genesOrProbes", envir = .GlobalEnv) == "Gene" # ('Probe' %in% names(data2plot) == FALSE)
+  # asGenes  detect whether it really is as genes based on genesOrProbes: cannot rely on lacking column Spot 
+  asGenes <- get("genesOrProbes", envir = .GlobalEnv) == "Gene" # ('Spot' %in% names(data2plot) == FALSE)
   
     if (asGenes) {
       # leave genes alone
@@ -192,8 +192,8 @@ plotTopGenesInSeries <- function(data2plot,
     } else {
       # merge gene and probe names if not averaged
       plotData <- data2plot %>%
-        mutate(Gene = paste0(Gene, ' (', Probe, ')')) #%>%
-        #select(-c(Probe))
+        mutate(Gene = paste0(Gene, ' (', Spot, ')')) #%>%
+        #select(-c(Spot))
     }
   
 
@@ -238,22 +238,22 @@ plotTopGenesInSeries <- function(data2plot,
         dataWithShapes <- data2plot
         if(showPoints == TRUE){
           dataWithShapes <- data2plot %>%
-            distinct(Gene,Probe) %>%
+            distinct(Gene,Spot) %>%
             group_by(Gene) %>%
             # use rep_len in ulikely event that n()>20
             mutate(Shape = rep_len(0:19,length.out = n())) %>%
             ungroup() %>%
             mutate(Shape = as.factor(Shape)) %>%
-            full_join(data2plot,by = c("Gene", "Probe"))
+            full_join(data2plot,by = c("Gene", "Spot"))
           
           showNotification("Shapes have been added to points to distinguish probes mapping the same gene")
           
           plot <- plot + 
-            geom_point(data = dataWithShapes,  mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Probe, shape = Shape), size = 4 ,show.legend = FALSE) +
+            geom_point(data = dataWithShapes,  mapping = aes(x = Column,y = Value,colour = Gene,fill = Gene,group = Spot, shape = Shape), size = 4 ,show.legend = FALSE) +
             scale_shape_manual(values = as.integer(levels(dataWithShapes$Shape)), guide = 'none')
         }
         plot <- plot + 
-          geom_line(data = dataWithShapes,  mapping = aes(x = Column,y = Value,colour = Gene,group = Probe), size = 1, show.legend = showlegend) # group = Gene is needed when we do not facet
+          geom_line(data = dataWithShapes,  mapping = aes(x = Column,y = Value,colour = Gene,group = Spot), size = 1, show.legend = showlegend) # group = Gene is needed when we do not facet
       }
     }
     
@@ -337,15 +337,15 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
 
 getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facetted,boxRibbon,moduleValues) {
   #getTopGenesInSeries needs genesProbesSelected so we supply all in topGenes. topGenes is topGenesAndModules()[['genes']]
-  #so we have to supply Gene or Probe for the column based on get("genesOrProbes", envir = .GlobalEnv)
+  #so we have to supply Gene or Spot for the column based on get("genesOrProbes", envir = .GlobalEnv)
   # we set the splitProbes to FALSE so we get gene means if we are using them
   topGenesInSeries <- getTopGenesInSeries(allData,topGenes,selCols, facetted, unique(topGenes[[get("genesOrProbes", envir = .GlobalEnv)]]), FALSE) %>%
     # need to add a psuedo module
     mutate(Module = 'Selected')
   # drop probe if we have it
-  if('Probe' %in% names(topGenesInSeries) == TRUE) {
+  if('Spot' %in% names(topGenesInSeries) == TRUE) {
     topGenesInSeries <- topGenesInSeries %>%
-      select(-Probe)
+      select(-Spot)
   }
 
   # dont factor if it is facetted and a ribbon, always factor boxplots 
