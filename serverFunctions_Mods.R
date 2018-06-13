@@ -3,10 +3,11 @@ modsNameTitle <- function(mods,titles){
 }
 
 getMaxMinValueFromModulesData <- function(alldata,allcols,medians){
-  if(!dataFrameOK(alldata$modulesMeans)) return(c(0,0))
-  
+  if(!dataFrameOK(alldata$modulesMeans)) return(list(Min = 0,Max = 0))
+
   data <- alldata$modulesMeans %>%
     filter(Column %in% allcols)
+  if(nrow(data) == 0 )return(list(Min = 0,Max = 0))
   
   if(medians) {return(list(Min = floor(min(data$Median, na.rm = TRUE)),Max = ceiling(max(data$Median, na.rm = TRUE))))}
   return(list(Min = floor(min(data$Mean, na.rm = TRUE)),Max = ceiling(max(data$Mean, na.rm = TRUE))))

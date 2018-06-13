@@ -51,13 +51,18 @@ extractColumnNames <- function(cnams) {
 
 getMaxMinValueFromData <- function(alldata,allcols){
   if(is.null(alldata)) return(c(0,0))
-  data <- alldata %>%
-    select(one_of(allcols))
-  if(ncol(data)>0) {
-    return(list(Min = floor(min(data, na.rm = TRUE)),Max = ceiling(max(data, na.rm = TRUE))))
-  } else {
-    return(list(Min = 0, Max = 0))
+  # all cols may have unknown values
+  allcols <- intersect(allcols,names(alldata))
+  if(length(allcols)>0) {
+    data <- alldata %>%
+      select(one_of(allcols))
+    if(ncol(data)>0) {
+      return(list(Min = floor(min(data, na.rm = TRUE)),Max = ceiling(max(data, na.rm = TRUE))))
+    } else {
+      return(list(Min = 0, Max = 0))
+    }
   }
+  return(list(Min = 0, Max = 0))
 }
 
 
@@ -213,6 +218,10 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
   # asGenes <- ('Spot' %in% names(selData) == FALSE)
   asGenes <-   get("genesOrProbes", envir = .GlobalEnv) == "Gene"
 
+  # selCols may have unknown combinations
+  selCols <- intersect(selCols,names(allData))
+  
+  
   #at this point we have to decide whether to return gene & probe data non-meaned, or the mean
   # I need to rewrite this as a casewhen or switch
   if (asGenes == TRUE) {
@@ -315,23 +324,36 @@ getGenesForValues <- function(genes,Min,Max){
   return(filter(genes,between(Value,Min,Max)))
 }
 
-getGenesForKinetics <- function(data2Match,kinetics,vacc) {
-  kineticsdf <-  kineticsDF(kinetics) %>%
-    filter(Exclude == FALSE)
+getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 
-  probes <- map(kineticsdf$Day, function(day){
+  kineticsdf <-  kineticsDF(kinetics, TRUE)
+  col2match <- ifelse(asGenes == TRUE,"Gene","Spot")
+
+  if(asGenes == TRUE) {
+    selCols <- paste0(vacc,"_",kineticsdf$Day)
+    # if asGenes calc means first
+    datamatching <- data2Match %>%
+      group_by(Gene) %>%
+      summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
+      ungroup()
+  } else {
+    datamatching <- data2Match
+  }
+  
+  matching <- map(kineticsdf$Day, function(day){
     Min <- kineticsdf[kineticsdf$Day == day,"Min"][[1]]
     Max <- kineticsdf[kineticsdf$Day == day,"Max"][[1]]
-    d <- data2Match %>%
-      select(Spot, Value = one_of(paste0(vacc,"_",day))) %>%
+    d <- datamatching %>%
+      select(MatchCol = c(col2match), Value = one_of(paste0(vacc,"_",day))) %>%
       filter(between(Value,Min,Max))
-    return(unique(d$Spot))
-    })
-  
-  probesmatching <- reduce(probes, intersect)
+    return(unique(d$MatchCol))
+  })
+  rowssmatching <- reduce(matching, intersect)
   datamatching <- data2Match %>%
-    filter(Spot %in% probesmatching)
+    filter_at(c(col2match),any_vars(. %in% rowssmatching))
+
   return(datamatching)
+
 }
 
 getGenesForSearch <- function(geneslist,search,column,wholeWord){
@@ -566,6 +588,8 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   expressions <- NULL
   if(!is.null(genesdata) && !is.null(modules) && !is.null(series)) {
 
+    # series may have unknown combinations
+    series <- intersect(series,names(genesdata))
     
     expressions <- map_dfr(modules,function(mod){
       # strip the treatment in () from module name

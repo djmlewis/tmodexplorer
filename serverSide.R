@@ -25,6 +25,9 @@ server <- function(input, output, session) {
   assign("dataValueRange",expressionValueRangeVaccDay, envir = .GlobalEnv)
   shapeKinetics <- reactiveVal(NULL)
   
+  assign("dayPatterns",read_rds("dayPats.rds"), envir = .GlobalEnv)
+
+  
 #   #################### Password #########################
   password <- read_rds("p")
   observeEvent(input$buttonPassword, {
@@ -57,7 +60,7 @@ server <- function(input, output, session) {
   output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
   
   updateExpressionValueRangeVaccDay <- function(selCol){
-    if(!is.null(selCol)){
+    if(!is.null(selCol) && all(selCol %in% allData$colNames)){
       exprangeVD <- getMaxMinValueFromData(allData$data,c(selCol))
       assign("expressionValueRangeVaccDay",exprangeVD, envir = .GlobalEnv)
       
@@ -70,7 +73,7 @@ server <- function(input, output, session) {
   }
   
   updateModuleMinMax <- function(selCol){
-    if(!is.null(selCol) && dataFrameOK(allData$modulesMeans)){
+    if(!is.null(selCol) && all(selCol %in% allData$colNames) && dataFrameOK(allData$modulesMeans)){
       modrange <- getMaxMinValueFromModulesData(allData,c(selCol), input$mcheckboxModuleMedians)
       updateNumericInput(session,'mnumberExpressionMin',value = modrange[['Min']])
       updateNumericInput(session,'mnumberExpressionMax',value = modrange[['Max']])
@@ -92,7 +95,7 @@ server <- function(input, output, session) {
   }
   
   resetShapeNumericsToVaccine <- function(){
-    colsToLookup <- paste0(input$selectColumnVaccine,"_",vaccDaysInDataset())
+    colsToLookup <- paste0(input$selectColumnVaccine,"_",input$selectColumnDay)
     rangeVAD <- getMaxMinValueFromData(allData$data,colsToLookup)
     expressionValueRangeVaccAllDays(rangeVAD)
     updateNumericInput(session,"numberShapeDayMin",value = rangeVAD[["Min"]])
@@ -291,7 +294,6 @@ server <- function(input, output, session) {
     # these must be updated here as they do not observe allData
     vaccDays <- vaccinesDaysFromColNames(allData$colNames)
     updatePickerInput(session, 'selectColumnVaccine', choices = vaccDays$vaccines)
-    updatePickerInput(session, 'selectColumnDay', choices = vaccDays$days)
     
     
     updateSelectInput(session, 'selectVaccinesForSeries', choices = vaccDays$vaccines, selected = character(0))
@@ -316,7 +318,6 @@ server <- function(input, output, session) {
     # modules DO NOT RESPOND. NEED TO FIX
     # updatePickerInput(session, inputId = 'mselectColumn', choices = allData$colNames)
     updatePickerInput(session, 'mselectColumnVaccine', choices = vaccDays$vaccines)
-    updatePickerInput(session, 'mselectColumnDay', choices = vaccDays$days)
     updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', choices = vaccDays$vaccines, selected = character(0))
     updateSelectInput(session, 'mselectColumnForModuleSeriesDays', choices = vaccDays$days, selected = character(0))
     
@@ -346,7 +347,6 @@ output$textFiltersProbes <- renderText({paste0("\U1F50D ",filtersText())})
 output$textFiltersMods <- renderText({paste0("\U1F50D ",modulesAndFiltersText())})
 
 
-
 #################### PROBES #####################
 
   #################### Selecting Columns #########################
@@ -366,6 +366,7 @@ observeEvent(
     input$selectColumnVaccine
   },
   {
+    updatePickerInput(session, 'selectColumnDay', choices = dayPatterns[[input$selectColumnVaccine]])
     respondToChangeColumn("vacc")
   })
 
@@ -769,17 +770,28 @@ observeEvent(
   
   #################### Selecting Modules ####
 
-  observeEvent({
-    input$mselectColumnDay
-    input$mselectColumnVaccine
-  },
-  {
+  respondToChangeColumnModules <- function(){
     assign(
       "sortCol_Mods",
       columnsFromVaccinesDays(input$mselectColumnVaccine, input$mselectColumnDay),
       envir = .GlobalEnv
     )
     updateModuleMinMax(sortCol_Mods)
+  }
+  
+  observeEvent({
+    input$mselectColumnDay
+  },
+  {
+    respondToChangeColumnModules()
+  })
+  
+  observeEvent({
+    input$mselectColumnVaccine
+  },
+  {
+    updatePickerInput(session, 'mselectColumnDay', choices = dayPatterns[[input$mselectColumnVaccine]])
+    respondToChangeColumnModules()
   })
   
   
