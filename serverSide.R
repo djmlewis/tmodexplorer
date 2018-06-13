@@ -47,7 +47,6 @@ server <- function(input, output, session) {
 #   
   # list local data files on the server
   files <- sort(basename(list.dirs(path = 'datafiles', recursive = FALSE)))
-  print(files)
   updatePickerInput(session, 'selectDataFI', choices = files) # list(`Fold Increase From Baseline` = files[grepl("Fold", files)], `Raw Expression Values` = files[!grepl("Fold", files)]))
 
   allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, annot = NULL)
@@ -482,9 +481,10 @@ observeEvent(
                 topGenesAndModules(selectedGenesAndModules(geneslist))
                 # show a notifications
                   removeNotification(id = "buttonApplySelection")
+                  nModules <- ifelse(nrow(topGenesAndModules()[['modules']]) == 0,"0",length(unique(topGenesAndModules()[['modules']][["Module"]])))
                   showNotification(paste0("Found: ",nrow(topGenesAndModules()[['genes']]),
                     ifelse(input$checkboxProbesGenes == TRUE, ' genes', ' probes'), " and ",
-                    length(unique(topGenesAndModules()[['modules']][["Module"]])), " modules",
+                    nModules, " modules",
                     " using filter: ", filtersText()), type = 'message')
               } else {
                 topGenesAndModules(list(genes = NULL, modules = NULL, modsOnly = NULL))

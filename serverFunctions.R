@@ -443,7 +443,7 @@ modules4GeneList <- function(genes2map,genes2mapRanks) {
                           Category = modCats, 
                           stringsAsFactors = FALSE))
       }
-      return(data.frame(Rank = generank,Gene = gene,Module = c(''),Title = c(''), Category = '', stringsAsFactors = FALSE))
+      return(NULL)#(data.frame(Rank = generank,Gene = gene,Module = c(''),Title = c(''), Category = '', stringsAsFactors = FALSE))
     })
     return(geneMods)
   }
