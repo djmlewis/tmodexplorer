@@ -299,7 +299,9 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
 selectedGenesAndModules <- function(selGenes) {
   if(dataFrameOK(selGenes)) {
     selMods <- modules4GeneList(selGenes$Gene,selGenes$Rank)
-    selModsOnly <- selMods[selMods$Module != '',]
+    if(nrow(selMods)>0) selModsOnly <- selMods[selMods$Module != '',]
+    else selModsOnly <- selMods
+
     return(list(genes = selGenes, modules = selMods, modsOnly = selModsOnly))
   } else {
     return(list(genes = NULL, modules = NULL, modsOnly = NULL))
@@ -455,7 +457,7 @@ moduleDescriptionsForGenes <- function(modsOnly){
     # remove the row with Selected as module as it has no genes! Its a pseudo module
     modsOnly <- modsOnly %>%
       filter(Module != 'Selected')
-    
+
     return(modsNameTitle(modsOnly[['Module']],modsOnly[['Title']]))
   } 
   return('')
