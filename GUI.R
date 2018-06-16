@@ -133,8 +133,8 @@ ui <-
                                                                       )
                                                                     )),
                                                                   fluidRow(style = "margin-top: 10px;",
-                                                                    column(2, actionButton('buttonResetKineticsData',"Reset",icon = icon("folder-open"),class = "btn-warning")),
-                                                                    column(2, actionButton('buttonResetKineticsTreat',"Reset", icon = icon("tag"), class = "btn-warning")),
+                                                                    column(2, actionBttn('buttonResetKineticsData',"Reset",style = 'stretch', icon = icon("folder-open"), color = "warning", size = 'sm')),bsTooltip("buttonResetKineticsData","Reset To Dataset Max Min"),
+                                                                    column(2, actionBttn('buttonResetKineticsTreat',"Reset",style = 'stretch',  icon = icon("tag"), color = "warning", size = 'sm')),bsTooltip("buttonResetKineticsTreat","Reset To Treatment Max Min"),
                                                                     column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
                                                                     column(6,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
                                                                   )
@@ -194,7 +194,8 @@ ui <-
                                                                                                    awesomeCheckbox(status = 'success', 'checkboxShowPointsSeries', 'Points', value = FALSE),
                                                                                                    conditionalPanel(condition = "input.checkboxShowProbesOfGenesSeries != true", awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE)),
                                                                                                    conditionalPanel(condition = "input.radioFilterByRowKinetics != 'row' && input.checkboxSplitSeries == true", style = "color: #4178b6;",
-                                                                                                    awesomeCheckbox(status = 'primary', 'checkboxShowKineticsSeries', 'Kinetics Filters', value = TRUE))
+                                                                                                    awesomeCheckbox(status = 'primary', 'checkboxShowKineticsSeries', 'Kinetics Filters', value = TRUE)),
+                                                                                                   numericInput("numericNumPanelsTopGenesSeries",NULL,value = 3, min = 1, step = 1)
                                                                                   )
                                                                            ),
                                                                            column(6,

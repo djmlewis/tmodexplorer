@@ -178,6 +178,7 @@ plotTopGenesInSeries <- function(data2plot,
            facet,
            showZero,pointsBoxes,sortCol,xgrid,
            splitGenes,
+           numCols,
            kinetics, showkinetics) {
     if (is.null(data2plot) || nrow(data2plot) == 0) return(NULL)
   
@@ -205,6 +206,7 @@ plotTopGenesInSeries <- function(data2plot,
         mutate(Column = factor(Column, levels = unique(Column)))# unique() works - do not sort
     }
     
+
     plot <-   ggplot(data = plotData) +
       themeBase(facet == FALSE)  +
       ggtitle(paste0('Selected ',ifelse(asGenes,'Genes','Probes'),'\n', t))
@@ -215,8 +217,8 @@ plotTopGenesInSeries <- function(data2plot,
     }
     
     if(xgrid == TRUE && pointsBoxes == 'Lines' && facet == TRUE) {
-      plot <- plot + geom_vline(xintercept = unique(data2plot$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE) +
-        theme(panel.grid.major.y = element_line(color = 'grey80', linetype = 2))
+        plot <- plot + geom_vline(mapping = aes(xintercept = Column), color = 'grey80', alpha = 0.5, show.legend = FALSE) +
+          theme(panel.grid.major.y = element_line(color = 'grey80', linetype = 2))
     }
     
     
@@ -260,7 +262,7 @@ plotTopGenesInSeries <- function(data2plot,
     if (facet == TRUE) {
       plot <-  plot +
         scale_x_continuous(breaks = plotData$Column) +
-        facet_wrap( ~ Treatment)
+        facet_wrap( ~ Treatment, ncol = numCols)
     }
     
     #sortCol - VACCINE_DAY
@@ -290,7 +292,7 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
  
 
     if(xg == TRUE && r == 'Lines' && f == TRUE) {
-      p <- p + geom_vline(xintercept = unique(d$Column), color = 'grey80', alpha = 0.5, show.legend = FALSE) +
+      p <- p + geom_vline(mapping = aes(xintercept = Column), color = 'grey80', alpha = 0.5, show.legend = FALSE) +
         theme(panel.grid.major.y = element_line(color = 'grey80', linetype = 2))
     }
     
@@ -454,7 +456,6 @@ getGGplotShapeMiniplot <- function(kinetics,dataValueRange) {
     
     plot <- ggplot(df, aes(xmin = Day-0.3, xmax = Day+0.3, ymin = Min, ymax = Max)) +
       theme(axis.title = element_blank()) +
-      # ggtitle("Click * to select day, double-click to toggle Ignore") +
       scale_x_continuous(breaks = df$Day) +
       geom_rect(mapping = aes(fill = Exclude, color = Exclude), alpha = 0.3, show.legend = FALSE) +
       geom_point(aes(x = Day, y = Y), shape = 8, size = 3) +
