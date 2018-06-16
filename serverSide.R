@@ -439,13 +439,13 @@ observeEvent(
               # single column value filter
               if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics != 'kinetics' && dataFrameOK(geneslist)){
                 geneslist <- getGenesForValues(geneslist,input$numberExpressionMin,input$numberExpressionMax)
-                filterSubText <-  paste0(filterSubText,' Value from ',input$numberExpressionMin,' to ',input$numberExpressionMax,' ')
+                filterSubText <-  paste0(filterSubText,' Values ',input$numberExpressionMin,'>=<',input$numberExpressionMax,' ')
               }
               
               # rows filter 
               if(input$checkboxSelectRows == TRUE && dataFrameOK(geneslist)){
                 geneslist <- getGenesForRows(geneslist,input$numberGenesStart,input$numberGenesEnd)
-                filterSubText <-  paste0(filterSubText,' Rows from ',input$numberGenesStart,' to ',input$numberGenesEnd,' ')
+                filterSubText <-  paste0(filterSubText,' Rows ',input$numberGenesStart,':',input$numberGenesEnd,' ')
               }
                 
               # finalise the filters text
@@ -453,8 +453,8 @@ observeEvent(
                 if(nchar(filterSubText) > 0) {
                   filtersText(
                     paste0(gsub('_',' day ',sortCol_Probes),' ',filterSubText,' ',
-                           ifelse(input$checkboxDescending == TRUE, ' Sort Descending ',' Sort Ascending '),
-                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Spots ')
+                           ifelse(input$checkboxDescending == TRUE, ' Sort ↓ ',' Sort ↑ '),
+                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means ',' Spots ')
                     ))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 } else {
@@ -1107,13 +1107,28 @@ output$buttonSaveTableCellsSeries <- downloadHandler(filename = function(){paste
   content = function(file) {write.csv(ggplotSelectedCellsSeries[['table']], file, row.names = FALSE)})
 
 #################### Cytokines #########################
-#   load cytokines and update
-cytokines <- list(`Fold Increase` = read_rds("cytFoldT.rds"), Concentration = read_rds("cytokinesT.rds"))
-updateSelectInput(session, "cselectCytokines", choices = sort(unique(cytokines[["Fold Increase"]][["CYTOKINE"]])))
-updateSelectInput(session, "cselectTreatments", choices = sort(unique(cytokines[["Fold Increase"]][["ACTARMCD"]])))
-updateSelectInput(session, "cselectDays", choices = sort(unique(cytokines[["Fold Increase"]][["DAY"]])))
 
 cytokinesDataAndPlot <- reactiveValues(data = NULL, plot = NULL)
+assign("cytokines",NULL, envir = .GlobalEnv)
+
+observeEvent(input$buttonLoadCytokines, {
+    #   load cytokines and update
+    cyts <- list(`Fold Increase` = read_rds("cytFoldT.rds"), Concentration = read_rds("cytokinesT.rds"))
+    if(!is.null(cyts)) {
+      assign("cytokines",cyts, envir = .GlobalEnv)
+      updateSelectInput(session, "cselectCytokines", choices = sort(unique(cyts[["Fold Increase"]][["CYTOKINE"]])))
+      updateSelectInput(session, "cselectTreatments", choices = sort(unique(cyts[["Fold Increase"]][["ACTARMCD"]])))
+      updateSelectInput(session, "cselectDays", choices = sort(unique(cyts[["Fold Increase"]][["DAY"]])))
+      
+      showNotification("Cytokines Data File Loaded")
+      
+      hide("divLoadCytokines")
+      show("divCytokines", anim = TRUE)
+    } else {
+      showNotification("Cytokines Data File Cannot Be Loaded", type = "error")
+    }
+})
+
 observeEvent(input$buttonPlotCytokines, {
   cdp <- getCytokinesDataAndPlot(cytokines[[input$cradioCytoMeansRaw]], input$cselectCytokines,
     input$cselectDays, input$cselectTreatments,input$cradioCytokinesWrap,
