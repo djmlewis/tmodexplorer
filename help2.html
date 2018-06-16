@@ -13,9 +13,10 @@
         <li><a href="#Loading_Transcriptomics_Data">Loading
             Transcriptomics Data</a></li>
         <li><a href="#Explore_Transcriptomics_By_Probe_tab">Explore
-            Transcriptomics By Probe</a></li>
+            Transcriptomics By Spot<br>
+          </a></li>
         <ul>
-          <li><a href="#Select_tab_-_probes_">Select tab - probes</a></li>
+          <li><a href="#Select_tab_-_probes_">Select tab - spots</a></li>
           <ul>
             <li><a href="#1._Regex_-_keyword_search_">1. Regex - keyword
                 search</a></li>
@@ -34,14 +35,15 @@
 
 
 
+
                     kinetics for one treatment over different times</a></li>
               </ul>
               <li><a href="#3._Rows_In_Range_">3. Rows In Range</a><br>
               </li>
             </ul>
           </ul>
-          <li><a href="#Selected_Probes_tab">Selected Probes</a></li>
-          <li><a href="#Probes:Series_tab_">Probes:Series</a></li>
+          <li><a href="#Selected_Probes_tab">Selected Spots</a></li>
+          <li><a href="#Probes:Series_tab_">Spots:Series</a></li>
           <li><a href="#Genes-Modules_tab_">Genes-&gt;Modules</a></li>
           <li><a href="#Modules_tab_">Modules</a></li>
           <li><a href="#Modules-Genes_Probes_tab">Modules-&gt;Genes</a></li>
@@ -88,21 +90,30 @@
     will appear:<br>
     <ul>
       <li><a href="#Explore_Transcriptomics_By_Probe_tab">Explore By
-          Probe</a></li>
+          Spot</a></li>
       <li><a href="#Explore_Transcriptomics_By_Module_tab">Explore By
           Module</a></li>
     </ul>
     <h2><a name="Explore_Transcriptomics_By_Probe_tab"></a>Explore
-      Transcriptomics By Probe tab<br>
+      Transcriptomics By Spot tab<br>
     </h2>
-    Select this tab to explore the datasets using individual probes in
-    the array. The idea is to choose a time point and a treatment, and
-    then sort the probes based on their values (gene expression or
-    fold-increase) in that combination (one column of the dataset), and
-    then additionally filter by keyword search or value. Note - if you
+    Select this tab to explore the datasets using individual spots in
+    the array. <i>(Traditionally these are referred to as "probes" but
+      I prefer to call them "spots" as each row in the data has an
+      unique ID and refers to a particular spot on the chip by its
+      column-row position, so you can compare exact spots on the array.
+      In addition, a probe (nucleic acid sequence) may be represented on
+      multiple replicate spots. Therefore I use ProbeName to refer to
+      probes and Spots to refer to rows in the probe array matrices).</i>
+    <br>
+    <br>
+    The idea is to choose a time point and a treatment, and then sort
+    the spots based on their values (gene expression or fold-increase)
+    in that combination (one column of the dataset), and then
+    additionally filter by keyword search or value. Note - if you
     include more that 200 rows then plots are slow to draw. Do not click
     "Plot" buttons or "Apply" again as the cycle just repeats!<br>
-    <h3><a name="Select_tab_-_probes_"></a>Select tab - probes<br>
+    <h3><a name="Select_tab_-_probes_"></a>Select tab - spots<br>
     </h3>
     You must click the
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -118,11 +129,11 @@
     applied one after another, left to right - first the keyword <b>regex</b>
     search, then the <b>value</b> restriction, finally which <b>rows</b>
     to include. Probably you will always use <b>Sorted Column Row
-      Numbers</b> to restrict the number of sorted probes, possibly
-    alone or in combination with either <b>regex</b> or <b>Sorted
-      Column Values</b>. Never, ever try to search with no filters
-    selected - it will return all 60k+ probes, <i>very slowly, and I
-      have set a block on this.</i><br>
+      Numbers</b> to restrict the number of sorted spots, possibly alone
+    or in combination with either <b>regex</b> or <b>Sorted Column
+      Values</b>. Never, ever try to search with no filters selected -
+    it will return all 60k+ spots, <i>very slowly, and I have set a
+      block on this.</i><br>
     <h4><a name="1._Regex_-_keyword_search_"></a>1. Regex - keyword
       search<br>
     </h4>
@@ -144,12 +155,12 @@
 
 
 
+
       by commas</b> and are OR'd (search returns as many of those terms
     as it can find, treating each term separately). Commas are
     interpreted as search term dividers and cannot be 'escaped'. Select
-    whether to search gene description or gene name, or probe ID
-    ("Probe") or ProbeName. Probe is least useful as they are not very
-    standardised between datasets.<br>
+    whether to search gene description or gene name, or spot ID ("Spot")
+    or ProbeName. Spot and ProbeName are standardised between datasets.<br>
     <br>
     Spaces will be stripped-out automatically for you in <i>Gene</i>
     and <i>Probe</i> name searches, so you can easily paste in lists
@@ -161,27 +172,10 @@
     You can enter partial terms e.g. interferon finds interferon and
     interferons, as regex looks for those characters anywhere. If you
     select "Whole Word" then interferon will only match interferon.
-    Whole Word is important when searching for genes and probes as
-    "CCL2" will find CCL2, CCL27 etc unless Whole Word is selected.<br>
-    Upper/lower case is ignored. <br>
-    Beware including <a href="https://regexr.com" target="_blank">special
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      regex characters</a> by mistake.<br>
+    Whole Word is important when searching for genes and spots as "CCL2"
+    will find CCL2, CCL27 etc unless Whole Word is selected. Upper/lower
+    case is ignored. Beware including <a href="https://regexr.com"
+      target="_blank">special regex characters</a> by mistake.<br>
     <br>
     Regex search&nbsp; ignores the "Selected Column" and any values (see
     below) - it just finds rows in the data set that match the search.
@@ -194,9 +188,9 @@
       Range</b> limits.<br>
     <br>
     You can also <b>paste saved search lists</b> into the regex box
-    that you downloaded from the <b>Selected Probes tab</b>, or copied
+    that you downloaded from the <b>Selected Spots tab</b>, or copied
     from one of the <b>Lookup</b> tables - be sure to match Gene and
-    Probe / Name. <b>This allows fairly easy repetition of searches
+    Spot / Name. <b>This allows fairly easy repetition of searches
       across datasets</b>, at least for Genes.<br>
     <h4><a name="2_and_3:_Values_In_Range_"></a>2 and 3: Values In Range
       and Rows In Range<br>
@@ -225,36 +219,32 @@
       rows is the N most down-regulated).<br>
     </p>
     <h5><a name="Gene_Averages"></a>Gene Averages</h5>
-    <p>Probes are arranged in rows - one unique probe per row. However,
-      many probes may map to a single gene. You can filter by the values
-      of the individual probes or have tmodExplorer group the probes by
+    <p>Spots are arranged in rows - one unique spot per row. However,
+      many spots may map to a single gene. You can filter by the values
+      of the individual spots or have tmodExplorer group the spots by
       Gene and then calculate a mean Gene value by which to filter.
       Select <font color="#ff0000"><b>Gene Averages</b></font> to have
-      expressions of individual probes that map to a gene averaged into
-      one row, otherwise it will be one probe per row and genes may
-      repeat. If your main purpose is to identify probes of interest
-      then avoid gene averaging which has multiple consequences.
-      However, as the modules work in genes, it is probably better to
-      select Gene Averages if your main interest is to study modules -
-      as this way you increase the number of genes identified. A
-      disadvantage of gene averages is that you lose the gene
-      descriptions, which are probe-specific. To find lookup the gene
-      functions copy the <b>Gene list</b> on the <a
+      expressions of individual spots that map to a gene averaged into
+      one row, otherwise it will be one spot per row and genes may
+      repeat. If your main purpose is to identify spots of interest then
+      avoid gene averaging which has multiple consequences. However, as
+      the modules work in genes, it is probably better to select Gene
+      Averages if your main interest is to study modules - as this way
+      you increase the number of genes identified. A disadvantage of
+      gene averages is that you lose the gene descriptions, which are
+      spot-specific. To find lookup the gene functions copy the <b>Gene
+        list</b> on the <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Selected_Probes_tab"><b>Selected
-
-
-
-
-
-          Probes</b></a> tab and use&nbsp; the <a
+          Spots</b></a> tab and use&nbsp; the <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Gene_Lookup_tab"><b>Gene
 
 
 
 
 
+
           Lookup tab</b></a> to lookup genes by their names and see the
-      probe descriptions.</p>
+      spot descriptions.</p>
     <h5><a name="2._Values_In_Range"></a>2. Values In Range</h5>
     <p>This operates in two ways - on a <b>single Treatment~Time
         combination</b> (one "column"), or by <b>matching the kinetics
@@ -264,13 +254,13 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
     <h6><a name="Single_TreatmentTime_combination"></a><b>Single
         Treatment~Time combination</b></h6>
     <p>This is the simplest way to filter by value and uses the
-      Treatment~Time combination you selected in the menus. Probes or
-      Genes will be selected if the Probe value or Gene mean value falls
+      Treatment~Time combination you selected in the menus. Spots or
+      Genes will be selected if the Spot value or Gene mean value falls
       between the Lowest - Highest values in the Treatment~Time column
-      you have selected. e.g. select probes whose value falls in this
-      range on Day 1 after Fluad. The purpose is to select probes or
+      you have selected. e.g. select spots whose value falls in this
+      range on Day 1 after Fluad. The purpose is to select spots or
       genes (in rows) of interest in the response to a specific
-      treatment, on a specific day. The response of these probes after
+      treatment, on a specific day. The response of these spots after
       other treatments on other days can then be plotted as well.<br>
     </p>
     <h6><a name="Matching_kinetics_for_one_treatment"></a><b>Matching&nbsp;
@@ -278,15 +268,16 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
         kinetics for one treatment over different times</b></h6>
     <p>This is really just a multi-column version of the single time
       filter. Importantly, the filters are applied only to the
-      expression of probes / genes after the treatment you have selected
+      expression of spots / genes after the treatment you have selected
       in the menu. Its purpose is to filter on the shape of the kinetics
-      curve of the probe / gene means responses. For example: You may
-      want to identify probes whose expression is high only on day 1
+      curve of the spot / gene means responses. For example: You may
+      want to identify spots whose expression is high only on day 1
       after Fluad and then falls to baseline thereafter; or those that
-      remain high on days 1 &amp; 2 and then go to baseline; or probes
+      remain high on days 1 &amp; 2 and then go to baseline; or spots
       that go high and then go low over time - - possibly matching the
       kinetics of different cell types.</p>
     <p>Initially a plot appears showing the maximum and minimum values
@@ -294,7 +285,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       "windows" are created for every time point set to the maximum -
       minimum values for the whole dataset (all treatments - all times).
       Do not click "Apply Filters" with these windows as it just returns
-      all 60k probes! It may be a good idea to leave "3. Rows In Range"
+      all 60k spots! It may be a good idea to leave "3. Rows In Range"
       filter set until you are sure your pattern will not return too
       many genes, then turn it off for reasons explained below.<br>
     </p>
@@ -303,6 +294,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         src="tag.png" alt="" height="20" width="23"> to reset to max/min
       for selected treatment, or&nbsp;<img src="dataset.png" alt=""
         height="20" width="22"> for max/min of whole dataset. <b>Remember
+
 
 
         to click Set otherwise changes will be lost. </b>The plot
@@ -342,7 +334,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
       treatment-time combination used to display module expression
       values, which are shown for only one treatment-time combination,
       unless the plot modules series option is used. So if you filter
-      probes / genes by the kinetics after a specific treatment, you may
+      spots / genes by the kinetics after a specific treatment, you may
       have to try different time selections to view the modules on
       different days within your kinetics. Just click "Apply Filter"
       after each time you select a different time.</p>
@@ -356,6 +348,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <br>
     <br>
     Row restrictions apply to the <b>sorted values</b> in the <b>Treatment~Time
+
 
 
 
@@ -376,31 +369,31 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     and probably it is best not to include it.<br>
     <br>
     If you have <b>Gene Averages</b> selected this affects the result:
-    e.g. if you filter to the first 10 rows you may include 10 probes,
+    e.g. if you filter to the first 10 rows you may include 10 spots,
     but if <b>Gene Averages</b> is selected you get the top 10 genes
-    which may map to more than 10 probes.<br>
-    <h3><a name="Selected_Probes_tab"></a>Selected Probes tab</h3>
-    A data table showing the probes or genes (if averaged) that meet the
+    which may map to more than 10 spots.<br>
+    <h3><a name="Selected_Probes_tab"></a>Selected Spots tab</h3>
+    A data table showing the spots or genes (if averaged) that meet the
     filter settings is shown and can be downloaded as a csv file or as a
     PNG picture. The <b>Vale</b> shown is the one in the "Column" you
     selected. You may use the search boxes above and below the table to
     further restrict the rows displayed in the table, but this has no
-    effect on other tabs or plots. Click "⤓ Gene List" or "⤓ Probe /
+    effect on other tabs or plots. Click "⤓ Gene List" or "⤓ Spot /
     ProbeName List" to save a comma-separated text file that can be
     copy-pasted into the regex search box to quickly repeat the search.
-    Note a description appears when probes are displayed individually,
+    Note a description appears when spots are displayed individually,
     and disappears if "Gene Averages" is selected on the <b>Select</b>
-    tab. This is because descriptions are specific for probes.<br>
-    <h3><a name="Probes:Series_tab_"></a> Probes:Series tab<br>
+    tab. This is because descriptions are specific for spots.<br>
+    <h3><a name="Probes:Series_tab_"></a> Spots:Series tab<br>
     </h3>
-    This allows the values of the probes or gene averages selected by
-    the filters to be plotted for different treatment ~ time
-    combinations, to visualise a time course. Use the slider to change
-    plot height, and browser window width to change plot width. The
-    selected treatment~time column is indicated by <font
-      color="#ff0000">▼▲<font color="#000000"> on the plot.</font><br>
+    This allows the values of the spots or gene averages selected by the
+    filters to be plotted for different treatment ~ time combinations,
+    to visualise a time course. Use the slider to change plot height,
+    and browser window width to change plot width. The selected
+    treatment~time column is indicated by <font color="#ff0000">▼▲<font
+        color="#000000"> on the plot.</font><br>
     </font>
-    <h4> Treatment, Days and Gene/Probe menus<br>
+    <h4> Treatment, Days and Gene/Spot menus<br>
     </h4>
     Click 'All' to enter all available, or select one by one from
     pop-down menu and they appear in the box. Click 'None' to clear. The
@@ -413,40 +406,40 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <b> <b>Plot button</b>: </b>click this to draw the plot, and again
     after changing any options.<b><br>
       Split</b>: the data are split by treatment using facet_wrap.<br>
-    <b>Lines / Boxplot</b>: XY graph of individual probes / genes, or a
-    boxplot summarising probe/gene values.<br>
+    <b>Lines / Boxplot</b>: XY graph of individual spots / genes, or a
+    boxplot summarising spot/gene values.<br>
     <b> <b>0 |---- (zero) line</b>: Place a dotted line at Y = 0
       (baseline).<br>
       Points</b>, <b>Gridlines, </b><b>Legend</b>: show/hide.<br>
     <b>SEM</b>: Appears when Lines selected - show the SEM as a ribbon<br>
-    <b><a name="Gene⫷Probes"></a>Gene⫷Probes</b>: Appears when <font
+    <b><a name="Gene⫷Probes"></a>Gene⫷Spots</b>: Appears when <font
       color="#ff0000"><b>Gene Averages</b></font> selected in <a
-      href="#Select_tab_-_probes_"><b>Select Probes</b></a> tab, and <b>Lines</b>
+      href="#Select_tab_-_probes_"><b>Select Spots</b></a> tab, and <b>Lines</b>
     selected to plot. Instead of plotting a line for the average of the
-    probe values mapping individual genes (±SEM), individual lines are
-    plotted for the probes mapping to that gene - the lines are
+    spot values mapping individual genes (±SEM), individual lines are
+    plotted for the spots mapping to that gene - the lines are
     colour-coded to the gene, and different symbols are used. This helps
-    to show the behaviour of different probes mapping the same gene.
-    Hover over the points to identify the probe. <br>
+    to show the behaviour of different spots mapping the same gene.
+    Hover over the points to identify the spot. <br>
     <b>Kinetics Filters</b> - if you filtered using <b>2: Filter By
       Value</b> and used kinetics, this option appears to draw
     rectangles for the windows used to filter values at each time point.
     It is instructive to use this when <b>Gene Average</b> was
-    selected, in combination with<b> </b><b>Gene⫷Probes</b> to identify
-    probes that fall outside the windows but were included within the
+    selected, in combination with<b> </b><b>Gene⫷Spots</b> to identify
+    spots that fall outside the windows but were included within the
     gene mean.
     <h3><a name="Genes-Modules_tab_"></a> Genes-&gt;Modules tab<br>
     </h3>
-    This panel lists the selected probes or genes and shows which - if
+    This panel lists the selected spots or genes and shows which - if
     any - modules contain that gene. Some genes you selected may not be
     included in any modules.<br>
     <h3><a name="Modules_tab_"></a> Modules tab<br>
     </h3>
-    A boxplot summary of the values of the individual probes contained
-    in the modules associated with the selected probes or genes is
-    plotted automatically. Use the slider to change plot height, and
-    browser window width to change plot width. If you change any of the
-    criteria on the <b>Select</b> tab this plot will re-draw. <br>
+    A boxplot summary of the values of the individual spots contained in
+    the modules associated with the selected spots or genes is plotted
+    automatically. Use the slider to change plot height, and browser
+    window width to change plot width. If you change any of the criteria
+    on the <b>Select</b> tab this plot will re-draw. <br>
     <br>
     Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b>, or
     have ggplot2 graphics which are a bit nicer but slower. ggplot2
@@ -459,18 +452,18 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     "Module" plots one box per module, and "Title" groups the
     modules&nbsp; by their functional / descriptive category titles
     which may result in fewer boxes.<br>
-    The table gives the summary statistics and the number of probes
+    The table gives the summary statistics and the number of spots
     mapped to the modules' genes (N).<br>
     <h3><a name="Modules-Genes_Probes_tab"></a> Modules-&gt;Genes
-      (Probes) tab</h3>
+      (Spots) tab</h3>
     This expands the plot on the <a href="#Modules_tab_"><b>Modules</b></a>
     tab&nbsp; to allow an inspection of the modules, one by one. Use the
     slider to change plot height, and browser window width to change
     plot width.<br>
     <br>
     Select a module from the menu to see the expression of its component
-    genes. As each gene may have many probes a summary boxplot of the
-    expression values of the probes mapping to the genes inside the
+    genes. As each gene may have many spots a summary boxplot of the
+    expression values of the spots mapping to the genes inside the
     selected module is plotted automatically. Note that a module may
     also contain genes that are not in the selection created by the <b>Select</b>
     tab. Genes within a module that are in your selection are denoted by
@@ -483,14 +476,14 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <br>
     Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b> , or
     use <b>ggplot2</b> instead of base graphics.&nbsp; ggplot2 uses a
-    geom_boxplot with default values. Unlike the Selected Probes tab
+    geom_boxplot with default values. Unlike the Selected Spots tab
     which shows the gene description in the table, the <b>Module-&gt;Genes</b>
-    tab does not, as the descriptions refer to the <i>probes</i>, and
+    tab does not, as the descriptions refer to the <i>spots</i>, and
     here gene summaries are being shown.<br>
-    <h3><a name="Modules:Series_Probes_tab"></a>Modules:Series (Probes)
+    <h3><a name="Modules:Series_Probes_tab"></a>Modules:Series (Spots)
       tab</h3>
     While the <b>Modules</b> and <b>Modules-&gt;Genes</b> tabs only
-    show the values of probes at one selected treatment ~ time
+    show the values of spots at one selected treatment ~ time
     combination, the <b>Modules:Series</b> tab allows the values of the
     associated modules to be plotted for all treatment ~ time
     combinations as a time course. To avoid delays when selecting
@@ -500,11 +493,11 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <br>
     Select treatment ~ time combinations from the menus. Select modules
     from the <b>Modules</b> menu which lists ones mapped to your
-    selected probes or genes. Use <b>All</b> or <b>None</b> buttons to
+    selected spots or genes. Use <b>All</b> or <b>None</b> buttons to
     add all, or clear selections.<br>
     <br>
-    <b>Boxplot</b> summarises the values of probes within the module.<br>
-    <b>Lines</b> plots a line graph of the mean value of probes in the
+    <b>Boxplot</b> summarises the values of spots within the module.<br>
+    <b>Lines</b> plots a line graph of the mean value of spots in the
     modules<b>.<br>
       SEM</b>, <b>Points</b> and <b>Gridlines </b>appear when <b>Lines</b>
     is selected allowing an SEM ribbon,&nbsp; points and gridlines to be
@@ -517,29 +510,30 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
       Transcriptomics By Module tab<br>
     </h2>
     The concept is similar to the <a
-      href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Probe</b></a>
+      href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Spot</b></a>
     tab. However, here a data table is created in which the rows are
     sorted by the <b> mean or median value of the modules</b> as
     expressed in the selected treatment ~ time combination: e.g. the
-    median expression of the probes within a given module on day 7 after
+    median expression of the spots within a given module on day 7 after
     Boostrix. It is important to note that tmod modules contain only a
-    fraction of all the genes in the probeset, but this tab allows for
-    an exploration of responses of the modules included in tmod.<br>
+    fraction of all the genes in the array, but this tab allows for an
+    exploration of responses of the modules included in tmod.<br>
     <h3><a name="Select_modules_tab_"></a> Select modules tab<br>
     </h3>
     Like <a href="#Select_tab_-_probes_">Select</a> tab in <a
-      href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Probe</b></a>
+      href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Spot</b></a>
     above, you select a treatment ~ time combination for which you want
     to sort the modules. Then filter modules using the filters (left to
     right) as described in <a href="#Select_tab_-_probes_">Select</a>
-    tab for probes. In this case the sorting is based on the mean or
-    median expression (which you can select) of the probes within the
+    tab for spots. In this case the sorting is based on the mean or
+    median expression (which you can select) of the spots within the
     module. Sort descending has the highest expression values in top
     rows. <br>
     <br>
-    See the help for <b>Explore By Probe</b> <a
+    See the help for <b>Explore By Spot</b> <a
       href="#Select_tab_-_probes_">Select</a> tab for description of how
     to use <b>regex Keyword</b>, <b>Values Within Range</b> and <b>Row
+
       Numbers Within Range</b> filters. Time series plots will indicate
     the sorted treatment~time column with <font color="#ff0000">▼▲</font>.<br>
     <br>
@@ -565,8 +559,8 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <h3><a name="Selected_Modules_Modules_tab_"></a> Selected Modules
       (Modules) tab<br>
     </h3>
-    This tab plots a boxplot summary of the probe expressions mapping
-    the genes in the modules you selected. Use the slider to change plot
+    This tab plots a boxplot summary of the spot expressions mapping the
+    genes in the modules you selected. Use the slider to change plot
     height, and browser window width to change plot width.<br>
     <br>
     Show / hide the <b>legend</b> and <b>0 |----</b> (zero) line,
@@ -582,11 +576,11 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     inspection of the modules, one by one, looking at all the genes each
     module contains. It is essentially identical to <a
       href="#Modules-Genes_Probes_tab"><b>Modules-&gt;Genes</b></a> tab
-    under <b>Explore By Probe</b>. Use the slider to change plot
-    height, and browser window width to change plot width.<br>
+    under <b>Explore By Spot</b>. Use the slider to change plot height,
+    and browser window width to change plot width.<br>
     <br>
     Select a module from the menu to plot the summarised expression of
-    probes mapping to its component genes automatically. <br>
+    spots mapping to its component genes automatically. <br>
     Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b>,
     and&nbsp; use <b>ggplot2</b> instead of base graphics.&nbsp;
     ggplot2 uses a geom_boxplot with default values.<br>
@@ -611,7 +605,8 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
-        (Probes) tab</b></a> as it allows the expression of the selected
+
+        (Spots) tab</b></a> as it allows the expression of the selected
     modules to be plotted for all treatment ~ time combinations as a
     time course. Use the slider to change plot height, and browser
     window width to change plot width. The selected treatment~time
@@ -651,6 +646,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
         Modules In Dataset</b> or <b>All Module Titles In Dataset</b>
       you can save the list by clicking the download button that
       appears. To repeat this selection (e.g. on another dataset) you
@@ -660,7 +656,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <p> Click <b>Plot</b> button to create the plot and data table, and
       after any changes to module/treatment/day selections or options.<br>
     </p>
-    <b>Boxplot</b> plots a summary of the probe expressions in the
+    <b>Boxplot</b> plots a summary of the spot expressions in the
     modules<br>
     <b>Lines&nbsp; </b>plots the module mean expression and reveals <b>SEM</b>
     to include an SEM ribbon, plus <b>gridlines</b> and <b>points</b>.<br>
@@ -675,17 +671,17 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
       tab<br>
     </h2>
     <h3><a name="Gene_Lookup_tab"></a>Gene Lookup tab</h3>
-    <p>Enter a gene, probe or ProbeName and click <b>Lookup</b> to see
-      a table of matching genes. Select Whole Word to avoid matching
+    <p>Enter a gene, spot or ProbeName and click <b>Lookup</b> to see a
+      table of matching genes. Select Whole Word to avoid matching
       multiple stems (e.g. "CCL2" would match CCL2, CCL20, CCL21, etc.).
       The search uses <b>regex</b>, and <b>commas</b> to separate
-      multiple search terms in the same way as selecting probes by
+      multiple search terms in the same way as selecting spots by
       keyword: <a href="#1._Regex_-_keyword_search_"><b>see that
           section for details</b></a>. Spaces will always be stripped
-      from this search as Gene / Probe&nbsp; Names cannot have spaces. <br>
+      from this search as Gene / Spot&nbsp; Names cannot have spaces. <br>
     </p>
     <p>You can paste the comma-separated lists downloaded by the various
-      buttons on other tabs, to quickly describe the genes/probes.<br>
+      buttons on other tabs, to quickly describe the genes/spots.<br>
     </p>
     <p>Alternatively, leave the search box empty and click <b>Lookup</b>
       to list all 65k genes. The search boxes above / below the table
@@ -696,8 +692,9 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
       (e.g. <tt>DC.M4</tt>) and click <b>Lookup</b> to see a table of
       matching modules. The search uses <b>regex</b>, and <b>commas</b>
       to separate multiple search terms in the same way as selecting
-      probes by keyword: <a
+      spots by keyword: <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help.html#1._Regex_-_keyword_search_"><b>see
+
 
 
 
@@ -757,6 +754,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           increase </b>(from day 0) or <b>actual concentration values</b>
         when plotting.FI may give some wide error bars if a few outliers
         have big changes.<br>
@@ -765,6 +763,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
 
 
 
@@ -841,6 +840,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           Zero Y Values</b> selected as it highlights how many
         participants have been excluded - or conversely how many do have
         useful data.<br>
@@ -908,6 +908,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       </ul>
       <li><b>Fold Change ~ Cell Count</b>. Use the radio buttons to
         switch between plotting <b>fold increase </b>(from day 0) or <b>actual
+
 
 
 

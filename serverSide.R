@@ -377,7 +377,6 @@ respondToChangeColumn <- function(picker) {
   }
 }
 
-
 observeEvent(
     input$buttonResetValuesRangeCol,
     {
@@ -388,12 +387,10 @@ observeEvent(
     {
       updateExpressionValueRangeVaccDay(allData$colNames)})
 
-  # warnedAboutProbeRows <- FALSE
   assign("warnedAboutProbeRows",FALSE, envir = .GlobalEnv)
   observeEvent(
     input$checkboxSelectRows,
     {if(warnedAboutProbeRows == FALSE && (input$checkboxSelectRows == FALSE || input$numberGenesStart - input$numberGenesEnd > 100)) {
-      # warnedAboutProbeRows <<- TRUE
       assign("warnedAboutProbeRows",TRUE, envir = .GlobalEnv)
     }})
   
@@ -427,7 +424,7 @@ observeEvent(
                 if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')}
               } 
               
-              # kinetics also acts on allData$data, working on probes so continue with that to reduce
+              # kinetics also acts on allData$data, working on spots so continue with that to reduce
               assign("selectKinetics",input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics', envir = .GlobalEnv)
               if(selectKinetics == TRUE && dataFrameOK(geneslist)) {
                 geneslist <- getGenesForKinetics(geneslist,shapeKinetics(), input$selectColumnVaccine,input$checkboxProbesGenes)
@@ -438,7 +435,6 @@ observeEvent(
               
               # all the other filters used sorted and possibly gene averaged data so get that now
               geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
-              
               
               # single column value filter
               if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics != 'kinetics' && dataFrameOK(geneslist)){
@@ -479,7 +475,6 @@ observeEvent(
               ############ lookup the genes and modules
               if(dataFrameOK(geneslist)) {
                 topGenesAndModules(selectedGenesAndModules(geneslist))
-                # show a notifications
                   removeNotification(id = "buttonApplySelection")
                   nModules <- ifelse(nrow(topGenesAndModules()[['modules']]) == 0,"0",length(unique(topGenesAndModules()[['modules']][["Module"]])))
                   showNotification(paste0("Found: ",nrow(topGenesAndModules()[['genes']]),
@@ -497,7 +492,6 @@ observeEvent(
       }
     }
   )
-  
   
   assign("genesOrProbes","Gene", envir = .GlobalEnv)
   

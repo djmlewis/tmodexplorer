@@ -133,8 +133,8 @@ ui <-
                                                                       )
                                                                     )),
                                                                   fluidRow(style = "margin-top: 10px;",
-                                                                    column(2, actionButton('buttonResetKineticsData',"Reset Data", class = "btn-warning")),
-                                                                    column(2, actionButton('buttonResetKineticsTreat',"Reset Treat", class = "btn-warning")),
+                                                                    column(2, actionButton('buttonResetKineticsData',"Reset",icon = icon("folder-open"),class = "btn-warning")),
+                                                                    column(2, actionButton('buttonResetKineticsTreat',"Reset", icon = icon("tag"), class = "btn-warning")),
                                                                     column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
                                                                     column(6,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
                                                                   )

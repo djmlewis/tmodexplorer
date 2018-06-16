@@ -12,7 +12,7 @@
         <li><a href="#Plots">Plots</a></li>
         <li><a href="#Data_Tables_">Data Tables</a></li>
         <li><a href="#Saving_Gene_Probe_ProbeNames_and_">Saving Gene,
-            Probe, ProbeNames and Module Lists</a></li>
+            Spot, ProbeNames and Module Lists</a></li>
       </ul>
     </ul>
     <h1><a name="Introduction"></a>Introduction</h1>
@@ -22,10 +22,10 @@
     BTMs to observe how the individual genes are responding to the
     vaccine stimulus. <br>
     <br>
-    The datasets are composed of rows of data where each row is a probe
+    The datasets are composed of rows of data where each row is a spot
     on the chip, and the columns contain the group mean value (raw
-    expression or fold-increase from baseline) for that probe. The
-    groups are a specific <b>treatment~timepoint</b> combination: e.g.
+    expression or fold-increase from baseline) for that spot. The groups
+    are a specific <b>treatment~timepoint</b> combination: e.g.
     Boostrix~Day 1, Placebo~Day 0, etc.<br>
     <br>
     The basic concept is to pick a particular time point and vaccine - <i>e.g.
@@ -66,23 +66,24 @@
 
 
 
+
       Day 7 after immunisation with Boostrix</i> - and then sort the
-    probes or genes values present in the array as they are on that
-    timepoint ~ vaccine. So you may have the probes ordered in
-    descending order by their value (fold-increase from baseline or mean
+    spots or genes values present in the array as they are on that
+    timepoint ~ vaccine. So you may have the spots ordered in descending
+    order by their value (fold-increase from baseline or mean
     expression) on day 1 in those people who got Boostrix. Why do this?
-    Well, because with over 60k probes you have to order them somehow.
+    Well, because with over 60k spots you have to order them somehow.
     The grouping by <i><b>treatment</b></i> (vaccine or placebo) ~ <i><b>time</b></i>
     combination is actually a natural grouping, if a bit
     counter-intuitive when comparing between vaccines. As the data
-    consists of rows where each row is a probe, and where each column
-    has values for one treatment (vaccine or placebo) ~ time
-    combination, by sorting the rows according to the values for one
-    selected treatment ~ time combination, you also impose the same
-    order on the probes at other time points and vaccines.<br>
+    consists of rows where each row is a spot, and where each column has
+    values for one treatment (vaccine or placebo) ~ time combination, by
+    sorting the rows according to the values for one selected treatment
+    ~ time combination, you also impose the same order on the spots at
+    other time points and vaccines.<br>
     <br>
-    Having ordered the top or bottom probes, or found probes with values
-    between a range, you can then place the probes or genes into a group
+    Having ordered the top or bottom spots, or found spots with values
+    between a range, you can then place the spots or genes into a group
     of interest - e.g. the top 10 fold-increased genes on day 7 after
     Boostrix. <i><b>This set of selected genes becomes the core
         building-block of subsequent analysis</b></i>. You can identify
@@ -97,14 +98,14 @@
     treatment~time, and then follow these selected genes and the modules
     that contain them over time.<br>
     <br>
-    The figures below illustrates this: the probes in the combined ABC
+    The figures below illustrates this: the spots in the combined ABC
     Surrey dataset have been sorted in <i>descending order of their
       fold-increase from baseline (day 0) in log2 expression value in
       the vaccinees 7 days after receiving Stamaril</i>. The top 10
-    probes with the highest fold-increase have been selected and the
-    time series plotted as individual lines for Stamaril, Fluad and
-    Placebo, or as a boxplot for these probes treated as though they
-    belonged to a pseudo-module.<br>
+    spots with the highest fold-increase have been selected and the time
+    series plotted as individual lines for Stamaril, Fluad and Placebo,
+    or as a boxplot for these spots treated as though they belonged to a
+    pseudo-module.<br>
     <br>
     <div align="center"><img src="selgenesseries.png" alt="Selected
         Probes" height="250" width="554"> &nbsp;<img
@@ -114,7 +115,7 @@
     <br>
     We can then identify the modules to which those genes belong, and
     plot the changes in those modules over time. Note that while the
-    kinetics of the probes is clear-cut, the modules are less so, with
+    kinetics of the spots is clear-cut, the modules are less so, with
     some non-responding modules. This reflects that fact that modules
     contain many genes that may not be responding to Stamaril at all, or
     even down-regulated, as&nbsp; the modules have been clustered by
@@ -125,22 +126,22 @@
         height="249" align="middle" width="550"><br>
     </div>
     <br>
-    When plotting the time-course of genes as an average of the probes,
-    it may become apparent by wide SEM ribbons that probes mapping the
+    When plotting the time-course of genes as an average of the spots,
+    it may become apparent by wide SEM ribbons that spots mapping the
     same gene are behaving discordantly. It is possible to split the
-    gene averages back into the component probes to identify which genes
-    have aberrant probes using the <a href="#Gene%E2%AB%B7Probes"><b>Gene⫷Probes</b></a>
+    gene averages back into the component spots to identify which genes
+    have aberrant spots using the <a href="#Gene%E2%AB%B7Probes"><b>Gene⫷Spots</b></a>
     option. For example, as shown in the figure below for some top genes
-    upregulated on day 7 after Stamaril, while the two IFIT2 probes
-    (red) respond similarly, one of the OAS2 probes (green) is a log2
-    lower than the other two, and the two RSAD2 probes are far apart
-    (blue). These discrepancies are also seen in the wide SEM ribbons.<br>
+    upregulated on day 7 after Stamaril, while the two IFIT2 spots (red)
+    respond similarly, one of the OAS2 spots (green) is a log2 lower
+    than the other two, and the two RSAD2 spots are far apart (blue).
+    These discrepancies are also seen in the wide SEM ribbons.<br>
     <div align="center"><img src="probessplit.png" alt="Genes Split Into
         Probes" height="250" width="640"><br>
     </div>
     <br>
     <br>
-    Choosing the correct day to sort the probes by is important as the
+    Choosing the correct day to sort the spots by is important as the
     kinetics of responding genes varies significantly. For example
     sorting on day 1 after Fluad brings up genes with a very sharp
     kinetics associated with cytokines etc. Sorting on day 7 brings up
@@ -161,7 +162,7 @@
     There is also an option to go straight to exploring by modules, in
     which case you just select tmod modules and observe their response
     over time. Modules can be selected in the same way as individual
-    probes or genes - by identifying those most up- or down-regulated
+    spots or genes - by identifying those most up- or down-regulated
     modules for a selected treatment ~ time; or by searching for modules
     by name or category. The basic concept is the same, as shown here
     where the <i>top 10 modules up-regulated on day 7 after Stamaril</i>
@@ -232,14 +233,14 @@
     will be generated.<br>
     <br>
     <h3><a name="Saving_Gene_Probe_ProbeNames_and_"></a>Saving Gene,
-      Probe, ProbeNames and Module Lists<br>
+      Spot, ProbeNames and Module Lists<br>
     </h3>
-    When you have selected genes, probes or modules using some filters,
+    When you have selected genes, spots or modules using some filters,
     they can be downloaded as a text file in a comma-separated format
     suitable for pasting into the 'regex' search boxes. <font
       color="#ff0000"><b>However, there is a significant problem with
-        the datasets as the rows do not always contain proper probe IDs.
-        I have tried to mitigate this by including "Probe" - an unique
+        the datasets as the rows do not always contain proper spot IDs.
+        I have tried to mitigate this by including "Spot" - an unique
         row ID, and "ProbeName" which has the correct Affymetrix Probe
         ID. But caution must be exercised when copying between
         ABC&lt;-&gt;D&lt;-&gt;D2. Hopefully, in due course we will have
