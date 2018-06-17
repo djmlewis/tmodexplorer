@@ -8,11 +8,19 @@ kineticsDF <- function(kinetics, filterExclude = FALSE) {
   df <- unnest(enframe(kinetics, name = "Day")) %>%
     mutate_if(is.character,as.numeric) %>%
     mutate(Y = Max-(Max-Min)/2)
-  
-  if(filterExclude) df <- filter(df,Exclude == FALSE)
-  return(df)
+  dfe <- df
+  if(filterExclude) dfe <- filter(df,Exclude == FALSE)
+  if(nrow(dfe) == 0) {
+    dfe <- df
+    showNotification("The kinetics has only skipped windows - they have been all set to open", type = 'error')
+  }
+  return(dfe)
 }
 
+kineticsNotAllExcluded <- function(kinetics) {
+  df <- unnest(enframe(kinetics, name = "Day"))
+  return(sum(df$Exclude) < nrow(df))
+}
 
 kineticsString <- function(kinetics) {
   if(is.null(kinetics)) return(NULL)
@@ -168,7 +176,7 @@ loadUploadedData <- function(allData, infiles,fileName) {
 }
 
 
-getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays) {
+getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingKinetics) {
   # Note this is ...ForVaccDay, there is NO COLUMN variable
   # protect from not matching colN
   
@@ -176,7 +184,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays) {
     if(descend) stat <- "max" else stat <- "min"
     
       if (asGenes == TRUE) {
-        if(allDays == FALSE) {
+        if(allDays == FALSE || usingKinetics == TRUE) {
           # just the selected column
           data4VaccDay <- data %>%
           # matches will find substrings so force it to match the whole string against colN
@@ -212,7 +220,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays) {
         }
       } else { 
         # Spot values not gene averages
-        if(allDays == FALSE) {
+        if(allDays == FALSE || usingKinetics == TRUE) {
           # just the selected column
           data4VaccDay <- data %>%
             # matches will find substrings so force it to match the whole string against colN
@@ -363,6 +371,7 @@ getGenesForValues <- function(genes,Min,Max){
 getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 
   kineticsdf <-  kineticsDF(kinetics, TRUE)
+  
   col2match <- ifelse(asGenes == TRUE,"Gene","Spot")
 
   if(asGenes == TRUE) {

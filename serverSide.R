@@ -185,11 +185,16 @@ server <- function(input, output, session) {
     curKinetics <- shapeKinetics()
     if(ignore == TRUE) {
       curKinetics[[day]] <- data_frame(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = TRUE)
-      resetShapeNumericsToDataset()
+      if(kineticsNotAllExcluded(curKinetics)) {
+        resetShapeNumericsToDataset()
+        shapeKinetics(curKinetics)
+      } else {
+        showNotification("This window cannot be excluded as at least one window must be defined", type = 'error')
+      }
     } else {
       curKinetics[[day]] <- data_frame(Min = minVal,Max = maxVal, Exclude = ignore)
+      shapeKinetics(curKinetics)
     }
-    shapeKinetics(curKinetics)
   }
   
   observeEvent(
@@ -473,7 +478,7 @@ observeEvent(
               }
               
               # all the other filters used sorted and possibly gene averaged data so get that now
-              geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes,input$checkboxRowsAnyDay)
+              geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes,input$checkboxRowsAnyDay,input$radioFilterByRowKinetics == 'kinetics')
               
               # single column value filter
               if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics != 'kinetics' && dataFrameOK(geneslist)){
