@@ -369,6 +369,45 @@ observeEvent(
     respondToChangeColumn("vacc")
   })
 
+
+observeEvent(
+  {
+    input$checkboxRowsAnyDay
+  },
+  {
+    if(input$checkboxRowsAnyDay == TRUE) {
+      runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'remove');")
+      runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'add');")
+    } else {
+      runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'remove');")
+      runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'add');")
+    }
+  }, ignoreInit = TRUE)
+
+
+observeEvent(
+  {
+    input$radioFilterByRowKinetics
+  },
+  {
+    print(input$radioFilterByRowKinetics)
+    if(input$radioFilterByRowKinetics == "row") {
+      # set to success unless input$checkboxRowsAnyDay == TRUE, otherwise leave grey, do nothing
+      if(input$checkboxRowsAnyDay == FALSE) {
+        runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'remove');")
+        runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'add');")
+      }
+      show("checkboxRowsAnyDay")
+    } else {
+      # set to grey unless input$checkboxRowsAnyDay == TRUE, otherwise leave grey, do nothing
+      if(input$checkboxRowsAnyDay == FALSE) {
+        runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'remove');")
+        runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'add');")
+      }
+      hide("checkboxRowsAnyDay")
+    }
+  }, ignoreInit = TRUE)
+
 respondToChangeColumn <- function(picker) {
   assign("sortCol_Probes",columnsFromVaccinesDays(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
   updateExpressionValueRangeVaccDay(sortCol_Probes)
@@ -379,13 +418,11 @@ respondToChangeColumn <- function(picker) {
 
 observeEvent(
     input$buttonResetValuesRangeCol,
-    {
-      updateExpressionValueRangeVaccDay(sortCol_Probes)})
+    {updateExpressionValueRangeVaccDay(sortCol_Probes)})
 
 observeEvent(
     input$buttonResetValuesRangeData,
-    {
-      updateExpressionValueRangeVaccDay(allData$colNames)})
+    {updateExpressionValueRangeVaccDay(allData$colNames)})
 
   assign("warnedAboutProbeRows",FALSE, envir = .GlobalEnv)
   observeEvent(
@@ -404,6 +441,8 @@ observeEvent(
           if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE && input$radioFilterByRowKinetics == 'row') {
             sendSweetAlert(session, type = 'error', title = "Too Many Spots", text = "You must have at least one filter selected or it will try to return and plot over 60,000 probes")
             } else {
+              topGenesAndModules(NULL)
+              
               showNotification("Please wait for filters to be applied…", type = 'message', duration = 3, id = "buttonApplySelection")
 
                             # show the tabs as we have selected probes
@@ -421,7 +460,7 @@ observeEvent(
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
               if(input$checkboxSelectKeyword == TRUE) {
                 geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$radioKeywordColumn,input$checkboxGeneSearchWholeWord)
-                if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" in ',input$radioKeywordColumn,' ')}
+                if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" ')}
               } 
               
               # kinetics also acts on allData$data, working on spots so continue with that to reduce
@@ -429,12 +468,12 @@ observeEvent(
               if(selectKinetics == TRUE && dataFrameOK(geneslist)) {
                 geneslist <- getGenesForKinetics(geneslist,shapeKinetics(), input$selectColumnVaccine,input$checkboxProbesGenes)
                 if(dataFrameOK(geneslist)) {
-                  filterSubText <-  paste0(filterSubText," match ",kineticsString(shapeKinetics()),' for ',gsub('_',' (day ',sortCol_Probes),")")
+                  filterSubText <-  paste0(filterSubText," match ",kineticsString(shapeKinetics()))
                 } 
               }
               
               # all the other filters used sorted and possibly gene averaged data so get that now
-              geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes)
+              geneslist <- getSortedGenesForVaccDay(geneslist,sortCol_Probes,input$checkboxDescending,input$checkboxProbesGenes,input$checkboxRowsAnyDay)
               
               # single column value filter
               if(input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics != 'kinetics' && dataFrameOK(geneslist)){
@@ -452,13 +491,15 @@ observeEvent(
               if(dataFrameOK(geneslist)) {
                 if(nchar(filterSubText) > 0) {
                   filtersText(
-                    paste0(gsub('_',' day ',sortCol_Probes),' ',filterSubText,' ',
-                           ifelse(input$checkboxDescending == TRUE, ' Sort ↓ ',' Sort ↑ '),
-                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means ',' Spots ')
+                    paste0(gsub('_',' ',sortCol_Probes),' ❖ ',filterSubText,' ❖ ',
+                           ifelse(input$checkboxDescending == TRUE, ' Sort ↓ ',' Sort ↑ '), ifelse(input$checkboxRowsAnyDay == TRUE," All Days ❖ ",' ❖ '),
+                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means',' Spots')
                     ))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 } else {
-                  filtersText(paste0(gsub('_',' day ',sortCol_Probes),' [No filters] ',ifelse(input$checkboxDescending == TRUE, ' Sort Descending, ',' Sort Ascending, '),ifelse(input$checkboxProbesGenes == TRUE, ' Gene Averages ',' Individual Spots ')))
+                  filtersText(paste0(gsub('_',' ',sortCol_Probes),' ❖ [No filters] ❖ ',
+                                     ifelse(input$checkboxDescending == TRUE, ' Sort Descending ❖ ',' Sort Ascending ❖ '),
+                                     ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means',' Spots')))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 }
               } else {

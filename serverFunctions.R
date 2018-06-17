@@ -168,14 +168,19 @@ loadUploadedData <- function(allData, infiles,fileName) {
 }
 
 
-getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
+getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays) {
   # Note this is ...ForVaccDay, there is NO COLUMN variable
   # protect from not matching colN
+  
   if (dataFrameOK(data) && colN %in% names(data)) {
+    if(descend) stat <- "max" else stat <- "min"
+    
       if (asGenes == TRUE) {
-        data4VaccDay <- data %>%
+        if(allDays == FALSE) {
+          # just the selected column
+          data4VaccDay <- data %>%
           # matches will find substrings so force it to match the whole string against colN
-          select(Value = matches(paste0('^', colN, '$')), Gene, Description,Spot) %>%
+          select(Value = matches(paste0('^', colN, '$')), Gene) %>%
           # Description is missing from asGenes as it is probe-specific
           group_by(Gene) %>%
           summarise(
@@ -187,11 +192,42 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes) {
           # it is much faster to do this on the summary table not within summarise
           mutate(SEM = case_when(N > 1 ~ SD/sqrt(N), TRUE ~ 0)) %>%
           select(Gene,Value,SEM,N)
-      } else {
-        data4VaccDay <- data %>%
-          # matches will find substrings so force it to match the whole string against colN
-          # Description is available
-          select(Spot, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), Description)
+        } else {
+          data4VaccDay <- data %>%
+            # find cols containing treatment name
+            select(Gene,contains(str_split(colN,"_",simplify = TRUE)[1])) %>%
+            group_by(Gene) %>%
+            # average all cols by Gene
+            summarise_all(mean,na.rm = TRUE) %>%
+            ungroup()
+          # now have a table of genes in rows and the gene means in cols for each day
+          geneNames <- data4VaccDay$Gene # save Gene names
+          data4VaccDay <- data4VaccDay %>%
+            select(-Gene) %>%
+            # row max / min for gene
+          mutate(
+            Value = apply(.,1,stat,na.rm = TRUE),
+            Gene = geneNames) %>%
+            select(Gene,Value)
+        }
+      } else { 
+        # Spot values not gene averages
+        if(allDays == FALSE) {
+          # just the selected column
+          data4VaccDay <- data %>%
+            # matches will find substrings so force it to match the whole string against colN
+            select(Spot, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), Description)
+        } else {
+          # all columns with selected treatment
+          data4VaccDay <- data %>%
+            # find cols containing treatment name
+            select(contains(str_split(colN,"_",simplify = TRUE)[1])) %>%
+          mutate(Value = apply(.,1,stat,na.rm = TRUE))
+          data4VaccDay <- cbind(
+            select(data4VaccDay,Value),
+            select(data, Spot, ProbeName, Gene, Description)
+          )
+        }
       }
 
       if (descend) {
@@ -321,8 +357,6 @@ getGenesForRows <- function(genes,start,end){
 
 getGenesForValues <- function(genes,Min,Max){
   if(is.null(genes) || nrow(genes) == 0 || Min > Max){return(NULL)}
-  # selGenes <- genes %>%
-  #   filter(between(Value,Min,Max))
   return(filter(genes,between(Value,Min,Max)))
 }
 
