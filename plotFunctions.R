@@ -452,13 +452,14 @@ plotPlotPNG <- function(plot2plot,file, h,w) {
 
 getGGplotShapeMiniplot <- function(kinetics,dataValueRange) {
   if(is.null(kinetics)) return(NULL)
-  df <-  kineticsDF(kinetics)
+  df <-  kineticsDF(kinetics) %>%
+    mutate(DayF = 1:length(Day))
     
-    plot <- ggplot(df, aes(xmin = Day-0.3, xmax = Day+0.3, ymin = Min, ymax = Max)) +
+    plot <- ggplot(df, aes(xmin = DayF-0.4, xmax = DayF+0.4, ymin = Min, ymax = Max)) +
       theme(axis.title = element_blank()) +
-      scale_x_continuous(breaks = df$Day) +
+      scale_x_continuous(labels = as.character(df$Day),breaks = df$DayF) +
       geom_rect(mapping = aes(fill = Exclude, color = Exclude), alpha = 0.3, show.legend = FALSE) +
-      geom_point(aes(x = Day, y = Y), shape = 8, size = 3) +
+      geom_point(aes(x = DayF, y = Y), shape = 8, size = 3) +
       scale_fill_manual(values = c(`TRUE` = "white", `FALSE` = "#f9b800")) +
       scale_color_manual(values = c(`TRUE` = "grey20", `FALSE` = "#f9b800")) +
       geom_hline(yintercept = c(dataValueRange[["Min"]],dataValueRange[["Max"]]), linetype = 2, color = 'grey50')

@@ -198,10 +198,24 @@ server <- function(input, output, session) {
   }
   
   observeEvent(
+    input$click_plotShapeMiniplot, 
+    {
+      df <-  kineticsDF(shapeKinetics()) %>%
+        mutate(DayF = 1:length(Day))
+      res <- nearPoints(df, input$click_plotShapeMiniplot, xvar = "DayF", yvar = "Y", maxpoints = 1,threshold = 10) 
+      if(nrow(res)>0) {
+        updatePickerInput(session,"selectShapeDay", selected = as.character(res$Day[1]))
+      }
+    })
+  
+  observeEvent(
     input$dblclick_plotShapeMiniplot, 
     {
-      res <- nearPoints(kineticsDF(shapeKinetics()), input$dblclick_plotShapeMiniplot, xvar = "Day", yvar = "Y", maxpoints = 1,threshold = 10) 
+      df <-  kineticsDF(shapeKinetics()) %>%
+        mutate(DayF = 1:length(Day))
+      res <- nearPoints(df, input$dblclick_plotShapeMiniplot, xvar = "DayF", yvar = "Y", maxpoints = 1,threshold = 10) 
       if(nrow(res)>0) {
+        # dayF is an index 1...ndays. Use that to lookup the index of day that has the Day value
         selday <- as.character(res$Day[1])
         selKinDF <- shapeKinetics()[[selday]]
         saveKineticsDayValues(!selKinDF$Exclude[1],selday,dataValueRange[["Min"]],dataValueRange[["Max"]])
@@ -249,14 +263,6 @@ server <- function(input, output, session) {
    })
   
   output$plotShapeMiniplot <- renderPlot({getGGplotShapeMiniplot(shapeKinetics(),expressionValueRangeVaccAllDays())})
-  observeEvent(
-    input$click_plotShapeMiniplot, 
-    {
-      res <- nearPoints(kineticsDF(shapeKinetics()), input$click_plotShapeMiniplot, xvar = "Day", yvar = "Y", maxpoints = 1,threshold = 10) 
-      if(nrow(res)>0) {
-        updatePickerInput(session,"selectShapeDay", selected = as.character(res$Day[1]))
-      }
-    })
   
   
   # LOADING ##########
