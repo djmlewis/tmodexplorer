@@ -659,10 +659,10 @@ ui <-
               div(id = "divLoadCells",
                   h4(style = "text-align: center; margin-top: 0px;",'Cells Data Are Not Loaded Automatically. Click The Button To Load White Blood Cells Data'),
                   fluidRow(
-                    column(6, offset = 3,
+                    column(8, offset = 2,
                            wellPanel(style = "background-color: #fff4e5;",
                                      fluidRow(
-                                       column(4,offset = 4, 
+                                       column(8,offset = 2, 
                                               actionBttn('buttonLoadCells','Load Cells Data',style = 'unite', size = 'sm', color = 'success', block = TRUE)
                                        )
                                      )
@@ -755,10 +755,10 @@ ui <-
       div(id = "divLoadCytokines",
           h4(style = "text-align: center; margin-top: 0px;",'Cytokines Data Are Not Loaded Automatically. Click The Button To Load.'),
           fluidRow(
-            column(6, offset = 3,
+            column(8, offset = 2,
                    wellPanel(style = "background-color: #f3fbe0;",
                              fluidRow(
-                               column(4,offset = 4, 
+                               column(8,offset = 2, 
                                       actionBttn('buttonLoadCytokines','Load Cytokines Data',style = 'unite', size = 'sm', color = 'success', block = TRUE)
                                )
                              )
