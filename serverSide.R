@@ -66,8 +66,8 @@ server <- function(input, output, session) {
       updateNumericInput(session,'numberExpressionMin',value = exprangeVD[['Min']])
       updateNumericInput(session,'numberExpressionMax',value = exprangeVD[['Max']])
       
-      removeNotification(id = "updateExpressionValueRangeVaccDay")
-      showNotification(id = "updateExpressionValueRangeVaccDay", paste0("Expression Max Min Reset To ", ifelse(length(selCol)==1,"Selected Column","Whole Dataset"), " Max Min"))
+      # removeNotification(id = "updateExpressionValueRangeVaccDay")
+      # showNotification(id = "updateExpressionValueRangeVaccDay", paste0("Expression Max Min Reset To ", ifelse(length(selCol)==1,"Selected Column","Whole Dataset"), " Max Min"))
     }
   }
   
@@ -76,8 +76,8 @@ server <- function(input, output, session) {
       modrange <- getMaxMinValueFromModulesData(allData,c(selCol), input$mcheckboxModuleMedians)
       updateNumericInput(session,'mnumberExpressionMin',value = modrange[['Min']])
       updateNumericInput(session,'mnumberExpressionMax',value = modrange[['Max']])
-      removeNotification(id = "updateModuleMinMax")
-      showNotification(id = "updateModuleMinMax", paste0("Module Max Min Reset To ", ifelse(length(selCol)==1,"Selected Column","Whole Dataset"), " Max Min"))
+      # removeNotification(id = "updateModuleMinMax")
+      # showNotification(id = "updateModuleMinMax", paste0("Module Max Min Reset To ", ifelse(length(selCol)==1,"Selected Column","Whole Dataset"), " Max Min"))
     }
   }
   
@@ -94,7 +94,7 @@ server <- function(input, output, session) {
   }
   
   resetShapeNumericsToVaccine <- function(){
-    colsToLookup <- paste0(input$selectColumnVaccine,"_",input$selectColumnDay)
+    colsToLookup <- paste0(input$selectColumnVaccine,"_",dayPatterns[[input$selectColumnVaccine]])
     rangeVAD <- getMaxMinValueFromData(allData$data,colsToLookup)
     expressionValueRangeVaccAllDays(rangeVAD)
     updateNumericInput(session,"numberShapeDayMin",value = rangeVAD[["Min"]])
@@ -262,7 +262,9 @@ server <- function(input, output, session) {
      } else {showNotification(paste0("There was noting to import from ",input$buttonLoadShapeKinetics$name),type = "error")}
    })
   
-  output$plotShapeMiniplot <- renderPlot({getGGplotShapeMiniplot(shapeKinetics(),expressionValueRangeVaccAllDays())})
+  
+  ggPlotShapeMiniplot <- reactive({getGGplotShapeMiniplot(shapeKinetics(),expressionValueRangeVaccAllDays())})
+  output$plotShapeMiniplot <- renderPlot({ggPlotShapeMiniplot()})
   
   
   # LOADING ##########
