@@ -325,7 +325,6 @@ server <- function(input, output, session) {
     updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', choices = vaccDays$vaccines, selected = character(0))
     updateSelectInput(session, 'mselectColumnForModuleSeriesDays', choices = vaccDays$days, selected = character(0))
     
-    
     updateSelectInput(session, 'mselectPlotModulesInSeries', choices = character(0))
     updatePickerInput(session, 'mselectModuleForGenes', choices = NULL)
     updateSelectInput(session, 'mselectModuleTitles', choices = sort(unique(allData$modulesMeans[['Title']])))
@@ -355,6 +354,7 @@ output$textFiltersMods <- renderText({paste0("\U1F50D ",modulesAndFiltersText())
 
   #################### Selecting Columns #########################
   # select the genes and identify associated modules
+
 
 ### selecting events - probes
 
@@ -395,7 +395,6 @@ observeEvent(
     input$radioFilterByRowKinetics
   },
   {
-    print(input$radioFilterByRowKinetics)
     if(input$radioFilterByRowKinetics == "row") {
       # set to success unless input$checkboxRowsAnyDay == TRUE, otherwise leave grey, do nothing
       if(input$checkboxRowsAnyDay == FALSE) {
@@ -517,7 +516,20 @@ observeEvent(
               } else {
                 hide(id = "navProbeHeader")
               }
-    
+              
+              nrowsGeneList <- nrow(geneslist)
+              if(nrowsGeneList>input$rowsLimitNumeric) {
+                sendSweetAlert(
+                  session = session,
+                  type = "error",
+                  title = "Too many spots identified",
+                  text = paste0("A total of ",nrowsGeneList," rows have been returned which exceeds the limit of ",input$rowsLimitNumeric ," set on the Rows Limit Input. The number of rows will be capped at ",input$rowsLimitNumeric,". To increase this change the setting and repeat Apply Filters. WARNING -  more than 100 rows may freeze the app for a very long time."),
+                  btn_labels = c("OK")
+                )
+                geneslist <- geneslist[1:input$rowsLimitNumeric,]
+              }
+                
+                
               ############ lookup the genes and modules
               if(dataFrameOK(geneslist)) {
                 topGenesAndModules(selectedGenesAndModules(geneslist))
@@ -540,7 +552,7 @@ observeEvent(
   )
   
   assign("genesOrProbes","Gene", envir = .GlobalEnv)
-  
+
   observeEvent(
     topGenesAndModules(),
     {

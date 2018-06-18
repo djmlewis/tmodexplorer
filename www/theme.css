@@ -28,6 +28,7 @@ body {
   margin: 0;
 }
 
+/* Make slider labels invisible */
 .irs-min, .irs-max, .irs-from, .irs-to, .irs-single  {
 	visibility: hidden !important;
 }

@@ -32,7 +32,6 @@ ui <-
                                  fluidRow(
                                    column(10,pickerInput(inputId = 'selectDataFI', choices = NULL, options = list(`style` = "btn-success"))),
                                    column(2,
-                                          # actionButton('buttonLoadDataFI',label = 'Load Dataset',class = "btn-success")
                                           actionBttn('buttonLoadDataFI','Load Dataset',style = 'unite', size = 'sm', color = 'success', block = TRUE)
                                    )
                                  ))
@@ -52,9 +51,13 @@ ui <-
                tabPanel('Select Genes',
                         conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                          fluidRow(style = "margin-bottom:10px;",
-                                           column(4,offset = 4, style = "margin-top: 4px; color: black ", 
+                                           column(4, offset = 4, style = "margin-top: 4px; color: black ", 
                                                   actionBttn('buttonApplySelection','Apply Filters',style = 'unite', size = 'sm', color = 'warning', block = TRUE),
-                                                  bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select spots or genes for plotting", placement = "top"))
+                                                  bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select spots or genes for plotting", placement = "top")),
+                                           column(2, offset = 2, #style = "margin-top: -10px;",
+                                                  numericInput("rowsLimitNumeric", NULL, value = 100, min = 50, step = 50),
+                                                  bsTooltip("rowsLimitNumeric", "Limit to number of Spots / Genes returned. Suggest set to ~ 100 to avoid a very slow response", placement = 'top')
+                                                  )
                                          )),
                         fluidRow(
                           column(2,# keywrd column
