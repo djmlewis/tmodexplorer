@@ -250,7 +250,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
       
       return(data4VaccDay)
   }
-  return(NULL)
+  return(data)
 }
 
 getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSelected, splitGenes) {

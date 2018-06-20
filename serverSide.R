@@ -462,6 +462,15 @@ observeEvent(
       assign("warnedAboutProbeRows",TRUE, envir = .GlobalEnv)
     }})
   
+  observeEvent(
+    input$checkboxGeneSearchWholeWord,
+    {
+      if(input$checkboxGeneSearchWholeWord == FALSE && input$selectKeywordColumn != 'Description') {
+        showNotification("When searching columns other than 'Description', it is better to keep Whole Word selected otherwise you will match partial names - which may be not what you intend.", type = 'warning')
+      }
+    }, ignoreInit = TRUE)
+  
+  
 ############### Apply Selection ### ####
   topGenesAndModules <- reactiveVal()
   topGenesAndModules(NULL)
@@ -470,7 +479,7 @@ observeEvent(
     {
         if(!is.null(sortCol_Probes)) {
           if(input$checkboxSelectKeyword == FALSE && input$checkboxSelectValues == FALSE && input$checkboxSelectRows == FALSE && input$radioFilterByRowKinetics == 'row') {
-            sendSweetAlert(session, type = 'error', title = "Too Many Spots", text = "You must have at least one filter selected or it will try to return and plot over 60,000 probes")
+            sendSweetAlert(session, type = 'error', title = "Too Many Rows", text = "You must have at least one filter selected or it will try to return and plot over 40,000 rows")
             } else {
               topGenesAndModules(NULL)
               
@@ -494,11 +503,14 @@ observeEvent(
                 if(input$textInputKeyword == "") {
                   showNotification("Empty keyword searches are ignored. No keyword filter has been applied.", type = 'error')
                 } else {
+                  if(input$checkboxGeneSearchWholeWord == FALSE && input$selectKeywordColumn != 'Description') {
+                    showNotification("Warning: when searching columns other than 'Description' without having Whole Word selected you will match partial names - which may be not what you intend.", type = 'warning')
+                  }
                   geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$selectKeywordColumn,input$checkboxGeneSearchWholeWord)
                   if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" ')}
                 }
               } 
-              
+
               # kinetics also acts on allData$data, working on spots so continue with that to reduce
               assign("selectKinetics",input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics', envir = .GlobalEnv)
               if(selectKinetics == TRUE && dataFrameOK(geneslist)) {
@@ -549,18 +561,19 @@ observeEvent(
                 hide(id = "navProbeHeader")
               }
               
-              nrowsGeneList <- nrow(geneslist)
-              if(nrowsGeneList>input$rowsLimitNumeric) {
-                sendSweetAlert(
-                  session = session,
-                  type = "error",
-                  title = "Too many spots identified",
-                  text = paste0("A total of ",nrowsGeneList," rows have been returned which exceeds the limit of ",input$rowsLimitNumeric ," set on the Rows Limit Input. The number of rows will be capped at ",input$rowsLimitNumeric,". To increase this change the setting and repeat Apply Filters. WARNING -  more than 100 rows may freeze the app for a very long time."),
-                  btn_labels = c("OK")
-                )
-                geneslist <- geneslist[1:input$rowsLimitNumeric,]
+              if(dataFrameOK(geneslist)) {
+                nrowsGeneList <- nrow(geneslist)
+                if(nrowsGeneList>input$rowsLimitNumeric) {
+                  sendSweetAlert(
+                    session = session,
+                    type = "warning",
+                    title = "Too many rows returned by filter",
+                    text = paste0("A total of ",nrowsGeneList," rows have been returned which exceeds the limit of ",input$rowsLimitNumeric ," set on the Rows Limit Input. The number of rows will be capped at ",input$rowsLimitNumeric,". To increase this change the setting and repeat Apply Filters. WARNING -  more than 100 rows may freeze the app for a very long time."),
+                    btn_labels = c("OK")
+                  )
+                  geneslist <- geneslist[1:input$rowsLimitNumeric,]
+                }
               }
-                
                 
               ############ lookup the genes and modules
               if(dataFrameOK(geneslist)) {

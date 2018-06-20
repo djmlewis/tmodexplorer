@@ -70,7 +70,7 @@ ui <-
                                 textInput('textInputKeyword',NULL),
                                 h4(style = "margin-top: 0px;","Search:"),
                                 pickerInput('selectKeywordColumn',label = NULL,choices = c('Gene','Spot','ProbeName','SystematicName','Description'), options = list(`style` = "btn-success")),
-                                awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", FALSE,status = "danger")
+                                awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger")
                             )))),
                           column(10, # other searches
                                  wellPanel(style = "background-color: #ffffff;",
@@ -477,13 +477,6 @@ ui <-
                                     column(2,pickerInput('pickerSaveListTopModules',label = NULL, width = '100%', choices = c('Module','Title','Category'), options = list(`style` = "btn-danger"))),
                                     column(2,downloadButton(class="btn-danger",'mbuttonSaveListTopModules', 'Download List'), bsTooltip("mbuttonSaveListTopModules", "Download List To Paste Into Regex Keyword Search"))
                                   ),
-                                  # div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
-                                  #     downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
-                                  #     downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG'),
-                                  #     downloadButton(class="btn-danger",'mbuttonSaveListTopModules', 'Modules List'), bsTooltip("mbuttonSaveListTopModules", "Modules List To Paste Into regex Keyword Search"),
-                                  #     downloadButton(class="btn-danger",'mbuttonSaveListTopModuleTitles', 'Titles List'), bsTooltip("mbuttonSaveListTopModuleTitles", "Titles List To Paste Into regex Keyword Search"),
-                                  #     downloadButton(class="btn-danger",'mbuttonSaveListTopModuleCategory', 'Categories List'), bsTooltip("mbuttonSaveListTopModuleCategory", "Categories List To Paste Into regex Keyword Search")
-                                  # ), 
                                   hr(),
                                   dataTableOutput('mdatatableTopModulesUp')
                          ),
