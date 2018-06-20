@@ -363,8 +363,30 @@ output$textFiltersMods <- renderText({paste0("\U1F50D ",modulesAndFiltersText())
   #################### Selecting Columns #########################
   # select the genes and identify associated modules
 
-
+makeSelectColumnDayStyleGrey <- function(makeGrey){
+  if(makeGrey == TRUE) {
+    runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'remove');")
+    runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'add');")
+  } else {
+    runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'remove');")
+    runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'add');")
+  }
+  
+}
 ### selecting events - probes
+respondToChangeColumn <- function(picker) {
+  assign("sortCol_Probes",columnsFromVaccinesDays(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
+  updateExpressionValueRangeVaccDay(sortCol_Probes)
+  if(picker == 'vacc') {
+    resetShapeNumericsToVaccine()
+  }
+}
+
+session$onFlushed(function() {
+  # the selectColumnDay will be reset to the default color, so we have to reset the style in case we have kinetics or All days
+  # this is inefficient as it is called every time we refresh anything but has to be like this to overcome situation where Vaccine select changes and Day select does not - it is this refresh we must trap
+  makeSelectColumnDayStyleGrey(isolate(input$checkboxRowsAnyDay == TRUE || (input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics')))
+}, once = FALSE)
 
 observeEvent(
   {
@@ -383,19 +405,13 @@ observeEvent(
   })
 
 
-observeEvent(
-  {
-    input$checkboxRowsAnyDay
-  },
-  {
-    if(input$checkboxRowsAnyDay == TRUE) {
-      runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'remove');")
-      runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'add');")
-    } else {
-      runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'remove');")
-      runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'add');")
-    }
-  }, ignoreInit = TRUE)
+# observeEvent(
+#   {
+#     input$checkboxRowsAnyDay
+#   },
+#   {
+#         # makeSelectColumnDayStyleGrey(input$checkboxRowsAnyDay)
+#   }, ignoreInit = TRUE)
 
 
 observeEvent(
@@ -404,29 +420,32 @@ observeEvent(
   },
   {
     if(input$radioFilterByRowKinetics == "row") {
-      # set to success unless input$checkboxRowsAnyDay == TRUE, otherwise leave grey, do nothing
-      if(input$checkboxRowsAnyDay == FALSE) {
-        runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'remove');")
-        runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'add');")
-      }
+      # # set to success unless input$checkboxRowsAnyDay == TRUE, otherwise leave grey, do nothing
+      # if(input$checkboxRowsAnyDay == FALSE) {
+      #       # makeSelectColumnDayStyleGrey(FALSE)
+      # }
       show("checkboxRowsAnyDay")
     } else {
-      # set to grey unless input$checkboxRowsAnyDay == TRUE, otherwise leave grey, do nothing
-      if(input$checkboxRowsAnyDay == FALSE) {
-        runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-success', 'remove');")
-        runjs("$('#selectColumnDay').selectpicker('setStyle', 'btn-default', 'add');")
-      }
+      # # set to grey unless input$checkboxRowsAnyDay == TRUE, otherwise leave grey, do nothing
+      # if(input$checkboxRowsAnyDay == FALSE) {
+      #       # makeSelectColumnDayStyleGrey(TRUE)
+      # }
       hide("checkboxRowsAnyDay")
     }
   }, ignoreInit = TRUE)
 
-respondToChangeColumn <- function(picker) {
-  assign("sortCol_Probes",columnsFromVaccinesDays(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
-  updateExpressionValueRangeVaccDay(sortCol_Probes)
-  if(picker == 'vacc') {
-    resetShapeNumericsToVaccine()
-  }
-}
+
+observeEvent(
+  input$checkboxSelectValues,
+  {
+    # makeSelectColumnDayStyleGrey((input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics') || input$checkboxRowsAnyDay == TRUE)
+    if(input$checkboxSelectValues == FALSE) show("checkboxRowsAnyDay")
+    else {
+      if(input$radioFilterByRowKinetics == 'kinetics') hide("checkboxRowsAnyDay")
+      else show("checkboxRowsAnyDay")
+    }
+  })
+
 
 observeEvent(
     input$buttonResetValuesRangeCol,
@@ -471,8 +490,13 @@ observeEvent(
               
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
               if(input$checkboxSelectKeyword == TRUE) {
-                geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$radioKeywordColumn,input$checkboxGeneSearchWholeWord)
-                if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" ')}
+                # ignore an empty search
+                if(input$textInputKeyword == "") {
+                  showNotification("Empty keyword searches are ignored. No keyword filter has been applied.", type = 'error')
+                } else {
+                  geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$selectKeywordColumn,input$checkboxGeneSearchWholeWord)
+                  if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" ')}
+                }
               } 
               
               # kinetics also acts on allData$data, working on spots so continue with that to reduce
@@ -602,28 +626,8 @@ observeEvent(
   output$buttonSaveTableProbes <- downloadHandler(filename = function(){paste0("Selected Spots-Genes.csv")},
     content = function(file) {write.csv(topGenesAndModules()[['genes']], file, row.names = FALSE)})
   
-  output$buttonSaveListGenes <- downloadHandler(filename = function(){paste0("Selected Genes.txt")},
-   content = function(file) {write_lines(paste0(paste(unique(topGenesAndModules()[['genes']][["Gene"]]), collapse = ','),'\n\n# ',dataFilterStr('g')), file)})
-  
-  getProbeOrProbeNames <- function(probeOrProbeName){
-    probelist <- NULL
-    if(genesOrProbes == "Spot") {
-      probelist <- unique(topGenesAndModules()[['genes']][[probeOrProbeName]])
-    } else { #asGenes
-      selgenes <- unique(topGenesAndModules()[['genes']][['Gene']])
-      if(!is.null(selgenes)) {
-        geneprobes <- lookupGenesProbes(paste(selgenes, collapse = ','), allData$annot, "Gene",TRUE)
-        if(!is.null(geneprobes)) {probelist <- unique(geneprobes[[probeOrProbeName]])}
-      }
-    }
-    return(paste(probelist, collapse = ','))
-  }
-  
-  output$buttonSaveListProbes <- downloadHandler(filename = function(){paste0("Selected Spots.txt")},
-    content = function(file) {write_lines(paste0(getProbeOrProbeNames("Spot"),'\n\n# ',dataFilterStr('g')), file)})
-  
-  output$buttonSaveListProbeNames <- downloadHandler(filename = function(){paste0("Selected ProbeNames.txt")},
-    content = function(file) {write_lines(paste0(getProbeOrProbeNames("ProbeName"),'\n\n# ',dataFilterStr('g')), file)})
+  output$buttonSaveListGenes <- downloadHandler(filename = function(){paste0("Selected ",input$pickerSaveListTopGenes,".txt")},
+   content = function(file) {write_lines(paste0(paste(unique(topGenesAndModules()[['genes']][[input$pickerSaveListTopGenes]]), collapse = ','),'\n\n# ',dataFilterStr('g')), file)})
   
   #################### Top Spots Series #########################
   # topGenesInSeries <- NULL
@@ -810,7 +814,7 @@ observeEvent(
   observeEvent({
     input$buttonGeneLookup
   },{
-    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot, input$radioGeneProbeLookup,input$checkboxGeneLookupWholeWord), envir = .GlobalEnv)
+    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot, input$pickerGeneProbeLookup,input$checkboxGeneLookupWholeWord), envir = .GlobalEnv)
     output$datatableGeneLookup <- renderDataTable({lookedupGenes})
   })
   observeEvent({
@@ -975,14 +979,8 @@ output$mbuttonSaveTableModules <- downloadHandler(filename = function(){paste0("
   content = function(file) {write.csv(topModulesSelected(), file, row.names = FALSE)})
 
 
-output$mbuttonSaveListTopModules <- downloadHandler(filename = function(){paste0("Selected By Modules-Modules.txt")},
-  content = function(file) {write_lines(paste0(paste(unique(topModulesSelected()[['Module']]), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
-output$mbuttonSaveListTopModuleTitles <- downloadHandler(filename = function(){paste0("Selected By Modules-Titles.txt")},
-  content = function(file) {write_lines(paste0(paste(unique(topModulesSelected()[['Title']]), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
-output$mbuttonSaveListTopModuleCategory <- downloadHandler(filename = function(){paste0("Selected By Modules-Categories.txt")},
-  content = function(file) {write_lines(paste0(paste(unique(topModulesSelected()[['Category']]), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
-
-
+output$mbuttonSaveListTopModules <- downloadHandler(filename = function(){paste0("Selected By Modules-",input$pickerSaveListTopModules,".txt")},
+  content = function(file) {write_lines(paste0(paste(unique(topModulesSelected()[[input$pickerSaveListTopModules]]), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
 
   # Plot Modules Selected #
 ggplotSelectedModules <-

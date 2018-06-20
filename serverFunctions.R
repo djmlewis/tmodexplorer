@@ -96,7 +96,7 @@ showModalGenericFailure <- function(message){
 
 vaccinesDaysFromColNames <- function(coln) {
   u <- str_split(coln,'_',simplify = TRUE)
-  return(list(vaccines = unique(u[,1]), days = unique(u[,2])))
+  return(list(vaccines = sort(unique(u[,1])), days = unique(u[,2])))
 }
 
 columnsFromVaccinesDays <- function(v,d) {
@@ -128,9 +128,9 @@ getNewData <- function(allData, folderNme) {
     # annotation <- annotation %>%
     #   select(Spot = X1, ProbeName, Gene = Gene, Description)
 
-    allData$data<- read_rds(dataPath) %>%
-      # rename(Spot = X1) %>%
-      full_join(annotation, by = 'Spot')
+    allData$data<- read_rds(dataPath)
+
+    allData$data<- full_join(annotation,allData$data, by = 'Spot')
 
     allData$colNames <-
       names(allData$data)[grepl('_', names(allData$data))]
@@ -224,7 +224,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
           # just the selected column
           data4VaccDay <- data %>%
             # matches will find substrings so force it to match the whole string against colN
-            select(Spot, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), Description)
+            select(Spot, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), SystematicName, Description)
         } else {
           # all columns with selected treatment
           data4VaccDay <- data %>%
@@ -404,11 +404,6 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 getGenesForSearch <- function(geneslist,search,column,wholeWord){
   if(is.null(geneslist) || is.null(search)) return(NULL)
 
-  # ignore an empty search
-  if(search == "") {
-    showNotification("Empty searches are ignored", type = 'error')
-    return(NULL)
-  }
   # strip spaces from genes and probes
   if((column %in% c("Gene","Spot","ProbeName")) && grepl(' ',search)) {
     showNotification("Spaces have been stripped", type = 'warning')

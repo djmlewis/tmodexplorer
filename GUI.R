@@ -65,14 +65,14 @@ ui <-
                                 conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                 awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
                                 conditionalPanel(condition = "input.checkboxSelectKeyword == true",
-                                conditionalPanel(condition = "input.radioKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces will be stripped")),
-                                conditionalPanel(condition = "input.radioKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces will be kept")),
+                                conditionalPanel(condition = "input.selectKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces will be stripped")),
+                                conditionalPanel(condition = "input.selectKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces will be kept")),
                                 textInput('textInputKeyword',NULL),
                                 h4(style = "margin-top: 0px;","Search:"),
-                                awesomeRadio(status = 'success', 'radioKeywordColumn',NULL,choices = c('Gene','Spot','ProbeName','Description'), inline = FALSE),
+                                pickerInput('selectKeywordColumn',label = NULL,choices = c('Gene','Spot','ProbeName','SystematicName','Description'), options = list(`style` = "btn-success")),
                                 awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", FALSE,status = "danger")
                             )))),
-                          column(10, # other seraches
+                          column(10, # other searches
                                  wellPanel(style = "background-color: #ffffff;",
                                            fluidRow( # vacc - day pickers
                                              column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
@@ -117,9 +117,9 @@ ui <-
                                                         ),
                                                         conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
                                                         fluidRow(
-                                                          column(7, plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
+                                                          column(5, plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
                                                           bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top')),
-                                                          column(5, 
+                                                          column(7, 
                                                             fluidRow(
                                                               column(2, actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
                                                               column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
@@ -132,7 +132,7 @@ ui <-
                                                             ),
                                                             fluidRow(
                                                               column(6, 
-                                                                     actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-primary'),
+                                                                     actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-warning'),
                                                                      actionButton('buttonPasteValuesShapeData',NULL, icon = icon("paste"), class = 'btn-warning')),
                                                               conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
                                                               column(6, 
@@ -171,12 +171,11 @@ ui <-
                          tabPanel('Selected Genes',
                                   
                                   h4(style = "margin-top: 0px;",'Spots Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Combination'),
-                                  div(
-                                    downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
-                                    downloadButton(class="btn-primary",'buttonSaveTableTopGenesUpPlot', 'Table As PNG'),
-                                    downloadButton(class="btn-info",'buttonSaveListGenes', 'Gene List'), bsTooltip("buttonSaveListGenes", "Gene List To Paste Into regex Keyword Search"),
-                                    downloadButton(class="btn-info",'buttonSaveListProbes', 'Spot List'), bsTooltip("buttonSaveListProbes", "Spot List To Paste Into regex Keyword Search"),
-                                    downloadButton(class="btn-info",'buttonSaveListProbeNames', 'ProbeName List'), bsTooltip("buttonSaveListProbeNames", "ProbeName List To Paste Into regex Keyword Search")
+                                  fluidRow(
+                                    column(4,downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
+                                    downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG')),
+                                    column(2,pickerInput('pickerSaveListTopGenes',label = NULL, width = '100%', choices = c('Gene','Spot','ProbeName','SystematicName','Description'), options = list(`style` = "btn-danger"))),
+                                    column(2,downloadButton(class="btn-danger",'buttonSaveListGenes', 'List'), bsTooltip("buttonSaveListGenes", "Download List To Paste Into Regex Keyword Search"))
                                   ),
                                   hr(),
                                   dataTableOutput('datatableTopGenesUp')
@@ -239,7 +238,7 @@ ui <-
                                             wellPanel(style = "background-color: #FFFFFF;",
                                                       uiOutput("plotTopGenesSeriesSIZE")),
                                             conditionalPanel(condition = "output.plotTopGenesSeries != null",
-                                                             downloadButton(class="btn-primary",'buttonPNGplotTopGenesSeries', 'HiRes PNG'))
+                                                             downloadButton(class="btn-warning",'buttonPNGplotTopGenesSeries', 'HiRes PNG'))
                                   ),
                                   conditionalPanel(condition = "output.datatableTopGenesSeries != null",
                                                    downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Table')), hr(),
@@ -249,7 +248,7 @@ ui <-
                                   
                                   h4(style = "margin-top: 0px;",'Modules Associated With Selected Spots or Genes'),
                                   div(downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'),
-                                      downloadButton(class="btn-primary",'buttonSaveTableGenesModulesPlot', 'Table As PNG')),
+                                      downloadButton(class="btn-warning",'buttonSaveTableGenesModulesPlot', 'Table As PNG')),
                                   hr(),
                                   dataTableOutput('datatableGenesModules')),
                          #################### Modules #########################
@@ -270,14 +269,14 @@ ui <-
                                                       uiOutput("plotGenesModulesSIZE")
                                             ),
                                             fluidRow(
-                                              column(1,downloadButton(class="btn-primary",'buttonPNGplotGenesModules', 'HiRes PNG')),
+                                              column(1,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'HiRes PNG')),
                                               column(11, p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Spot(s) Mapping To Module Genes Are Summarised"))
                                             )),
                                   downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Table'),
                                   downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Dataset'),
-                                  downloadButton(class="btn-primary",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
-                                  downloadButton(class="btn-primary",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG'),
-                                  downloadButton(class="btn-info",'buttonSaveTableModulesSummaryList', 'Modules & Titles List'), bsTooltip("buttonSaveTableModulesSummaryList", "Modules & Titles List To Paste Into regex Keyword Search"),
+                                  downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
+                                  downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG'),
+                                  downloadButton(class="btn-danger",'buttonSaveTableModulesSummaryList', 'Modules & Titles List'), bsTooltip("buttonSaveTableModulesSummaryList", "Modules & Titles List To Paste Into regex Keyword Search"),
                                   hr(),
                                   dataTableOutput('datatableSelModulesOnly')),
                          #################### Modules->Genes ###################
@@ -296,11 +295,11 @@ ui <-
                                                       uiOutput("plotModuleGenesSIZE")
                                             ),
                                             fluidRow(
-                                              column(1,downloadButton(class="btn-primary",'buttonPNGplotModuleGenes', 'HiRes PNG')),
+                                              column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleGenes', 'HiRes PNG')),
                                               column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Spot(s) Mapping To Module Genes Are Summarised"))
                                             )),
                                   downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Table'),
-                                  downloadButton(class="btn-info",'buttonTableModulesGenesList', 'Module Genes List'), bsTooltip("buttonTableModulesGenesList", "Gene List To Paste Into regex Keyword Search"),
+                                  downloadButton(class="btn-danger",'buttonTableModulesGenesList', 'Module Genes List'), bsTooltip("buttonTableModulesGenesList", "Gene List To Paste Into regex Keyword Search"),
                                   hr(),
                                   dataTableOutput('datatableModuleGenes')),
                          
@@ -369,7 +368,7 @@ ui <-
                                                       uiOutput("plotModuleSeriesSIZE")
                                             ),
                                             fluidRow(conditionalPanel(condition = "output.plotModuleSeries != null",
-                                                                      column(1,downloadButton(class="btn-primary",'buttonPNGplotModuleSeries', 'HiRes PNG')),
+                                                                      column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG')),
                                                                       column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Spot(s) Mapping To Module Genes Are Summarised"))
                                             ))
                                   ),
@@ -467,16 +466,25 @@ ui <-
                                                       uiOutput("mplotSelectedModulesSIZE")
                                             ),
                                             fluidRow(
-                                              column(1, downloadButton(class="btn-primary",'buttonPNGmplotSelectedModules', 'HiRes PNG')),
+                                              column(1, downloadButton(class="btn-warning",'buttonPNGmplotSelectedModules', 'HiRes PNG')),
                                               column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Gene(s) Mapping To Module Genes Are Summarised")))
                                   ),
-                                  div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
-                                      downloadButton(class="btn-primary",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
-                                      downloadButton(class="btn-primary",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG'),
-                                      downloadButton(class="btn-info",'mbuttonSaveListTopModules', 'Modules List'), bsTooltip("mbuttonSaveListTopModules", "Modules List To Paste Into regex Keyword Search"),
-                                      downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitles', 'Titles List'), bsTooltip("mbuttonSaveListTopModuleTitles", "Titles List To Paste Into regex Keyword Search"),
-                                      downloadButton(class="btn-info",'mbuttonSaveListTopModuleCategory', 'Categories List'), bsTooltip("mbuttonSaveListTopModuleCategory", "Categories List To Paste Into regex Keyword Search")
-                                  ), hr(),
+                                  fluidRow(
+                                    column(6,
+                                            downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
+                                            downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
+                                            downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG')),
+                                    column(2,pickerInput('pickerSaveListTopModules',label = NULL, width = '100%', choices = c('Module','Title','Category'), options = list(`style` = "btn-danger"))),
+                                    column(2,downloadButton(class="btn-danger",'mbuttonSaveListTopModules', 'Download List'), bsTooltip("mbuttonSaveListTopModules", "Download List To Paste Into Regex Keyword Search"))
+                                  ),
+                                  # div(downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
+                                  #     downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
+                                  #     downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG'),
+                                  #     downloadButton(class="btn-danger",'mbuttonSaveListTopModules', 'Modules List'), bsTooltip("mbuttonSaveListTopModules", "Modules List To Paste Into regex Keyword Search"),
+                                  #     downloadButton(class="btn-danger",'mbuttonSaveListTopModuleTitles', 'Titles List'), bsTooltip("mbuttonSaveListTopModuleTitles", "Titles List To Paste Into regex Keyword Search"),
+                                  #     downloadButton(class="btn-danger",'mbuttonSaveListTopModuleCategory', 'Categories List'), bsTooltip("mbuttonSaveListTopModuleCategory", "Categories List To Paste Into regex Keyword Search")
+                                  # ), 
+                                  hr(),
                                   dataTableOutput('mdatatableTopModulesUp')
                          ),
                          #################### Top Modules->Genes ###################
@@ -495,11 +503,11 @@ ui <-
                                                       uiOutput("mplotModuleGenesSIZE")
                                             ),
                                             fluidRow(
-                                              column(1,downloadButton(class="btn-primary",'mbuttonPNGplotModuleGenes', 'HiRes PNG')),
+                                              column(1,downloadButton(class="btn-warning",'mbuttonPNGplotModuleGenes', 'HiRes PNG')),
                                               column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Gene(s) Mapping To Module Genes Are Summarised"))
                                             )),
                                   downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesGenes', 'Table'),
-                                  downloadButton(class="btn-info",'mbuttonTopModulesGenesList', 'Module Genes List'), bsTooltip("mbuttonTopModulesGenesList", "Gene List To Paste Into regex Keyword Search"),
+                                  downloadButton(class="btn-danger",'mbuttonTopModulesGenesList', 'Module Genes List'), bsTooltip("mbuttonTopModulesGenesList", "Gene List To Paste Into regex Keyword Search"),
                                   hr(),
                                   dataTableOutput('mdatatableModuleGenes')),
                          #################### Top Modules Series #######################
@@ -585,7 +593,7 @@ ui <-
                                                                                     column(9,selectInput('mselectModuleAllModules', label = 'Modules In Dataset', character(0), multiple = TRUE)),
                                                                                     column(1,style = "margin-top: 20px;",  actionButton('mbuttonRemoveAllModulesModuleSeries','None')),
                                                                                     column(2,style = "margin-top: 20px;",  conditionalPanel(condition = "input.mselectModuleAllModules != null",
-                                                                                                                                            downloadButton(class="btn-info",'mbuttonSaveListTopModulesSeries', 'Modules List'), bsTooltip("mbuttonSaveListTopModulesSeries", "Modules List To Paste Into regex Keyword Search")
+                                                                                                                                            downloadButton(class="btn-danger",'mbuttonSaveListTopModulesSeries', 'Modules List'), bsTooltip("mbuttonSaveListTopModulesSeries", "Modules List To Paste Into regex Keyword Search")
                                                                                     ))
                                                                                   )
                                                                         )),
@@ -595,7 +603,7 @@ ui <-
                                                                                     column(9, selectInput('mselectModuleTitles', label = 'Titles In Dataset', character(0), multiple = TRUE)),
                                                                                     column(1,style = "margin-top: 20px;", actionButton('mbuttonRemoveAllModuleTitles','None')),
                                                                                     column(2,style = "margin-top: 20px;", conditionalPanel(condition = "input.mselectModuleTitles != null",
-                                                                                                                                           downloadButton(class="btn-info",'mbuttonSaveListTopModuleTitlesSeries', 'Titles'), bsTooltip("mbuttonSaveListTopModuleTitlesSeries", "Titles List To Paste Into regex Keyword Search")
+                                                                                                                                           downloadButton(class="btn-danger",'mbuttonSaveListTopModuleTitlesSeries', 'Titles'), bsTooltip("mbuttonSaveListTopModuleTitlesSeries", "Titles List To Paste Into regex Keyword Search")
                                                                                     ))
                                                                                   )
                                                                         ))
@@ -606,7 +614,7 @@ ui <-
                                             uiOutput("mplotModuleSeriesSIZE")
                                   ),
                                   fluidRow(conditionalPanel(condition = "output.mplotModuleSeries != null",
-                                                            column(1,downloadButton(class="btn-primary",'buttonPNGmplotModuleSeries', 'HiRes PNG')),
+                                                            column(1,downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG')),
                                                             column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Gene(s) Mapping To Module Genes Are Summarised"))))
                                               ),
                                   conditionalPanel(condition = "output.mdatatableModuleSeries != null",
@@ -624,9 +632,10 @@ ui <-
                                             h4(style = "margin-top: 0px;","Enter a probe or gene name or partial name and click Lookup"),
                                             h5("Use commas to separate multiple names. Alternatively, leave box empty and click Lookup to return all probes & genes, then use search boxes above/below table to search"),
                                             fluidRow(
-                                              column(3,style = "margin-top: 10px;", awesomeRadio('radioGeneProbeLookup',NULL, choices = c(Gene = "Gene", Spot = "Spot", ProbeName = "ProbeName"), inline = TRUE, status = 'success')),
+                                              column(2,style = "margin-top: 0px;",
+                                                     pickerInput('pickerGeneProbeLookup',label = NULL, choices = c('Gene','Spot','ProbeName','SystematicName','Description'), options = list(`style` = "btn-success"))),
                                               column(5,textInput('textInputGeneLookup',NULL)),
-                                              column(1,awesomeCheckbox("checkboxGeneLookupWholeWord","Whole Word", FALSE,status = "danger")),
+                                              column(2,awesomeCheckbox("checkboxGeneLookupWholeWord","Whole Word", FALSE,status = "danger")),
                                               column(3,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
                                             ),
                                             h5("The search uses regex, but ignores case and always removes spaces")
@@ -741,7 +750,7 @@ ui <-
                                              uiOutput("plotCellsSeriesSIZE")
                                    ),
                                    fluidRow(conditionalPanel(condition = "output.plotCellsSeries != null",
-                                                             column(1,downloadButton(class="btn-primary",'buttonPNGplotCellsSeries', 'HiRes PNG'))
+                                                             column(1,downloadButton(class="btn-warning",'buttonPNGplotCellsSeries', 'HiRes PNG'))
                                    ))
                          ),
                          conditionalPanel(condition = "output.datatableCellsSeries != null",
@@ -818,7 +827,7 @@ ui <-
                                     uiOutput("cplotCytokinesSIZE")
                           ),
                           conditionalPanel(condition = "output.cplotCytokines != null",
-                                           downloadButton(class="btn-primary",'cbuttonPNGplotCytokines', 'HiRes PNG'))
+                                           downloadButton(class="btn-warning",'cbuttonPNGplotCytokines', 'HiRes PNG'))
                 ),
                 conditionalPanel(condition = "output.cdatatableCytokines != null",
                                  downloadButton(class="btn-outline-primary",'buttonSaveTableCytokines', 'Table')), hr(),
