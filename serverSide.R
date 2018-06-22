@@ -666,9 +666,13 @@ observeEvent(
         input$checkboxShowKineticsSeries & selectKinetics) # AND the checkbox and we are using kinetics
 
       output$plotTopGenesSeries <- renderPlot({ggplotTopGenesInSeries} ,res = 72)
-      output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries != 'Boxplot'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
-                                                         plotOutput("plotTopGenesSeries", height = isolate(input$numberPlotTopGenesSeriesSIZEheight),
-                                                        hover = "hover_plotTopGenesSeries"))})
+      output$plotTopGenesSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioBoxLineProbesSeries != 'Boxplot'",p(style = "text-align: center; color:#b1cd46;","Click or hover over points to identify")),
+                                                         plotOutput("plotTopGenesSeries", 
+                                                                    height = isolate(input$numberPlotTopGenesSeriesSIZEheight),
+                                                                    click = "hover_plotTopGenesSeries",
+                                                                    hover = "hover_plotTopGenesSeries",
+                                                                    brush = "brush_plotTopGenesSeries"
+                                                         ))})
       output$buttonPNGplotTopGenesSeries <- downloadHandler(filename = function(){paste0("Selected Genes As Series.png")},
         content = function(file) {plotPlotPNG(ggplotTopGenesInSeries,file,session$clientData[["output_plotTopGenesSeries_height"]],session$clientData[["output_plotTopGenesSeries_width"]])})
       
@@ -677,6 +681,16 @@ observeEvent(
   observeEvent(
     input$hover_plotTopGenesSeries, 
     {if(input$radioBoxLineProbesSeries != 'Boxplot') handleHover(topGenesInSeries,input$hover_plotTopGenesSeries,"hover_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")})
+  
+  observeEvent(input$brush_plotTopGenesSeries, 
+               {if(input$radioBoxLineProbesSeries != 'Boxplot') 
+                 res <- handleBrush(topGenesInSeries,input$brush_plotTopGenesSeries,"brush_plotTopGenesSeries",input$checkboxSplitSeries,TRUE,"Value")
+               if(is.null(res) == FALSE && nrow(res) > 0) {
+                 output$plotTopGenesSeriesBRUSH <- renderTable({xtable(res)})
+               } else {output$plotTopGenesSeriesBRUSH <- renderTable({NULL}) }
+               })
+  
+  
   
   observeEvent(input$buttonAddAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
   observeEvent(input$buttonRemoveAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = character(0))})
@@ -799,15 +813,32 @@ observeEvent(
     
     
     output$plotModuleSeries <- renderPlot({ggplotModulesInSeries} ,res = 72)
-    output$plotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
-      plotOutput("plotModuleSeries", height = isolate(input$numberPlotModuleSeriesSIZEheight), hover = "hover_plotModuleSeries"))})
+    output$plotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",
+                                                                      p(style = "text-align: center; color:#b1cd46;","Values Of Individual Spot(s) Mapping To Module Genes Are Summarised. Click or hover over points to identify, drag to select")),
+      plotOutput("plotModuleSeries", 
+                 height = isolate(input$numberPlotModuleSeriesSIZEheight),
+                 click = "hover_plotModuleSeries", 
+                 hover = "hover_plotModuleSeries",
+                 brush = "brush_plotModuleSeries"
+      ))})
     
   })
   output$buttonPNGplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.png")},
     content = function(file) {plotPlotPNG(ggplotModulesInSeries,file,session$clientData[["output_plotModuleSeries_height"]],session$clientData[["output_plotModuleSeries_width"]])})
   
   observeEvent(input$hover_plotModuleSeries, 
-               {if(input$radioRibbonBoxModuleSeries != 'Boxplot') handleHover(moduleValues,input$hover_plotModuleSeries,"hover_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")})
+               {if(input$radioRibbonBoxModuleSeries != 'Boxplot') {
+                 handleHover(moduleValues,input$hover_plotModuleSeries,"hover_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")
+               }
+                 })
+  
+  observeEvent(input$brush_plotModuleSeries, 
+               {if(input$radioRibbonBoxModuleSeries != 'Boxplot') 
+                 res <- handleBrush(moduleValues,input$brush_plotModuleSeries,"brush_plotModuleSeries",input$checkboxShowFacetModuleSeries,FALSE,"Value")
+               if(is.null(res) == FALSE && nrow(res) > 0) {
+                 output$plotModuleSeriesBRUSH <- renderTable({xtable(res)})
+               } else {output$plotModuleSeriesBRUSH <- renderTable({NULL}) }
+               })
   
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
     content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
@@ -1055,7 +1086,11 @@ observeEvent({
     
     output$mplotModuleSeries <- renderPlot({ggplotSelectedModulesSeries[['plot']]} ,res = 72)
     output$mplotModuleSeriesSIZE <- renderUI({tagList(conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",p(style = "text-align: center; color:#b1cd46;","Hover over points to identify")),
-                                                      plotOutput("mplotModuleSeries", height = isolate(input$numbermplotModuleSeriesSIZEheight), hover = "hover_mplotModuleSeries"))})
+                                                      plotOutput("mplotModuleSeries", 
+                                                      height = isolate(input$numbermplotModuleSeriesSIZEheight),
+                                                      hover = "hover_mplotModuleSeries"
+                                                      
+                                                      ))})
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
   
 })

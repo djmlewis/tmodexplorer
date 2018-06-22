@@ -238,7 +238,9 @@ ui <-
                                             wellPanel(style = "background-color: #FFFFFF;",
                                                       uiOutput("plotTopGenesSeriesSIZE")),
                                             conditionalPanel(condition = "output.plotTopGenesSeries != null",
-                                                             downloadButton(class="btn-warning",'buttonPNGplotTopGenesSeries', 'HiRes PNG'))
+                                                             column(1, downloadButton(class="btn-warning",'buttonPNGplotTopGenesSeries', 'HiRes PNG')),
+                                                             column(10, offset = 1,tableOutput("plotTopGenesSeriesBRUSH"))
+                                                             )
                                   ),
                                   conditionalPanel(condition = "output.datatableTopGenesSeries != null",
                                                    downloadButton(class="btn-outline-primary", 'buttonSaveTableProbesSeries', 'Table')), hr(),
@@ -317,7 +319,7 @@ ui <-
                                                                                 p(style = "color: #728f17; text-align: center;","Choose Treatment~Times & Modules To Plot")),
                                                                fluidRow(
                                                                  column(6,
-                                                                        awesomeRadio(status = 'warning', 'radioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
+                                                                        awesomeRadio(status = 'warning', 'radioRibbonBoxModuleSeries'," ",choices = c('Lines','Boxplot')),
                                                                         conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",
                                                                                          conditionalPanel(condition = "input.checkboxShowFacetModuleSeries == true",
                                                                                                           awesomeCheckbox(status = 'success', 'checkboxShowGridModuleSeries', 'Gridlines', value = TRUE)),
@@ -369,8 +371,8 @@ ui <-
                                             ),
                                             fluidRow(conditionalPanel(condition = "output.plotModuleSeries != null",
                                                                       column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG')),
-                                                                      column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Spot(s) Mapping To Module Genes Are Summarised"))
-                                            ))
+                                                                      column(10, offset = 1,tableOutput("plotModuleSeriesBRUSH")))
+                                            )
                                   ),
                                   conditionalPanel(condition = "output.datatableModuleSeries != null",
                                                    downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
@@ -524,7 +526,7 @@ ui <-
                                                                                 p(style = "color: #728f17; text-align: center;","Choose Treatment~Times & Modules Or Titles To Plot")),
                                                                fluidRow(
                                                                  column(6,
-                                                                        awesomeRadio(status = 'warning', 'mradioRibbonBoxModuleSeries'," ",choices = c('Boxplot','Lines')),
+                                                                        awesomeRadio(status = 'warning', 'mradioRibbonBoxModuleSeries'," ",choices = c('Lines','Boxplot')),
                                                                         conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
                                                                                          conditionalPanel(condition = "input.mcheckboxShowFacetModuleSeries == true",
                                                                                                           awesomeCheckbox(status = 'success', 'mcheckboxShowGridSeries', 'Gridlines', value = TRUE)),
@@ -608,14 +610,14 @@ ui <-
                                   ),
                                   fluidRow(conditionalPanel(condition = "output.mplotModuleSeries != null",
                                                             column(1,downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG')),
-                                                            column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Gene(s) Mapping To Module Genes Are Summarised"))))
-                                              ),
+                                                            column(10, offset = 1,tableOutput("mplotModuleSeriesBRUSH")))
+                                  ),
                                   conditionalPanel(condition = "output.mdatatableModuleSeries != null",
                                                    downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Table')), hr(),
                                   dataTableOutput('mdatatableModuleSeries')
                          )
               )
-     ), #explore by module
+     )), #explore by module
      ###########   Lookup  ##########
      tabPanel('Lookup',
               navbarPage(span(style = 'color: #000000;','Lookup'), id = 'navLookup',
@@ -856,5 +858,6 @@ ui <-
        hr()
      )
   )# navpage top
-)) #hidden Div
+)
+) #hidden Div
 )# tagList top

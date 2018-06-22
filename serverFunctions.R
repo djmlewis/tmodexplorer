@@ -697,8 +697,30 @@ handleHover <- function(data,click,cid,facet,fact,yv) {
   }
 
   if(is.null(res) == FALSE && nrow(res) > 0) {
+    removeNotification(id = cid)
     showNotification(apply(res[1,], 1, paste, collapse="   ❖   "), duration = 30, id = cid)
   } else {
     removeNotification(id = cid)
   }
 }
+
+handleBrush <- function(data,click,cid,facet,fact,yv) {
+  data <- as.data.frame(data)
+  if(facet == TRUE) {
+    res <- brushedPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment') 
+  } else {
+    if(fact == TRUE) {
+      data <- data %>%
+        mutate(Column = factor(Column, levels = unique(Column)))
+    }
+    res <- brushedPoints(data, click, xvar = "Column", yvar = yv) 
+  }
+  
+  return(res)
+  # if(is.null(res) == FALSE && nrow(res) > 0) {
+  #   showNotification(apply(res, 1, paste, collapse="   ❖   "), duration = 30, id = cid)
+  # } else {
+  #   removeNotification(id = cid)
+  # }
+}
+
