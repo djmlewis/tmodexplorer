@@ -684,7 +684,7 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   return(expressions)
 }
 
-handleHover <- function(data,click,cid,facet,fact,yv) {
+handleHover <- function(data,click,facet,fact,yv) {
   data <- as.data.frame(data)
   if(facet == TRUE) {
     res <- nearPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment') 
@@ -697,14 +697,13 @@ handleHover <- function(data,click,cid,facet,fact,yv) {
   }
 
   if(is.null(res) == FALSE && nrow(res) > 0) {
-    removeNotification(id = cid)
-    showNotification(apply(res[1,], 1, paste, collapse="   ❖   "), duration = 30, id = cid)
-  } else {
-    removeNotification(id = cid)
+    return(xtable(res))
   }
+  
+  return(NULL)
 }
 
-handleBrush <- function(data,click,cid,facet,fact,yv) {
+handleBrush <- function(data,click,facet,fact,yv) {
   data <- as.data.frame(data)
   if(facet == TRUE) {
     res <- brushedPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment') 
@@ -716,11 +715,10 @@ handleBrush <- function(data,click,cid,facet,fact,yv) {
     res <- brushedPoints(data, click, xvar = "Column", yvar = yv) 
   }
   
-  return(res)
-  # if(is.null(res) == FALSE && nrow(res) > 0) {
-  #   showNotification(apply(res, 1, paste, collapse="   ❖   "), duration = 30, id = cid)
-  # } else {
-  #   removeNotification(id = cid)
-  # }
+  if(is.null(res) == FALSE && nrow(res) > 0) {
+    return(xtable(res))
+  }
+  
+  return(NULL)
 }
 

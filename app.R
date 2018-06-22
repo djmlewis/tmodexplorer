@@ -21,6 +21,7 @@ library(shinyWidgets)
 library(shinyBS)
 library(shinyjs)
 library(cowplot)
+library(xtable)
 
 ####--------------------------
 options(shiny.maxRequestSize=30*1024^2) 
