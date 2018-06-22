@@ -697,7 +697,7 @@ handleHover <- function(data,click,facet,fact,yv) {
   }
 
   if(is.null(res) == FALSE && nrow(res) > 0) {
-    return(xtable(res))
+    return(xtable(res, auto = TRUE))
   }
   
   return(NULL)
@@ -716,7 +716,7 @@ handleBrush <- function(data,click,facet,fact,yv) {
   }
   
   if(is.null(res) == FALSE && nrow(res) > 0) {
-    return(xtable(res))
+    return(xtable(res, auto = TRUE))
   }
   
   return(NULL)

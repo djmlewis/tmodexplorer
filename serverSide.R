@@ -681,13 +681,13 @@ observeEvent(
     input$clcik_plotTopGenesSeries, 
     {if(input$radioBoxLineProbesSeries != 'Boxplot') {
       res <- handleHover(topGenesInSeries,input$clcik_plotTopGenesSeries, input$checkboxSplitSeries,TRUE,"Value")
-      if(!is.null(res)) output$plotTopGenesSeriesBRUSH <- renderTable({res})
+      if(!is.null(res)) output$plotTopGenesSeriesBRUSH <- renderTable({res}, striped = TRUE)
       }
     })
   
   observeEvent(input$brush_plotTopGenesSeries, 
    {if(input$radioBoxLineProbesSeries != 'Boxplot') 
-     output$plotTopGenesSeriesBRUSH <- renderTable({handleBrush(topGenesInSeries,input$brush_plotTopGenesSeries,input$checkboxSplitSeries,TRUE,"Value")})
+     output$plotTopGenesSeriesBRUSH <- renderTable({handleBrush(topGenesInSeries,input$brush_plotTopGenesSeries,input$checkboxSplitSeries,TRUE,"Value")}, striped = TRUE)
    })
   
   observeEvent(input$buttonAddAllVaccinesSeries,{updateSelectInput(session, 'selectVaccinesForSeries', selected = vaccinesDaysFromColNames(allData$colNames)[['vaccines']])})
@@ -825,13 +825,13 @@ observeEvent(
   observeEvent(input$clcik_plotModuleSeries, 
                {if(input$radioRibbonBoxModuleSeries != 'Boxplot') {
                  res <- handleHover(moduleValues,input$clcik_plotModuleSeries,input$checkboxShowFacetModuleSeries,FALSE,"Value")
-                 if(!is.null(res)) output$plotModuleSeriesBRUSH <- renderTable({res})
+                 if(!is.null(res)) output$plotModuleSeriesBRUSH <- renderTable({res}, striped = TRUE)
                }
   })
   
   observeEvent(input$brush_plotModuleSeries, 
                {if(input$radioRibbonBoxModuleSeries != 'Boxplot') {
-                  output$plotModuleSeriesBRUSH <- renderTable({handleBrush(moduleValues,input$brush_plotModuleSeries,input$checkboxShowFacetModuleSeries,FALSE,"Value")})
+                  output$plotModuleSeriesBRUSH <- renderTable({handleBrush(moduleValues,input$brush_plotModuleSeries,input$checkboxShowFacetModuleSeries,FALSE,"Value")}, striped = TRUE)
                }
   })
   
@@ -1096,13 +1096,13 @@ output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste
 observeEvent(input$clcik_mplotModuleSeries, 
              {if(input$mradioRibbonBoxModuleSeries != 'Boxplot') {
                res <- handleHover(ggplotSelectedModulesSeries[['table']],input$clcik_mplotModuleSeries,input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")
-               if(!is.null(res)) output$mplotModuleSeriesBRUSH <- renderTable({res})
+               if(!is.null(res)) output$mplotModuleSeriesBRUSH <- renderTable({res}, striped = TRUE)
                }
 })
 
 observeEvent(input$brush_mplotModuleSeries, 
              {if(input$mradioRibbonBoxModuleSeries != 'Boxplot') {
-               output$mplotModuleSeriesBRUSH <- renderTable({handleBrush(ggplotSelectedModulesSeries[['table']],input$brush_mplotModuleSeries,input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")})
+               output$mplotModuleSeriesBRUSH <- renderTable({handleBrush(ggplotSelectedModulesSeries[['table']],input$brush_mplotModuleSeries,input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")}, striped = TRUE)
              }
 })
 
