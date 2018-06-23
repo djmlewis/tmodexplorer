@@ -240,10 +240,11 @@ ui <-
                                             conditionalPanel(condition = "output.plotTopGenesSeries != null",
                                              fluidRow(
                                                column(1, downloadButton(class="btn-warning",'buttonPNGplotTopGenesSeries', 'HiRes PNG')),
-                                               column(10, offset = 1,
+                                               column(8, offset = 1,
                                                       conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines' && output.plotTopGenesSeriesBRUSH == null",p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
                                                       tableOutput("plotTopGenesSeriesBRUSH")
-                                                      )
+                                                      ),
+                                               column(2,textOutput("plotTopGenesSeriesGENEMOD"),p(), span(style = "color: #008f51",textOutput("plotTopGenesSeriesSPOT")))
                                              ))
                                   ),
                                   conditionalPanel(condition = "output.datatableTopGenesSeries != null",
@@ -375,9 +376,11 @@ ui <-
                                             ),
                                             fluidRow(conditionalPanel(condition = "output.plotModuleSeries != null",
                                                                       column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleSeries', 'HiRes PNG')),
-                                                                      column(10, offset = 1,
+                                                                      column(8, offset = 1,
                                                                              conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines' && output.plotModuleSeriesBRUSH == null",p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
-                                                                             tableOutput("plotModuleSeriesBRUSH")))
+                                                                             tableOutput("plotModuleSeriesBRUSH")),
+                                                                      column(2,textOutput("plotModuleSeriesGENEMOD"),p(), span(style = "color: #008f51",textOutput("plotModuleSeriesSPOT")))
+                                                                      )
                                             )
                                   ),
                                   conditionalPanel(condition = "output.datatableModuleSeries != null",
@@ -616,9 +619,11 @@ ui <-
                                   ),
                                   fluidRow(conditionalPanel(condition = "output.mplotModuleSeries != null",
                                                             column(1,downloadButton(class="btn-warning",'buttonPNGmplotModuleSeries', 'HiRes PNG')),
-                                                            column(10, offset = 1,
+                                                            column(8, offset = 1,
                                                                    conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines' && output.mplotModuleSeriesBRUSH == null",p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
-                                                                   tableOutput("mplotModuleSeriesBRUSH")))
+                                                                   tableOutput("mplotModuleSeriesBRUSH")),
+                                                            column(2,textOutput("mplotModuleSeriesGENEMOD"),p(), span(style = "color: #008f51",textOutput("mplotModuleSeriesSPOT")))
+                                                            )
                                   ),
                                   conditionalPanel(condition = "output.mdatatableModuleSeries != null",
                                                    downloadButton(class="btn-outline-primary",'mbuttonSaveTableModulesSeries', 'Table')), hr(),

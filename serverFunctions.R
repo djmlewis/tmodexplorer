@@ -504,6 +504,9 @@ moduleDescriptionsForGenes <- function(modsOnly){
 modNameFromMenuTitle <-  function(title) {
   return(sub(' .*$', '', title))
 }
+modNameFromMenuTitlesVector <-  function(title) {
+  return(gsub(' .*$', '', title))
+}
 
 getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topGenes) {
     # protect from empty data
@@ -684,23 +687,34 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
   return(expressions)
 }
 
-handleHover <- function(data,click,facet,fact,yv) {
+resForClickBrush <- function(res){
+  if(is.null(res) == FALSE && nrow(res) > 0 && !is.na(res[1,1])) {
+    if("Spot" %in% names(res)) spot <- paste(res$Spot,collapse = ", ")
+    else spot <-  NULL
+    if("Gene" %in% names(res)) geneMod <- paste(res$Gene,collapse = ", ")
+    else {
+      # module name and title may be pasted so split out module name
+      geneMod <- paste(modNameFromMenuTitlesVector(res$Module),collapse = ", ")
+      # geneMod <- paste(res$Module,collapse = ", ")
+    }
+    return(list(Table = xtable(res, auto = TRUE),Spot = spot, GeneMod = geneMod))
+  }
+  return(list(Table = NULL, Spot = NULL, GeneMod = NULL))
+}
+
+handleClick <- function(data,click,facet,fact,yv) {
   data <- as.data.frame(data)
   if(facet == TRUE) {
-    res <- nearPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment') 
+    res <- nearPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment', maxpoints = 1) 
   } else {
     if(fact == TRUE) {
     data <- data %>%
       mutate(Column = factor(Column, levels = unique(Column)))
     }
-    res <- nearPoints(data, click, xvar = "Column", yvar = yv) 
+    res <- nearPoints(data, click, xvar = "Column", yvar = yv, maxpoints = 1) 
   }
 
-  if(is.null(res) == FALSE && nrow(res) > 0) {
-    return(xtable(res, auto = TRUE))
-  }
-  
-  return(NULL)
+  return(resForClickBrush(res))
 }
 
 handleBrush <- function(data,click,facet,fact,yv) {
@@ -715,10 +729,6 @@ handleBrush <- function(data,click,facet,fact,yv) {
     res <- brushedPoints(data, click, xvar = "Column", yvar = yv) 
   }
   
-  if(is.null(res) == FALSE && nrow(res) > 0) {
-    return(xtable(res, auto = TRUE))
-  }
-  
-  return(NULL)
+  return(resForClickBrush(res))
 }
 
