@@ -38,7 +38,7 @@ plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
   return(plot)
 }
 
-plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,facet,showSE,grouper,xgrid,point,sortCol){
+plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,facet,showSE,grouper,xgrid,point,sortCol,numCols){
   plot <-  NULL
   data2plot <- NULL
   if (!is.null(alldata)) {
@@ -133,7 +133,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
       )
       
       if(facet == TRUE) {
-        plot <- plot + facet_wrap(~Treatment)
+        plot <- plot + facet_wrap(~Treatment, ncol = numCols)
       }
       
       #sortCol - VACCINE_DAY must come last or factors go awry

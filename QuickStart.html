@@ -10,98 +10,134 @@
     <h2>Quick Start On Exploring Transcriptomics Datasets<br>
     </h2>
     <ol>
-      <li>Enter the <b>password</b> if using the app on shinyapps.io
-        server. Click Enter</li>
-      <li><b>Load transcriptomics</b> tab. Choose a dataset to explore
-        from the menu and click <b>Load Dataset.</b> Dataset has
-        individual spots in rows (mapping to ProbeNames (nucleic acid
-        sequences) and genes - one ProbeName may map to several spots,
-        and one Gene may map to several ProbeNames) and vaccine~day
-        combinations in columns (group mean). Fold Increase and Raw
-        Expression values are available.<br>
+      <li><b>Load transcriptomics</b> <b>tab</b>. Choose a dataset to
+        explore from the menu and click <b>Load Dataset.</b> <br>
+        The dataset appears showing some annotation data in the first
+        columns and then the log2 normalised gene expression values.
+        Datasets have expression values of individual spots as rows
+        (mapping to ProbeNames (nucleic acid sequences) and genes - one
+        ProbeName may map to several spots, and one Gene may map to
+        several ProbeNames). Each column is the mean expression for one
+        vaccine~day combinations, where participants have been grouped
+        by treatment (e.g. BOOSTRIX_1 column is group mean for Boostrix
+        vaccinated participants on Day 1). Both Fold Change (from Day 0)
+        and Raw Expression value datasets are available.<br>
       </li>
-      <li><b>Explore By Spot</b> tab: <br>
-      </li>
-      <ol>
-        <li><b>Select Spots</b> tab: select a vaccine and a day to sort
-          the spots by. If you click <b>Apply Filters</b> with the
-          default setting the top 10 spots for selected vaccine on
-          selected day are selected. Select <b>Gene Averages</b> to
-          select top 10 genes instead of spots. Apply other search
-          filters to select genes / spots. <br>
-          The following tabs now appear:<br>
-        </li>
-        <ol>
-          <li><b>Selected Spots</b> tab lists the selected spots / genes
-            with descriptions for spots.</li>
-          <li><b>Spots:Series</b> tab: Select some vaccines from
-            Treatment menu, and Days. Click <b>Plot</b> button.
-            Kinetics of selected spots appears. Click <b>Plot</b>
-            button each time you change options.</li>
-          <li><b>Genes-&gt;Modules</b> tab lists the genes matching
-            selected spots / genes, and which mapped modules contain
-            these genes (if any).</li>
-          <li><b>Modules</b> tab summarises the spot values within each
-            mapped module that map the selected spots / genes. Include
-            the selected genes as a "pseudo-module". Plots
-            automatically.<br>
-          </li>
-          <li><b>Module-&gt;Genes</b> tab summarises the spot values for
-            genes within each mapped module, one by one. Select a module
-            from the menu and the spot values summarised as boxplots for
-            each gene. Plots automatically. Some modules may have very
-            few upregulated genes, or a wide spread of gene expressions.
-            Reflects how the clustering of genes within a module may not
-            reflect the clustering of genes in response to vaccines.</li>
-          <li><b>Module:Series</b> tab allows the kinetics of the spot
-            values within each module to be plotted over time. Select
-            some vaccines from Treatment menu, and Days. Click Plot
-            button to create plot. Click <b>Plot</b> button each time
-            you change options. Include the selected genes as a
-            "pseudo-module".</li>
-        </ol>
-      </ol>
-      <li><b>Explore By Module</b> tab: <br>
+      <li><b>Explore By Gene</b> tab: Select this and the following
+        options appear:<br>
       </li>
       <ol>
-        <li><b>Select Module</b> tab: select a vaccine ~ day combination
-          by which to sort the tmod modules mean or median spot values.
-          Click <b>Apply Selection</b>. Top 10 modules for selected
-          vaccine on selected day are selected. Use other search filters
-          to select modules.<br>
-          The following tabs now appear:<br>
+        <li><b>Select Genes</b>: Filter the rows of spot expression
+          values by some criteria. If you click <b>Apply Filters</b>
+          with the default setting the 10 rows with spots having the
+          highest value in the column matching the Vaccine~Day
+          combination selected in the menus will be selected and all
+          other rows filtered-out. <br>
+          Select <b>Gene Averages</b> to select top 10 genes based on
+          the mean gene expression values (calculated from all spots
+          mapping to probes that map to that gene). instead of
+          spots.&nbsp; As returning more than 100 rows from a filter
+          will take a long time to display, at the top right is a box to
+          enter a maximum number of rows to return whatever the filter
+          settings - the default is 100.<br>
+          Other filter options include <b>keyword</b> to select rows
+          using a text-based filter on the annotation columns; and by <b>value</b>
+          of the rows in the selected column or across all columns. See
+          the detailed instructions for further information.<br>
+          <br>
+          <i> Once you have clicked "Apply Filters" the following tabs
+            now appear:</i><br>
         </li>
         <ol>
-          <li><b>Selected Modules</b> tab summarises the spot values
-            within each selected module. Plots automatically.</li>
-          <li><b>Module-&gt;Gene</b>s tab summarises the spot values for
-            genes within each selected module, one by one. Select a
-            module from the menu and the spot values summarised as
-            boxplots for each gene. Plots automatically. Some modules
-            may have very few upregulated genes, or a wide spread of
-            gene expressions. Reflects how the clustering of genes
-            within a module may not reflect the clustering of genes in
-            response to vaccines.<br>
-          </li>
-          <li><b>Module:Series</b> tab allows the kinetics of the spot
-            values within each selected module to be plotted over time.
-            Select some vaccines from Treatment menu, and Days. Click
-            Plot button to create plot. Click <b>Plot</b> button each
-            time you change options. Select modules to plot from the
-            options: modules selected in <b>Select Modules</b> tab; <b>all
-
-
-
-
-
-              modules available</b> in database, all modules available
-            in database clustered under their functional <b>Title</b>
-            categories.</li>
+        </ol>
+        <li><b>Selected Genes</b>&nbsp; lists the selected rows that
+          meet the filter criteria.</li>
+        <ol>
+        </ol>
+        <li><b>Genes:Series</b>: plot the time course of selected rows
+          values. Select some vaccines and days to plot, and the spots /
+          genes to plot. Click <b>Plot</b> button each time you change
+          options.</li>
+        <ol>
+        </ol>
+        <li><b>Genes-&gt;Modules</b> lists genes matching selected rows,
+          and identifies which modules contain these genes (if any).
+          Filtered genes that do not match any module are not listed.<br>
+        </li>
+        <ol>
+        </ol>
+        <li><b>Modules</b> box plot of the all the row values which map
+          to genes contained within the selected modules. Include the
+          filters-selected genes as a separate "pseudo-module". Plots
+          automatically after every options change.<br>
+        </li>
+        <ol>
+        </ol>
+        <li><b>Module-&gt;Genes</b>&nbsp; For every selected module it
+          lists the genes contained within that module and then plots a
+          box plot summarising the row values for each gene (some genes
+          may have only one spot, others many probes/spots). Select a
+          module from the menu. Genes that also passed the filters
+          indicated by ▶︎. Plots automatically. Some modules may have
+          very few upregulated genes, or a wide spread of gene
+          expressions. Reflects how the clustering of genes within a
+          module may not reflect the clustering of genes in response to
+          the vaccines.</li>
+        <ol>
+        </ol>
+        <li><b>Module:Series</b> plot the time course of row values
+          within each module. Select some vaccines and days, and some
+          modules from those identified by the genes filter. Click Plot
+          button to create or update plot. Include the selected genes as
+          a separate "pseudo-module".</li>
+        <ol>
         </ol>
       </ol>
-      <li>For help on <b>Lookup</b>, <b>Cells</b> and <b>Cytokines</b>,
-        and for more detailed information: see <b>Instructions For Use</b>
-        tab in <b>ReadMe</b>.<br>
+      <li><b>Explore By Module</b> tab:<br>
+        This works on the same principles as <b>Explore By Gene</b>
+        except you filter modules based on the mean value of all the
+        spots mapping to that module or by keyword. </li>
+      <ol>
+        <li><b>Select Module</b> filter modules by mean or median spot
+          values, or keyword. Click <b>Apply Selection</b>.<br>
+          <i> Once you have clicked "Apply Filters" the following tabs
+            now appear:</i><br>
+        </li>
+        <ol>
+        </ol>
+        <li><b>Selected Modules</b> - box plot of the all the row values
+          which map to genes contained within the selected modules.
+          Plots automatically.</li>
+        <ol>
+        </ol>
+        <li><b>Module-&gt;Gene</b>s For every selected module it lists
+          the genes contained within that module and then plots a box
+          plot summarising the row values for each gene (some genes may
+          have only one spot, others many probes/spots). Select a module
+          from the menu. Plots automatically. Some modules may have very
+          few upregulated genes, or a wide spread of gene expressions.
+          Reflects how the clustering of genes within a module may not
+          reflect the clustering of genes in response to the vaccines.<br>
+        </li>
+        <ol>
+        </ol>
+        <li><b>Module:Series</b> plot the time course of row values
+          within each module. Select some vaccines and days, and some
+          modules. Click <b>Plot</b> button each time you change
+          options. Select modules to plot from the options: modules
+          selected in <b>Select Modules</b> tab; <b>all modules
+            available</b> in database, all modules available in database
+          clustered under their functional <b>Title</b> categories.<br>
+          <br>
+          <br>
+        </li>
+        <ol>
+        </ol>
+      </ol>
+      <li>For help on the various options presented on the screens and
+        for <b>Lookup</b>, <b>Cells</b> and <b>Cytokines</b>: see <b>Detailed
+
+          Instructions For Use</b> in <b>ReadMe</b>.<br>
       </li>
     </ol>
   </body>

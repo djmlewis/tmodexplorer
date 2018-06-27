@@ -12,11 +12,15 @@
         <li><a href="#Password">Password</a></li>
         <li><a href="#Loading_Transcriptomics_Data">Loading
             Transcriptomics Data</a></li>
-        <li><a href="#Explore_Transcriptomics_By_Probe_tab">Explore
-            Transcriptomics By Spot<br>
+        <li><a href="#Explore_Transcriptomics_By_Probe_tab">Explore By
+            Genet<br>
           </a></li>
         <ul>
-          <li><a href="#Select_tab_-_probes_">Select tab - spots</a></li>
+          <li><a href="#Select_tab_-_probes_">Select Genes</a></li>
+          <ul>
+            <li><a href="#Rows_Limit_Cap">Rows Limit Cap</a><br>
+            </li>
+          </ul>
           <ul>
             <li><a href="#1._Regex_-_keyword_search_">1. Regex - keyword
                 search</a></li>
@@ -30,7 +34,13 @@
               <ul>
                 <li><a href="#Single_TreatmentTime_combination">Single
                     Treatment~Time combination</a></li>
+                <li><a href="#At_any_time_for_the_treatment_selected">At
+                    any time for the treatment selected</a><br>
+                </li>
                 <li><a href="#Matching_kinetics_for_one_treatment">Matching&nbsp;
+
+
+
 
 
 
@@ -84,61 +94,80 @@
       Transcriptomics Data</h2>
     You must load a transcriptomics dataset before you can do anything
     with transcriptomics data. The transcriptomics datasets are already
-    uploaded to the server. Select a dataset. Click Load. All existing
-    plots and data tables will be cleared. Once you click "Load" the
-    name of the data set will appear below the tabs, and two more tabs
-    will appear:<br>
+    uploaded to the server. Select a dataset. Click <b>Load Dataset</b>.
+    All existing plots and data tables will be cleared. Once you click
+    "Load" the name of the dataset will appear below the tabs, and two
+    more tabs will appear:<br>
     <ul>
       <li><a href="#Explore_Transcriptomics_By_Probe_tab">Explore By
-          Spot</a></li>
+          Gene<br>
+        </a></li>
       <li><a href="#Explore_Transcriptomics_By_Module_tab">Explore By
           Module</a></li>
     </ul>
-    <h2><a name="Explore_Transcriptomics_By_Probe_tab"></a>Explore
-      Transcriptomics By Spot tab<br>
+    <h2><a name="Explore_Transcriptomics_By_Probe_tab"></a>Explore By
+      Gene<br>
     </h2>
     Select this tab to explore the datasets using individual spots in
-    the array. <i>(Traditionally these are referred to as "probes" but
-      I prefer to call them "spots" as each row in the data has an
-      unique ID and refers to a particular spot on the chip by its
-      column-row position, so you can compare exact spots on the array.
-      In addition, a probe (nucleic acid sequence) may be represented on
-      multiple replicate spots. Therefore I use ProbeName to refer to
-      probes and Spots to refer to rows in the probe array matrices).</i>
+    the array.<br>
     <br>
-    <br>
-    The idea is to choose a time point and a treatment, and then sort
-    the spots based on their values (gene expression or fold-increase)
-    in that combination (one column of the dataset), and then
-    additionally filter by keyword search or value. Note - if you
-    include more that 200 rows then plots are slow to draw. Do not click
-    "Plot" buttons or "Apply" again as the cycle just repeats!<br>
-    <h3><a name="Select_tab_-_probes_"></a>Select tab - spots<br>
+    <i>Often the rows are are referred to as "probes" but I prefer to
+      call them "spots" as each row in the data has an unique ID and
+      refers to a particular spot on the chip by its column-row
+      position, so you can compare exact spots on the array across
+      treatments and times. In addition, a probe (nucleic acid sequence)
+      may be represented on multiple replicate spots. Therefore I use
+      ProbeName to refer to probes and Spots to refer to rows in the
+      expression array matrices.</i> <br>
+    <h3><a name="Select_tab_-_probes_"></a>Select Genes<br>
     </h3>
-    You must click the
+    <font size="+2" color="#009900"><b> Filtering Spots Rows</b></font><br>
+    You must select at least one of the numbered filters, and you must
+    click the
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <b>Apply Filters</b> button before any filters or selections are
     applied, and again after any changes. This is to speed-up
     calculations. Once you click
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <b>Apply Filters</b>, several other tabs will appear to allow
-    visualisation of the genes and modules. The search terms you
-    included appear below the tabs.<br>
+    visualisation of the filtered genes and modules.<br>
     <br>
-    You must select at least one of the numbered filters. Filters are
-    applied one after another, left to right - first the keyword <b>regex</b>
-    search, then the <b>value</b> restriction, finally which <b>rows</b>
-    to include. Probably you will always use <b>Sorted Column Row
-      Numbers</b> to restrict the number of sorted spots, possibly alone
-    or in combination with either <b>regex</b> or <b>Sorted Column
-      Values</b>. Never, ever try to search with no filters selected -
-    it will return all 60k+ spots, <i>very slowly, and I have set a
-      block on this.</i><br>
+    <u><b>Filters are applied one after another, left to right: each
+        filter applies its filter and then hands the reduced set of rows
+        to the next filter.</b></u>
+    <br>
+    First the <b>keyword</b> search will filter rows based on
+    TRUE/FALSE test of finding a keyword in the annotation columns.
+    Filtered rows are then passed to the <b>Values In Range</b> filter
+    for further reduction. The <b>Values In Range&nbsp;</b> filter is
+    applied only to the columns containing data for one treatment
+    (vaccine or placebo) selected in a menu. However, the filter may be
+    applied either to a single column (one time point) or to all
+    columns, with a TRUE/FALSE result as to whether the row has a value
+    within the range. An option to vary the range by column is also
+    available (kinetics filtering). Filtered rows are then sorted
+    numerically, either using the values in one column (using a time
+    point selected in a menu) or across all columns for that treatment.
+    The sorted rows are passed to the <b>Rows In Range</b> filter which
+    can take the N top, bottom or slice of ordered rows. The rows
+    remaining after all the filters are used in subsequent charts and
+    tables.<br>
+    <h5><a name="Rows_Limit_Cap"></a>Rows Limit Cap</h5>
+    At the top right of the screen is a box into which you can type an
+    upper limit of rows that can be returned by filters. This defaults
+    to 100. If a set of filters returns more than this number of rows
+    the data will be capped to the value in this box. This acts as a
+    safeguard against the app freezing for a long time when an
+    indiscriminate filter returns many rows. Note however that the rows
+    are capped <b>after sorting.</b><br>
     <h4><a name="1._Regex_-_keyword_search_"></a>1. Regex - keyword
       search<br>
     </h4>
-    "Regex" is a keyword, free-text search that uses regex, with some
+    This is a keyword, free-text search that uses regex, with some
     limitations. Multiple terms can be entered into the box <b>separated
+
+
+
 
 
 
@@ -159,83 +188,68 @@
       by commas</b> and are OR'd (search returns as many of those terms
     as it can find, treating each term separately). Commas are
     interpreted as search term dividers and cannot be 'escaped'. Select
-    whether to search gene description or gene name, or spot ID ("Spot")
-    or ProbeName. Spot and ProbeName are standardised between datasets.<br>
+    whether to search gene name or description, spot ID ("Spot"),
+    ProbeName or gene SystematicName, which are all standardised between
+    datasets.<br>
     <br>
-    Spaces will be stripped-out automatically for you in <i>Gene</i>
-    and <i>Probe</i> name searches, so you can easily paste in lists
-    copied from tables. For <i>Description</i> searches the spaces are
-    left in so beware: regex is "literal" so if you type <tt>"B cell"</tt>
-    it is going to look for <tt>"B cell"</tt> - including the <tt>""</tt>.
-    <br>
+    Spaces will be stripped-out automatically in all searches except
+    Gene Description, so you can easily paste in lists copied from
+    tables. Regex is "literal" so if you type <tt>"B cell"</tt> it is
+    going to look for <tt>"B cell"</tt> - including the <tt>""</tt>. <br>
     <br>
     You can enter partial terms e.g. interferon finds interferon and
     interferons, as regex looks for those characters anywhere. If you
-    select "Whole Word" then interferon will only match interferon.
-    Whole Word is important when searching for genes and spots as "CCL2"
-    will find CCL2, CCL27 etc unless Whole Word is selected. Upper/lower
-    case is ignored. Beware including <a href="https://regexr.com"
+    select "Whole Word" then interferon will only match interferon. <b>
+      Whole Word is important when searching for genes and spots</b> as
+    "CCL2" will find CCL2, CCL27 etc unless Whole Word is selected, and
+    this is worse for spots as they are numeric. Upper/lower case is
+    ignored. Beware including <a href="https://regexr.com"
       target="_blank">special regex characters</a> by mistake.<br>
     <br>
-    Regex search&nbsp; ignores the "Selected Column" and any values (see
-    below) - it just finds rows in the data set that match the search.
-    However, those rows will be sorted in order of the value in the
-    "Selected Column", and filtered on these values. You may want to
-    switch off the <b>Row Numbers Within Range</b> when using regex as
-    it may reduce the number of free-text hits you would have found.
-    However, beware returning hundreds of rows as the app will freeze
-    for a long time. Consider setting some <b>Values </b><b>Within
-      Range</b> limits.<br>
+    Keyword search&nbsp; ignores the other search filters, it just finds
+    rows in the data set that match the search in the selected
+    annotation column, and then hands that reduced set on to the next
+    filters.<br>
     <br>
     You can also <b>paste saved search lists</b> into the regex box
     that you downloaded from the <b>Selected Spots tab</b>, or copied
-    from one of the <b>Lookup</b> tables - be sure to match Gene and
-    Spot / Name. <b>This allows fairly easy repetition of searches
-      across datasets</b>, at least for Genes.<br>
+    from one of the <b>Lookup</b> tables. <b>This allows fairly easy
+      repetition of searches across datasets</b>.<br>
     <h4><a name="2_and_3:_Values_In_Range_"></a>2 and 3: Values In Range
       and Rows In Range<br>
     </h4>
-    <p>In both cases you must pick a&nbsp; <b>treatment ~ time
-        combination</b> you want to explore from the menus. This
-      treatment~time "column" is the basic unit for tmodExplorer - it
-      combines a treatment and a time point, e.g. "Boostrix_7" contains
-      mean values on day 7 for participants who received Boostrix. All
-      data sets are based on these columns. Time series plots will
-      indicate the sorted column with <font color="#ff0000">▼▲</font>.
-      The selected treatment-time column also determines the
-      treatment-time combination used to display module expression
-      values, which are shown for only one treatment-time combination,
-      unless the plot modules series option is used.<br>
+    <p>In both cases you filter rows based on expression / fold change
+      values. You must must pick a&nbsp; <b>treatment</b> from the
+      menu, which will map to a set of columns of data in the dataset.
+      You must also pick a <b>time</b>, which may be used in the filter
+      (see below) and is always used to show box plots for the modules,
+      as modules are summarised only for one time point. Time series
+      plots will indicate this <b>treatment~time combination</b> with <font
+        color="#ff0000">▼▲</font> on the chart.<br>
       <br>
       Max/min expression values will be pre-entered for you into the
       range boxes when selecting a column, using floor() and ceil() and
       so will deliberately exceed the actual values to avoid issues with
       floating-point maths. Click <b>Column</b> to reset to max/min for
-      selected column, or <b>Data</b> for max/min of whole dataset in
-      all columns.</p>
-    <h5><a name="Sort_descending"></a><b>Sort descending</b></h5>
-    <p>Select<b> Sort descending</b> for highest values in top rows, or
-      deselect to have lowest values in top rows (in which case top N
-      rows is the N most down-regulated).<br>
-    </p>
+      the selected treatment~time column, or <b>Data</b> for max/min of
+      whole dataset.</p>
     <h5><a name="Gene_Averages"></a>Gene Averages</h5>
     <p>Spots are arranged in rows - one unique spot per row. However,
-      many spots may map to a single gene. You can filter by the values
-      of the individual spots or have tmodExplorer group the spots by
-      Gene and then calculate a mean Gene value by which to filter.
-      Select <font color="#ff0000"><b>Gene Averages</b></font> to have
-      expressions of individual spots that map to a gene averaged into
-      one row, otherwise it will be one spot per row and genes may
-      repeat. If your main purpose is to identify spots of interest then
-      avoid gene averaging which has multiple consequences. However, as
-      the modules work in genes, it is probably better to select Gene
+      many spots may map to a single probe and many probes to a single
+      gene. You can filter by the values of the individual spots or have
+      tmodExplorer group the spots by Gene and then calculate <font
+        color="#ff0000"><b>Gene Averages</b></font> by which to filter.
+      If your main purpose is to identify spots of interest then avoid
+      gene averaging which has multiple consequences. However, as the
+      modules work in genes, it is probably better to select Gene
       Averages if your main interest is to study modules - as this way
-      you increase the number of genes identified. A disadvantage of
-      gene averages is that you lose the gene descriptions, which are
-      spot-specific. To find lookup the gene functions copy the <b>Gene
-        list</b> on the <a
+      you increase the number of genes identified if you are restricting
+      the number of rows returned. A disadvantage of gene averages is
+      that you lose the gene descriptions, which are spot-specific. You
+      can copy the <b>Gene list</b> on the <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Selected_Probes_tab"><b>Selected
-          Spots</b></a> tab and use&nbsp; the <a
+
+          Genes</b></a> tab and use&nbsp; the <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Gene_Lookup_tab"><b>Gene
 
 
@@ -243,25 +257,59 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
           Lookup tab</b></a> to lookup genes by their names and see the
-      spot descriptions.</p>
+      descriptions.</p>
     <h5><a name="2._Values_In_Range"></a>2. Values In Range</h5>
-    <p>This operates in two ways - on a <b>single Treatment~Time
-        combination</b> (one "column"), or by <b>matching the kinetics
-        for one treatment over different times</b> (a "multi-column"
-      value filter)<br>
-    </p>
+    <p>This filter operates in one of three ways according to how you
+      select <b>Treat~Time</b>, <b>Treat~Kinetics</b>, and <b>All
+        Times</b>. Basically, while the treatment selected will always
+      be used to filter, the number of time columns that you include can
+      be varied:<br>
+      <b></b></p>
+    <ol>
+      <li>Filter by values in the <b>single Treatment~Time combination</b>
+        (one dataset column) selected in the menus when <b>Treat~Time</b>
+        selected and <b>All Times </b>not selected.<br>
+      </li>
+      <li>Filter on the values <b>at any time for the treatment
+          selected in the menu</b> (all columns for that treatment,
+        including days 0 and -1): when <b>Treat~Time</b> and <b>All
+          Times</b> selected.<br>
+      </li>
+      <li>Filter by <b>matching the kinetics for one treatment at
+          specified times</b> when <b>Treat~Kinetics</b> is selected
+        (different ranges on different days).<br>
+      </li>
+    </ol>
     <h6><a name="Single_TreatmentTime_combination"></a><b>Single
         Treatment~Time combination</b></h6>
     <p>This is the simplest way to filter by value and uses the
-      Treatment~Time combination you selected in the menus. Spots or
-      Genes will be selected if the Spot value or Gene mean value falls
-      between the Lowest - Highest values in the Treatment~Time column
-      you have selected. e.g. select spots whose value falls in this
-      range on Day 1 after Fluad. The purpose is to select spots or
-      genes (in rows) of interest in the response to a specific
-      treatment, on a specific day. The response of these spots after
-      other treatments on other days can then be plotted as well.<br>
+      Treatment~Time combination you selected in the menus to pick one
+      column of data to apply the filter to. Spots or Gene averages will
+      be selected if the value falls between the Lowest - Highest values
+      in the Treatment~Time column you have selected <i>e.g. select
+        spots whose value falls in this range on Day 1 after Fluad</i>.
+      The purpose is to select spots or genes (when Gene Averages
+      selected) of interest in the response to a specific treatment, on
+      a specific day. The modules values will be calculated for the same
+      day in the summary box plots.<br>
+    </p>
+    <h6><a name="At_any_time_for_the_treatment_selected"></a>At any time
+      for the treatment selected</h6>
+    <p>This is a variant of Single Treatment~Time combination, except
+      that the time point selected in the menu is ignored (the menu goes
+      grey to reflect this) and the max or min value for each row in all
+      the columns for that treatment is identified, and then the rows
+      are filtered against that value range. Even day 0 and day -1
+      values will be used to rank the rows. Max() is used when Sort
+      Descending is selected (highest values on top) and min() when sort
+      descending is not selected (lowest values on top). Note however
+      that the time point selected on the menu is used to present the
+      summary box plots for the modules mapping filtered genes, so it is
+      worth selecting a meaningful day, or you will have to re-filter.<br>
     </p>
     <h6><a name="Matching_kinetics_for_one_treatment"></a><b>Matching&nbsp;
 
@@ -269,128 +317,129 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
         kinetics for one treatment over different times</b></h6>
-    <p>This is really just a multi-column version of the single time
-      filter. Importantly, the filters are applied only to the
-      expression of spots / genes after the treatment you have selected
-      in the menu. Its purpose is to filter on the shape of the kinetics
-      curve of the spot / gene means responses. For example: You may
-      want to identify spots whose expression is high only on day 1
-      after Fluad and then falls to baseline thereafter; or those that
-      remain high on days 1 &amp; 2 and then go to baseline; or spots
-      that go high and then go low over time - - possibly matching the
-      kinetics of different cell types.</p>
-    <p>Initially a plot appears showing the maximum and minimum values
-      (dotted lines) for the treatment you selected in the menu, and
-      "windows" are created for every time point set to the maximum -
-      minimum values for the whole dataset (all treatments - all times).
-      Do not click "Apply Filters" with these windows as it just returns
-      all 60k spots! It may be a good idea to leave "3. Rows In Range"
-      filter set until you are sure your pattern will not return too
-      many genes, then turn it off for reasons explained below.<br>
+    <p>This is a multi-column version of the <b>Treat~Time</b> filter.
+      The <b>All Times</b> option is ignored as you can set which days
+      to include individually, as is the time menu (the menu goes grey
+      to reflect this). The treatment you have selected in the menu is
+      used to restrict the filter to the columns with data for that
+      treatment. The purpose is to filter on the shape of the kinetics
+      curve of the spot / gene means responses after a specific
+      treatment. For example: You may want to identify spots whose
+      expression following Fluad is high only on day 1&nbsp; and then
+      falls to baseline thereafter; or those that remain high on days 1
+      &amp; 2 and then go to baseline; etc&nbsp; - - possibly matching
+      the kinetics of different cell types.<br>
     </p>
-    <p>Use the menu below the plot to pick a time point, enter the
-      lowest : highest values and click <b>Set</b>. Click&nbsp;<img
-        src="tag.png" alt="" height="20" width="23"> to reset to max/min
-      for selected treatment, or&nbsp;<img src="dataset.png" alt=""
-        height="20" width="22"> for max/min of whole dataset. <b>Remember
-
-
-
-        to click Set otherwise changes will be lost. </b>The plot
-      re-draws the new window. <br>
+    <p>A bar chart appears, initially showing the maximum and minimum
+      values (dotted lines) for the treatment you selected in the menu,
+      and bars ("windows") are created for every time point whose
+      heights are set to the maximum - minimum values for the whole
+      dataset (all treatments - all times). Do not click "Apply Filters"
+      with these windows as it just returns the first N rows of the
+      dataset depending on what N value you have set in the <a
+        href="#Rows_Limit_Cap">rows limit cap</a> box.<br>
+    </p>
+    <p>Use the menu to pick a time point, or single-click the * inside
+      the bar to edit that day. Enter the lowest : highest values and
+      click <b>Set</b>. Click&nbsp;<img src="tag.png" alt=""
+        height="20" width="23"> to reset to max/min for selected
+      treatment, or&nbsp;<img src="dataset.png" alt="" height="20"
+        width="22"> for max/min of whole dataset. <b>Remember to click
+        Set otherwise changes will be lost. </b>The plot re-draws the
+      new window. <br>
     </p>
     <p>To have a day ignored (no filter) select <b>Ignore</b>&nbsp; -
       the lowest : highest boxes are hidden and the plot draws an empty
       window set to the dataset min-max to illustrate that all values
       will be accepted. When filtering fold-change data it is probably
-      worth ignoring day 0 (always 0 value) to save time.<br>
-    </p>
-    <p>You can quickly select a time point by clicking on the * inside a
-      window on the plot. If you double-click it toggles ignore on / off
-      and saves the change. Click&nbsp;<img src="copy.png" alt=""
-        height="20" width="22"> to copy the Ignore/Min/Max settings for
-      the day, and click&nbsp;<img src="paste.png" alt="" height="20"
-        width="20"> to past the copied setting to a day and save.<b><br>
+      worth ignoring day 0 (always 0 value) to save time. <b>Toggle: </b>double-click
+
+
+      a window bar on the plot to toggle ignore on / off and save the
+      change. You cannot ignore all windows - at least one must be open.<br>
+      Click&nbsp;<img src="copy.png" alt="" height="20" width="22"> to
+      copy the Ignore/Min/Max settings for the day, and click&nbsp;<img
+        src="paste.png" alt="" height="20" width="20"> to past the
+      copied setting to a day and save.<b><br>
       </b>To reset all the windows to the max min for the treatment
       selected or whole dataset click&nbsp; <img
 src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/tag.png"
         alt="" height="20" width="23"> or&nbsp;<img
 src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/dataset.png"
-        alt="" height="20" width="22">. To save the windows click <b>Export</b>,
-      and to import a saved profile click <b>Import</b>…. Note that the
-      app will try hard to import any profile even if saved from
-      dataset, and will warn you if they appear not to match the current
-      dataset.<br>
+        alt="" height="20" width="22">. <br>
+      To save the windows profile click <b>Export</b>, and to import a
+      saved profile click <b>Import</b>….&nbsp; the app will try hard
+      to import any profile even if saved from a different dataset, and
+      will warn you if they appear not to match the current dataset.<br>
     </p>
-    <p>Be very careful if you also set to filter by <b>3. Rows In Range</b>.
-      While the kinetics windows over-ride the <b>time</b> selected in
-      the menus, it is still important! This time point is used to sort
-      the rows by value for the <b>3. Rows In Range</b> filter, and so
-      it may exclude or include unexpected rows if mismatched to the
-      kinetics filter. <br>
-    </p>
-    <p>The selected treatment-time column also determines the
-      treatment-time combination used to display module expression
-      values, which are shown for only one treatment-time combination,
-      unless the plot modules series option is used. So if you filter
-      spots / genes by the kinetics after a specific treatment, you may
-      have to try different time selections to view the modules on
-      different days within your kinetics. Just click "Apply Filter"
-      after each time you select a different time.</p>
     <h5><a name="3._Rows_In_Range_"></a>3. Rows In Range<br>
     </h5>
-    This is probably the most useful restriction and it is probably a
-    good idea to keep this selected, as over 200 rows is slow to
-    calculate and plot. You can restrict rows to have top N or bottom N
-    rows, or have a slice. If there are fewer rows available after the
+    This filter operates on rows that have been <u>ordered</u>
+    according to value. You can filter to have top N or bottom N rows,
+    or have a slice. If there are fewer rows available after the
     previous selections than you request you will get a cryptic warning.
     <br>
     <br>
-    Row restrictions apply to the <b>sorted values</b> in the <b>Treatment~Time
+    Row restrictions apply to the <b>sorted values</b> in either the <b>Treatment~Time
 
 
 
 
 
 
-      combination</b> (column) selected in the menus - <b>so you will
-      filter based on the values in the column you selected</b>. This is
-    extremely important, as whatever filters you have applied before you
-    get to this one (keyword, kinetics) will then be re-filtered based
-    on the values in the selected treatment~time column. This may have
-    unexpected effects when filtering by kinetics, so <b>pay</b><b>
-      attention to the time selected</b> if you have filtered by <b>kinetics</b>:
-    for example if you set up a kinetics profile that filters on days 2
+
+
+
+      combination</b> selected in the menus (single column), or across
+    all the columns for the selected treatment if <b>All Times</b> is
+    selected (note days 0 and -1 also included). When <b>All Times</b>
+    is selected the max() value in the columns is used when <b>Sort
+      Descending </b>selected, otherwise the min().<br>
+    <b>The fact that the rows are ordered taking into account the time
+      points and then filtered</b><b> is extremely important</b>, as the
+    output from previous filters (keyword, value, kinetics) will be <b>re-filtered
+
+      based on the values in the selected treatment~time column(s)</b>.
+    This may have unexpected effects when filtering by kinetics, so <b>pay</b><b>
+      attention to the time selected</b> if you have filtered by <b>kinetics</b>.
+    For example if you set up a kinetics profile that filters on days 2
     &amp; 3 but then restrict the number of rows with day 7 selected in
     the treatment~time combination it will pull out the top rows based
     on the expressions on day 7, which is probably not what you want.
-    Generally be careful with this filter when filtering with kinetics,
-    and probably it is best not to include it.<br>
-    <br>
-    If you have <b>Gene Averages</b> selected this affects the result:
-    e.g. if you filter to the first 10 rows you may include 10 spots,
-    but if <b>Gene Averages</b> is selected you get the top 10 genes
-    which may map to more than 10 spots.<br>
-    <h3><a name="Selected_Probes_tab"></a>Selected Spots tab</h3>
+    Generally avoid filtering by row order when filtering with kinetics.<br>
+    If you have <b>Gene Averages</b> selected this affects the the
+    number of spots returned: e.g. if you filter to the first 10 rows
+    you may include 10 spots, but if <b>Gene Averages</b> is selected
+    you get the top 10 genes which may map to more than 10 spots.<br>
+    <h5><a name="Sort_descending"></a><b>Sort descending</b></h5>
+    Select<b> Sort descending</b> for highest values in top rows, or
+    deselect to have lowest values in top rows (in which case top N rows
+    is the N most down-regulated).<br>
+    <h3><a name="Selected_Probes_tab"></a>Selected Genes</h3>
     A data table showing the spots or genes (if averaged) that meet the
     filter settings is shown and can be downloaded as a csv file or as a
-    PNG picture. The <b>Vale</b> shown is the one in the "Column" you
+    PNG picture. The <b>Value</b> shown is the one in the "Column" you
     selected. You may use the search boxes above and below the table to
     further restrict the rows displayed in the table, but this has no
-    effect on other tabs or plots. Click "⤓ Gene List" or "⤓ Spot /
-    ProbeName List" to save a comma-separated text file that can be
-    copy-pasted into the regex search box to quickly repeat the search.
-    Note a description appears when spots are displayed individually,
-    and disappears if "Gene Averages" is selected on the <b>Select</b>
-    tab. This is because descriptions are specific for spots.<br>
-    <h3><a name="Probes:Series_tab_"></a> Spots:Series tab<br>
+    effect on other tabs or plots. Click "⤓ List" to save a
+    comma-separated text file that can be copy-pasted into the regex
+    search box to quickly repeat the search. Note a description appears
+    when spots are displayed individually, and disappears if "Gene
+    Averages" is selected on the <b>Select</b> tab. This is because
+    descriptions are specific for probes.<br>
+    <h3><a name="Probes:Series_tab_"></a> Genes:Series<br>
     </h3>
     This allows the values of the spots or gene averages selected by the
     filters to be plotted for different treatment ~ time combinations,
     to visualise a time course. Use the slider to change plot height,
-    and browser window width to change plot width. The selected
-    treatment~time column is indicated by <font color="#ff0000">▼▲<font
+    and browser window width to change plot width. Enter a number in the
+    box to set the maximum number of panels per row when <b>Split</b>
+    is used to individually plot treatments. The selected treatment~time
+    column is indicated by <font color="#ff0000">▼▲<font
         color="#000000"> on the plot.</font><br>
     </font>
     <h4> Treatment, Days and Gene/Spot menus<br>
@@ -408,38 +457,38 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
       Split</b>: the data are split by treatment using facet_wrap.<br>
     <b>Lines / Boxplot</b>: XY graph of individual spots / genes, or a
     boxplot summarising spot/gene values.<br>
-    <b> <b>0 |---- (zero) line</b>: Place a dotted line at Y = 0
-      (baseline).<br>
+    <b> <b>0 |---- (zero) line</b>: </b>Place a dotted line at Y = 0
+    (baseline for Fold Change).<b><br>
       Points</b>, <b>Gridlines, </b><b>Legend</b>: show/hide.<br>
-    <b>SEM</b>: Appears when Lines selected - show the SEM as a ribbon<br>
+    <b>SEM</b>: Appears when Lines selected - show the SEM of spot
+    values mapping that gene as a ribbon<br>
     <b><a name="Gene⫷Probes"></a>Gene⫷Spots</b>: Appears when <font
-      color="#ff0000"><b>Gene Averages</b></font> selected in <a
-      href="#Select_tab_-_probes_"><b>Select Spots</b></a> tab, and <b>Lines</b>
-    selected to plot. Instead of plotting a line for the average of the
-    spot values mapping individual genes (±SEM), individual lines are
-    plotted for the spots mapping to that gene - the lines are
+      color="#ff0000"><b>Gene Averages</b></font> selected, and <b>Lines</b>
+    selected to plot. Instead of plotting a single line for the average
+    of the spot values mapping individual genes (±SEM), separate lines
+    are plotted for each of the spots mapping to a gene - the lines are
     colour-coded to the gene, and different symbols are used. This helps
     to show the behaviour of different spots mapping the same gene.
-    Hover over the points to identify the spot. <br>
+    Click or drag over the points to identify the spot. <br>
     <b>Kinetics Filters</b> - if you filtered using <b>2: Filter By
       Value</b> and used kinetics, this option appears to draw
     rectangles for the windows used to filter values at each time point.
     It is instructive to use this when <b>Gene Average</b> was
     selected, in combination with<b> </b><b>Gene⫷Spots</b> to identify
-    spots that fall outside the windows but were included within the
-    gene mean.
-    <h3><a name="Genes-Modules_tab_"></a> Genes-&gt;Modules tab<br>
+    spots that fall outside the windows but were included by the gene
+    mean.
+    <h3><a name="Genes-Modules_tab_"></a> Genes-&gt;Modules<br>
     </h3>
-    This panel lists the selected spots or genes and shows which - if
+    This panel lists the filtered spots or genes and shows which - if
     any - modules contain that gene. Some genes you selected may not be
     included in any modules.<br>
-    <h3><a name="Modules_tab_"></a> Modules tab<br>
+    <h3><a name="Modules_tab_"></a> Modules<br>
     </h3>
     A boxplot summary of the values of the individual spots contained in
-    the modules associated with the selected spots or genes is plotted
-    automatically. Use the slider to change plot height, and browser
-    window width to change plot width. If you change any of the criteria
-    on the <b>Select</b> tab this plot will re-draw. <br>
+    the modules associated with the selected spots or genes. Chart is
+    plotted automatically. Use the slider to change plot height, and
+    browser window width to change plot width. If you change any of the
+    criteria on the <b>Select</b> tab this plot will re-draw. <br>
     <br>
     Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b>, or
     have ggplot2 graphics which are a bit nicer but slower. ggplot2
@@ -449,16 +498,16 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     Select "<b>Include Selected As Module</b>" and the genes selected by
     the filters can also be plotted as a "pseudo-module", for comparison
     with&nbsp; the tmod modules.<br>
-    "Module" plots one box per module, and "Title" groups the
-    modules&nbsp; by their functional / descriptive category titles
+    "<b>Module</b>" plots one box per module, and "<b>Title</b>" groups
+    the modules&nbsp; by their functional / descriptive category titles
     which may result in fewer boxes.<br>
     The table gives the summary statistics and the number of spots
     mapped to the modules' genes (N).<br>
-    <h3><a name="Modules-Genes_Probes_tab"></a> Modules-&gt;Genes
-      (Spots) tab</h3>
+    <h3><a name="Modules-Genes_Probes_tab"></a> Modules-&gt;Genes<br>
+    </h3>
     This expands the plot on the <a href="#Modules_tab_"><b>Modules</b></a>
-    tab&nbsp; to allow an inspection of the modules, one by one. Use the
-    slider to change plot height, and browser window width to change
+    tab&nbsp; to allow an inspection inside the modules, one by one. Use
+    the slider to change plot height, and browser window width to change
     plot width.<br>
     <br>
     Select a module from the menu to see the expression of its component
@@ -471,7 +520,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     surprised by how few genes in a module overlap with your selected
     genes. <br>
     <br>
-    Genes listed for the module but absent from the dataset rows, are
+    Genes listed for the module but absent from the dataset spots, are
     labelled "Missing" on the plot, which can be toggled on-off.<br>
     <br>
     Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b> , or
@@ -480,21 +529,19 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     which shows the gene description in the table, the <b>Module-&gt;Genes</b>
     tab does not, as the descriptions refer to the <i>spots</i>, and
     here gene summaries are being shown.<br>
-    <h3><a name="Modules:Series_Probes_tab"></a>Modules:Series (Spots)
-      tab</h3>
-    While the <b>Modules</b> and <b>Modules-&gt;Genes</b> tabs only
-    show the values of spots at one selected treatment ~ time
-    combination, the <b>Modules:Series</b> tab allows the values of the
-    associated modules to be plotted for all treatment ~ time
-    combinations as a time course. To avoid delays when selecting
-    options, nothing is plotted or re-plotted until the 'Plot' button is
-    clicked. Use the slider to change plot height, and browser window
-    width to change plot width.<br>
+    <h3><a name="Modules:Series_Probes_tab"></a>Modules:Series</h3>
+    While <b>Modules</b> and <b>Modules-&gt;Genes</b> only show the
+    values of spots at one selected treatment ~ time combination, <b>Modules:Series</b>
+    allows the values of the associated modules to be plotted for all
+    treatment ~ time combinations as a time course. To avoid delays when
+    selecting options, nothing is plotted or re-plotted until the '<b>Plot</b>'
+    button is clicked. Use the slider to change plot height, and browser
+    window width to change plot width.<br>
     <br>
     Select treatment ~ time combinations from the menus. Select modules
     from the <b>Modules</b> menu which lists ones mapped to your
-    selected spots or genes. Use <b>All</b> or <b>None</b> buttons to
-    add all, or clear selections.<br>
+    selected spots or genes, as shown in <b>Modules</b>. Use <b>All</b>
+    or <b>None</b> buttons to add all, or clear selections.<br>
     <br>
     <b>Boxplot</b> summarises the values of spots within the module.<br>
     <b>Lines</b> plots a line graph of the mean value of spots in the
@@ -533,6 +580,9 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     See the help for <b>Explore By Spot</b> <a
       href="#Select_tab_-_probes_">Select</a> tab for description of how
     to use <b>regex Keyword</b>, <b>Values Within Range</b> and <b>Row
+
+
+
 
       Numbers Within Range</b> filters. Time series plots will indicate
     the sorted treatment~time column with <font color="#ff0000">▼▲</font>.<br>
@@ -606,6 +656,9 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
+
+
         (Spots) tab</b></a> as it allows the expression of the selected
     modules to be plotted for all treatment ~ time combinations as a
     time course. Use the slider to change plot height, and browser
@@ -630,6 +683,9 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
         - which group&nbsp; modules into categories.&nbsp;</li>
     </ul>
     <p>Once you have selected some modules or titles in the&nbsp; <b>All
+
+
+
 
 
 
@@ -711,6 +767,9 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
           that section for details</b></a>. <br>
       Spaces will always be stripped from this search as Module Names
       cannot have spaces.<br>
@@ -755,6 +814,9 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
           increase </b>(from day 0) or <b>actual concentration values</b>
         when plotting.FI may give some wide error bars if a few outliers
         have big changes.<br>
@@ -763,6 +825,9 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
+
+
 
 
 
@@ -841,6 +906,9 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
           Zero Y Values</b> selected as it highlights how many
         participants have been excluded - or conversely how many do have
         useful data.<br>
@@ -908,6 +976,9 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       </ul>
       <li><b>Fold Change ~ Cell Count</b>. Use the radio buttons to
         switch between plotting <b>fold increase </b>(from day 0) or <b>actual
+
+
+
 
 
 

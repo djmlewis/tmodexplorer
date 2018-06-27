@@ -80,7 +80,7 @@ ui <-
                                              column(7,
                                               fluidRow(
                                                 fluidRow(
-                                                  column(4, awesomeCheckbox("checkboxRowsAnyDay",label = h4(style = "margin-top: 0px;font-weight: bold;",'All Days'), value = FALSE,status = 'success'),
+                                                  column(4, awesomeCheckbox("checkboxRowsAnyDay",label = h4(style = "margin-top: 0px;font-weight: bold;",'All Times'), value = FALSE,status = 'success'),
                                                          bsTooltip("checkboxRowsAnyDay","Sort rows by value for selected Treatment on all days")),
                                                   column(4, awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'Gene Averages'), value = FALSE)),
                                                   column(4,awesomeCheckbox(status = 'success', 'checkboxDescending', label = h4(style = "margin-top: 0px;font-weight: bold;",'Sort Descending'), value = TRUE))
@@ -102,8 +102,6 @@ ui <-
                                                           ))
                                                         ),
                                                         conditionalPanel(condition = "input.checkboxSelectValues == true",
-                                                        conditionalPanel(condition = "input.checkboxProbesGenes == true",
-                                                          p(style = "margin-top: 0px; margin-bottom: 3px; text-align: center;font-weight: bold;  color: #b90600; font-size: 0.9em","Averaged Spot Values Filtered")),
                                                         conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
                                                         fluidRow(
                                                             column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)),
@@ -117,8 +115,12 @@ ui <-
                                                         ),
                                                         conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
                                                         fluidRow(
-                                                          column(5, plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
-                                                          bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top')),
+                                                          column(5,
+                                                            conditionalPanel(condition = "input.checkboxRowsAnyDay == true",
+                                                            p(style = "margin-top: 0px; margin-bottom: 0px; text-align: center; color: #b90600; font-size: 0.9em","All Times checkbox will be ignored")),
+                                                            plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
+                                                            bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top')
+                                                          ),
                                                           column(7, 
                                                             fluidRow(
                                                               column(2, actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
@@ -155,10 +157,7 @@ ui <-
                                                              awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
                                                              conditionalPanel(condition = "input.checkboxSelectRows == true",
                                                               numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5),
-                                                              numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5),
-                                                             conditionalPanel(condition = "input.checkboxProbesGenes == true",
-                                                              p(style = "text-align: center; color: #b90600;font-weight: bold; font-size: 0.9em","Averaged Spot Values Filtered")),
-                                                             conditionalPanel(condition = "input.numberGenesEnd - input.numberGenesStart > 100", p(style = "color: #44b84b;", "More than 100 rows will result in slow response"))
+                                                              numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5)
                                                    )))
                                                  )
                                                ) # Searches 1 & 2
@@ -203,6 +202,7 @@ ui <-
                                                                                          conditionalPanel(condition = "input.checkboxShowProbesOfGenesSeries != true", awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE)),
                                                                                          conditionalPanel(condition = "input.radioFilterByRowKinetics != 'row' && input.checkboxSplitSeries == true", style = "color: #4178b6;",
                                                                                           awesomeCheckbox(status = 'primary', 'checkboxShowKineticsSeries', 'Kinetics Filters', value = TRUE)),
+                                                                                         bsTooltip("numericNumPanelsTopGenesSeries", "Maximum panels per row when Split"),
                                                                                          numericInput("numericNumPanelsTopGenesSeries",NULL,value = 3, min = 1, step = 1)
                                                                         )
                                                                  ),
@@ -220,7 +220,7 @@ ui <-
                                                                fluidRow(
                                                                  column(4,selectInput('selectVaccinesForSeries', label = "Treatment", choices = character(0), multiple = TRUE)),
                                                                  column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllVaccinesSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllVaccinesSeries','None'))),
-                                                                 column(4,selectInput('selectDaysForSeries', label = "Days", choices = character(0), multiple = TRUE)),
+                                                                 column(4,selectInput('selectDaysForSeries', label = "Times", choices = character(0), multiple = TRUE)),
                                                                  column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllDaysSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllDaysSeries','None')))
                                                                )
                                                      ),
@@ -325,6 +325,7 @@ ui <-
                                                                fluidRow(
                                                                  column(6,
                                                                         awesomeRadio(status = 'warning', 'radioRibbonBoxModuleSeries'," ",choices = c('Lines','Boxplot')),
+                                                                        awesomeCheckbox(status = 'success', 'checkboxShowFacetModuleSeries', 'Split', value = TRUE),
                                                                         conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines'",
                                                                                          conditionalPanel(condition = "input.checkboxShowFacetModuleSeries == true",
                                                                                                           awesomeCheckbox(status = 'success', 'checkboxShowGridModuleSeries', 'Gridlines', value = TRUE)),
@@ -333,9 +334,10 @@ ui <-
                                                                         )
                                                                  ),
                                                                  column(6,
-                                                                        awesomeCheckbox(status = 'success', 'checkboxShowFacetModuleSeries', 'Split', value = TRUE),
                                                                         awesomeCheckbox(status = 'success', 'checkboxShowLegendModuleSeries', 'Legend', value = FALSE),
                                                                         awesomeCheckbox(status = 'success', 'checkboxShowZeroModuleSeries', '0 |----', value = TRUE),
+                                                                        bsTooltip("numericNumPanelsPlotModuleSeries", "Maximum panels per row when Split"),
+                                                                        numericInput("numericNumPanelsPlotModuleSeries",NULL,value = 3, min = 1, step = 1),
                                                                         sliderInput("numberPlotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleSeriesSIZEheight", "Plot height")
                                                                  )
                                                                )
@@ -354,7 +356,7 @@ ui <-
                                                                  ),
                                                                  column(6,
                                                                         fluidRow(
-                                                                          column(8, selectInput('selectColumnForModuleSeriesDays', label = "Days", choices = character(0), multiple = TRUE)),
+                                                                          column(8, selectInput('selectColumnForModuleSeriesDays', label = "Times", choices = character(0), multiple = TRUE)),
                                                                           column(4, div(style = "margin-top: 20px;",
                                                                                         actionButton('buttonAddAllColumnsModuleSeriesDays','All', class="btn-outline-primary"),
                                                                                         actionButton('buttonRemoveAllColumnsModuleSeriesDays','None'))))
@@ -536,6 +538,7 @@ ui <-
                                                                fluidRow(
                                                                  column(6,
                                                                         awesomeRadio(status = 'warning', 'mradioRibbonBoxModuleSeries'," ",choices = c('Lines','Boxplot')),
+                                                                        awesomeCheckbox(status = 'success', 'mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                                                                         conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines'",
                                                                                          conditionalPanel(condition = "input.mcheckboxShowFacetModuleSeries == true",
                                                                                                           awesomeCheckbox(status = 'success', 'mcheckboxShowGridSeries', 'Gridlines', value = TRUE)),
@@ -546,9 +549,10 @@ ui <-
                                                                  column(6,
                                                                         awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleSeries', 'Legend', value = FALSE),
                                                                         awesomeCheckbox(status = 'success', 'mcheckboxShowZeroModuleSeries', '0 |----', value = TRUE),
-                                                                        awesomeCheckbox(status = 'success', 'mcheckboxShowFacetModuleSeries', 'Split', value = TRUE),
                                                                         awesomeRadio(status = 'success', 'mradioGroupTitleNameModuleSeries','Group By:',choices = c('Title','Module'), selected = 'Module'),
                                                                         bsTooltip("mradioGroupTitleNameModuleSeries", "Group by Modules or Module Titles (may be fewer)"),
+                                                                        numericInput("numericNumPanelsmplotModuleSeries",NULL,value = 3, min = 1, step = 1),
+                                                                        bsTooltip("numericNumPanelsmplotModuleSeries", "Maximum panels per row when Split"),
                                                                         sliderInput("numbermplotModuleSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numbermplotModuleSeriesSIZEheight", "Plot height")
                                                                  ))
                                                      )
@@ -565,7 +569,7 @@ ui <-
                                                                  ),
                                                                  column(6,
                                                                         fluidRow(
-                                                                          column(8, selectInput('mselectColumnForModuleSeriesDays', label = "Days", choices = character(0), multiple = TRUE)),
+                                                                          column(8, selectInput('mselectColumnForModuleSeriesDays', label = "Times", choices = character(0), multiple = TRUE)),
                                                                           column(4, div(style = "margin-top: 20px;",
                                                                                         actionButton('mbuttonAddAllColumnsModuleSeriesDays','All', class="btn-outline-primary"),
                                                                                         actionButton('mbuttonRemoveAllColumnsModuleSeriesDays','None'))))
@@ -737,7 +741,7 @@ ui <-
                                                         ),
                                                         column(6,
                                                                fluidRow(
-                                                                 column(8, selectInput('selectColumnForCellsSeriesDays', label = "Days", choices = character(0), multiple = TRUE)),
+                                                                 column(8, selectInput('selectColumnForCellsSeriesDays', label = "Times", choices = character(0), multiple = TRUE)),
                                                                  column(4, div(style = "margin-top: 20px;",
                                                                                actionButton('buttonAddAllColumnsCellsSeriesDays','All', class="btn-outline-primary"),
                                                                                actionButton('buttonRemoveAllColumnsCellsSeriesDays','None'))))
@@ -797,7 +801,7 @@ ui <-
                             ),
                             column(4,selectInput("cselectTreatments", "Vaccines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineTreats','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineTreats','None'))
                             ),
-                            column(3,selectInput("cselectDays", "Days", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','None'))
+                            column(3,selectInput("cselectDays", "Times", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','None'))
                             )
                           ),
                           hr(),

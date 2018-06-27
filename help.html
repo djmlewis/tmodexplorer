@@ -22,108 +22,68 @@
     BTMs to observe how the individual genes are responding to the
     vaccine stimulus. <br>
     <br>
-    The datasets are composed of rows of data where each row is a spot
-    on the chip, and the columns contain the group mean value (raw
-    expression or fold-increase from baseline) for that spot. The groups
-    are a specific <b>treatment~timepoint</b> combination: e.g.
-    Boostrix~Day 1, Placebo~Day 0, etc.<br>
+    The datasets are composed of <b>rows</b> of data where each row is
+    a spot on the chip, and the <b>columns</b> contain the group mean
+    value (raw expression or fold-increase from baseline) for that spot.
+    The groups are a specific <b>treatment~time point</b> combination:
+    e.g. Boostrix~Day 1, Placebo~Day 0, etc. I use the term "spot" and
+    "row" interchangeably as they are the same. One "Probe" ( specific
+    nucleic acid sequence) may map to many spots, and one gene may map
+    to many probes. Row / Spot IDs are unique, ProbeNames and GeneNames
+    may be duplicated.<br>
     <br>
-    The basic concept is to pick a particular time point and vaccine - <i>e.g.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      Day 7 after immunisation with Boostrix</i> - and then sort the
-    spots or genes values present in the array as they are on that
-    timepoint ~ vaccine. So you may have the spots ordered in descending
-    order by their value (fold-increase from baseline or mean
-    expression) on day 1 in those people who got Boostrix. Why do this?
-    Well, because with over 60k spots you have to order them somehow.
-    The grouping by <i><b>treatment</b></i> (vaccine or placebo) ~ <i><b>time</b></i>
+    The simplest approach is to pick a particular vaccine~day
+    combination&nbsp; - <i>e.g. Day 7 after immunisation with Boostrix</i>
+    - and then sort rows by the values in that column. This imposes the
+    same row order on other time points and vaccines.Why do this? Well,
+    because with over 40k spots you have to order them somehow. The
+    grouping by <i><b>treatment</b></i> (vaccine or placebo) ~ <i><b>time</b></i>
     combination is actually a natural grouping, if a bit
-    counter-intuitive when comparing between vaccines. As the data
-    consists of rows where each row is a spot, and where each column has
-    values for one treatment (vaccine or placebo) ~ time combination, by
-    sorting the rows according to the values for one selected treatment
-    ~ time combination, you also impose the same order on the spots at
-    other time points and vaccines.<br>
+    counter-intuitive when comparing between vaccines. You can also
+    order rows by value <i>at any time point for one selected vaccine,
+    </i>rather than specifying a specific day.<br>
     <br>
     Having ordered the top or bottom spots, or found spots with values
-    between a range, you can then place the spots or genes into a group
-    of interest - e.g. the top 10 fold-increased genes on day 7 after
-    Boostrix. <i><b>This set of selected genes becomes the core
-        building-block of subsequent analysis</b></i>. You can identify
-    how the expression of these genes changes over time (in all the
-    treatment groups); which modules these genes belong to; observe how
+    between a range, you can then group the spots or genes into a set of
+    interest - e.g. the top 10 fold-increased genes on day 7 after
+    Boostrix. <i><b>This set of selected spots-&gt;probes-&gt;genes
+        becomes the core building-block of subsequent analysis</b></i>.
+    You can plot how the expression changes over time (in all the
+    treatment groups); which modules the genes belong to; observe how
     the other genes in those modules are responding over time; or how
-    the whole module responds over time. You can treat these selected
-    genes as a 'pseudo-module' and see how this module changes over time
-    in comparison with the predefined modules in tmod. Other search
-    options allow you to identify genes by their title or description
-    instead of (or as well as-) their expression values at a specific
-    treatment~time, and then follow these selected genes and the modules
-    that contain them over time.<br>
+    the whole module responds over time. You can treat these rows as a
+    'pseudo-module' and see how this module changes over time in
+    comparison with the predefined modules in tmod. Other search options
+    allow you to identify spots/probes/genes by their title or
+    description instead of (or as well as) their expression values, and
+    then follow these selected genes and the modules that contain them
+    over time.<br>
     <br>
-    The figures below illustrates this: the spots in the combined ABC
-    Surrey dataset have been sorted in <i>descending order of their
-      fold-increase from baseline (day 0) in log2 expression value in
-      the vaccinees 7 days after receiving Stamaril</i>. The top 10
-    spots with the highest fold-increase have been selected and the time
-    series plotted as individual lines for Stamaril, Fluad and Placebo,
-    or as a boxplot for these spots treated as though they belonged to a
-    pseudo-module.<br>
+    The figures below illustrates this: the spots have been sorted in <i>descending
+      order of their fold-increase from baseline (day 0) in log2
+      expression value in the participants 7 days after receiving
+      Stamaril</i>. The top 10 spots with the highest fold-increase have
+    been selected and the time series plotted as individual lines for
+    Stamaril, Fluad and Placebo, or as a boxplot for these spots treated
+    as though they belonged to a pseudo-module.<br>
     <br>
     <div align="center"><img src="selgenesseries.png" alt="Selected
-        Probes" height="250" width="554"> &nbsp;<img
+        Probes" width="554" height="250"> &nbsp;<img
         src="selgenesseriesbox.png" alt="Selected Probes Boxplot"
-        height="250" width="554"><br>
+        width="554" height="250"><br>
     </div>
     <br>
     We can then identify the modules to which those genes belong, and
     plot the changes in those modules over time. Note that while the
     kinetics of the spots is clear-cut, the modules are less so, with
     some non-responding modules. This reflects that fact that modules
-    contain many genes that may not be responding to Stamaril at all, or
-    even down-regulated, as&nbsp; the modules have been clustered by
-    their authors on the basis of other criteria:<br>
+    contain many other genes that may not be responding to Stamaril at
+    all, or even down-regulated, as&nbsp; the genes in the modules have
+    been clustered by their authors on the basis of various criteria:<br>
     <div align="center"><img src="selmods.png" alt="Selected Modules"
-        height="249" align="middle" width="550">&nbsp;&nbsp; <img
+        align="middle" width="550" height="249">&nbsp;&nbsp; <img
         src="selmodsseries.png" alt="Selected Modules Timecourse"
-        height="249" align="middle" width="550"><br>
+        align="middle" width="550" height="249"><br>
     </div>
     <br>
     When plotting the time-course of genes as an average of the spots,
@@ -137,7 +97,7 @@
     than the other two, and the two RSAD2 spots are far apart (blue).
     These discrepancies are also seen in the wide SEM ribbons.<br>
     <div align="center"><img src="probessplit.png" alt="Genes Split Into
-        Probes" height="250" width="640"><br>
+        Probes" width="640" height="250"><br>
     </div>
     <br>
     <br>
@@ -150,11 +110,11 @@
     10 day 7 genes map to any tmod modules. Sorting on day 5 brings up a
     new set of genes together with some of the day 7 genes.<br>
     <div align="center"><img src="day1genesmodules.png" alt=""
-        height="250" width="311"><img src="day7genesmodules.png" alt=""
-        height="250" width="348"><br>
-      <img src="day1genes.png" alt="" height="250" width="679"><img
-        src="day7genes.png" alt="" height="250" width="679"><br>
-      <img src="day5genes.png" alt="" height="250" width="679"><br>
+        width="311" height="250"><img src="day7genesmodules.png" alt=""
+        width="348" height="250"><br>
+      <img src="day1genes.png" alt="" width="679" height="250"><img
+        src="day7genes.png" alt="" width="679" height="250"><br>
+      <img src="day5genes.png" alt="" width="679" height="250"><br>
     </div>
     <br>
     <br>
@@ -163,10 +123,11 @@
     which case you just select tmod modules and observe their response
     over time. Modules can be selected in the same way as individual
     spots or genes - by identifying those most up- or down-regulated
-    modules for a selected treatment ~ time; or by searching for modules
-    by name or category. The basic concept is the same, as shown here
-    where the <i>top 10 modules up-regulated on day 7 after Stamaril</i>
-    are identified, and the response over time plotted. Modules can be
+    modules (based on median or mean value of all spots mapping to the
+    module) for a selected treatment ~ time; or by searching for modules
+    by text keyword. The basic concept is the same, as shown here where
+    the <i>top 10 modules up-regulated on day 7 after Stamaril</i> are
+    identified, and the response over time plotted. Modules can be
     further selected by <i>Title</i> and <i>Category</i>. The plots
     below actually show the 8 <i>Titles</i> that these top 10 modules
     belong to. Note that the kinetics is more clear-cut because we have
@@ -176,9 +137,9 @@
     responding genes (as shown above), because the important genes may
     be clustered with non-responding genes in other modules. <br>
     <div align="center"><img src="topmods.png" alt="Top Modules"
-        height="250" width="553">&nbsp;&nbsp; <img
-        src="topmodsseries.png" alt="Top Modules Timecourse"
-        height="250" width="553"><br>
+        width="553" height="250">&nbsp;&nbsp; <img
+        src="topmodsseries.png" alt="Top Modules Timecourse" width="553"
+        height="250"><br>
     </div>
     <br>
     By visualising the changes in gene and module expression we can ask
@@ -196,8 +157,8 @@
       ggplot2 (slower but may be prettier). Other plots have a <b>Plot</b>
       button, and will only draw or update when that is clicked, to
       avoid slow refreshes when you alter several options. Plots have a
-      slider control&nbsp;<img alt="" src="slider.png" height="20"
-        width="82"> to change the height. Plot width always resizes
+      slider control&nbsp;<img alt="" src="slider.png" width="82"
+        height="20"> to change the height. Plot width always resizes
       automatically with the window width. A low resolution image of
       plots can be copied or saved by right-clicking on the plot, while
       clicking <b>⤓ Plot As PNG</b> button downloads a high resolution
@@ -207,45 +168,36 @@
       plotting. Some tables can be saved as PNG files to incorporate
       with plots as graphics.<br>
     </p>
-    <h4>Identifying data on line plots by hovering over points<br>
+    <h4>Identifying data on line plots by clicking or selecting points<br>
     </h4>
-    <p>When data are plotted as <b>Lines</b> it is sometimes difficult
-      to identify the individual data series by colour. They can be
-      identified by hovering the mouse cursor over a <b>point</b> (or
-      where a point would be plotted if you are not displaying points).
-      Hovering over line segments between points does nothing. A
-      notification window will appear displaying the data for this
-      point, which can be copied. It will disappear after 15 seconds, or
-      be updated if a new point is selected. If lines are bunched then
-      use the slider above the plot to increase the height.<br>
-    </p>
+    When data are plotted as <b>Lines</b> it is sometimes difficult to
+    identify the individual data series by colour. They can be
+    identified by clicking a <b>point</b> (or where a point would be
+    plotted if you are not displaying points). Clicking line segments
+    between points does nothing. Click and drag a rectangle to include
+    multiple points. A table will appear displaying the data, which can
+    be copied. A comma-separated list of gene/spot and module names is
+    also shown to easily copy and paste into search boxes.<br>
     <p> </p>
     <h3><a name="Data_Tables_"></a>Data Tables<br>
     </h3>
-    The entire data table can be searched using the box above,&nbsp; or
-    individual columns searched using the boxes below each column.
-    Tables can be downloaded as a csv file suitable for opening in Excel
-    or R by clicking the <b>⤓ Table</b> button. A PNG image of the data
-    table can also be downloaded in some cases by clicking the button <b>⤓
-      Table as PNG</b>. This can be pasted onto graphics. It is very
-    tricky to calculate the width correctly using grid.table, so the
-    image may be clipped or extra wide, but a transparent background
-    will be generated.<br>
+    Where a data table is shown, the entire table can be searched using
+    the box above,&nbsp; or individual columns searched using the boxes
+    below each column. Tables can be downloaded as a csv file suitable
+    for opening in Excel or R by clicking the <b>⤓ Table</b> button. A
+    PNG image of the data table can also be downloaded in some cases by
+    clicking the button <b>⤓ Table as PNG</b>. This can be pasted onto
+    graphics. It is very tricky to calculate the width correctly using
+    grid.table, so the image may be clipped or extra wide, but a
+    transparent background will be generated.<br>
     <br>
     <h3><a name="Saving_Gene_Probe_ProbeNames_and_"></a>Saving Gene,
       Spot, ProbeNames and Module Lists<br>
     </h3>
-    When you have selected genes, spots or modules using some filters,
-    they can be downloaded as a text file in a comma-separated format
-    suitable for pasting into the 'regex' search boxes. <font
-      color="#ff0000"><b>However, there is a significant problem with
-        the datasets as the rows do not always contain proper spot IDs.
-        I have tried to mitigate this by including "Spot" - an unique
-        row ID, and "ProbeName" which has the correct Affymetrix Probe
-        ID. But caution must be exercised when copying between
-        ABC&lt;-&gt;D&lt;-&gt;D2. Hopefully, in due course we will have
-        proper </b><b><i>SummarisedExperiment</i></b><b> R objects for
-        me to use.</b> <font color="#000000">Gene and Module names at
-        least are standardised.</font></font><br>
+    The datasets have been normalised together so that ProbeNames, row
+    IDs and Gene names are the same across vaccines. This allows
+    identification of responses for a specific spot/probe/gene between
+    vaccines.<br>
+    <br>
   </body>
 </html>

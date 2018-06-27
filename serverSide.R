@@ -404,28 +404,28 @@ observeEvent(
     respondToChangeColumn("vacc")
   })
 
-observeEvent(
-  {
-    input$radioFilterByRowKinetics
-  },
-  {
-    if(input$radioFilterByRowKinetics == "row") {
-      show("checkboxRowsAnyDay")
-    } else {
-      hide("checkboxRowsAnyDay")
-    }
-  }, ignoreInit = TRUE)
-
-
-observeEvent(
-  input$checkboxSelectValues,
-  {
-    if(input$checkboxSelectValues == FALSE) show("checkboxRowsAnyDay")
-    else {
-      if(input$radioFilterByRowKinetics == 'kinetics') hide("checkboxRowsAnyDay")
-      else show("checkboxRowsAnyDay")
-    }
-  })
+# observeEvent(
+#   {
+#     input$radioFilterByRowKinetics
+#   },
+#   {
+#     if(input$radioFilterByRowKinetics == "row") {
+#       show("checkboxRowsAnyDay")
+#     } else {
+#       hide("checkboxRowsAnyDay")
+#     }
+#   }, ignoreInit = TRUE)
+# 
+# 
+# observeEvent(
+#   input$checkboxSelectValues,
+#   {
+#     if(input$checkboxSelectValues == FALSE) show("checkboxRowsAnyDay")
+#     else {
+#       if(input$radioFilterByRowKinetics == 'kinetics') hide("checkboxRowsAnyDay")
+#       else show("checkboxRowsAnyDay")
+#     }
+#   })
 
 
 observeEvent(
@@ -803,7 +803,8 @@ observeEvent(
     assign("ggplotModulesInSeries",
            plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
                                input$radioRibbonBoxModuleSeries,input$checkboxShowFacetModuleSeries, input$checkboxShowZeroModuleSeries,
-                               input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries), 
+                               input$checkboxShowSEModuleSeries, sortCol_Probes,input$checkboxShowGridModuleSeries, input$checkboxShowPointsModuleSeries,
+                               input$numericNumPanelsPlotModuleSeries), 
            envir = .GlobalEnv)
     
     
@@ -1079,7 +1080,7 @@ observeEvent({
                                      mods2plot,modulesAndFiltersText(),input$mcheckboxShowLegendModuleSeries,
                                      input$mcheckboxShowZeroModuleSeries,input$mradioRibbonBoxModuleSeries, input$mcheckboxShowFacetModuleSeries,
                                      input$mcheckboxShowSEModuleSeries, input$mradioGroupTitleNameModuleSeries, input$mcheckboxShowGridSeries,
-                                     input$mcheckboxShowPointsSeries,sortCol_Mods),
+                                     input$mcheckboxShowPointsSeries,sortCol_Mods, input$numericNumPanelsmplotModuleSeries),
            envir = .GlobalEnv)
     
     

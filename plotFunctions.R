@@ -281,7 +281,7 @@ plotTopGenesInSeries <- function(data2plot,
     return(plot)
   }
 
-plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
+plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp,numCols){
   p <-  NULL
   if (!is.null(d) && nrow(d) > 0) {
     showNotification("Please wait for plot output…", type = 'message', duration = 3)
@@ -323,7 +323,7 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp){
     
     if(f == TRUE){
       p <- p +
-        facet_wrap(~Treatment)
+        facet_wrap(~Treatment, ncol = numCols)
     }
     
     #sortCol - VACCINE_DAY must come last or factors go awry
