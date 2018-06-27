@@ -720,10 +720,15 @@ ui <-
                                                                awesomeCheckbox(status = 'success', 'checkboxFreeYCellsSeries', 'Free Y', value = FALSE),
                                                                awesomeCheckbox(status = 'success', 'checkboxShowLegendSumCellsSeries', 'Summary Legend', value = TRUE),
                                                                awesomeCheckbox(status = 'success', 'checkboxShowLegendAllCellsSeries', 'Plot Legends', value = FALSE),
-                                                               numericInput("numericNumPanelsCellsSeries",NULL,value = 3, min = 1, step = 1), 
-                                                               bsTooltip("numericNumPanelsCellsSeries", "Maximum number of panels per plot row"),
-                                                               sliderInput("numericPlotCellSeriesSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
-                                                               bsTooltip("numericPlotCellSeriesSIZEheight", "Plot height")
+                                                               awesomeRadio(status = 'success', 'radioColoursVaccineCells',"Colours",choices = c(`Cell Type` = 'c',`Vaccines` = 'v')),
+                                                               fluidRow(
+                                                                 column(6,
+                                                                  numericInput("numericNumPanelsCellsSeries",NULL,value = 3, min = 1, step = 1), 
+                                                                  bsTooltip("numericNumPanelsCellsSeries", "Maximum number of panels per plot row")),
+                                                                 column(6,
+                                                                  sliderInput("numericPlotCellSeriesSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
+                                                                  bsTooltip("numericPlotCellSeriesSIZEheight", "Plot height"))
+                                                               )
                                                         )
                                                       )
                                             )

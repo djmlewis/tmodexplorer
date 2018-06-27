@@ -26,7 +26,8 @@ server <- function(input, output, session) {
   shapeKinetics <- reactiveVal(NULL)
   
   assign("dayPatterns",read_rds("dayPats.rds"), envir = .GlobalEnv)
-
+  assign("vaccineColours",read_rds("vaccinecolours.R"), envir = .GlobalEnv)
+  
   
 #   #################### Password #########################
   password <- read_rds("p")
@@ -1182,7 +1183,6 @@ observeEvent(input$buttonLoadCells, {
       allCols <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666")
       assign("cellsColours",set_names(allCols[1:length(cellTypesInData)], cellTypesInData), envir = .GlobalEnv)
       # 12 vaccines but be flexible, if 12 then use predefined shapes, or if less a subset of those, or if more then a sequence
-      # vacShapesIndices <- ifelse(length(vaccineNames)>12,0:length(vaccineNames)-1,c(15:25,1)[1:length(vaccineNames)])
       assign("vaccineShapes",set_names(c(15:18,21:25,0:2), vaccineNames), envir = .GlobalEnv)
       updateSelectInput(session, "selectColumnForCellsSeriesVaccines", choices = unique(cellsData$Mean$Treatment), selected = character(0))
       updateSelectInput(session, "selectColumnForCellsSeriesDays", choices = unique(cellsData$Mean$Day), selected = character(0))
@@ -1218,7 +1218,7 @@ observeEvent({
                                 input$checkboxShowLegendSumCellsSeries,input$checkboxShowLegendAllCellsSeries,input$checkboxShowZeroCellsSeries,
                                 input$checkboxShowFacetCellsSeries,input$checkboxShowFacetVaccsSeries,
                                 input$radioCellsErrorType, input$checkboxShowGridCellsSeries, input$checkboxShowPointsCellsSeries,
-                                input$checkboxFreeYCellsSeries,input$numericNumPanelsCellsSeries),
+                                input$checkboxFreeYCellsSeries,input$numericNumPanelsCellsSeries, input$radioColoursVaccineCells),
          envir = .GlobalEnv)
   
   

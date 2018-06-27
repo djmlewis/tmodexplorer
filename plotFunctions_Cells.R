@@ -6,16 +6,20 @@ yTitleForMeanFC <- function(meanFC, boxlines) {
     TRUE ~ ""
   )
 }
-makeLegend <- function(legSum, cells, vaccs,boxlines,point) {
+makeLegend <- function(legSum, cells, vaccs,boxlines,point,colScale) {
   if(legSum == FALSE) return(NULL)
+  
+  if(colScale == 'c') colourScheme <- cellsColours
+  else colourScheme  <-  vaccineColours
+  
   df <- expand.grid(Cells = cells, Treatment = vaccs, stringsAsFactors = FALSE)
   df$x <- 1
   df$y <- 2
   p <- ggplot(df,mapping = aes(x = x, y = y)) + 
     themeBase() + 
     theme(legend.position = 'top', legend.direction = 'horizontal',legend.title = element_blank(), legend.text = element_text(size = 16)) +
-    scale_color_manual(values = cellsColours) +
-    scale_fill_manual(values = cellsColours) +
+    scale_color_manual(values = colourScheme) +
+    scale_fill_manual(values = colourScheme) +
     scale_shape_manual(values = vaccineShapes)
   
   if (boxlines == "Mean") {
@@ -31,7 +35,10 @@ makeLegend <- function(legSum, cells, vaccs,boxlines,point) {
   }
   return(get_legend(p))
 }
-setupGGplot <- function(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines) {
+setupGGplot <- function(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines,colScale) {
+  if(colScale == 'c') colourScheme <- cellsColours
+  else colourScheme  <-  vaccineColours
+  
   plotCell <-
     switch (boxlines,
             "Mean" = ggplot(data = data4cell, mapping = aes(shape = Treatment)) + guides(colour = guide_legend(override.aes = list(shape = NA))),
@@ -40,8 +47,8 @@ setupGGplot <- function(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines) {
     ggtitle(cellT) + 
     themeBase(rotate = FALSE) +
     theme(panel.grid.major.x = element_blank(), legend.title = element_blank(), legend.text = element_text(size = 16)) +
-    scale_color_manual(values = cellsColours) +
-    scale_fill_manual(values = cellsColours) +
+    scale_color_manual(values = colourScheme) +
+    scale_fill_manual(values = colourScheme) +
     scale_shape_manual(values = vaccineShapes)
   
   if(freeY == FALSE) {
@@ -54,20 +61,27 @@ setupGGplot <- function(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines) {
   }
   return(plotCell)
 }
-boxPlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles, legAll, zero, splitCells, splitVaccs, sem, xgrid, point, freeY) {
-  plotCell <- setupGGplot(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines) +
-  geom_boxplot(mapping = aes_string(x = "Day", y = yColumn, color = "Cells", fill = "Cells"), alpha = 0.5, outlier.alpha = 1.0,show.legend=legAll)
+
+columnForColourScale <- function(colScale) {
+  if(colScale == 'c') return("Cells")
+  return("Treatment")
+}
+boxPlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles, legAll, zero, splitCells, splitVaccs, sem, xgrid, point, freeY,colourScale) {
+  colourColumn <- columnForColourScale(colourScale)
+  plotCell <- setupGGplot(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines,colourScale) +
+  geom_boxplot(mapping = aes_string(x = "Day", y = yColumn, color = colourColumn, fill = colourColumn), alpha = 0.5, outlier.alpha = 1.0,show.legend=legAll)
   return(plotCell)
 }
 
-linePlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY) {
-  plotCell <- setupGGplot(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines) +
+linePlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale) {
+  colourColumn <- columnForColourScale(colourScale)
+  plotCell <- setupGGplot(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines,colourScale) +
     scale_x_continuous(breaks = xbreaks) +
-    geom_line(mapping = aes_string(x= "Day", y = yColumn, color = "Cells"), size = 1 ,show.legend=legAll)
+    geom_line(mapping = aes_string(x= "Day", y = yColumn, color = colourColumn), size = 1 ,show.legend=legAll)
   
-  if(sem == 'ribbon') plotCell <- plotCell + geom_ribbon(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), fill = "Cells"), alpha = 0.2,show.legend=FALSE)
-  if(sem == 'errorbar') plotCell <- plotCell + geom_errorbar(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), color = "Cells"), width = 0.2, size = 0.4,show.legend=FALSE)
-  if(point ==  TRUE) plotCell <- plotCell + geom_point(mapping = aes_string(x= "Day", y = yColumn, color = "Cells"), fill = "white", size = 5 ,show.legend=legAll)
+  if(sem == 'ribbon') plotCell <- plotCell + geom_ribbon(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), fill = colourColumn), alpha = 0.2,show.legend=FALSE)
+  if(sem == 'errorbar') plotCell <- plotCell + geom_errorbar(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), color = colourColumn), width = 0.2, size = 0.4,show.legend=FALSE)
+  if(point ==  TRUE) plotCell <- plotCell + geom_point(mapping = aes_string(x= "Day", y = yColumn, color = colourColumn), fill = "white", size = 5 ,show.legend=legAll)
   
   if(xgrid == TRUE) {
     plotCell <- plotCell + 
@@ -77,14 +91,14 @@ linePlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, v
   return(plotCell)
 }
 
-plotCells <- function(data4cell, numPlotCols,mins,maxs,xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY) {
+plotCells <- function(data4cell, numPlotCols,mins,maxs,xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale) {
   if(splitCells == TRUE) {
     # start Cells lapply
     plotsList <- lapply(cells,function(cellT) {
       data4cell <- filter(data4cell,Cells == cellT)
       plotOfCell <- switch (boxlines,
-                            "Mean" = linePlot(data4cell, c(mins[[cellT]],maxs[[cellT]]), cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY),
-                            "Value" = boxPlot(data4cell, c(mins[[cellT]],maxs[[cellT]]), cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY)
+                            "Mean" = linePlot(data4cell, c(mins[[cellT]],maxs[[cellT]]), cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale),
+                            "Value" = boxPlot(data4cell, c(mins[[cellT]],maxs[[cellT]]), cellT, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale)
       )
       return(plotOfCell)
       # end plots lapply
@@ -93,8 +107,8 @@ plotCells <- function(data4cell, numPlotCols,mins,maxs,xbreaks, yColumn, treat, 
     # plot in one go without cells split. maxs and mins have only one entry each
     plotOfTreatment <- 
       switch (boxlines,
-              "Mean" = linePlot(data4cell, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY),
-              "Value" = boxPlot(data4cell, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY)
+              "Mean" = linePlot(data4cell, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale),
+              "Value" = boxPlot(data4cell, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale)
       )
     plotsList <- list(plotOfTreatment)
   }
@@ -103,7 +117,7 @@ plotCells <- function(data4cell, numPlotCols,mins,maxs,xbreaks, yColumn, treat, 
                      top = textGrob(as.character(treat), gp=gpar(fontface="bold",fontsize=20, padding = 4))))
 }
 
-plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, titles,legSum, legAll, zero, splitCells, splitVaccs, sem, xgrid, point, freeY,numPlotCols) {
+plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, titles,legSum, legAll, zero, splitCells, splitVaccs, sem, xgrid, point, freeY,numPlotCols,colourScale) {
   plot2plot <-  NULL
   data2plot <- NULL
   # cellsD is a list
@@ -166,8 +180,8 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     if(splitCells == FALSE && splitVaccs == FALSE) {
       treatList <- list(
         switch (boxlines,
-                "Mean" = linePlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY),
-                "Value" = boxPlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY)
+                "Mean" = linePlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale),
+                "Value" = boxPlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale)
         ))
     } else {
       if(splitVaccs == TRUE) {
@@ -175,11 +189,11 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
         # start Treatment lapply
         treatList <- lapply(treatments,function(treat) {
           data4cell <- filter(data2plot,Treatment == treat)
-          return(plotCells(data4cell,numPlotCols,mins,maxs,xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY))
+          return(plotCells(data4cell,numPlotCols,mins,maxs,xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale))
         })# end of treatments lapply
       } else {
         # splitVaccs == False and splitCells must be True
-        treatList <- list(plotCells(data2plot,numPlotCols,mins,maxs,xbreaks, yColumn, "", meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY))
+        treatList <- list(plotCells(data2plot,numPlotCols,mins,maxs,xbreaks, yColumn, "", meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale))
       }
     }
     
@@ -189,7 +203,7 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     # instead, harness the flexibility of arrangeGrob to flow the rows according to ncol. 
     arrangedTreats <- list(arrangeGrob(grobs = treatList, ncol = ncols))
     plot2plot <- marrangeGrob(arrangedTreats, ncol = 1, nrow = 1, 
-                              top = makeLegend(legSum,cells, vaccs,boxlines,point), 
+                              top = makeLegend(legSum,cells, vaccs,boxlines,point,colourScale), 
                               bottom = textGrob("Days After Immunisation", gp=gpar(fontsize=16)),
                               padding = unit(0.5, "line"),
                               left = textGrob(yTitleForMeanFC(meanFC, boxlines), gp=gpar(fontsize=16), rot = 90)
