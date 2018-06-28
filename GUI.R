@@ -722,7 +722,9 @@ ui <-
                                                                awesomeCheckbox(status = 'success', 'checkboxShowLegendAllCellsSeries', 'Plot Legends', value = FALSE),
                                                                conditionalPanel(condition = "input.checkboxShowFacetCellsSeries == true || input.checkboxShowFacetVaccsSeries == true",
                                                                awesomeRadio(status = 'success', 'radioColoursVaccineCells',"Colour By",choices = c(`Cell Types` = 'c',`Vaccines` = 'v'))),
-                                                               fluidRow(
+                                                               conditionalPanel(condition = "input.checkboxShowFacetCellsSeries == false && input.checkboxShowFacetVaccsSeries == false",
+                                                                p(style = "color: #728f17; text-align: left;","Colour By Vaccine")),
+                                                              fluidRow(
                                                                  column(6,
                                                                   numericInput("numericNumPanelsCellsSeries",NULL,value = 3, min = 1, step = 1), 
                                                                   bsTooltip("numericNumPanelsCellsSeries", "Maximum number of panels per plot row")),

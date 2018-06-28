@@ -178,12 +178,12 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     # lines plots need this
     xbreaks <- unique(data2plot$Day)
     
-    # force a special case trough if neither Treatment or Cells split, override the colour selection to force Cells as we will shape by treatment anyway, and to show points
+    # force a special case trough if neither Treatment or Cells split, override the colour selection to force Cells as we will shape by treatment anyway, avoids non-grouped
     if(splitCells == FALSE && splitVaccs == FALSE) {
       treatList <- list(
         switch (boxlines,
-                "Mean" = linePlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, TRUE, freeY,'c'),
-                "Value" = boxPlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, TRUE, freeY,'c')
+                "Mean" = linePlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,'c'),
+                "Value" = boxPlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,'c')
         ))
     } else {
       if(splitVaccs == TRUE) {
@@ -205,8 +205,8 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     # instead, harness the flexibility of arrangeGrob to flow the rows according to ncol. 
     arrangedTreats <- list(arrangeGrob(grobs = treatList, ncol = ncols))
     plot2plot <- marrangeGrob(arrangedTreats, ncol = 1, nrow = 1, 
-                              # force legend points if both splits, and colourScale 'c'
-                              top = makeLegend(legSum,cells, vaccs,boxlines,(point || (splitCells == FALSE && splitVaccs == FALSE)),ifelse(splitCells == FALSE && splitVaccs == FALSE, 'c',colourScale)), 
+                              # force colourScale 'c' if both splits 
+                              top = makeLegend(legSum,cells, vaccs,boxlines,point,ifelse(splitCells == FALSE && splitVaccs == FALSE, 'c',colourScale)), 
                               bottom = textGrob("Days After Immunisation", gp=gpar(fontsize=16)),
                               padding = unit(0.5, "line"),
                               left = textGrob(yTitleForMeanFC(meanFC, boxlines), gp=gpar(fontsize=16), rot = 90)
