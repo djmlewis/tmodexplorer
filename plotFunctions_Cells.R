@@ -9,8 +9,12 @@ yTitleForMeanFC <- function(meanFC, boxlines) {
 makeLegend <- function(legSum, cells, vaccs,boxlines,point,colScale) {
   if(legSum == FALSE) return(NULL)
   
-  if(colScale == 'c') colourScheme <- cellsColours
-  else colourScheme  <-  vaccineColours
+  if(colScale == 'c') {
+    colourScheme <- cellsColours
+    colColumn <- "Cells"}
+  else {
+    colourScheme  <-  vaccineColours
+    colColumn <- "Treatment"}
   
   df <- expand.grid(Cells = cells, Treatment = vaccs, stringsAsFactors = FALSE)
   df$x <- 1
@@ -24,14 +28,14 @@ makeLegend <- function(legSum, cells, vaccs,boxlines,point,colScale) {
   
   if (boxlines == "Mean") {
     p <- p +
-      geom_line(mapping = aes(color = Cells), size = 1, show.legend = TRUE)
-    if (point ==  TRUE) {p <- p + geom_point(mapping = aes(color = Cells, shape = Treatment), fill = 'white', size = 4, show.legend = TRUE)}
-    
-    # override the aes to remove shapes from cells lines
+      geom_line(mapping = aes_string(color = colColumn), size = 1, show.legend = TRUE) +
+      geom_ribbon(mapping = aes_string(fill = colColumn),ymin = 1, ymax = 2, color = NA, alpha = 0.2, show.legend = TRUE)
+    if (point ==  TRUE) {p <- p + geom_point(mapping = aes_string(color = colColumn, shape = "Treatment"), fill = 'white', size = 4, show.legend = TRUE)}
+
     p <- p + guides(colour = guide_legend(override.aes = list(shape = NA))) #, shape = guide_legend(override.aes = list(linetype = 0))
     
   } else {
-    p <- p + geom_boxplot(mapping = aes(color = Cells, fill = Cells),alpha = 0.5, show.legend = TRUE)
+    p <- p + geom_boxplot(mapping = aes(color = colColumn, fill = colColumn),alpha = 0.5, show.legend = TRUE)
   }
   return(get_legend(p))
 }
@@ -81,7 +85,7 @@ linePlot <- function(data4cell, yLims, cellT, xbreaks, yColumn, treat, meanFC, v
   
   if(sem == 'ribbon') plotCell <- plotCell + geom_ribbon(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), fill = colourColumn), alpha = 0.2,show.legend=FALSE)
   if(sem == 'errorbar') plotCell <- plotCell + geom_errorbar(mapping = aes_string(x= "Day", ymin = paste0("SEML",meanFC), ymax = paste0("SEMU",meanFC), color = colourColumn), width = 0.2, size = 0.4,show.legend=FALSE)
-  if(point ==  TRUE) plotCell <- plotCell + geom_point(mapping = aes_string(x= "Day", y = yColumn, color = colourColumn), fill = "white", size = 5 ,show.legend=legAll)
+  if(point ==  TRUE) plotCell <- plotCell + geom_point(mapping = aes_string(x= "Day", y = yColumn, color = colourColumn, shape = "Treatment"), fill = "white", size = 4, show.legend=legAll)
   
   if(xgrid == TRUE) {
     plotCell <- plotCell + 
@@ -128,9 +132,7 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     # we must override splitVaccs if it is a boxPlot as we always split boxplots by treatment
     # Do it once here and avoids a lot of extra ifs below
     if(boxlines == "Value") splitVaccs <- TRUE
-    # ditto showPoints always if splitVaccs == F
-    # if(splitVaccs == FALSE) point <- TRUE
-    
+
     # boxlines == Lines "Mean", Box: "Value"
     data2plot <- cellsD[[boxlines]] %>%
       filter(Treatment %in% vaccs, Day %in% days, Cells %in% cells) %>%
@@ -176,12 +178,12 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     # lines plots need this
     xbreaks <- unique(data2plot$Day)
     
-    # force a special case trough if neither Treatment or Cells split
+    # force a special case trough if neither Treatment or Cells split, override the colour selection to force Cells as we will shape by treatment anyway, and to show points
     if(splitCells == FALSE && splitVaccs == FALSE) {
       treatList <- list(
         switch (boxlines,
-                "Mean" = linePlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale),
-                "Value" = boxPlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, point, freeY,colourScale)
+                "Mean" = linePlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, TRUE, freeY,'c'),
+                "Value" = boxPlot(data2plot, c(mins[["Min"]],maxs[["Max"]]), NULL, xbreaks, yColumn, treat, meanFC, vaccs,days,cells,boxlines, titles,legAll, zero, splitCells, splitVaccs,sem, xgrid, TRUE, freeY,'c')
         ))
     } else {
       if(splitVaccs == TRUE) {
@@ -203,7 +205,8 @@ plotSelectedCellsSeries <-  function(cellsD,meanFC, vaccs,days,cells,boxlines, t
     # instead, harness the flexibility of arrangeGrob to flow the rows according to ncol. 
     arrangedTreats <- list(arrangeGrob(grobs = treatList, ncol = ncols))
     plot2plot <- marrangeGrob(arrangedTreats, ncol = 1, nrow = 1, 
-                              top = makeLegend(legSum,cells, vaccs,boxlines,point,colourScale), 
+                              # force legend points if both splits, and colourScale 'c'
+                              top = makeLegend(legSum,cells, vaccs,boxlines,(point || (splitCells == FALSE && splitVaccs == FALSE)),ifelse(splitCells == FALSE && splitVaccs == FALSE, 'c',colourScale)), 
                               bottom = textGrob("Days After Immunisation", gp=gpar(fontsize=16)),
                               padding = unit(0.5, "line"),
                               left = textGrob(yTitleForMeanFC(meanFC, boxlines), gp=gpar(fontsize=16), rot = 90)
