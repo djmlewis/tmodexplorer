@@ -8,7 +8,7 @@ yTitleForMeanFC <- function(meanFC, boxlines) {
 }
 makeLegend <- function(legSum, cells, vaccs,boxlines,point,colScale) {
   if(legSum == FALSE) return(NULL)
-  
+
   if(colScale == 'c') {
     colourScheme <- cellsColours
     colColumn <- "Cells"}
@@ -32,7 +32,7 @@ makeLegend <- function(legSum, cells, vaccs,boxlines,point,colScale) {
       geom_ribbon(mapping = aes_string(fill = colColumn),ymin = 1, ymax = 2, color = NA, alpha = 0.2, show.legend = TRUE)
     if (point ==  TRUE) {p <- p + geom_point(mapping = aes_string(color = colColumn, shape = "Treatment"), fill = 'white', size = 4, show.legend = TRUE)}
 
-    p <- p + guides(colour = guide_legend(override.aes = list(shape = NA))) #, shape = guide_legend(override.aes = list(linetype = 0))
+    # p <- p + guides(colour = guide_legend(override.aes = list(shape = NA))) #, shape = guide_legend(override.aes = list(linetype = 0))
     
   } else {
     p <- p + geom_boxplot(mapping = aes(color = colColumn, fill = colColumn),alpha = 0.5, show.legend = TRUE)
@@ -45,7 +45,7 @@ setupGGplot <- function(data4cell, yLims, cellT, meanFC, zero,freeY,boxlines,col
   
   plotCell <-
     switch (boxlines,
-            "Mean" = ggplot(data = data4cell, mapping = aes(shape = Treatment)) + guides(colour = guide_legend(override.aes = list(shape = NA))),
+            "Mean" = ggplot(data = data4cell, mapping = aes(shape = Treatment)),
             "Value" = ggplot(data = data4cell)
     ) +
     ggtitle(cellT) + 
