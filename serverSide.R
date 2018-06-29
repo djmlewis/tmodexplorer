@@ -941,7 +941,7 @@ observeEvent(
           # apply the filters sequentially
           
           if(input$mcheckboxSelectKeyword == TRUE){
-            mods <- getModulesForSearch(allData$modulesMeans,input$mtextInputKeyword,input$mradioKeywordColumn)
+            mods <- getModulesForSearch(allData$modulesMeans,input$mtextInputKeyword,input$mradioKeywordColumn, input$mcheckboxModuleSearchWholeWord)
             if(dataFrameOK(mods)) {
               filterSubText <-  paste0(filterSubText,'"',input$mtextInputKeyword,'" in ',input$mradioKeywordColumn,' ')
               mods <- getSortedModulesForVaccDay(mods,sortCol_Mods,input$mcheckboxDescending,input$mcheckboxModuleMedians)
@@ -1151,7 +1151,7 @@ observeEvent({
 },{
   # use <<-
   # lookedupMods <<- lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy)
-  assign("lookedupMods",lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy), envir = .GlobalEnv)
+  assign("lookedupMods",lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy,input$mcheckboxModuleLookupWholeWord), envir = .GlobalEnv)
 
     output$mdatatableModuleLookup <- renderDataTable({lookedupMods})
 })

@@ -413,7 +413,11 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
   # multiple search ?
   if(grepl(',',search)) {
     searches <- unlist(strsplit(search,','))
-    if(wholeWord == TRUE) {searches <- paste0("^",searches,"$")}
+    if(wholeWord == TRUE) {
+      #Spot has . in the name which will break as a word. Only description needs \\b
+      if(column == "Description") searches <- paste0("\\b",searches,"\\b")
+      else searches <- paste0("^",searches,"$")
+      }
     selGenes <- map_dfr(
       searches,
       function(s){
@@ -425,15 +429,19 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
       selGenes <- distinct(selGenes, Spot, .keep_all = TRUE)
     }
   } else {
+    if(wholeWord == TRUE) {
+      #Spot has . in the name which will break as a word. Only description needs \\b
+      if(column == "Description") search <- paste0("\\b",search,"\\b")
+      else search <- paste0("^",search,"$")
+    }
     # no duplicates possible for single search term
-    if(wholeWord == TRUE) {search <- paste0("^",search,"$")}
     selGenes <- geneslist[grepl(search,geneslist[[column]], ignore.case = TRUE),]
   }
 
   return(selGenes)
 }
 
-lookupGenesProbes <- function(gene,annot, gorp, wholeWord) {
+lookupGenesProbes <- function(gene,annot, column, wholeWord) {
   if(is.null(gene) || is.null(annot)) return(NULL)
 
   if(grepl(' ',gene)) {
@@ -447,12 +455,15 @@ lookupGenesProbes <- function(gene,annot, gorp, wholeWord) {
   }
   
   if(wholeWord == TRUE) {
-    gene <- paste0('^', gene, '$')
+    #Spot has . in the name which will break as a word. Only description needs \\b
+    if(column == "Description") gene <- paste0("\\b",gene,"\\b")
+    else gene <- paste0("^",gene,"$")
   }
+  
   
   probes <- 
     map_dfr(gene,function(g){
-      filter(annot,grepl(g,annot[[gorp]],ignore.case = TRUE))
+      filter(annot,grepl(g,annot[[column]],ignore.case = TRUE))
     }) %>%
     select(Gene,SystematicName,ProbeName,Spot, Description) %>%
     arrange(Gene,SystematicName,ProbeName)

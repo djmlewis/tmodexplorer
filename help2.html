@@ -13,7 +13,7 @@
         <li><a href="#Loading_Transcriptomics_Data">Loading
             Transcriptomics Data</a></li>
         <li><a href="#Explore_Transcriptomics_By_Probe_tab">Explore By
-            Genet<br>
+            Gene<br>
           </a></li>
         <ul>
           <li><a href="#Select_tab_-_probes_">Select Genes</a></li>
@@ -46,14 +46,16 @@
 
 
 
+
                     kinetics for one treatment over different times</a></li>
               </ul>
               <li><a href="#3._Rows_In_Range_">3. Rows In Range</a><br>
               </li>
             </ul>
           </ul>
-          <li><a href="#Selected_Probes_tab">Selected Spots</a></li>
-          <li><a href="#Probes:Series_tab_">Spots:Series</a></li>
+          <li><a href="#Selected_Probes_tab">Selected Genes<br>
+            </a></li>
+          <li><a href="#Probes:Series_tab_">Gene:Series</a></li>
           <li><a href="#Genes-Modules_tab_">Genes-&gt;Modules</a></li>
           <li><a href="#Modules_tab_">Modules</a></li>
           <li><a href="#Modules-Genes_Probes_tab">Modules-&gt;Genes</a></li>
@@ -134,8 +136,7 @@
     <br>
     <u><b>Filters are applied one after another, left to right: each
         filter applies its filter and then hands the reduced set of rows
-        to the next filter.</b></u>
-    <br>
+        to the next filter.</b></u> <br>
     First the <b>keyword</b> search will filter rows based on
     TRUE/FALSE test of finding a keyword in the annotation columns.
     Filtered rows are then passed to the <b>Values In Range</b> filter
@@ -165,6 +166,7 @@
     </h4>
     This is a keyword, free-text search that uses regex, with some
     limitations. Multiple terms can be entered into the box <b>separated
+
 
 
 
@@ -249,8 +251,10 @@
       can copy the <b>Gene list</b> on the <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Selected_Probes_tab"><b>Selected
 
+
           Genes</b></a> tab and use&nbsp; the <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Gene_Lookup_tab"><b>Gene
+
 
 
 
@@ -320,6 +324,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
         kinetics for one treatment over different times</b></h6>
     <p>This is a multi-column version of the <b>Treat~Time</b> filter.
       The <b>All Times</b> option is ignored as you can set which days
@@ -345,12 +350,11 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
     </p>
     <p>Use the menu to pick a time point, or single-click the * inside
       the bar to edit that day. Enter the lowest : highest values and
-      click <b>Set</b>. Click&nbsp;<img src="tag.png" alt=""
-        height="20" width="23"> to reset to max/min for selected
-      treatment, or&nbsp;<img src="dataset.png" alt="" height="20"
-        width="22"> for max/min of whole dataset. <b>Remember to click
-        Set otherwise changes will be lost. </b>The plot re-draws the
-      new window. <br>
+      click <b>Set</b>. Click&nbsp;<img src="tag.png" alt="" width="23"
+        height="20"> to reset to max/min for selected treatment,
+      or&nbsp;<img src="dataset.png" alt="" width="22" height="20"> for
+      max/min of whole dataset. <b>Remember to click Set otherwise
+        changes will be lost. </b>The plot re-draws the new window. <br>
     </p>
     <p>To have a day ignored (no filter) select <b>Ignore</b>&nbsp; -
       the lowest : highest boxes are hidden and the plot draws an empty
@@ -359,18 +363,19 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       worth ignoring day 0 (always 0 value) to save time. <b>Toggle: </b>double-click
 
 
+
       a window bar on the plot to toggle ignore on / off and save the
       change. You cannot ignore all windows - at least one must be open.<br>
-      Click&nbsp;<img src="copy.png" alt="" height="20" width="22"> to
+      Click&nbsp;<img src="copy.png" alt="" width="22" height="20"> to
       copy the Ignore/Min/Max settings for the day, and click&nbsp;<img
-        src="paste.png" alt="" height="20" width="20"> to past the
+        src="paste.png" alt="" width="20" height="20"> to past the
       copied setting to a day and save.<b><br>
       </b>To reset all the windows to the max min for the treatment
       selected or whole dataset click&nbsp; <img
 src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/tag.png"
-        alt="" height="20" width="23"> or&nbsp;<img
+        alt="" width="23" height="20"> or&nbsp;<img
 src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/dataset.png"
-        alt="" height="20" width="22">. <br>
+        alt="" width="22" height="20">. <br>
       To save the windows profile click <b>Export</b>, and to import a
       saved profile click <b>Import</b>….&nbsp; the app will try hard
       to import any profile even if saved from a different dataset, and
@@ -394,6 +399,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
       combination</b> selected in the menus (single column), or across
     all the columns for the selected treatment if <b>All Times</b> is
     selected (note days 0 and -1 also included). When <b>All Times</b>
@@ -402,6 +408,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <b>The fact that the rows are ordered taking into account the time
       points and then filtered</b><b> is extremely important</b>, as the
     output from previous filters (keyword, value, kinetics) will be <b>re-filtered
+
 
       based on the values in the selected treatment~time column(s)</b>.
     This may have unexpected effects when filtering by kinetics, so <b>pay</b><b>
@@ -506,10 +513,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <h3><a name="Modules-Genes_Probes_tab"></a> Modules-&gt;Genes<br>
     </h3>
     This expands the plot on the <a href="#Modules_tab_"><b>Modules</b></a>
-    tab&nbsp; to allow an inspection inside the modules, one by one. Use
-    the slider to change plot height, and browser window width to change
-    plot width.<br>
-    <br>
+    tab&nbsp; to allow an inspection inside the modules, one by one.
     Select a module from the menu to see the expression of its component
     genes. As each gene may have many spots a summary boxplot of the
     expression values of the spots mapping to the genes inside the
@@ -521,14 +525,14 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     genes. <br>
     <br>
     Genes listed for the module but absent from the dataset spots, are
-    labelled "Missing" on the plot, which can be toggled on-off.<br>
-    <br>
-    Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b> , or
-    use <b>ggplot2</b> instead of base graphics.&nbsp; ggplot2 uses a
-    geom_boxplot with default values. Unlike the Selected Spots tab
-    which shows the gene description in the table, the <b>Module-&gt;Genes</b>
-    tab does not, as the descriptions refer to the <i>spots</i>, and
-    here gene summaries are being shown.<br>
+    labelled "Missing" on the plot, which can be toggled on-off. Show or
+    hide the <b>legend</b> and <b>0 |---- (zero) line</b> , or use <b>ggplot2</b>
+    instead of base graphics.&nbsp; ggplot2 uses a geom_boxplot with
+    default values. Unlike the Selected Spots tab which shows the gene
+    description in the table, the <b>Module-&gt;Genes</b> tab does not,
+    as the descriptions refer to the <i>spots</i>, and here gene
+    summaries are being shown. Use the slider to change plot height, and
+    browser window width to change plot width.
     <h3><a name="Modules:Series_Probes_tab"></a>Modules:Series</h3>
     While <b>Modules</b> and <b>Modules-&gt;Genes</b> only show the
     values of spots at one selected treatment ~ time combination, <b>Modules:Series</b>
@@ -536,7 +540,8 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     treatment ~ time combinations as a time course. To avoid delays when
     selecting options, nothing is plotted or re-plotted until the '<b>Plot</b>'
     button is clicked. Use the slider to change plot height, and browser
-    window width to change plot width.<br>
+    window width to change plot width. Enter a number in the box for
+    maximum panels per row when <b>Split</b> selected.<br>
     <br>
     Select treatment ~ time combinations from the menus. Select modules
     from the <b>Modules</b> menu which lists ones mapped to your
@@ -559,23 +564,21 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     The concept is similar to the <a
       href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Spot</b></a>
     tab. However, here a data table is created in which the rows are
-    sorted by the <b> mean or median value of the modules</b> as
-    expressed in the selected treatment ~ time combination: e.g. the
-    median expression of the spots within a given module on day 7 after
-    Boostrix. It is important to note that tmod modules contain only a
-    fraction of all the genes in the array, but this tab allows for an
-    exploration of responses of the modules included in tmod.<br>
+    sorted by the <b> mean or median value of the Blood Transcriptional
+      Modules</b> as expressed in the selected treatment ~ time
+    combination: e.g. the median expression of the spots within a given
+    module on day 7 after Boostrix. It is important to note that tmod
+    modules contain only a fraction of all the genes in the array, but
+    this tab allows for an exploration of responses of the modules
+    included in tmod.<br>
     <h3><a name="Select_modules_tab_"></a> Select modules tab<br>
     </h3>
-    Like <a href="#Select_tab_-_probes_">Select</a> tab in <a
-      href="#Explore_Transcriptomics_By_Probe_tab"><b>Explore By Spot</b></a>
-    above, you select a treatment ~ time combination for which you want
-    to sort the modules. Then filter modules using the filters (left to
-    right) as described in <a href="#Select_tab_-_probes_">Select</a>
-    tab for spots. In this case the sorting is based on the mean or
-    median expression (which you can select) of the spots within the
-    module. Sort descending has the highest expression values in top
-    rows. <br>
+    In this case each row of the data table is the mean or median
+    expression value or the fold change from baseline for one Blood
+    Transcriptional Module, rather than a spot expression value or fold
+    change. Row sorting is based on the mean or median expression (which
+    you can select) of the spots within the module. Sort descending has
+    the highest expression values in top rows.<br>
     <br>
     See the help for <b>Explore By Spot</b> <a
       href="#Select_tab_-_probes_">Select</a> tab for description of how
@@ -584,24 +587,21 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
       Numbers Within Range</b> filters. Time series plots will indicate
-    the sorted treatment~time column with <font color="#ff0000">▼▲</font>.<br>
+    the sorted treatment~time column with <font color="#ff0000">▼▲</font>.
+    The <b>Values Within Range</b> filter only applies the filter to
+    one Treatment~Time combination (one column of data) as <b>All Days</b>
+    and <b>Kinetics</b> filters are not available.<br>
     <br>
     <b>Regex</b> searches either the <b>Title</b> (which is a
     description of the module, e.g. "plasma cells") or <b>Module</b>
     name (its designation e.g. DC.M4.11). Spaces will automatically be
     stripped from Module searches but retained for Title searches. <br>
-    <br>
-    You may want to switch off the <b>Sorted Column Row Numbers</b>
-    when using regex as it may reduce the number of hits you would have
-    found. However, beware returning 600 modules as the app will freeze
-    for a long time. Consider setting some <b>Sorted Column Values</b>
-    limits instead - this will be based on values in the selected sort
-    column. You can also <b>paste saved search lists</b> into the regex
-    box that you downloaded from the <b>Selected Modules tab</b> - be
-    sure to match Title and Module Name. This allows fairly easy
-    repetition of searches across datasets.<br>
-    <br>
+    You can also <b>paste saved search lists</b> into the regex box
+    that you downloaded from the <b>Selected Modules tab</b> - be sure
+    to match Title and Module Name. This allows fairly easy repetition
+    of searches across datasets.<br>
     You must click the <b>Apply Filters</b> button to perform the
     selection or after any changes to options. Clicking the button
     reveals <b>Selected Modules</b>,&nbsp; <b>Modules-&gt;Genes</b>
@@ -659,6 +659,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
         (Spots) tab</b></a> as it allows the expression of the selected
     modules to be plotted for all treatment ~ time combinations as a
     time course. Use the slider to change plot height, and browser
@@ -683,6 +684,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
         - which group&nbsp; modules into categories.&nbsp;</li>
     </ul>
     <p>Once you have selected some modules or titles in the&nbsp; <b>All
+
 
 
 
@@ -770,6 +772,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           that section for details</b></a>. <br>
       Spaces will always be stripped from this search as Module Names
       cannot have spaces.<br>
@@ -817,6 +820,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           increase </b>(from day 0) or <b>actual concentration values</b>
         when plotting.FI may give some wide error bars if a few outliers
         have big changes.<br>
@@ -825,6 +829,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
 
 
 
@@ -909,6 +914,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           Zero Y Values</b> selected as it highlights how many
         participants have been excluded - or conversely how many do have
         useful data.<br>
@@ -976,6 +982,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       </ul>
       <li><b>Fold Change ~ Cell Count</b>. Use the radio buttons to
         switch between plotting <b>fold increase </b>(from day 0) or <b>actual
+
 
 
 

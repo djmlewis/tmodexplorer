@@ -37,7 +37,7 @@ getSortedModulesForVaccDay <- function(data, colN, descend, asMedians) {
   return(NULL)
 }
 
-getModulesForSearch <- function(modslist,search,column){
+getModulesForSearch <- function(modslist,search,column,wholeWord){
   if(!dataFrameOK(modslist) || is.null(search)) return(NULL)
   # ignore an empty search
   if(search == "") return(modslist)
@@ -50,6 +50,12 @@ getModulesForSearch <- function(modslist,search,column){
   if(grepl(',',search)) {
     # multiple search
     searches <- unlist(strsplit(search,','))
+    if(wholeWord == TRUE) {
+      #Module name has . in the name which will break as a word. Only Title needs \\b
+      if(column == "Title") searches <- paste0("\\b",searches,"\\b")
+      else searches <- paste0("^",searches,"$")
+    }
+    
     selMods <- map_dfr(
       searches,
       function(s){
@@ -59,6 +65,11 @@ getModulesForSearch <- function(modslist,search,column){
       # avoid duplicate modules
     distinct(Module, .keep_all = TRUE)
   } else {
+    if(wholeWord == TRUE) {
+      #Module name has . in the name which will break as a word. Only Title needs \\b
+      if(column == "Title") search <- paste0("\\b",search,"\\b")
+      else search <- paste0("^",search,"$")
+    }
     selMods <- modslist[grepl(search,modslist[[column]], ignore.case = TRUE),]
   }
 
@@ -99,7 +110,7 @@ getModulesForTitles <- function(cats,modsdata) {
   return(unique(mods$Mods))
 }
 
-lookupModules <- function(mods2find,modmeans,arrangeby) {
+lookupModules <- function(mods2find,modmeans,arrangeby,wholeWord) {
   if(is.null(mods2find) || is.null(modmeans)) return(NULL)
   if(grepl(' ',mods2find)) {
     showNotification("Spaces have been stripped", type = 'warning')
@@ -109,6 +120,9 @@ lookupModules <- function(mods2find,modmeans,arrangeby) {
     # multiple search
     mods2find <- unlist(strsplit(mods2find,','))
   }
+  
+  if(wholeWord == TRUE) {mods2find <- paste0("^",mods2find,"$")}
+  
   modmeans <- select(modmeans,Module,Title,Category)
   mods <- 
     map_dfr(mods2find,function(m){

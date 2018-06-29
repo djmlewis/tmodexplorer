@@ -418,7 +418,8 @@ ui <-
                                                                                 awesomeRadio(status = 'success', 'mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
                                                                                 bsTooltip("mradioKeywordColumn", "Search in Module Names or Module Titles"),
                                                                                 conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #44b84b;","Spaces will be stripped")),
-                                                                                conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces will be kept"))
+                                                                                conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces will be kept")),
+                                                                                awesomeCheckbox("mcheckboxModuleSearchWholeWord","Whole Word", TRUE,status = "danger")
                                                                       ))
                                               ),
                                               column(8,
@@ -662,8 +663,9 @@ ui <-
                                             h4(style = "margin-top: 0px;","Enter a module name or partial name and click Lookup"),
                                             h5("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search."),
                                             fluidRow(
-                                              column(5,textInput('mtextInputModLookup',NULL)),
-                                              column(4,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-success"),
+                                              column(4,textInput('mtextInputModLookup',NULL)),
+                                              column(2,awesomeCheckbox("mcheckboxModuleLookupWholeWord","Whole Word", FALSE,status = "danger")),
+                                              column(3,div(actionButton("mbuttonModLookup", "Lookup",class = "btn-success"),
                                                            actionButton("mbuttonModLookupNone", "Clear"))),
                                               column(3,awesomeRadio(status = 'success', 'radioArrangeModuleLookupBy','Arrange By',choices = c('Module','Title','Category'),inline = TRUE))
                                             ),
