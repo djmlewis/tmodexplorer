@@ -824,7 +824,6 @@ observeEvent(
   updateplotModuleSeriesBRUSH <- function(res) {
     output$plotModuleSeriesBRUSH <- renderTable({res$Table}, striped = TRUE)
     output$plotModuleSeriesGENEMOD <- renderText({res$GeneMod})
-    output$plotModuleSeriesBRUSHSPOT <- renderText({res$Spot})
   }
   
   observeEvent(input$click_plotModuleSeries, 
@@ -1102,7 +1101,6 @@ output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste
 updatemplotModuleSeriesBRUSH <- function(res) {
   output$mplotModuleSeriesBRUSH <- renderTable({res$Table}, striped = TRUE)
   output$mplotModuleSeriesGENEMOD <- renderText({res$GeneMod})
-  output$mplotModuleSeriesSPOT <- renderText({res$Spot})
 }
 
 observeEvent(input$click_mplotModuleSeries, 

@@ -381,7 +381,7 @@ ui <-
                                                                       column(8, offset = 1,
                                                                              conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines' && output.plotModuleSeriesBRUSH == null",p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
                                                                              tableOutput("plotModuleSeriesBRUSH")),
-                                                                      column(2,textOutput("plotModuleSeriesGENEMOD"),p(), span(style = "color: #008f51",textOutput("plotModuleSeriesSPOT")))
+                                                                      column(2,textOutput("plotModuleSeriesGENEMOD"))
                                                                       )
                                             )
                                   ),
@@ -498,7 +498,7 @@ ui <-
                          tabPanel('Module->Genes',
                                   wellPanel(style = "background-color: #FFFFFF;",
                                             h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Selected Modules'),
-                                            fluidRow(
+                                            fluidRow( 
                                               column(5,pickerInput(inputId = 'mselectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
                                               column(2, awesomeCheckbox(status = 'success', 'mcheckboxShowMissingModuleGenes', 'Show Missing Genes', value = TRUE)),
                                               column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleGenes', 'Legend', value = FALSE)),
@@ -627,7 +627,7 @@ ui <-
                                                             column(8, offset = 1,
                                                                    conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines' && output.mplotModuleSeriesBRUSH == null",p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
                                                                    tableOutput("mplotModuleSeriesBRUSH")),
-                                                            column(2,textOutput("mplotModuleSeriesGENEMOD"),p(), span(style = "color: #008f51",textOutput("mplotModuleSeriesSPOT")))
+                                                            column(2,textOutput("mplotModuleSeriesGENEMOD"))
                                                             )
                                   ),
                                   conditionalPanel(condition = "output.mdatatableModuleSeries != null",

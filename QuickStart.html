@@ -50,8 +50,8 @@
         </li>
         <ol>
         </ol>
-        <li><b>Selected Genes</b>&nbsp; lists the selected rows that
-          meet the filter criteria.</li>
+        <li><b>Selected Genes</b>&nbsp; lists the selected rows (spots
+          or genes) that meet the filter criteria.</li>
         <ol>
         </ol>
         <li><b>Genes:Series</b>: plot the time course of selected rows
@@ -62,27 +62,32 @@
         </ol>
         <li><b>Genes-&gt;Modules</b> lists genes matching selected rows,
           and identifies which modules contain these genes (if any).
-          Filtered genes that do not match any module are not listed.<br>
+          Filtered spots/genes that do not match any module are not
+          listed - pay attention to the Rank column as it assists with
+          understanding which rows are missing because they do not match
+          any modules.<br>
         </li>
         <ol>
         </ol>
         <li><b>Modules</b> box plot of the all the row values which map
           to genes contained within the selected modules. Include the
           filters-selected genes as a separate "pseudo-module". Plots
-          automatically after every options change.<br>
+          automatically after every options change. <b>Note:</b> the
+          values are from the treatment-time combination selected in the
+          menus in <b>Select Genes</b> - to see a different time or
+          treatment you must change the filters and re-apply.<br>
         </li>
         <ol>
         </ol>
         <li><b>Module-&gt;Genes</b>&nbsp; For every selected module it
-          lists the genes contained within that module and then plots a
-          box plot summarising the row values for each gene (some genes
-          may have only one spot, others many probes/spots). Select a
-          module from the menu. Genes that also passed the filters
-          indicated by ▶︎. Plots automatically. Some modules may have
-          very few upregulated genes, or a wide spread of gene
-          expressions. Reflects how the clustering of genes within a
-          module may not reflect the clustering of genes in response to
-          the vaccines.</li>
+          lists the genes contained within that module. Select a module
+          from the menu to plot a box plot summarising the row values
+          for each gene (some genes may have only one spot, others many
+          probes/spots). Genes that also passed the filters indicated by
+          ▶︎. Plots automatically. Some modules may have very few
+          filtered genes, or a wide spread of gene expressions. Reflects
+          how the clustering of genes within a module may not reflect
+          the clustering of genes in response to the vaccines.</li>
         <ol>
         </ol>
         <li><b>Module:Series</b> plot the time course of row values
@@ -95,8 +100,8 @@
       </ol>
       <li><b>Explore By Module</b> tab:<br>
         This works on the same principles as <b>Explore By Gene</b>
-        except you filter modules based on the mean value of all the
-        spots mapping to that module or by keyword. </li>
+        except you filter modules by keyword or based on the mean or
+        median value of all the spots mapping to that module. </li>
       <ol>
         <li><b>Select Module</b> filter modules by mean or median spot
           values, or keyword. Click <b>Apply Selection</b>.<br>
@@ -117,8 +122,10 @@
           from the menu. Plots automatically. Some modules may have very
           few upregulated genes, or a wide spread of gene expressions.
           Reflects how the clustering of genes within a module may not
-          reflect the clustering of genes in response to the vaccines.<br>
-        </li>
+          reflect the clustering of genes in response to the vaccines. <b>Note:</b>
+          the values are from the treatment-time combination selected in
+          the menus in <b>Select Module</b> - to see a different time
+          or treatment you must change the filters and re-apply. </li>
         <ol>
         </ol>
         <li><b>Module:Series</b> plot the time course of row values
@@ -136,6 +143,7 @@
       </ol>
       <li>For help on the various options presented on the screens and
         for <b>Lookup</b>, <b>Cells</b> and <b>Cytokines</b>: see <b>Detailed
+
 
           Instructions For Use</b> in <b>ReadMe</b>.<br>
       </li>

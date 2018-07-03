@@ -47,6 +47,7 @@
 
 
 
+
                     kinetics for one treatment over different times</a></li>
               </ul>
               <li><a href="#3._Rows_In_Range_">3. Rows In Range</a><br>
@@ -187,6 +188,7 @@
 
 
 
+
       by commas</b> and are OR'd (search returns as many of those terms
     as it can find, treating each term separately). Commas are
     interpreted as search term dividers and cannot be 'escaped'. Select
@@ -252,8 +254,10 @@
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Selected_Probes_tab"><b>Selected
 
 
+
           Genes</b></a> tab and use&nbsp; the <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Gene_Lookup_tab"><b>Gene
+
 
 
 
@@ -325,6 +329,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
         kinetics for one treatment over different times</b></h6>
     <p>This is a multi-column version of the <b>Treat~Time</b> filter.
       The <b>All Times</b> option is ignored as you can set which days
@@ -364,6 +369,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
       a window bar on the plot to toggle ignore on / off and save the
       change. You cannot ignore all windows - at least one must be open.<br>
       Click&nbsp;<img src="copy.png" alt="" width="22" height="20"> to
@@ -400,6 +406,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
       combination</b> selected in the menus (single column), or across
     all the columns for the selected treatment if <b>All Times</b> is
     selected (note days 0 and -1 also included). When <b>All Times</b>
@@ -408,6 +415,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <b>The fact that the rows are ordered taking into account the time
       points and then filtered</b><b> is extremely important</b>, as the
     output from previous filters (keyword, value, kinetics) will be <b>re-filtered
+
 
 
       based on the values in the selected treatment~time column(s)</b>.
@@ -447,8 +455,11 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     box to set the maximum number of panels per row when <b>Split</b>
     is used to individually plot treatments. The selected treatment~time
     column is indicated by <font color="#ff0000">▼▲<font
-        color="#000000"> on the plot.</font><br>
-    </font>
+        color="#000000"> on the plot. </font></font><font
+      color="#ff0000"><font color="#000000"> Click or drag over the
+        points to identify the spot, and you can copy the gene names and
+        spot IDs as a comma-separated list for pasting into keyword
+        search boxes. </font> </font>
     <h4> Treatment, Days and Gene/Spot menus<br>
     </h4>
     Click 'All' to enter all available, or select one by one from
@@ -475,8 +486,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     of the spot values mapping individual genes (±SEM), separate lines
     are plotted for each of the spots mapping to a gene - the lines are
     colour-coded to the gene, and different symbols are used. This helps
-    to show the behaviour of different spots mapping the same gene.
-    Click or drag over the points to identify the spot. <br>
+    to show the behaviour of different spots mapping the same gene.<br>
     <b>Kinetics Filters</b> - if you filtered using <b>2: Filter By
       Value</b> and used kinetics, this option appears to draw
     rectangles for the windows used to filter values at each time point.
@@ -488,14 +498,20 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     </h3>
     This panel lists the filtered spots or genes and shows which - if
     any - modules contain that gene. Some genes you selected may not be
-    included in any modules.<br>
+    included in any modules - pay attention to the Rank column as it
+    assists with understanding which rows are missing because they do
+    not match any modules.
     <h3><a name="Modules_tab_"></a> Modules<br>
     </h3>
     A boxplot summary of the values of the individual spots contained in
-    the modules associated with the selected spots or genes. Chart is
-    plotted automatically. Use the slider to change plot height, and
-    browser window width to change plot width. If you change any of the
-    criteria on the <b>Select</b> tab this plot will re-draw. <br>
+    the modules associated with the selected spots or genes. <b>Note:</b>
+    the values are from the treatment-time combination selected in the
+    menus in <b>Select Genes</b> - to see a different time or treatment
+    you must change the filters and re-apply. <br>
+    Chart is plotted automatically. Use the slider to change plot
+    height, and browser window width to change plot width. If you change
+    any of the criteria on the <b>Select</b> tab this plot will
+    re-draw. <br>
     <br>
     Show or hide the <b>legend</b> and <b>0 |---- (zero) line</b>, or
     have ggplot2 graphics which are a bit nicer but slower. ggplot2
@@ -541,7 +557,13 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     selecting options, nothing is plotted or re-plotted until the '<b>Plot</b>'
     button is clicked. Use the slider to change plot height, and browser
     window width to change plot width. Enter a number in the box for
-    maximum panels per row when <b>Split</b> selected.<br>
+    maximum panels per row when <b>Split</b> selected.
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    Click or drag over the points to identify the module
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <font color="#ff0000"><font color="#000000"> and you can copy the
+        module names as a comma-separated list for pasting into keyword
+        search boxes</font></font>. <br>
     <br>
     Select treatment ~ time combinations from the menus. Select modules
     from the <b>Modules</b> menu which lists ones mapped to your
@@ -583,6 +605,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     See the help for <b>Explore By Spot</b> <a
       href="#Select_tab_-_probes_">Select</a> tab for description of how
     to use <b>regex Keyword</b>, <b>Values Within Range</b> and <b>Row
+
 
 
 
@@ -660,12 +683,19 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
         (Spots) tab</b></a> as it allows the expression of the selected
     modules to be plotted for all treatment ~ time combinations as a
     time course. Use the slider to change plot height, and browser
     window width to change plot width. The selected treatment~time
     column is indicated by <font color="#ff0000">▼▲<font
-        color="#000000"> on the plot.</font></font><br>
+        color="#000000"> on the plot. </font></font>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    Click or drag over the points to identify the module,
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <font color="#ff0000"><font color="#000000">and you can copy the
+        module names as a comma-separated list for pasting into keyword
+        search boxes</font></font>. <br>
     <br>
     Select treatment ~ time combinations to include from the <b>Treatment</b>
     and <b>Days</b> menus. <br>
@@ -684,6 +714,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
         - which group&nbsp; modules into categories.&nbsp;</li>
     </ul>
     <p>Once you have selected some modules or titles in the&nbsp; <b>All
+
 
 
 
@@ -773,6 +804,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           that section for details</b></a>. <br>
       Spaces will always be stripped from this search as Module Names
       cannot have spaces.<br>
@@ -821,6 +853,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           increase </b>(from day 0) or <b>actual concentration values</b>
         when plotting.FI may give some wide error bars if a few outliers
         have big changes.<br>
@@ -829,6 +862,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
 
 
 
@@ -915,6 +949,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
           Zero Y Values</b> selected as it highlights how many
         participants have been excluded - or conversely how many do have
         useful data.<br>
@@ -982,6 +1017,7 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       </ul>
       <li><b>Fold Change ~ Cell Count</b>. Use the radio buttons to
         switch between plotting <b>fold increase </b>(from day 0) or <b>actual
+
 
 
 
