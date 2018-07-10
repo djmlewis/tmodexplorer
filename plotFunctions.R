@@ -224,9 +224,13 @@ plotTopGenesInSeries <- function(data2plot,
     
     if(pointsBoxes == 'Boxplot') {
       if(facet == TRUE) {
-        plot <- plot + geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.5, outlier.alpha = 1.0, show.legend = showlegend)
+        plot <- plot + 
+          scale_color_manual(values = vaccineColours) +
+          scale_fill_manual(values = vaccineColours) +
+          geom_boxplot(mapping = aes(x = Column, y = Value, group = Column, colour = Treatment, fill = Treatment), alpha = 0.5, outlier.alpha = 1.0, show.legend = showlegend)
       } else {
-        plot <- plot + geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.5, outlier.alpha = 1.0, show.legend = FALSE)
+        plot <- plot + 
+        geom_boxplot(mapping = aes(x = Column, y = Value, group = Column), colour = 'black', fill = 'black', alpha = 0.5, outlier.alpha = 1.0, show.legend = FALSE)
       }
     }
     
