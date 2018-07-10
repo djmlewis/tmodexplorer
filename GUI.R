@@ -498,7 +498,7 @@ ui <-
                          tabPanel('Module->Genes',
                                   wellPanel(style = "background-color: #FFFFFF;",
                                             h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Selected Modules'),
-                                            fluidRow( 
+                                            fluidRow(
                                               column(5,pickerInput(inputId = 'mselectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
                                               column(2, awesomeCheckbox(status = 'success', 'mcheckboxShowMissingModuleGenes', 'Show Missing Genes', value = TRUE)),
                                               column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendModuleGenes', 'Legend', value = FALSE)),
@@ -725,7 +725,7 @@ ui <-
                                                                conditionalPanel(condition = "input.checkboxShowFacetCellsSeries == true || input.checkboxShowFacetVaccsSeries == true",
                                                                awesomeRadio(status = 'success', 'radioColoursVaccineCells',"Colour By",choices = c(`Cell Types` = 'c',`Vaccines` = 'v'))),
                                                                conditionalPanel(condition = "input.checkboxShowFacetCellsSeries == false && input.checkboxShowFacetVaccsSeries == false",
-                                                                p(style = "color: #728f17; text-align: left;","Colour By Vaccine")),
+                                                                p(style = "color: #728f17; text-align: left;","Use Points To Show Vaccines")),
                                                               fluidRow(
                                                                  column(6,
                                                                   numericInput("numericNumPanelsCellsSeries",NULL,value = 3, min = 1, step = 1), 

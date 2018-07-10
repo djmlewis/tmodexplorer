@@ -9,26 +9,45 @@
     <ul>
       <li><a href="#The_Datasets">The Datasets</a></li>
       <ul>
+        <li><a href="#Vaccines_and_Trial_letter_codes">Vaccines and
+            Trial letter codes</a><br>
+        </li>
+      </ul>
+      <ul>
         <li><a href="#Placebo_groups">Placebo Groups</a></li>
         <li><a href="#Surrey_trials_-_days_5_-_7_transition">Surrey
             trials - days 5 - 7 "transition"</a></li>
         <li><a href="#Subgroups">Subgroups at different time points</a><br>
         </li>
-        <li><a href="#Transcriptomics_Data_">Transcriptomics Data</a></li>
+        <li><a href="#Transcriptomics_Data_">Transcriptomics Data and
+            normalisation<br>
+          </a></li>
         <li><a href="#Cytokines_Data_">Cytokines Data</a></li>
         <li><a href="#Cells_Data">Cells Data</a><br>
         </li>
       </ul>
     </ul>
     <h1><a name="The_Datasets"></a>The Datasets</h1>
+    <h2><a name="Vaccines_and_Trial_letter_codes"></a>Vaccines and Trial
+      letter codes</h2>
+    <p>The trials have been given letter codes:<br>
+      A: Single dose of Stamaril, Varilrix or saline, in Surrey<br>
+      B: Engerix B or saline given as priming, booster #1 and booster #2
+      in Surrey. Only priming (Engerix B1) and second booster (Engerix
+      B3) included in dataset.<br>
+      C: Single dose of Fluad, Agrippal or saline in Surrey.<br>
+      D: Single dose of Fluad or saline in Gent.<br>
+      D2: Single dose of Boostrix or saline in Gent.<br>
+      H: VSVHIVGAG or saline or no immunisation, in various sites in USA
+      run by HVTN.<br>
+    </p>
     <h2><a name="Placebo_groups"></a>Placebo groups</h2>
     <p>There are various placebo groups included in the various datasets
       and are described below. In general terms I would advise caution
       with the PLACEBO B3 / PLACEBO3 set as it has only 4 members, and I
       would suggest ignoring it. The PLACEBO AB1C is a pooled group from
-      all the sub-protocols run at Surrey, and some statisticians would
-      demur as it is pooled from sub-groups included the 3 protocols in
-      Surrey. However, to have a placebo group of only 4 or 6 that
+      all the sub-protocols run at Surrey, which some statisticians may
+      criticise. However, to have a placebo group of only 4 or 6 that
       happened to be randomised alongside the 20 or so in each of the
       vaccine groups in the same sub-protocol seems inferior to me than
       to use the pooled group of 20/21 which was the intention all
@@ -39,8 +58,20 @@
       would tentatively suggest that the BOOSTRIX D2 PLACEBO group with
       20 members gives a better picture of the biology, even if the
       subjects were not randomised with the D trial and are separated
-      from it in time by around a year, but most statisticians would
-      demur...<br>
+      from it in time by around a year.<br>
+    </p>
+    <p>The HVTN trial was problematic. Transcriptomics were run on whole
+      blood collected at various time points after a single immunisation
+      with VSV-HIV gag, following various DNA primings. However, only 17
+      of the 19 participants who received VSVGAG were per protocol due
+      to some deviations in the primings for two. I have pooled all 19
+      who received VSVHIVGAG irrespective of deviations in the primings.
+      A placebo group N = 3 received saline injection, but there appear
+      to be some day 1 responses which is unusual. Finally 2 subjects
+      who were allocated to receive VSVHIVGAG actually had no injection
+      but simply venesection. So I have grouped the 5 participants who
+      had either saline or no immunisation into a group "VSVHIVGAG
+      SHAM".<br>
     </p>
     <h2><a name="Surrey_trials_-_days_5_-_7_transition"></a>Surrey
       trials - days 5 - 7 "transition"<br>
@@ -65,7 +96,8 @@
       There are also splits between day 21 and 28. So the mean values
       that are presented will flip between the whole cohort and mutually
       exclusive members on days 2 and 3.</p>
-    <h2><a name="Transcriptomics_Data_"></a>Transcriptomics Data<br>
+    <h2><a name="Transcriptomics_Data_"></a>Transcriptomics Data and
+      normalisation<br>
     </h2>
     <p>The&nbsp; transcriptomics datasets have been uploaded to the
       server, but must be selected and loaded into the app before use.
@@ -83,58 +115,19 @@
       mean expression for Probe X on day Y for participants who received
       vaccine Z.<br>
     </p>
-    <p>One group of datasets, based on <i><b>limma-normalised</b></i>
-      expression values, consists of the <b> protocol-defined grouping
-        of the vaccines and associated placebo group</b>:<br>
-    </p>
-    <ul>
-      <li>D Gent Fluad-Placebo (<i>NB only 6 in placebo group</i>)<br>
-      </li>
-      <li>D2 Gent Boostrix-Placebo (<i>NB days 2 and 3 contain mutually
-          exclusive halves of the cohort</i><i>, placebo = 20</i>)</li>
-    </ul>
-    The D and D2 data are derived from exported files, and are
-    problematic in that the rows do not have proper <b>Probe IDs</b>. I
-    have included a ProbeName identifier to link the Probe identifier
-    (row ID) to the chip Probe Identifier but there appear to be
-    duplications and other issues. <b>These two datasets must therefore
-      be treated with caution</b>. The lack of a proper consistent Probe
-    ID also prevents comparison with the Surrey data or between D and
-    D2.<br>
-    <ul>
-    </ul>
-    <p>I have also included a <b>combined Surrey dataset</b> in which
-      the vaccines in A, B and C are all together, based on <i><b>agilent</b></i><i><b>-normalised</b></i>
-      expression values. This dataset therefore has the pattern:</p>
-    <ul>
-      <li>ABB3C Surrey Agilent</li>
-    </ul>
-    <p>This dataset appears to be slightly better than the D and D2, but
-      has been normalised differently. This is a large dataset and so
-      can be slow, but allows very convenient comparison between
-      vaccines. The sub-protocols in which the participants were
-      randomised between the treatment groups are: "A" = Stamaril,
-      Varilrix and Placebo;&nbsp; B = Engerix B (prime &amp; boost) or
-      placebo (twice);
-      "C" = Fluad, Agrippal &amp; Placebo.<br>
-    </p>
-    <p>In this dataset the PLACEBO group contains all ~21 participants
-      pooled from AB1C.&nbsp;&nbsp; For <b>Engerix B</b> the
-      participants were naive and received a priming vaccination
-      alongside a placebo group: this is indicated as ENGERIXB and
-      PLACEBO in the same way as A &amp; C. The same participants then
-      had a second immunisation (first boost) without any systems
-      biology. They then came for a third immunisation (second boost) on
-      day 167. This is represented in the dataset as EngerixB3 and
-      PLACEBO3. The time points for ENGERIXB3/PLACEBO3 have been
-      adjusted so that Day 167 becomes -1, and 168 day 0. <i>Fold-increase
-        is then calculated from this adjusted day 0</i>, as the response
-      to the third immunisation. Thus the ENGERIXB and PLACEBO have been
-      pooled with the AC Surrey trials, but the ENGERIXB3 and&nbsp; the
-      PLACEBO3 (<i>which</i><i> has only 4 participants)</i> are
-      presented as a separate group, and PLACEBO3 should probably be
-      ignored. <br>
-    </p>
+    I have normalised the ABCDD2 arrays all together using limma to
+    background corrected and quantile normalise as one group for the <i><b>ABCDD2</b></i>
+    <i><b>probe expression</b> </i>dataset<i>. </i>I background
+    corrected and quantile&nbsp; normalised the VSVHIVgag arrays
+    together for the <b><i>H </i></b><i><b>probe expression</b> </i>dataset.
+    These two data sets are presented separately. For the <i><b>fold-change
+        dataset</b></i> I normalised all the arrays <b>for each
+      participant separately</b>, as I calculate a fold-change from
+    baseline for each participant separately. Then I combined the
+    normalised mean data for ABCDD2 and H into one dataset. While this
+    may be an unusual way to normalise it is convenient in this
+    demonstration software to have all the vaccines available for
+    plotting in one dataset.<br>
     <h2><a name="Cytokines_Data_"></a>Cytokines Data<br>
     </h2>
     <p>The&nbsp; cytokines dataset has been uploaded to the server and

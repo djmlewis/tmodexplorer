@@ -26,7 +26,7 @@ server <- function(input, output, session) {
   shapeKinetics <- reactiveVal(NULL)
   
   assign("dayPatterns",read_rds("dayPats.rds"), envir = .GlobalEnv)
-  assign("vaccineColours",read_rds("vaccinecolours.R"), envir = .GlobalEnv)
+  assign("vaccineColours",read_rds("vaccinecolours.rds"), envir = .GlobalEnv)
   
   
 #   #################### Password #########################
@@ -95,6 +95,7 @@ server <- function(input, output, session) {
   }
   
   resetShapeNumericsToVaccine <- function(){
+    if(is.null(dayPatterns[[input$selectColumnVaccine]])) {showNotification(type = 'error', ui = paste0("There is a problem with data formatting - no day numbers could be found for ",input$selectColumnVaccine))}
     colsToLookup <- paste0(input$selectColumnVaccine,"_",dayPatterns[[input$selectColumnVaccine]])
     rangeVAD <- getMaxMinValueFromData(allData$data,colsToLookup)
     expressionValueRangeVaccAllDays(rangeVAD)
@@ -401,6 +402,7 @@ observeEvent(
     input$selectColumnVaccine
   },
   {
+    if(is.null(dayPatterns[[input$selectColumnVaccine]])) {showNotification(type = 'error', ui = paste0("There is a problem with data formatting - no day numbers could be found for ",input$selectColumnVaccine))}
     updatePickerInput(session, 'selectColumnDay', choices = dayPatterns[[input$selectColumnVaccine]])
     respondToChangeColumn("vacc")
   })
@@ -896,6 +898,7 @@ observeEvent(
     input$mselectColumnVaccine
   },
   {
+    if(is.null(dayPatterns[[input$mselectColumnVaccine]])) {showNotification(type = 'error', ui = paste0("There is a problem with data formatting - no day numbers could be found for ",input$mselectColumnVaccine))}
     updatePickerInput(session, 'mselectColumnDay', choices = dayPatterns[[input$mselectColumnVaccine]])
     respondToChangeColumnModules()
   })
