@@ -693,17 +693,38 @@ ui <-
       )),
       wellPanel(
         fluidRow(
-          column(3,awesomeRadio(status = 'success', 'radioNetType',"Network Style",inline = TRUE, choices = c(Spring = 'spring',Grouped = 'groups',Circle = 'circle'))),
-          column(3,awesomeRadio(status = 'success', 'radioEdgeCount',"Show Genes",inline = TRUE, choices = c(All = 'a',Unique = 'u',Common = 'c',`Edges>` = 'v'))),
-          column(1,numericInput("numericEdgeCount",NULL,value = 2, min = 2, step = 1)),
-          column(2,awesomeRadio(status = 'success', 'radioLineWidthNet',"Line Width",inline = TRUE, choices = c(Expression = 'value',Rank = 'revrank'))),
-          column(2, awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "success")),
+          column(4,awesomeRadio(status = 'success', 'radioNetType',"Network Style",inline = TRUE, choices = c(Spring = 'spring',Grouped = 'groups',Circle = 'circle'))),
           column(1,
+                 sliderInput("nodeAlphaNet", NULL, value = 0.9, min = 0.1, max = 1, step = 0.1, ticks = FALSE),
+                 bsTooltip("nodeAlphaNet", "Node transparency")),
+          # direction rtl pushes up against the numeric input but reverses the order of buttons, so we use rev(choices) and need to define selected and put the > text backwards
+          column(4,style="direction: rtl;", awesomeRadio(status = 'success', 'radioEdgeCountThreshold',"Show Genes",inline = TRUE,selected = 'a', choices = rev(c(All = 'a',Unique = 'u',Common = 'c',`< Connections` = 'v')))),
+          column(1, conditionalPanel(condition = "input.radioEdgeCountThreshold == 'v'",
+                 numericInput("numericEdgeCountThreshold",NULL,value = 2, min = 2, step = 1))),
+          column(1, ofset = 1,
                  sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
                  bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height"))
         ),
+        fluidRow(
+          column(2,awesomeRadio(status = 'warning', 'radioLineLabelVariableNet',"Connections",inline = TRUE, choices = c(`Mean Value` = 'MeanValue',Rank = 'revrank'))),
+          column(2,style = "margin-top: 15px;", awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "warning")),
+          column(2, style = "direction: rtl; margin-top: 15px;", awesomeCheckbox('checkboxThresholdEdgesNet', ":between", value = FALSE, status = "warning")),
+          conditionalPanel(condition = "input.checkboxThresholdEdgesNet == true",
+          column(1, style = "margin-top: 15px;", numericInput("numericEdgeValueThresholdLo",NULL,value = 0),
+                 bsTooltip("numericEdgeValueThresholdLo","Only include genes with connection value above this", placement = 'bottom')),
+          column(1,style = "margin-top: 15px;",  numericInput("numericEdgeValueThresholdHi",NULL,value = 0),
+                 bsTooltip("numericEdgeValueThresholdHi","Only include genes with connection value below this", placement = 'bottom'))
+          )
+        ),
         uiOutput("plotNetSIZE")
+      ),
+      hr(),
+      fluidRow(
+        column(6,dataTableOutput('datatableEdgeListNet')),
+        column(6,dataTableOutput('datatableEdgeCountNet'))
       )
+      
+      
     ),
     ###########   Cells  ##########
      tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),

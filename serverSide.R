@@ -927,9 +927,11 @@ observeEvent(
       networkEdgelist(getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet))
     })
   
-  networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist(),input$radioEdgeCount,input$numericEdgeCount)})
+  networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist(),input$radioEdgeCountThreshold,
+    input$numericEdgeCountThreshold,input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,
+    input$checkboxThresholdEdgesNet,input$radioLineLabelVariableNet)})
   #input$plotNetSIZEheight below is to just react
-  networkQgraph <- reactive({getNetworkQgraph(networkEdgelist(),networkEdgeCount(),input$radioNetType, input$radioLineWidthNet, input$checkboxLineLabelsNet)})
+  networkQgraph <- reactive({getNetworkQgraph(networkEdgelist(),networkEdgeCount(),input$radioNetType, input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet)})
   
   output$plotNetSIZE <- renderUI({plotOutput("plotNet", height = input$plotNetSIZEheight)})
   
@@ -937,6 +939,11 @@ observeEvent(
     if(!is.null(networkQgraph())) plot(networkQgraph())
     else NULL
        })
+  output$datatableEdgeListNet <- renderDataTable({
+    if(is.null(networkEdgelist())) NULL
+    else select(networkEdgelist(),-revrank)
+    })
+  output$datatableEdgeCountNet <- renderDataTable({networkEdgeCount()})
   
 #################### MODULES ####################  
   # sortCol_Mods <- NULL
