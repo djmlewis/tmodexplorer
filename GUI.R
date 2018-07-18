@@ -677,7 +677,35 @@ ui <-
                          )
               )
      ),
-     ###########   Cells  ##########
+    ###########   Network  ##########
+    tabPanel(value = 'Network', title = "Network",
+      wellPanel(
+        fluidRow(
+         column(2,pickerInput('selectVaccNet', choices = NULL, options = list(`style` = "btn-success"))),
+         column(1,pickerInput('selectDayNet', choices = NULL, options = list(`style` = "btn-success"))),
+         column(1,actionButton('buttonAddVacDayNet','Add', class = 'btn-outline-primary')),
+         column(3, selectInput('selectVacDaysToNet',label = NULL, choices = character(0), multiple = TRUE)),
+         column(1,actionButton('buttonClearNet','None')),
+         column(1,conditionalPanel(condition = "input.selectVacDaysToNet != null",actionButton('buttonPlotNet','Plot', class = 'btn-warning btn-block'))),
+         column(1, numericInput("numericNumRowsNet",NULL,value = 10, min = 1, step = 1),
+                bsTooltip("numericNumRowsNet","Number of rows to match", placement = 'top')),
+         column(2, awesomeCheckbox('checkboxDescNet', "Descending Value", value = TRUE, status = "success"))
+      )),
+      wellPanel(
+        fluidRow(
+          column(3,awesomeRadio(status = 'success', 'radioNetType',"Network Style",inline = TRUE, choices = c(Spring = 'spring',Grouped = 'groups',Circle = 'circle'))),
+          column(3,awesomeRadio(status = 'success', 'radioEdgeCount',"Show Genes",inline = TRUE, choices = c(All = 'a',Unique = 'u',Common = 'c',`Edges>` = 'v'))),
+          column(1,numericInput("numericEdgeCount",NULL,value = 2, min = 2, step = 1)),
+          column(2,awesomeRadio(status = 'success', 'radioLineWidthNet',"Line Width",inline = TRUE, choices = c(Expression = 'value',Rank = 'revrank'))),
+          column(2, awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "success")),
+          column(1,
+                 sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
+                 bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height"))
+        ),
+        uiOutput("plotNetSIZE")
+      )
+    ),
+    ###########   Cells  ##########
      tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
               div(id = "divLoadCells",
                   h4(style = "text-align: center; margin-top: 0px;",'Cells Data Are Not Loaded Automatically. Click The Button To Load White Blood Cells Data'),

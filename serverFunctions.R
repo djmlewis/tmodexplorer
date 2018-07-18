@@ -175,6 +175,24 @@ loadUploadedData <- function(allData, infiles,fileName) {
   return(FALSE)
 }
 
+getNSortedGenesForVaccsOnDay <- function(data, vaccs, day, numRows, descend) {
+  sortedData <- map_dfc(vaccs, function(v){
+    colmn <- paste0(v,"_",day)
+    data2Sort <- select(data,Value = one_of(colmn),Gene) %>%
+      group_by(Gene) %>%
+      summarise(
+        Value = mean(Value, na.rm = TRUE)
+      ) %>%
+      ungroup()
+    if(descend) data2Sort <- arrange(data2Sort,desc(Value))
+    else data2Sort <- arrange(data2Sort,Value)
+    genes <- data.frame(g = data2Sort[1:numRows,][["Gene"]])
+    names(genes) <- v
+    return(genes)
+  }) %>%
+    mutate(Rank = 1:numRows)
+  return(sortedData)
+}
 
 getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingKinetics) {
   # Note this is ...ForVaccDay, there is NO COLUMN variable

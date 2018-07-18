@@ -308,6 +308,9 @@ server <- function(input, output, session) {
     # these must be updated here as they do not observe allData
     vaccDays <- vaccinesDaysFromColNames(allData$colNames)
     updatePickerInput(session, 'selectColumnVaccine', choices = vaccDays$vaccines)
+    updatePickerInput(session, 'selectVaccNet', choices = vaccDays$vaccines)
+    
+    updatePickerInput(session, 'selectVacDaysToNet', choices = character(0), selected = character(0))
     
     
     updateSelectInput(session, 'selectVaccinesForSeries', choices = vaccDays$vaccines, selected = character(0))
@@ -871,7 +874,70 @@ observeEvent(
   output$buttonSaveTableGeneLookup <- downloadHandler(filename = function(){paste0("Gene Lookup.csv")},
    content = function(file) {write.csv(lookedupGenes, file, row.names = FALSE)})
   
-
+  
+  ############################## Network ###########
+  assign("vaccDaysToNet",NULL, envir = .GlobalEnv)
+  
+  observeEvent(
+    {
+      input$selectVaccNet
+    },
+    {
+      if(is.null(dayPatterns[[input$selectVaccNet]])) {showNotification(type = 'error', ui = paste0("There is a problem with data formatting - no day numbers could be found for ",input$selectVaccNet))}
+      updatePickerInput(session, 'selectDayNet', choices = dayPatterns[[input$selectVaccNet]])
+    })
+  
+  observeEvent(
+    {
+      input$selectVacDaysToNet
+    },
+    {
+      # if we remove an item we must realign the list or it gets added again when we click add
+      assign("vaccDaysToNet",input$selectVacDaysToNet, envir = .GlobalEnv)
+      updatePickerInput(session, 'selectVacDaysToNet', choices = vaccDaysToNet, selected = vaccDaysToNet)
+    })
+  
+  
+  observeEvent(
+    {
+      input$buttonAddVacDayNet
+    },
+    {
+      vacDy <- paste0(input$selectVaccNet,"_",input$selectDayNet)
+      assign("vaccDaysToNet",unique(c(vaccDaysToNet,vacDy)), envir = .GlobalEnv)
+      updatePickerInput(session, 'selectVacDaysToNet', choices = vaccDaysToNet, selected = vaccDaysToNet)
+    })
+  
+  observeEvent(
+    {
+      input$buttonClearNet
+    },
+    {
+      assign("vaccDaysToNet",NULL, envir = .GlobalEnv)
+      updatePickerInput(session, 'selectVacDaysToNet', choices = character(0), selected = character(0))
+    })
+  
+  networkEdgelist <- reactiveVal(NULL)
+  observeEvent(
+    {
+      input$buttonPlotNet
+    },
+    {
+      networkEdgelist(NULL)
+      networkEdgelist(getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet))
+    })
+  
+  networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist(),input$radioEdgeCount,input$numericEdgeCount)})
+  #input$plotNetSIZEheight below is to just react
+  networkQgraph <- reactive({getNetworkQgraph(networkEdgelist(),networkEdgeCount(),input$radioNetType, input$radioLineWidthNet, input$checkboxLineLabelsNet)})
+  
+  output$plotNetSIZE <- renderUI({plotOutput("plotNet", height = input$plotNetSIZEheight)})
+  
+  output$plotNet <- renderPlot({
+    if(!is.null(networkQgraph())) plot(networkQgraph())
+    else NULL
+       })
+  
 #################### MODULES ####################  
   # sortCol_Mods <- NULL
   assign("sortCol_Mods",NULL, envir = .GlobalEnv)

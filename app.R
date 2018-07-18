@@ -22,6 +22,7 @@ library(shinyBS)
 library(shinyjs)
 library(cowplot)
 library(xtable)
+library(qgraph)
 
 ####--------------------------
 options(shiny.maxRequestSize=30*1024^2) 
@@ -36,6 +37,7 @@ source('plotFunctions.R')
 source('plotFunctions_Mods.R')
 source('plotFunctions_Cyts.R')
 source('plotFunctions_Cells.R')
+source('network.R')
 
 # Define UI 
 source('GUI.R')
