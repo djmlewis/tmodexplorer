@@ -12,13 +12,14 @@ getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {
     if(descend) data2Sort <- arrange(data2Sort,desc(MeanValue))
     else data2Sort <- arrange(data2Sort,MeanValue)
     data2Sort <- data2Sort[1:numRows,] %>%
-      mutate(MeanValue = round(MeanValue,2))
+      mutate(MeanValueRound = round(MeanValue,2))
     
     genes <- data.frame(Gene = data2Sort[["Gene"]],
                         Vaccine.Day = vd, 
                         Rank = 1:numRows,
                         revrank = numRows:1,
                         MeanValue = data2Sort[["MeanValue"]],
+                        MeanValueRound = data2Sort[["MeanValueRound"]],
                         stringsAsFactors = FALSE)
     return(genes)
   }) %>%
@@ -27,14 +28,26 @@ getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {
   
   return(sortedData)
 }
-getNetworkEdgeCounts <- function(data2EdgeCount, edgeFilter, edgeCountThreshold,edgeValueThresholdLo,edgeValueThresholdHi,applyEdgeValueThreshold,edgeWidthVar) {
+
+getEdgeMinMax<- function(edgelist,connection) {
+  connection <- ifelse(connection == "revrank","Rank","MeanValue")
+  return(list(Min = floor(min(edgelist[[connection]],na.rm = TRUE)), Max = ceiling(max(edgelist[[connection]],na.rm = TRUE))))
+}
+
+getNetworkEdgeCounts <- function(data2EdgeCount) {
   if(is.null(data2EdgeCount)) return(NULL)
   edgecount <-data2EdgeCount
-  if(applyEdgeValueThreshold == TRUE)  edgecount <- edgecount %>% 
-      filter_at(vars(switch(edgeWidthVar,"revrank" = "Rank","MeanValue")),all_vars(between(.,edgeValueThresholdLo,edgeValueThresholdHi)))
-  if(nrow(edgecount)<1) return(NULL)
-  
+
   edgecount <- edgecount %>%
+    group_by(Gene) %>%
+    summarise(Connections = n())
+
+  return(edgecount)
+}
+
+getNetworkFilteredEdgeCounts <- function(data2EdgeCount, edgeFilter, edgeCountThreshold) {
+  if(is.null(data2EdgeCount)) return(NULL)
+  edgecount <- data2EdgeCount %>%
     group_by(Gene) %>%
     summarise(Connections = n())
   
@@ -46,19 +59,43 @@ getNetworkEdgeCounts <- function(data2EdgeCount, edgeFilter, edgeCountThreshold,
                          NULL #redundant - post error
     )
     if(length(connected) < 1) return(NULL)
-    
     edgecount <- edgecount[edgecount$Gene %in% connected,]
-
   }
-
+  
   return(edgecount)
 }
 
-getNetworkQgraph <- function(data2q, edgeCountData, netType,edgeWidthVar,showLineLabels,nodeAlpha) {
+getGGplotEdgeColourLegend <- function(filteredEdgelist){
+  if(is.null(filteredEdgelist)) return(NULL)
+  numConnex <- max(filteredEdgelist$Connections,na.rm = TRUE)
+  df <- data.frame(X = 1:numConnex, Y = rep(1,numConnex))
+  plot <- ggplot(df, mapping = aes(x = X, y = Y)) +
+    geom_text(aes(label = X))
+  print(plot)
+  return(plot)
+}
+
+getNetworkQgraph <- function(data2q, edgeCountData, netType,edgeWidthVar,showLineLabels,nodeAlpha,
+          edgeValueThresholdLo,edgeValueThresholdHi,applyEdgeValueThreshold) {
   if(is.null(data2q) || is.null(edgeCountData)) return(NULL)
   # we may have reduced the nodes by edgecount
   data2q <- data2q[data2q$Gene %in% edgeCountData$Gene,]
+  
+  # now apply the edge value to remaining edges
+  if(applyEdgeValueThreshold == TRUE) {
+    data2q <- switch(edgeWidthVar,
+                        "revrank" = filter(data2q,between(Rank,edgeValueThresholdLo,edgeValueThresholdHi)),
+                        filter(data2q,between(MeanValue,edgeValueThresholdLo,edgeValueThresholdHi)))
+    # if no rows left then abort
+    if(nrow(data2q)<1) return(NULL)
+  
+    # now reduce edgeCountData to match the genes remaining in data2q
+    edgeCountData <- edgeCountData[edgeCountData$Gene %in% data2q$Gene,]
+    
+  }
+  
   numVaccNodes <- length(unique(data2q$Vaccine.Day))
+  # numGeneNodes <- length(data2q$Gene)
   numGeneNodes <- nrow(edgeCountData)
   
   mypal <- rev(heat.colors(max(edgeCountData$Connections, na.rm = TRUE), alpha = nodeAlpha))
@@ -71,7 +108,7 @@ getNetworkQgraph <- function(data2q, edgeCountData, netType,edgeWidthVar,showLin
   nodecolours <- c(edgeCountData$edgecol,rep('white',numVaccNodes))
   nodebordercolours <- c(rep('black',numGeneNodes),vaccols)
   nodeshapes <- c(rep('circle',numGeneNodes),rep('square',numVaccNodes))
-  if(showLineLabels == TRUE) linelabels <- switch(edgeWidthVar,'revrank' = data2q$Rank, data2q[[edgeWidthVar]])
+  if(showLineLabels == TRUE) linelabels <- switch(edgeWidthVar,'revrank' = data2q$Rank, data2q$MeanValueRound)
   else linelabels <- FALSE
   
   #fix the names

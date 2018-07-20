@@ -917,6 +917,7 @@ observeEvent(
       updatePickerInput(session, 'selectVacDaysToNet', choices = character(0), selected = character(0))
     })
   
+  
   networkEdgelist <- reactiveVal(NULL)
   observeEvent(
     {
@@ -925,13 +926,33 @@ observeEvent(
     {
       networkEdgelist(NULL)
       networkEdgelist(getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet))
+      updateNumericEdgeThresh()
     })
   
-  networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist(),input$radioEdgeCountThreshold,
-    input$numericEdgeCountThreshold,input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,
-    input$checkboxThresholdEdgesNet,input$radioLineLabelVariableNet)})
+  output$datatableEdgeListNet <- renderDataTable({
+    if(is.null(networkEdgelist())) NULL
+    else select(networkEdgelist(),-c(revrank,MeanValueRound))
+  })
+  
+  networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
+  output$datatableEdgeCountNet <- renderDataTable({
+    if(is.null(networkEdgeCount())) NULL
+    else networkEdgeCount()
+    })
+  
+  ggplotColoursLegend <- reactiveVal(NULL)
+  
+  networkFilteredEdgeCount <- reactive({
+    filteredEC <- getNetworkFilteredEdgeCounts(networkEdgelist(),input$radioEdgeCountThreshold,
+    input$numericEdgeCountThreshold)
+    # ggplotColoursLegend(getGGplotEdgeColourLegend(filteredEC))
+    return(filteredEC)
+    })
+  
   #input$plotNetSIZEheight below is to just react
-  networkQgraph <- reactive({getNetworkQgraph(networkEdgelist(),networkEdgeCount(),input$radioNetType, input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet)})
+  networkQgraph <- reactive({getNetworkQgraph(networkEdgelist(),networkFilteredEdgeCount(),input$radioNetType, 
+      input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet,
+      input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,input$checkboxThresholdEdgesNet)})
   
   output$plotNetSIZE <- renderUI({plotOutput("plotNet", height = input$plotNetSIZEheight)})
   
@@ -939,11 +960,24 @@ observeEvent(
     if(!is.null(networkQgraph())) plot(networkQgraph())
     else NULL
        })
-  output$datatableEdgeListNet <- renderDataTable({
-    if(is.null(networkEdgelist())) NULL
-    else select(networkEdgelist(),-revrank)
-    })
-  output$datatableEdgeCountNet <- renderDataTable({networkEdgeCount()})
+  
+  plotNetColours <- renderPlot({ggplotColoursLegend()})
+  
+  
+  updateNumericEdgeThresh <- function() {
+    minmax <- getEdgeMinMax(networkEdgelist(),input$radioLineLabelVariableNet)
+    updateNumericInput(session,'numericEdgeValueThresholdLo',value = minmax[['Min']])
+    updateNumericInput(session,'numericEdgeValueThresholdHi',value = minmax[['Max']])
+  }
+  observeEvent(
+    {
+      networkEdgelist()
+      input$radioLineLabelVariableNet
+      input$buttonResetEdgeLimitNumericsNet
+    },
+    {
+      updateNumericEdgeThresh()
+    }, ignoreInit = TRUE)
   
 #################### MODULES ####################  
   # sortCol_Mods <- NULL
