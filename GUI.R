@@ -716,6 +716,12 @@ ui <-
         ),
         fluidRow(
           column(2,
+                 radioGroupButtons('radioVennNetworkeNet', NULL,
+                                   choiceValues = list('v', 'n'),
+                                   choiceNames = list('Venn', 'Network'),
+                                   individual = TRUE, justified = TRUE, status = "primary"
+                 )),
+          column(2,
                  radioGroupButtons('radioLineLabelVariableNet', NULL,
                                    choiceValues = list('MeanValue', 'revrank'),
                                    choiceNames = list('Value', 'Rank'),
@@ -729,10 +735,10 @@ ui <-
             column(1,style = "margin-top: 2px;",  numericInput("numericEdgeValueThresholdHi",NULL,value = 0),
                    bsTooltip("numericEdgeValueThresholdHi","Only include genes with connection value below this", placement = 'bottom')),
             column(1,style = "margin-top: 2px;", actionButton('buttonResetEdgeLimitNumericsNet','Min~Max', class = 'btn-outline-primary'))
-          ),
-          column(3,plotOutput('plotNetColours', height = '100%'))
+          )
         ),
-        uiOutput("plotNetSIZE")
+        conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",uiOutput("plotNetSIZE")),
+        conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",plotOutput('plotVenn', height = '500px',width = '100%'))
       ),
       hr(),
       fluidRow(

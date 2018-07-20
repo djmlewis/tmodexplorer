@@ -919,13 +919,16 @@ observeEvent(
   
   
   networkEdgelist <- reactiveVal(NULL)
+  venndiagramgrob <- reactiveVal(NULL)
   observeEvent(
     {
       input$buttonPlotNet
     },
     {
       networkEdgelist(NULL)
-      networkEdgelist(getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet))
+      nelvd <- getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
+      networkEdgelist(nelvd[['data']])
+      venndiagramgrob(nelvd[['venndiag']])
       updateNumericEdgeThresh()
     })
   
@@ -934,13 +937,16 @@ observeEvent(
     else select(networkEdgelist(),-c(revrank,MeanValueRound))
   })
   
+  output$plotVenn <- renderPlot({grid.draw(venndiagramgrob())})
+  
+  
   networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
   output$datatableEdgeCountNet <- renderDataTable({
     if(is.null(networkEdgeCount())) NULL
     else networkEdgeCount()
     })
   
-  ggplotColoursLegend <- reactiveVal(NULL)
+  # ggplotColoursLegend <- reactiveVal(NULL)
   
   networkFilteredEdgeCount <- reactive({
     filteredEC <- getNetworkFilteredEdgeCounts(networkEdgelist(),input$radioEdgeCountThreshold,
@@ -961,7 +967,6 @@ observeEvent(
     else NULL
        })
   
-  plotNetColours <- renderPlot({ggplotColoursLegend()})
   
   
   updateNumericEdgeThresh <- function() {

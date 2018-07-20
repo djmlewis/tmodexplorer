@@ -23,6 +23,8 @@ library(shinyjs)
 library(cowplot)
 library(xtable)
 library(qgraph)
+library(VennDiagram)
+
 
 ####--------------------------
 options(shiny.maxRequestSize=30*1024^2) 

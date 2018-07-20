@@ -26,7 +26,15 @@ getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {
   # we must arrange because summarise in edgeCount does arrange, whereas unique does not
     arrange(Gene)
   
-  return(sortedData)
+  vennData <- map(vaccs_day, function(vd){
+    filter(sortedData,Vaccine.Day == vd)[["Gene"]]
+  })
+  names(vennData) <- vaccs_day
+  if(length(vennData)>5) {
+    showNotification("Only first 5 groups shown in Venn diagram", type = "error")
+    vennData <- vennData[1:5]
+  }
+  return(list(data = sortedData, venndiag = venn.diagram(vennData, NULL, margin = 0.05)))
 }
 
 getEdgeMinMax<- function(edgelist,connection) {
