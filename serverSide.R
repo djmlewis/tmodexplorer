@@ -919,7 +919,7 @@ observeEvent(
   
   
   networkEdgelist <- reactiveVal(NULL)
-  venndiagramgrob <- reactiveVal(NULL)
+  vennVaccGenesList <- reactiveVal(NULL)
   observeEvent(
     {
       input$buttonPlotNet
@@ -928,7 +928,7 @@ observeEvent(
       networkEdgelist(NULL)
       nelvd <- getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
       networkEdgelist(nelvd[['data']])
-      venndiagramgrob(nelvd[['venndiag']])
+      vennVaccGenesList(nelvd[['vennData']])
       updateNumericEdgeThresh()
     })
   
@@ -937,8 +937,14 @@ observeEvent(
     else select(networkEdgelist(),-c(revrank,MeanValueRound))
   })
   
-  output$plotVenn <- renderPlot({grid.draw(venndiagramgrob())})
-  
+  output$plotVenn <- renderPlot({
+    if(is.null(vennVaccGenesList())) NULL
+    else grid.draw(venDiagramFromVaccGenesList(vennVaccGenesList()))
+  })
+  output$plotEuler <- renderPlot({
+    if(is.null(vennVaccGenesList())) NULL
+    else eulerFromVaccGenesList(vennVaccGenesList())
+  })
   
   networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
   output$datatableEdgeCountNet <- renderDataTable({
@@ -961,14 +967,14 @@ observeEvent(
       input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,input$checkboxThresholdEdgesNet)})
   
   output$plotNetSIZE <- renderUI({plotOutput("plotNet", height = input$plotNetSIZEheight)})
+  output$plotVennSIZE <- renderUI({plotOutput("plotVenn", height = input$plotNetSIZEheight)})
+  output$plotEulerSIZE <- renderUI({plotOutput("plotEuler", height = input$plotNetSIZEheight)})
   
   output$plotNet <- renderPlot({
     if(!is.null(networkQgraph())) plot(networkQgraph())
     else NULL
        })
-  
-  
-  
+
   updateNumericEdgeThresh <- function() {
     minmax <- getEdgeMinMax(networkEdgelist(),input$radioLineLabelVariableNet)
     updateNumericInput(session,'numericEdgeValueThresholdLo',value = minmax[['Min']])

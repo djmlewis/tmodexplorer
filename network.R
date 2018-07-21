@@ -1,3 +1,41 @@
+prettifyName <- function(name,style){
+  switch (style,
+    'nl' = gsub("[_ :]","\n",name),
+    '(_)' =paste0(gsub("_"," (",name),')'),
+    name
+  )
+}
+
+vaccColoursForNames <- function(vaccnames, withDays = FALSE,namesNotColours = FALSE){
+  if(withDays) vaccnames <- str_split(vaccnames,'_',simplify = TRUE)[,1]
+  if(namesNotColours) return(vaccnames)
+  vaccCols <- map_chr(vaccnames,~vaccineColours[[.]])
+  return(vaccCols)
+}
+
+eulerFromVaccGenesList <- function(vennData){
+  vacNames <- names(vennData)
+  vacCols <- vaccColoursForNames(vacNames,TRUE)
+  vacNames <- prettifyName(vacNames,"(_)")
+  # setNames(vennData,prettifyName(vacNames,"(_)"))
+  plot(euler(vennData),
+     edges = list(col = vacCols, lwd = 4),
+     fills = list(fill = vacCols,alpha = 0.1),
+     quantities = list(col = 'black', fontsize = 32),
+     labels = list(labels = vacNames,col = vacCols, fontsize = 24)
+     # legend = list(labels = vacNames, col = 'black', side = 'left', fontsize = 24)
+  )
+}
+
+venDiagramFromVaccGenesList <- function(vennData){
+  if(is.null(vennData)) return(NULL)
+  if(length(vennData)>5) {
+    showNotification("Only first 5 groups shown in Venn diagram", type = "error")
+    vennData <- vennData[1:5]
+  }
+  return(venn.diagram(vennData, NULL, margin = 0.05))
+}
+
 getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {
   if(is.null(data)) return(NULL)
   
@@ -26,15 +64,12 @@ getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {
   # we must arrange because summarise in edgeCount does arrange, whereas unique does not
     arrange(Gene)
   
-  vennData <- map(vaccs_day, function(vd){
+  vennData <- setNames(map(vaccs_day, function(vd){
     filter(sortedData,Vaccine.Day == vd)[["Gene"]]
-  })
-  names(vennData) <- vaccs_day
-  if(length(vennData)>5) {
-    showNotification("Only first 5 groups shown in Venn diagram", type = "error")
-    vennData <- vennData[1:5]
-  }
-  return(list(data = sortedData, venndiag = venn.diagram(vennData, NULL, margin = 0.05)))
+  }),vaccs_day)
+  # names(vennData) <-vaccs_day# prettifyName(vaccs_day,'(_)')
+
+  return(list(data = sortedData, vennData = vennData))
 }
 
 getEdgeMinMax<- function(edgelist,connection) {
@@ -111,8 +146,8 @@ getNetworkQgraph <- function(data2q, edgeCountData, netType,edgeWidthVar,showLin
   edgeCountData <- edgeCountData %>%
     mutate(edgecol = mypal[Connections])
   # add the vaccine colours the others
-  vaccnames <- str_split(unique(data2q$Vaccine.Day),'_',simplify = TRUE)[,1]
-  vaccols <- map_chr(vaccnames,~vaccineColours[[.]])
+  vaccnames <- vaccColoursForNames(unique(data2q$Vaccine.Day),TRUE,TRUE)
+  vaccols <- vaccColoursForNames(vaccnames)
   nodecolours <- c(edgeCountData$edgecol,rep('white',numVaccNodes))
   nodebordercolours <- c(rep('black',numGeneNodes),vaccols)
   nodeshapes <- c(rep('circle',numGeneNodes),rep('square',numVaccNodes))
@@ -122,8 +157,8 @@ getNetworkQgraph <- function(data2q, edgeCountData, netType,edgeWidthVar,showLin
   #fix the names
   data2q <- data2q %>%
     mutate(
-      Vaccine.Day = gsub("[_ :]","\n",Vaccine.Day),
-      Gene = gsub("[_ :]","\n",Gene)
+      Vaccine.Day = prettifyName(Vaccine.Day,'nl'),
+      Gene = prettifyName(Gene,'nl')
     )
   qg <- qgraph(data2q[,c("Gene","Vaccine.Day",edgeWidthVar)],
                DoNotPlot = TRUE,
