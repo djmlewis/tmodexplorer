@@ -88,6 +88,7 @@ Setdiff_venn <- function (x, y) {
 
 geneIntersectsFromVaccGenesList_Internal <- function(vennData){
   if(is.null(vennData) || length(vennData)==0) return(NULL)
+  names(vennData) <- prettifyName(names(vennData),"(_)")
   
   combs <-  unlist(lapply(1:length(vennData), function(j) combn(names(vennData), j, simplify = FALSE)), recursive = FALSE)
   names(combs) <- sapply(combs, function(i) paste0(i, collapse = " : "))
@@ -95,13 +96,12 @@ geneIntersectsFromVaccGenesList_Internal <- function(vennData){
   # n.elements <- sapply(elements, length)
   elementsDF <- map_dfr(names(elements),function(name){
     data_frame(Group = name,Genes = paste0(elements[[name]],collapse = ', '))
-  })
+  }) %>%
+    filter(!is.na(Gene))
   
   return(elementsDF)
   
 }
-
-
 
 upsetrFromVaccGenesList <- function(vennData){
   if(is.null(vennData) || length(vennData)<2) return(NULL)

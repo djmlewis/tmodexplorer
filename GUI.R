@@ -699,7 +699,7 @@ ui <-
                  radioGroupButtons('radioVennNetworkeNet', NULL,
                                    direction = 'vertical',justified = TRUE, #individual = TRUE,
                                    choiceValues = list('u','e', 'v', 'n'),
-                                   choiceNames = list('UpSetR','Euler', 'Venn', 'Network')),
+                                   choiceNames = list('UpSetR','Euler', 'Venn', 'Net')),
                  sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
                  bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height")
                  ),
