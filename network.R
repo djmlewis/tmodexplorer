@@ -35,7 +35,7 @@ venDiagramFromVaccGenesList <- function(vennData){
   vacCols <- vaccColoursForNames(vacNames,TRUE)
   names(vennData) <- prettifyName(vacNames,"(_)")
   
-  return(venn.diagram(
+  vd <- venn.diagram(
     vennData, 
     filename = NULL, 
     col = vacCols,
@@ -48,7 +48,10 @@ venDiagramFromVaccGenesList <- function(vennData){
     fontfamily = rep('sans',(2^length(vennData))-1),
     lwd = 4,
     alpha = 0.1,
-    margin = 0.16))
+    margin = 0.16)
+  
+  res <- file.remove(list.files(pattern = "^VennDiagram.*log$"))
+  return(grid.draw(vd))
 }
 
 geneIntersectsFromVaccGenesList <- function(vennData){
@@ -59,6 +62,55 @@ geneIntersectsFromVaccGenesList <- function(vennData){
     data_frame(Group = name,Genes = paste0(aa[[name]],collapse = ', '))
   })
 }
+
+Intersect_venn <- function (x) {  
+  # Multiple set version of intersect
+  # x is a list
+  if (length(x) == 1) {
+    unlist(x)
+  } else if (length(x) == 2) {
+    intersect(x[[1]], x[[2]])
+  } else if (length(x) > 2){
+    intersect(x[[1]], Intersect_venn(x[-1]))
+  }
+}
+
+Union_venn <- function (x) {  
+  # Multiple set version of union
+  # x is a list
+  if (length(x) == 1) {
+    unlist(x)
+  } else if (length(x) == 2) {
+    union(x[[1]], x[[2]])
+  } else if (length(x) > 2) {
+    union(x[[1]], Union_venn(x[-1]))
+  }
+}
+
+Setdiff_venn <- function (x, y) {
+  # Remove the union of the y's from the common x's. 
+  # x and y are lists of characters.
+  xx <- Intersect_venn(x)
+  yy <- Union_venn(y)
+  setdiff(xx, yy)
+}
+
+geneIntersectsFromVaccGenesList_Internal <- function(vennData){
+  if(is.null(vennData) || length(vennData)==0) return(NULL)
+  
+  combs <-  unlist(lapply(1:length(vennData), function(j) combn(names(vennData), j, simplify = FALSE)), recursive = FALSE)
+  names(combs) <- sapply(combs, function(i) paste0(i, collapse = " : "))
+  elements <-  lapply(combs, function(i) Setdiff_venn(vennData[i], vennData[setdiff(names(vennData), i)]))
+  # n.elements <- sapply(elements, length)
+  elementsDF <- map_dfr(names(elements),function(name){
+    data_frame(Group = name,Genes = paste0(elements[[name]],collapse = ', '))
+  })
+  
+  return(elementsDF)
+  
+}
+
+
 
 upsetrFromVaccGenesList <- function(vennData){
   if(is.null(vennData) || length(vennData)<2) return(NULL)

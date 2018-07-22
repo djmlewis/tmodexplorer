@@ -755,9 +755,10 @@ ui <-
       ),
       hr(),
       fluidRow(
-        column(8,dataTableOutput('datatableIntersectsNet')),
-        column(4,dataTableOutput('datatableEdgeCountNet'))
+        column(6,dataTableOutput('datatableIntersectsNet')),
+        column(6,dataTableOutput('datatableIntersectsNet_Internal'))
         ),
+        dataTableOutput('datatableEdgeCountNet'),
         dataTableOutput('datatableEdgeListNet')
       
       

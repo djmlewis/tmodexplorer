@@ -942,6 +942,10 @@ observeEvent(
     geneIntersectsFromVaccGenesList(vennVaccGenesList())
   })
   
+  output$datatableIntersectsNet_Internal <- renderDataTable({
+    geneIntersectsFromVaccGenesList_Internal(vennVaccGenesList())
+  })
+  
   networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
   output$datatableEdgeCountNet <- renderDataTable({
     if(is.null(networkEdgeCount())) NULL
@@ -950,7 +954,7 @@ observeEvent(
   
   output$plotVenn <- renderPlot({
     if(is.null(vennVaccGenesList())) NULL
-    else grid.draw(venDiagramFromVaccGenesList(vennVaccGenesList()))
+    else venDiagramFromVaccGenesList(vennVaccGenesList())
   })
   output$plotEuler <- renderPlot({
     eulerFromVaccGenesList(vennVaccGenesList())
