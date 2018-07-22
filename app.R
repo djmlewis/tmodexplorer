@@ -26,7 +26,6 @@ library(qgraph)
 library(VennDiagram)
 library(eulerr)
 library(UpSetR)
-library(gplots)
 
 
 ####--------------------------

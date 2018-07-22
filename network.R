@@ -54,15 +54,6 @@ venDiagramFromVaccGenesList <- function(vennData){
   return(grid.draw(vd))
 }
 
-geneIntersectsFromVaccGenesList <- function(vennData){
-  if(is.null(vennData) || length(vennData)==0) return(NULL)
-  names(vennData) <- prettifyName(names(vennData),"(_)")
-  aa <- attr(gplots::venn(vennData,show.plot=FALSE),'intersections')
-  map_dfr(names(aa),function(name){
-    data_frame(Group = name,Genes = paste0(aa[[name]],collapse = ', '))
-  })
-}
-
 Intersect_venn <- function (x) {  
   # Multiple set version of intersect
   # x is a list

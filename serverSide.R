@@ -942,10 +942,6 @@ observeEvent(
     geneIntersectsFromVaccGenesList(vennVaccGenesList())
   })
   
-  output$datatableIntersectsNet_Internal <- renderDataTable({
-    geneIntersectsFromVaccGenesList_Internal(vennVaccGenesList())
-  })
-  
   networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
   output$datatableEdgeCountNet <- renderDataTable({
     if(is.null(networkEdgeCount())) NULL
