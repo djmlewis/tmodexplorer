@@ -86,7 +86,7 @@ Setdiff_venn <- function (x, y) {
   setdiff(xx, yy)
 }
 
-geneIntersectsFromVaccGenesList_Internal <- function(vennData){
+geneIntersectsFromVaccGenesList <- function(vennData){
   if(is.null(vennData) || length(vennData)==0) return(NULL)
   names(vennData) <- prettifyName(names(vennData),"(_)")
   
