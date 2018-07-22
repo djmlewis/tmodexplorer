@@ -937,27 +937,31 @@ observeEvent(
     else select(networkEdgelist(),-c(revrank,MeanValueRound))
   })
   
-  output$plotVenn <- renderPlot({
-    if(is.null(vennVaccGenesList())) NULL
-    else grid.draw(venDiagramFromVaccGenesList(vennVaccGenesList()))
-  })
-  output$plotEuler <- renderPlot({
-    if(is.null(vennVaccGenesList())) NULL
-    else eulerFromVaccGenesList(vennVaccGenesList())
+  
+  output$datatableIntersectsNet <- renderDataTable({
+    geneIntersectsFromVaccGenesList(vennVaccGenesList())
   })
   
   networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
   output$datatableEdgeCountNet <- renderDataTable({
     if(is.null(networkEdgeCount())) NULL
-    else networkEdgeCount()
-    })
+    else arrange(networkEdgeCount(),desc(Connections))
+  })
   
-  # ggplotColoursLegend <- reactiveVal(NULL)
+  output$plotVenn <- renderPlot({
+    if(is.null(vennVaccGenesList())) NULL
+    else grid.draw(venDiagramFromVaccGenesList(vennVaccGenesList()))
+  })
+  output$plotEuler <- renderPlot({
+    eulerFromVaccGenesList(vennVaccGenesList())
+  })
+  output$plotUpset <- renderPlot({
+    upsetrFromVaccGenesList(vennVaccGenesList())
+  })
   
   networkFilteredEdgeCount <- reactive({
     filteredEC <- getNetworkFilteredEdgeCounts(networkEdgelist(),input$radioEdgeCountThreshold,
     input$numericEdgeCountThreshold)
-    # ggplotColoursLegend(getGGplotEdgeColourLegend(filteredEC))
     return(filteredEC)
     })
   
@@ -965,15 +969,16 @@ observeEvent(
   networkQgraph <- reactive({getNetworkQgraph(networkEdgelist(),networkFilteredEdgeCount(),input$radioNetType, 
       input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet,
       input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,input$checkboxThresholdEdgesNet)})
+  output$plotNet <- renderPlot({
+    if(!is.null(networkQgraph())) plot(networkQgraph())
+    else NULL
+  })
   
   output$plotNetSIZE <- renderUI({plotOutput("plotNet", height = input$plotNetSIZEheight)})
   output$plotVennSIZE <- renderUI({plotOutput("plotVenn", height = input$plotNetSIZEheight)})
   output$plotEulerSIZE <- renderUI({plotOutput("plotEuler", height = input$plotNetSIZEheight)})
+  output$plotUpsetSIZE <- renderUI({plotOutput("plotUpset", height = input$plotNetSIZEheight)})
   
-  output$plotNet <- renderPlot({
-    if(!is.null(networkQgraph())) plot(networkQgraph())
-    else NULL
-       })
 
   updateNumericEdgeThresh <- function() {
     minmax <- getEdgeMinMax(networkEdgelist(),input$radioLineLabelVariableNet)

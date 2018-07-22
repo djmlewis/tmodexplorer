@@ -14,26 +14,66 @@ vaccColoursForNames <- function(vaccnames, withDays = FALSE,namesNotColours = FA
 }
 
 eulerFromVaccGenesList <- function(vennData){
-  vacNames <- names(vennData)
-  vacCols <- vaccColoursForNames(vacNames,TRUE)
-  vacNames <- prettifyName(vacNames,"(_)")
-  # setNames(vennData,prettifyName(vacNames,"(_)"))
+  if(is.null(vennData) || length(vennData)==0) return(NULL)
+  vacCols <- vaccColoursForNames(names(vennData),TRUE)
+  names(vennData) <- prettifyName(names(vennData),"(_)")
   plot(euler(vennData),
      edges = list(col = vacCols, lwd = 4),
-     fills = list(fill = vacCols,alpha = 0.1),
+     fills = list(fill = vacCols, alpha = 0.1),
      quantities = list(col = 'black', fontsize = 32),
-     labels = list(labels = vacNames,col = vacCols, fontsize = 24)
-     # legend = list(labels = vacNames, col = 'black', side = 'left', fontsize = 24)
+     labels = list(fontsize = 24)
   )
 }
 
 venDiagramFromVaccGenesList <- function(vennData){
-  if(is.null(vennData)) return(NULL)
+  if(is.null(vennData) || length(vennData)==0) return(NULL)
   if(length(vennData)>5) {
     showNotification("Only first 5 groups shown in Venn diagram", type = "error")
     vennData <- vennData[1:5]
   }
-  return(venn.diagram(vennData, NULL, margin = 0.05))
+  vacNames <- names(vennData)
+  vacCols <- vaccColoursForNames(vacNames,TRUE)
+  names(vennData) <- prettifyName(vacNames,"(_)")
+  
+  return(venn.diagram(
+    vennData, 
+    filename = NULL, 
+    col = vacCols,
+    fill = vacCols,
+    cat.cex = rep(2,length(vennData)),
+    cat.fontfamily = rep('sans',length(vennData)),
+    cat.fontface = rep(2.2,length(vennData)),
+    cat.col = vacCols,
+    cex = rep(2,(2^length(vennData))-1),
+    fontfamily = rep('sans',(2^length(vennData))-1),
+    lwd = 4,
+    alpha = 0.1,
+    margin = 0.16))
+}
+
+geneIntersectsFromVaccGenesList <- function(vennData){
+  if(is.null(vennData) || length(vennData)==0) return(NULL)
+  names(vennData) <- prettifyName(names(vennData),"(_)")
+  aa <- attr(gplots::venn(vennData,show.plot=FALSE),'intersections')
+  map_dfr(names(aa),function(name){
+    data_frame(Group = name,Genes = paste0(aa[[name]],collapse = ', '))
+  })
+}
+
+upsetrFromVaccGenesList <- function(vennData){
+  if(is.null(vennData) || length(vennData)<2) return(NULL)
+  names(vennData) <- prettifyName(names(vennData),"(_)")
+  return(upset(fromList(vennData),
+          nsets = length(vennData),
+          main.bar.color = '#728f17',
+          sets.bar.color = '#eab945',
+          matrix.color = '#4d600f',
+          point.size = 4,
+          nintersects = NA,
+          scale.intersections = 'identity',
+          shade.color = '#f8ffeb',
+          text.scale = 3
+  ))
 }
 
 getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {

@@ -684,7 +684,9 @@ ui <-
          column(2,pickerInput('selectVaccNet', choices = NULL, options = list(`style` = "btn-success"))),
          column(1,pickerInput('selectDayNet', choices = NULL, options = list(`style` = "btn-success"))),
          column(1,actionButton('buttonAddVacDayNet','Add', class = 'btn-warning')),
-         column(3, selectInput('selectVacDaysToNet',label = NULL, choices = character(0), multiple = TRUE)),
+         column(3, selectInput('selectVacDaysToNet',label = NULL, 
+                               choices = character(0), 
+                               multiple = TRUE)),
          column(1,actionButton('buttonClearNet','None')),
          column(1,conditionalPanel(condition = "input.selectVacDaysToNet != null",actionButton('buttonPlotNet','Plot', class = 'btn-warning btn-block'))),
          column(1, numericInput("numericNumRowsNet",NULL,value = 10, min = 1, step = 1),
@@ -696,8 +698,8 @@ ui <-
           column(1,
                  radioGroupButtons('radioVennNetworkeNet', NULL,
                                    direction = 'vertical',justified = TRUE, #individual = TRUE,
-                                   choiceValues = list('e', 'v', 'n'),
-                                   choiceNames = list('Euler', 'Venn', 'Network')),
+                                   choiceValues = list('u','e', 'v', 'n'),
+                                   choiceNames = list('UpSetR','Euler', 'Venn', 'Network')),
                  sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
                  bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height")
                  ),
@@ -747,14 +749,16 @@ ui <-
           )#col10
         ),
         conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",uiOutput("plotNetSIZE")),
-        conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),#plotOutput('plotVenn', height = '500px',width = '100%')),
-        conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE")) #plotOutput('plotEuler', height = '500px',width = '100%'))
+        conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",uiOutput("plotUpsetSIZE")),
+        conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),
+        conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE"))
       ),
       hr(),
       fluidRow(
-        column(6,dataTableOutput('datatableEdgeListNet')),
-        column(6,dataTableOutput('datatableEdgeCountNet'))
-      )
+        column(8,dataTableOutput('datatableIntersectsNet')),
+        column(4,dataTableOutput('datatableEdgeCountNet'))
+        ),
+        dataTableOutput('datatableEdgeListNet')
       
       
     ),
