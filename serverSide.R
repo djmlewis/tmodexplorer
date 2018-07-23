@@ -919,34 +919,40 @@ observeEvent(
   
   
   networkEdgelist <- reactiveVal(NULL)
-  vennVaccGenesList <- reactiveVal(NULL)
   observeEvent(
     {
       input$buttonPlotNet
     },
     {
       networkEdgelist(NULL)
-      nelvd <- getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
-      networkEdgelist(nelvd[['data']])
-      vennVaccGenesList(nelvd[['vennData']])
+      networkEdgelist(getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet))
       updateNumericEdgeThresh()
     })
   
-  output$datatableEdgeListNet <- renderDataTable({
-    if(is.null(networkEdgelist())) NULL
-    else select(networkEdgelist(),-c(revrank,MeanValueRound))
+  
+  networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
+  
+  networkFilteredEdgeListAndCount <- reactive({
+    return(getFilteredEdgeListAndEdgeCounts(networkEdgelist(),networkEdgeCount(),input$radioEdgeCountThreshold,input$numericEdgeCountThreshold,
+                                            input$radioLineLabelVariableNet,input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,input$checkboxThresholdEdgesNet))
   })
   
+  output$datatableEdgeListNet <- renderDataTable({
+    if(is.null(networkFilteredEdgeListAndCount()[['edgeList']])) NULL
+    else select(networkFilteredEdgeListAndCount()[['edgeList']],-c(revrank,MeanValueRound))
+  })
+  
+  output$datatableEdgeCountNet <- renderDataTable({
+    if(is.null(networkFilteredEdgeListAndCount()[['edgeCount']])) NULL
+    else arrange(networkFilteredEdgeListAndCount()[['edgeCount']],desc(Connections))
+  })
+  
+  vennVaccGenesList <- reactive({getVennVaccGenesList(networkFilteredEdgeListAndCount()[['edgeList']], isolate(input$selectVacDaysToNet))})
   
   output$datatableIntersectsNet <- renderDataTable({
     geneIntersectsFromVaccGenesList(vennVaccGenesList())
   })
   
-  networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
-  output$datatableEdgeCountNet <- renderDataTable({
-    if(is.null(networkEdgeCount())) NULL
-    else arrange(networkEdgeCount(),desc(Connections))
-  })
   
   output$plotVenn <- renderPlot({
     if(is.null(vennVaccGenesList())) NULL
@@ -959,16 +965,9 @@ observeEvent(
     upsetrFromVaccGenesList(vennVaccGenesList())
   })
   
-  networkFilteredEdgeCount <- reactive({
-    filteredEC <- getNetworkFilteredEdgeCounts(networkEdgelist(),input$radioEdgeCountThreshold,
-    input$numericEdgeCountThreshold)
-    return(filteredEC)
-    })
-  
   #input$plotNetSIZEheight below is to just react
-  networkQgraph <- reactive({getNetworkQgraph(networkEdgelist(),networkFilteredEdgeCount(),input$radioNetType, 
-      input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet,
-      input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,input$checkboxThresholdEdgesNet)})
+  networkQgraph <- reactive({getNetworkQgraph(networkFilteredEdgeListAndCount(),input$radioNetType, 
+      input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet)})
   output$plotNet <- renderPlot({
     if(!is.null(networkQgraph())) plot(networkQgraph())
     else NULL

@@ -97,7 +97,7 @@ geneIntersectsFromVaccGenesList <- function(vennData){
   elementsDF <- map_dfr(names(elements),function(name){
     data_frame(Group = name,Genes = paste0(elements[[name]],collapse = ', '))
   }) %>%
-    filter(!is.na(Gene))
+    filter(nchar(Genes)>0)
   
   return(elementsDF)
   
@@ -147,12 +147,18 @@ getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {
   # we must arrange because summarise in edgeCount does arrange, whereas unique does not
     arrange(Gene)
   
-  vennData <- setNames(map(vaccs_day, function(vd){
-    filter(sortedData,Vaccine.Day == vd)[["Gene"]]
-  }),vaccs_day)
-  # names(vennData) <-vaccs_day# prettifyName(vaccs_day,'(_)')
 
-  return(list(data = sortedData, vennData = vennData))
+  return(sortedData)
+}
+
+getVennVaccGenesList <- function(sortedData, vaccs_day) {
+  if(is.null(sortedData)) return(NULL)
+  vaxInData <- intersect(vaccs_day,unique(sortedData$Vaccine.Day))
+  if(length(vaxInData) == 0) return(NULL)
+  vennData <- setNames(map(vaxInData, function(vd){
+    filter(sortedData,Vaccine.Day == vd)[["Gene"]]
+  }),vaxInData)
+  return(vennData)
 }
 
 getEdgeMinMax<- function(edgelist,connection) {
@@ -171,12 +177,32 @@ getNetworkEdgeCounts <- function(data2EdgeCount) {
   return(edgecount)
 }
 
-getNetworkFilteredEdgeCounts <- function(data2EdgeCount, edgeFilter, edgeCountThreshold) {
-  if(is.null(data2EdgeCount)) return(NULL)
-  edgecount <- data2EdgeCount %>%
-    group_by(Gene) %>%
-    summarise(Connections = n())
+# getNetworkFilteredEdgeCounts <- function(data2EdgeCount, edgeFilter, edgeCountThreshold) {
+#   if(is.null(data2EdgeCount)) return(NULL)
+#   edgecount <- data2EdgeCount %>%
+#     group_by(Gene) %>%
+#     summarise(Connections = n())
+#   
+#   if(edgeFilter != "a") {
+#     connected <- switch (edgeFilter,
+#                          "u" = edgecount[edgecount$Connections == 1,][["Gene"]],
+#                          "c" = edgecount[edgecount$Connections>1,][["Gene"]],
+#                          "v" = edgecount[edgecount$Connections>edgeCountThreshold,][["Gene"]],
+#                          NULL #redundant - post error
+#     )
+#     if(length(connected) < 1) return(NULL)
+#     edgecount <- edgecount[edgecount$Gene %in% connected,]
+#   }
+#   
+#   return(edgecount)
+# }
+
+
+getFilteredEdgeListAndEdgeCounts <- function(data2q, edgecount, edgeFilter, edgeCountThreshold,
+                                             edgeWidthVar,edgeValueThresholdLo,edgeValueThresholdHi,applyEdgeValueThreshold) {
+  if(is.null(data2q) || is.null(edgecount)) return(list(edgeList = NULL, edgeCount = NULL))
   
+  # first reduce the edgecount by unique etc
   if(edgeFilter != "a") {
     connected <- switch (edgeFilter,
                          "u" = edgecount[edgecount$Connections == 1,][["Gene"]],
@@ -184,42 +210,33 @@ getNetworkFilteredEdgeCounts <- function(data2EdgeCount, edgeFilter, edgeCountTh
                          "v" = edgecount[edgecount$Connections>edgeCountThreshold,][["Gene"]],
                          NULL #redundant - post error
     )
-    if(length(connected) < 1) return(NULL)
     edgecount <- edgecount[edgecount$Gene %in% connected,]
   }
   
-  return(edgecount)
-}
-
-getGGplotEdgeColourLegend <- function(filteredEdgelist){
-  if(is.null(filteredEdgelist)) return(NULL)
-  numConnex <- max(filteredEdgelist$Connections,na.rm = TRUE)
-  df <- data.frame(X = 1:numConnex, Y = rep(1,numConnex))
-  plot <- ggplot(df, mapping = aes(x = X, y = Y)) +
-    geom_text(aes(label = X))
-  print(plot)
-  return(plot)
-}
-
-getNetworkQgraph <- function(data2q, edgeCountData, netType,edgeWidthVar,showLineLabels,nodeAlpha,
-          edgeValueThresholdLo,edgeValueThresholdHi,applyEdgeValueThreshold) {
-  if(is.null(data2q) || is.null(edgeCountData)) return(NULL)
   # we may have reduced the nodes by edgecount
-  data2q <- data2q[data2q$Gene %in% edgeCountData$Gene,]
+  data2q <- data2q[data2q$Gene %in% edgecount$Gene,]
   
   # now apply the edge value to remaining edges
   if(applyEdgeValueThreshold == TRUE) {
     data2q <- switch(edgeWidthVar,
-                        "revrank" = filter(data2q,between(Rank,edgeValueThresholdLo,edgeValueThresholdHi)),
-                        filter(data2q,between(MeanValue,edgeValueThresholdLo,edgeValueThresholdHi)))
+                     "revrank" = filter(data2q,between(Rank,edgeValueThresholdLo,edgeValueThresholdHi)),
+                     filter(data2q,between(MeanValue,edgeValueThresholdLo,edgeValueThresholdHi)))
     # if no rows left then abort
     if(nrow(data2q)<1) return(NULL)
-  
-    # now reduce edgeCountData to match the genes remaining in data2q
-    edgeCountData <- edgeCountData[edgeCountData$Gene %in% data2q$Gene,]
     
+    # now reduce edgeCountData to match the genes remaining in data2q
+    edgecount <- edgecount[edgecount$Gene %in% data2q$Gene,]
   }
   
+  return(list(edgeList = data2q, edgeCount = edgecount))
+}
+
+getNetworkQgraph <- function(edgeListAndCount,netType,edgeWidthVar,showLineLabels,nodeAlpha) {
+  if(is.null(edgeListAndCount)) return(NULL)
+  data2q <- edgeListAndCount[['edgeList']]
+  edgeCountData <- edgeListAndCount[['edgeCount']]
+  if(is.null(data2q) || is.null(edgeCountData) || nrow(data2q) == 0 || nrow(edgeCountData) == 0) return(NULL)
+
   numVaccNodes <- length(unique(data2q$Vaccine.Day))
   # numGeneNodes <- length(data2q$Gene)
   numGeneNodes <- nrow(edgeCountData)
