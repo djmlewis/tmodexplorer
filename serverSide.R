@@ -918,22 +918,31 @@ observeEvent(
     })
   
   
-  networkEdgelist <- reactiveVal(NULL)
+  numRowsNet <- reactiveVal(NULL)
+  networkEdgeListAndCount <- reactiveValues(edgeCount = NULL, edgeList = NULL)
   observeEvent(
     {
       input$buttonPlotNet
     },
     {
-      networkEdgelist(NULL)
-      networkEdgelist(getNetworkEdgelist(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet))
+      networkEdgeListAndCount$edgeCount <- NULL
+      networkEdgeListAndCount$edgeList <- NULL
+      networkEListAndCount <- getNetworkEdgeListAndCount(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
+      networkEdgeListAndCount$edgeCount <- networkEListAndCount[['edgeCount']]
+      networkEdgeListAndCount$edgeList <- networkEListAndCount[['edgeList']]
+      numRowsNet(paste(input$numericNumRowsNet,"rows."))
       updateNumericEdgeThresh()
     })
   
-  
-  networkEdgeCount <- reactive({getNetworkEdgeCounts(networkEdgelist())})
-  
+  output$netFilterString <- renderText({paste(numRowsNet(),
+                                    switch(input$radioEdgeCountThreshold,'a' = "All connections.", 'u' = "Unique connections.",'c' = "Common connections.",'v' = paste("Connections >",input$numericEdgeCountThreshold,'.')),
+                                    ifelse(input$checkboxThresholdEdgesNet == TRUE,
+                                           paste(switch(input$radioLineLabelVariableNet,'MeanValue' = "Value", 'revrank' = "Rank"),"between",input$numericEdgeValueThresholdLo,"and",input$numericEdgeValueThresholdHi),
+                                           "")
+                                    )})
+
   networkFilteredEdgeListAndCount <- reactive({
-    return(getFilteredEdgeListAndEdgeCounts(networkEdgelist(),networkEdgeCount(),input$radioEdgeCountThreshold,input$numericEdgeCountThreshold,
+    return(getFilteredEdgeListAndEdgeCounts(networkEdgeListAndCount$edgeList,networkEdgeListAndCount$edgeCount,input$radioEdgeCountThreshold,input$numericEdgeCountThreshold,
                                             input$radioLineLabelVariableNet,input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,input$checkboxThresholdEdgesNet))
   })
   
@@ -980,13 +989,13 @@ observeEvent(
   
 
   updateNumericEdgeThresh <- function() {
-    minmax <- getEdgeMinMax(networkEdgelist(),input$radioLineLabelVariableNet)
+    minmax <- getEdgeMinMax(networkEdgeListAndCount$edgeList,input$radioLineLabelVariableNet)
     updateNumericInput(session,'numericEdgeValueThresholdLo',value = minmax[['Min']])
     updateNumericInput(session,'numericEdgeValueThresholdHi',value = minmax[['Max']])
   }
   observeEvent(
     {
-      networkEdgelist()
+      networkEdgeListAndCount$edgeList
       input$radioLineLabelVariableNet
       input$buttonResetEdgeLimitNumericsNet
     },

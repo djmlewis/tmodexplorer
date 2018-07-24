@@ -389,8 +389,95 @@ ui <-
                                                    downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
                                   hr(),
                                   dataTableOutput('datatableModuleSeries')
-                         )
-                         
+                         ),
+               ###########   Network  ##########
+               tabPanel(value = 'Network', title = span(style = "color: #d4fb78;", "Network"),
+                        wellPanel(
+                          fluidRow(
+                            column(2,pickerInput('selectVaccNet', choices = NULL, options = list(`style` = "btn-success"))),
+                            column(1,pickerInput('selectDayNet', choices = NULL, options = list(`style` = "btn-success"))),
+                            column(1,actionButton('buttonAddVacDayNet','Add', class = 'btn-warning')),
+                            column(3, selectInput('selectVacDaysToNet',label = NULL, 
+                                                  choices = character(0), 
+                                                  multiple = TRUE)),
+                            column(1,actionButton('buttonClearNet','None')),
+                            column(1,conditionalPanel(condition = "input.selectVacDaysToNet != null",actionButton('buttonPlotNet','Plot', class = 'btn-warning btn-block'))),
+                            column(1, numericInput("numericNumRowsNet",NULL,value = 10, min = 1, step = 1),
+                                   bsTooltip("numericNumRowsNet","Number of rows to match", placement = 'top')),
+                            column(2, awesomeCheckbox('checkboxDescNet', "Descending Value", value = TRUE, status = "success"))
+                          )),
+                        wellPanel(style = "background-color: #ffffff;",
+                                  fluidRow(
+                                    column(1,
+                                           radioGroupButtons('radioVennNetworkeNet', NULL,
+                                                             direction = 'vertical',justified = TRUE, #individual = TRUE,
+                                                             choiceValues = rev(list('u','e', 'v', 'n')),
+                                                             selected = 'n',
+                                                             choiceNames = rev(list('UpSetR','Euler', 'Venn', 'Net')))
+                                    ),
+                                    column(10,
+                                           fluidRow(
+                                             # thresholds
+                                             column(4,
+                                                    radioGroupButtons('radioEdgeCountThreshold', NULL, selected = 'a',
+                                                                      choiceValues = (list('a', 'u','c','v')),
+                                                                      choiceNames = (list('All', 'Unique', 'Common', 'Connect >')),
+                                                                      individual = TRUE, justified = TRUE, status = "danger"
+                                                    )),
+                                             column(1, style = "margin-top: 2px;", conditionalPanel(condition = "input.radioEdgeCountThreshold == 'v'",
+                                                                                                    numericInput("numericEdgeCountThreshold",NULL,value = 2, min = 2, step = 1))),
+                                             column(2,
+                                                    radioGroupButtons('radioLineLabelVariableNet', NULL,
+                                                                      choiceValues = list('MeanValue', 'revrank'),
+                                                                      choiceNames = list('Value', 'Rank'),
+                                                                      individual = TRUE, justified = TRUE, status = "warning"
+                                                    )),
+                                             column(2, style = "direction: rtl; margin-top: 2px;", awesomeCheckbox('checkboxThresholdEdgesNet', ":between", value = FALSE, status = "warning")),
+                                             conditionalPanel(condition = "input.checkboxThresholdEdgesNet == true",
+                                                              column(1, style = "margin-top: 2px;", numericInput("numericEdgeValueThresholdLo",NULL,value = 0),
+                                                                     bsTooltip("numericEdgeValueThresholdLo","Only include genes with connection value above this", placement = 'bottom')),
+                                                              column(1,style = "margin-top: 2px;",  numericInput("numericEdgeValueThresholdHi",NULL,value = 0),
+                                                                     bsTooltip("numericEdgeValueThresholdHi","Only include genes with connection value below this", placement = 'bottom')),
+                                                              column(1,style = "margin-top: 2px;", actionButton('buttonResetEdgeLimitNumericsNet','Min~Max', class = 'btn-outline-primary')))
+                                           ),
+                                           fluidRow(
+                                             # network
+                                             conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",
+                                                              column(3,
+                                                                     radioGroupButtons('radioNetType', NULL,
+                                                                                       choiceValues = list('spring', 'groups','circle'),
+                                                                                       choiceNames = list('Spring', 'Groups','Circle'),
+                                                                                       individual = TRUE, justified = TRUE, status = "primary"
+                                                                     )),
+                                                              column(1,style = "margin-top: -7px;",
+                                                                     sliderInput("nodeAlphaNet", NULL, value = 0.9, min = 0.1, max = 1, step = 0.1, ticks = FALSE),
+                                                                     bsTooltip("nodeAlphaNet", "Node transparency")),
+                                                              column(2,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Connection Labels", value = FALSE, status = "warning"))
+                                             ),
+                                             # venn
+                                             conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",
+                                                              conditionalPanel(condition = "input.selectVacDaysToNet.length > 5",p("Only the first 5 vaccines will be included"))
+                                             )
+                                           )
+                                    )#col10
+                                  ),
+                                  fluidRow(
+                                    column(1,sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
+                                           bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height")),
+                                    column(10,h3(style = "text-align: center;",textOutput("netFilterString")))
+                                  ),
+                                  conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",uiOutput("plotNetSIZE")),
+                                  conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",uiOutput("plotUpsetSIZE")),
+                                  conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),
+                                  conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE"))
+                        ),
+                        hr(),
+                        fluidRow(
+                          column(6,dataTableOutput('datatableIntersectsNet')),
+                          column(6,dataTableOutput('datatableEdgeCountNet'))
+                        ),
+                        dataTableOutput('datatableEdgeListNet')
+               )
               ) # navProbe
      ),# explore by spot
      ############## MODULES #################
@@ -677,92 +764,7 @@ ui <-
                          )
               )
      ),
-    ###########   Network  ##########
-    tabPanel(value = 'Network', title = "Network",
-      wellPanel(
-        fluidRow(
-         column(2,pickerInput('selectVaccNet', choices = NULL, options = list(`style` = "btn-success"))),
-         column(1,pickerInput('selectDayNet', choices = NULL, options = list(`style` = "btn-success"))),
-         column(1,actionButton('buttonAddVacDayNet','Add', class = 'btn-warning')),
-         column(3, selectInput('selectVacDaysToNet',label = NULL, 
-                               choices = character(0), 
-                               multiple = TRUE)),
-         column(1,actionButton('buttonClearNet','None')),
-         column(1,conditionalPanel(condition = "input.selectVacDaysToNet != null",actionButton('buttonPlotNet','Plot', class = 'btn-warning btn-block'))),
-         column(1, numericInput("numericNumRowsNet",NULL,value = 10, min = 1, step = 1),
-                bsTooltip("numericNumRowsNet","Number of rows to match", placement = 'top')),
-         column(2, awesomeCheckbox('checkboxDescNet', "Descending Value", value = TRUE, status = "success"))
-      )),
-      wellPanel(
-        fluidRow(
-          column(1,
-                 radioGroupButtons('radioVennNetworkeNet', NULL,
-                                   direction = 'vertical',justified = TRUE, #individual = TRUE,
-                                   choiceValues = rev(list('u','e', 'v', 'n')),
-                                   selected = 'n',
-                                   choiceNames = rev(list('UpSetR','Euler', 'Venn', 'Net'))),
-                 sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
-                 bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height")
-                 ),
-          column(10,
-            fluidRow(
-              # thresholds
-              #conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",
-                column(4,
-                       radioGroupButtons('radioEdgeCountThreshold', NULL, selected = 'a',
-                                         choiceValues = (list('a', 'u','c','v')),
-                                         choiceNames = (list('All', 'Unique', 'Common', 'Connect >')),
-                                         individual = TRUE, justified = TRUE, status = "danger"
-                       )),
-                column(1, style = "margin-top: 2px;", conditionalPanel(condition = "input.radioEdgeCountThreshold == 'v'",
-                       numericInput("numericEdgeCountThreshold",NULL,value = 2, min = 2, step = 1))),
-                column(2,
-                       radioGroupButtons('radioLineLabelVariableNet', NULL,
-                                         choiceValues = list('MeanValue', 'revrank'),
-                                         choiceNames = list('Value', 'Rank'),
-                                         individual = TRUE, justified = TRUE, status = "warning"
-                       )),
-                column(2, style = "direction: rtl; margin-top: 2px;", awesomeCheckbox('checkboxThresholdEdgesNet', ":between", value = FALSE, status = "warning")),
-                conditionalPanel(condition = "input.checkboxThresholdEdgesNet == true",
-                                 column(1, style = "margin-top: 2px;", numericInput("numericEdgeValueThresholdLo",NULL,value = 0),
-                                        bsTooltip("numericEdgeValueThresholdLo","Only include genes with connection value above this", placement = 'bottom')),
-                                 column(1,style = "margin-top: 2px;",  numericInput("numericEdgeValueThresholdHi",NULL,value = 0),
-                                        bsTooltip("numericEdgeValueThresholdHi","Only include genes with connection value below this", placement = 'bottom')),
-                                 column(1,style = "margin-top: 2px;", actionButton('buttonResetEdgeLimitNumericsNet','Min~Max', class = 'btn-outline-primary')))
-                
-                #)#cp
-            ),
-          fluidRow(
-            # network
-            conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",
-             column(3,
-                    radioGroupButtons('radioNetType', NULL,
-                                      choiceValues = list('spring', 'groups','circle'),
-                                      choiceNames = list('Spring', 'Groups','Circle'),
-                                      individual = TRUE, justified = TRUE, status = "primary"
-                    )),
-             column(1,style = "margin-top: -7px;",
-                    sliderInput("nodeAlphaNet", NULL, value = 0.9, min = 0.1, max = 1, step = 0.1, ticks = FALSE),
-                    bsTooltip("nodeAlphaNet", "Node transparency")),
-              column(2,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Connection Labels", value = FALSE, status = "warning"))
-            )
-          )
-          )#col10
-        ),
-        conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",uiOutput("plotNetSIZE")),
-        conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",uiOutput("plotUpsetSIZE")),
-        conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),
-        conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE"))
-      ),
-      hr(),
-      fluidRow(
-        column(6,dataTableOutput('datatableIntersectsNet')),
-        column(6,dataTableOutput('datatableEdgeCountNet'))
-        ),
-        dataTableOutput('datatableEdgeListNet')
-      
-      
-    ),
+
     ###########   Cells  ##########
      tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
               div(id = "divLoadCells",

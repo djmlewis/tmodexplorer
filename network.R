@@ -17,7 +17,8 @@ eulerFromVaccGenesList <- function(vennData){
   if(is.null(vennData) || length(vennData)==0) return(NULL)
   vacCols <- vaccColoursForNames(names(vennData),TRUE)
   names(vennData) <- prettifyName(names(vennData),"(_)")
-  plot(euler(vennData),
+  e <- euler(vennData, shape = 'ellipse')
+  plot(e,
      edges = list(col = vacCols, lwd = 4),
      fills = list(fill = vacCols, alpha = 0.1),
      quantities = list(col = 'black', fontsize = 32),
@@ -28,7 +29,7 @@ eulerFromVaccGenesList <- function(vennData){
 venDiagramFromVaccGenesList <- function(vennData){
   if(is.null(vennData) || length(vennData)==0) return(NULL)
   if(length(vennData)>5) {
-    showNotification("Only first 5 groups shown in Venn diagram", type = "error")
+    # showNotification("Only first 5 groups shown in Venn diagram", type = "error")
     vennData <- vennData[1:5]
   }
   vacNames <- names(vennData)
@@ -95,7 +96,7 @@ geneIntersectsFromVaccGenesList <- function(vennData){
   elements <-  lapply(combs, function(i) Setdiff_venn(vennData[i], vennData[setdiff(names(vennData), i)]))
   # n.elements <- sapply(elements, length)
   elementsDF <- map_dfr(names(elements),function(name){
-    data_frame(Group = name,Genes = paste0(elements[[name]],collapse = ', '))
+    data_frame(Set = name,Genes = paste0(elements[[name]],collapse = ', '))
   }) %>%
     filter(nchar(Genes)>0)
   
@@ -119,7 +120,7 @@ upsetrFromVaccGenesList <- function(vennData){
   ))
 }
 
-getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {
+getNetworkEdgeListAndCount <- function(data, vaccs_day, numRows, descend) {
   if(is.null(data)) return(NULL)
   
   sortedData <- map_dfr(vaccs_day, function(vd){
@@ -144,11 +145,14 @@ getNetworkEdgelist <- function(data, vaccs_day, numRows, descend) {
                         stringsAsFactors = FALSE)
     return(genes)
   }) %>%
-  # we must arrange because summarise in edgeCount does arrange, whereas unique does not
+    # we must arrange because summarise in edgeCount does arrange, whereas unique does not
     arrange(Gene)
   
+  edgecount <- sortedData %>%
+    group_by(Gene) %>%
+    summarise(Connections = n())
 
-  return(sortedData)
+  return(list(edgeList = sortedData, edgeCount = edgecount))
 }
 
 getVennVaccGenesList <- function(sortedData, vaccs_day) {
@@ -165,37 +169,6 @@ getEdgeMinMax<- function(edgelist,connection) {
   connection <- ifelse(connection == "revrank","Rank","MeanValue")
   return(list(Min = floor(min(edgelist[[connection]],na.rm = TRUE)), Max = ceiling(max(edgelist[[connection]],na.rm = TRUE))))
 }
-
-getNetworkEdgeCounts <- function(data2EdgeCount) {
-  if(is.null(data2EdgeCount)) return(NULL)
-  edgecount <-data2EdgeCount
-
-  edgecount <- edgecount %>%
-    group_by(Gene) %>%
-    summarise(Connections = n())
-
-  return(edgecount)
-}
-
-# getNetworkFilteredEdgeCounts <- function(data2EdgeCount, edgeFilter, edgeCountThreshold) {
-#   if(is.null(data2EdgeCount)) return(NULL)
-#   edgecount <- data2EdgeCount %>%
-#     group_by(Gene) %>%
-#     summarise(Connections = n())
-#   
-#   if(edgeFilter != "a") {
-#     connected <- switch (edgeFilter,
-#                          "u" = edgecount[edgecount$Connections == 1,][["Gene"]],
-#                          "c" = edgecount[edgecount$Connections>1,][["Gene"]],
-#                          "v" = edgecount[edgecount$Connections>edgeCountThreshold,][["Gene"]],
-#                          NULL #redundant - post error
-#     )
-#     if(length(connected) < 1) return(NULL)
-#     edgecount <- edgecount[edgecount$Gene %in% connected,]
-#   }
-#   
-#   return(edgecount)
-# }
 
 
 getFilteredEdgeListAndEdgeCounts <- function(data2q, edgecount, edgeFilter, edgeCountThreshold,
@@ -225,7 +198,8 @@ getFilteredEdgeListAndEdgeCounts <- function(data2q, edgecount, edgeFilter, edge
     if(nrow(data2q)<1) return(NULL)
     
     # now reduce edgeCountData to match the genes remaining in data2q
-    edgecount <- edgecount[edgecount$Gene %in% data2q$Gene,]
+    edgecount <- edgecount %>%
+      filter(Gene %in% data2q$Gen)
   }
   
   return(list(edgeList = data2q, edgeCount = edgecount))
