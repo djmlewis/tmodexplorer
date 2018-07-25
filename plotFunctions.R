@@ -438,7 +438,7 @@ plotDataTable <- function(data2plot,file, widthFactor) {
   }
 }
 
-plotPlotPNG <- function(plot2plot,file, h,w) {
+printPlotPNG <- function(plot2plot,file, h,w) {
   if (is.null(plot2plot)) {
     png(file)
     grid.newpage()
@@ -453,6 +453,21 @@ plotPlotPNG <- function(plot2plot,file, h,w) {
   }
 }
 
+plotPlotPNG <- function(plot2plot,file, h,w, gridDraw) {
+  if (is.null(plot2plot)) {
+    png(file)
+    grid.newpage()
+    grid.text("Nothing To Plot")
+    dev.off()
+  } else {
+    # we set res in renderplot as 72, so we have to scale-up the h,w to get higher resolution
+    png(file, height = h*300/72, width = w*300/72, res = 300, units = 'px', bg = "white")
+    switch(gridDraw,
+      "v" = grid.draw(plot2plot),
+      plot(plot2plot))
+    dev.off()
+  }
+}
 
 getGGplotShapeMiniplot <- function(kinetics,dataValueRange) {
   if(is.null(kinetics)) return(NULL)

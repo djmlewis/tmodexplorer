@@ -29,7 +29,6 @@ eulerFromVaccGenesList <- function(vennData){
 venDiagramFromVaccGenesList <- function(vennData){
   if(is.null(vennData) || length(vennData)==0) return(NULL)
   if(length(vennData)>5) {
-    # showNotification("Only first 5 groups shown in Venn diagram", type = "error")
     vennData <- vennData[1:5]
   }
   vacNames <- names(vennData)
@@ -52,6 +51,7 @@ venDiagramFromVaccGenesList <- function(vennData){
     margin = 0.16)
   
   res <- file.remove(list.files(pattern = "^VennDiagram.*log$"))
+  return(vd)
   return(grid.draw(vd))
 }
 
@@ -107,18 +107,40 @@ geneIntersectsFromVaccGenesList <- function(vennData){
 upsetrFromVaccGenesList <- function(vennData){
   if(is.null(vennData) || length(vennData)<2) return(NULL)
   names(vennData) <- prettifyName(names(vennData),"(_)")
-  return(upset(fromList(vennData),
-          nsets = length(vennData),
-          main.bar.color = '#728f17',
-          sets.bar.color = '#eab945',
-          matrix.color = '#4d600f',
-          point.size = 4,
-          nintersects = NA,
-          scale.intersections = 'identity',
-          shade.color = '#f8ffeb',
-          text.scale = 3
-  ))
+  ups <- upset(fromList(vennData),
+               nsets = length(vennData),
+               main.bar.color = '#728f17',
+               sets.bar.color = '#eab945',
+               matrix.color = '#4d600f',
+               point.size = 4,
+               nintersects = NA,
+               scale.intersections = 'identity',
+               shade.color = '#f8ffeb',
+               text.scale = 3
+  )
+  return(ups)
 }
+
+upSetRPNG <- function(upsetrdata, file, h, w) {
+  if (is.null(upsetrdata))  {
+    png(file)
+    grid.newpage()
+    grid.text("Nothing To Plot")
+    dev.off()
+  } else {
+    png(
+      file,
+      height = h * 300 / 72,
+      width = w * 300 / 72,
+      res = 300,
+      units = 'px',
+      bg = "white"
+    )
+    upsetrFromVaccGenesList(upsetrdata)
+    dev.off()
+  }
+}
+
 
 getNetworkEdgeListAndCount <- function(data, vaccs_day, numRows, descend) {
   if(is.null(data)) return(NULL)

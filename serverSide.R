@@ -664,7 +664,7 @@ observeEvent(
                                                                     brush = "brush_plotTopGenesSeries"
                                                          ))})
       output$buttonPNGplotTopGenesSeries <- downloadHandler(filename = function(){paste0("Selected Genes As Series.png")},
-        content = function(file) {plotPlotPNG(ggplotTopGenesInSeries,file,session$clientData[["output_plotTopGenesSeries_height"]],session$clientData[["output_plotTopGenesSeries_width"]])})
+        content = function(file) {printPlotPNG(ggplotTopGenesInSeries,file,session$clientData[["output_plotTopGenesSeries_height"]],session$clientData[["output_plotTopGenesSeries_width"]])})
       
     })
   
@@ -747,7 +747,7 @@ observeEvent(
   output$plotGenesModules <- renderPlot({ggplotGenesModules()} ,res = 72)
   output$plotGenesModulesSIZE <- renderUI({plotOutput("plotGenesModules", height = input$numberPlotGenesModulesSIZEheight)})
   output$buttonPNGplotGenesModules <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes.png")},
-    content = function(file) {plotPlotPNG(ggplotGenesModules(),file,session$clientData[["output_plotGenesModules_height"]],session$clientData[["output_plotGenesModules_width"]])})
+    content = function(file) {printPlotPNG(ggplotGenesModules(),file,session$clientData[["output_plotGenesModules_height"]],session$clientData[["output_plotGenesModules_width"]])})
   
   
   #################### Modules->Genes #########################
@@ -778,7 +778,7 @@ observeEvent(
   output$plotModuleGenes <- renderPlot({ggplotModuleGenes()} ,res = 72)
   output$plotModuleGenesSIZE <- renderUI({plotOutput("plotModuleGenes", height = input$numberPlotModuleGenesSIZEheight)})
   output$buttonPNGplotModuleGenes <- downloadHandler(filename = function(){paste0("Selected Genes-",input$selectModuleForGenes,".png")},
-     content = function(file) {plotPlotPNG(ggplotModuleGenes(),file,session$clientData[["output_plotModuleGenes_height"]],session$clientData[["output_plotModuleGenes_width"]])})
+     content = function(file) {printPlotPNG(ggplotModuleGenes(),file,session$clientData[["output_plotModuleGenes_height"]],session$clientData[["output_plotModuleGenes_width"]])})
   
   #################### Modules Series #########################
   # selectModuleForSeries and selectColumnForModuleSeries are updated above
@@ -824,7 +824,7 @@ observeEvent(
     
   })
   output$buttonPNGplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.png")},
-    content = function(file) {plotPlotPNG(ggplotModulesInSeries,file,session$clientData[["output_plotModuleSeries_height"]],session$clientData[["output_plotModuleSeries_width"]])})
+    content = function(file) {printPlotPNG(ggplotModulesInSeries,file,session$clientData[["output_plotModuleSeries_height"]],session$clientData[["output_plotModuleSeries_width"]])})
   
   updateplotModuleSeriesBRUSH <- function(res) {
     output$plotModuleSeriesBRUSH <- renderTable({res$Table}, striped = TRUE)
@@ -930,17 +930,18 @@ observeEvent(
       networkEListAndCount <- getNetworkEdgeListAndCount(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
       networkEdgeListAndCount$edgeCount <- networkEListAndCount[['edgeCount']]
       networkEdgeListAndCount$edgeList <- networkEListAndCount[['edgeList']]
-      numRowsNet(paste(input$numericNumRowsNet,"rows."))
+      numRowsNet(paste(input$numericNumRowsNet,"rows "))
       updateNumericEdgeThresh()
     })
   
-  output$netFilterString <- renderText({paste(numRowsNet(),
-                                    switch(input$radioEdgeCountThreshold,'a' = "All connections.", 'u' = "Unique connections.",'c' = "Common connections.",'v' = paste("Connections >",input$numericEdgeCountThreshold,'.')),
+  netFilterString <- reactive({paste(numRowsNet(),
+                                    switch(input$radioEdgeCountThreshold,'a' = "All connections ", 'u' = "Unique connections ",'c' = "Common connections ",'v' = paste("Connections >",input$numericEdgeCountThreshold)),
                                     ifelse(input$checkboxThresholdEdgesNet == TRUE,
                                            paste(switch(input$radioLineLabelVariableNet,'MeanValue' = "Value", 'revrank' = "Rank"),"between",input$numericEdgeValueThresholdLo,"and",input$numericEdgeValueThresholdHi),
-                                           "")
+                                           "")# the F in ifelse
                                     )})
-
+  output$netFilterString <- renderText({netFilterString()})
+  
   networkFilteredEdgeListAndCount <- reactive({
     return(getFilteredEdgeListAndEdgeCounts(networkEdgeListAndCount$edgeList,networkEdgeListAndCount$edgeCount,input$radioEdgeCountThreshold,input$numericEdgeCountThreshold,
                                             input$radioLineLabelVariableNet,input$numericEdgeValueThresholdLo,input$numericEdgeValueThresholdHi,input$checkboxThresholdEdgesNet))
@@ -965,7 +966,7 @@ observeEvent(
   
   output$plotVenn <- renderPlot({
     if(is.null(vennVaccGenesList())) NULL
-    else venDiagramFromVaccGenesList(vennVaccGenesList())
+    else grid.draw(venDiagramFromVaccGenesList(vennVaccGenesList()))
   })
   output$plotEuler <- renderPlot({
     eulerFromVaccGenesList(vennVaccGenesList())
@@ -987,7 +988,28 @@ observeEvent(
   output$plotEulerSIZE <- renderUI({plotOutput("plotEuler", height = input$plotNetSIZEheight)})
   output$plotUpsetSIZE <- renderUI({plotOutput("plotUpset", height = input$plotNetSIZEheight)})
   
-
+  output$buttonPNGNet <- downloadHandler(filename = function(){
+    paste0(
+    switch(input$radioVennNetworkeNet,"n" = "Network ","e" = "Euler ","v" = "Venn ","u" = "UpSetR "),
+    paste(input$selectVacDaysToNet)," ",
+    netFilterString(),
+    ".png"
+    )},
+    content = function(file) {
+      # upsetR wants to draw directly and returns nothing
+      if(input$radioVennNetworkeNet == "u") {
+        upSetRPNG(vennVaccGenesList(),file,session$clientData[["output_plotNet_height"]],session$clientData[["output_plotNet_width"]])
+      }
+      else plotPlotPNG(
+      switch(input$radioVennNetworkeNet,
+             "n" = networkQgraph(),
+             "e" = eulerFromVaccGenesList(vennVaccGenesList()),
+             "v" = venDiagramFromVaccGenesList(vennVaccGenesList())
+             ),
+      file,session$clientData[["output_plotNet_height"]],session$clientData[["output_plotNet_width"]],
+      input$radioVennNetworkeNet)
+      })
+  
   updateNumericEdgeThresh <- function() {
     minmax <- getEdgeMinMax(networkEdgeListAndCount$edgeList,input$radioLineLabelVariableNet)
     updateNumericInput(session,'numericEdgeValueThresholdLo',value = minmax[['Min']])
@@ -1167,7 +1189,7 @@ ggplotSelectedModules <-
 output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()} ,res = 72)
 output$mplotSelectedModulesSIZE <- renderUI({plotOutput("mplotSelectedModules", height = input$numbermplotSelectedModulesSIZEheight)})
 output$buttonPNGmplotSelectedModules <- downloadHandler(filename = function(){paste0("Selected Modules.png")},
-  content = function(file) {plotPlotPNG(ggplotSelectedModules(),file,session$clientData[["output_mplotSelectedModules_height"]],session$clientData[["output_mplotSelectedModules_width"]])})
+  content = function(file) {printPlotPNG(ggplotSelectedModules(),file,session$clientData[["output_mplotSelectedModules_height"]],session$clientData[["output_mplotSelectedModules_width"]])})
 
 #################### Modules Modules->Genes #########################
 
@@ -1193,7 +1215,7 @@ ggplotModuleModuleGenes <- reactive({plotModuleGenes(expressionsInModuleModule()
 output$mplotModuleGenes <- renderPlot({ggplotModuleModuleGenes()} ,res = 72)
 output$mplotModuleGenesSIZE <- renderUI({plotOutput("mplotModuleGenes", height = input$mnumberPlotModuleGenesSIZEheight)})
 output$mbuttonPNGplotModuleGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".png")},
- content = function(file) {plotPlotPNG(ggplotModuleModuleGenes(),file,session$clientData[["output_mplotModuleGenes_height"]],session$clientData[["output_mplotModuleGenes_width"]])})
+ content = function(file) {printPlotPNG(ggplotModuleModuleGenes(),file,session$clientData[["output_mplotModuleGenes_height"]],session$clientData[["output_mplotModuleGenes_width"]])})
 
   #################### Plot Modules Selected Series #########################
 
@@ -1230,7 +1252,7 @@ observeEvent({
     
 })
 output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Modules Series.png")},
-  content = function(file) {plotPlotPNG(ggplotSelectedModulesSeries[['plot']],file,session$clientData[["output_mplotModuleSeries_height"]],session$clientData[["output_mplotModuleSeries_width"]])})
+  content = function(file) {printPlotPNG(ggplotSelectedModulesSeries[['plot']],file,session$clientData[["output_mplotModuleSeries_height"]],session$clientData[["output_mplotModuleSeries_width"]])})
 
 updatemplotModuleSeriesBRUSH <- function(res) {
   output$mplotModuleSeriesBRUSH <- renderTable({res$Table}, striped = TRUE)
@@ -1362,7 +1384,7 @@ observeEvent({
 })
 
 output$buttonPNGplotCellsSeries <- downloadHandler(filename = function(){paste0("Cell Kinetics.png")},
-  content = function(file) {plotPlotPNG(ggplotSelectedCellsSeries[['plot']],file,session$clientData[["output_plotCellsSeries_height"]],session$clientData[["output_plotCellsSeries_width"]])})
+  content = function(file) {printPlotPNG(ggplotSelectedCellsSeries[['plot']],file,session$clientData[["output_plotCellsSeries_height"]],session$clientData[["output_plotCellsSeries_width"]])})
 
 output$buttonSaveTableCellsSeries <- downloadHandler(filename = function(){paste0("Cell Kinetics.csv")},
   content = function(file) {write.csv(ggplotSelectedCellsSeries[['table']], file, row.names = FALSE)})
@@ -1407,7 +1429,7 @@ observeEvent(input$buttonPlotCytokines, {
   
 })
 output$cbuttonPNGplotCytokines <- downloadHandler(filename = function(){paste0("Selected Cytokines.png")},
-  content = function(file) {plotPlotPNG(cytokinesDataAndPlot$plot,file,session$clientData[["output_cplotCytokines_height"]],session$clientData[["output_cplotCytokines_width"]])})
+  content = function(file) {printPlotPNG(cytokinesDataAndPlot$plot,file,session$clientData[["output_cplotCytokines_height"]],session$clientData[["output_cplotCytokines_width"]])})
 
 output$buttonSaveTableCytokines <- downloadHandler(filename = function(){paste0("Selected Cytokines.csv")},
   content = function(file) {write.csv(cytokinesDataAndPlot$data, file, row.names = FALSE)})
