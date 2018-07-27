@@ -3,9 +3,14 @@ server <- function(input, output, session) {
   
 #   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
-  # removeUI(selector = "#myid", immediate = TRUE)
   # initial hidden setup
-  if(is_local == FALSE) {
+  # hide the explores until load
+  hideTab(inputId = "navbarTop", target = "Explore By Gene")
+  hideTab(inputId = "navbarTop", target = "Network Genes")
+  hideTab(inputId = "navbarTop", target = "Explore By Module")
+  hideTab(inputId = "navbarTop", target = "Lookup")
+
+    if(is_local == FALSE) {
     hideTab(inputId = "navbarTop", target = "Load transcriptomics")
     hideTab(inputId = "navbarTop", target = "ReadMe")
     hideTab(inputId = "navbarTop", target = "Cells")
@@ -13,11 +18,6 @@ server <- function(input, output, session) {
   } else {
     hideTab(inputId = "navbarTop", target = "Password")
   }
-  # hide the explores until load
-  hideTab(inputId = "navbarTop", target = "Explore By Gene")
-  hideTab(inputId = "navbarTop", target = "Explore By Module")
-  # hideTab(inputId = "navbarTop", target = "Cells")
-  hideTab(inputId = "navbarTop", target = "Lookup")
   
   assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   assign("expressionValueRangeVaccDay",list(Max = 0, Min = 0), envir = .GlobalEnv)
@@ -275,8 +275,8 @@ server <- function(input, output, session) {
     
     # show hide the nav tabs to reflect we have loaded data, rehide any needing rehiding post select
     showTab(inputId = "navbarTop", target = "Explore By Gene")
+    showTab(inputId = "navbarTop", target = "Network Genes")
     showTab(inputId = "navbarTop", target = "Explore By Module")
-    # showTab(inputId = "navbarTop", target = "Cells")
     showTab(inputId = "navbarTop", target = "Lookup")
     
     # we may have been on a different pane so re-select Select
@@ -409,29 +409,6 @@ observeEvent(
     updatePickerInput(session, 'selectColumnDay', choices = dayPatterns[[input$selectColumnVaccine]])
     respondToChangeColumn("vacc")
   })
-
-# observeEvent(
-#   {
-#     input$radioFilterByRowKinetics
-#   },
-#   {
-#     if(input$radioFilterByRowKinetics == "row") {
-#       show("checkboxRowsAnyDay")
-#     } else {
-#       hide("checkboxRowsAnyDay")
-#     }
-#   }, ignoreInit = TRUE)
-# 
-# 
-# observeEvent(
-#   input$checkboxSelectValues,
-#   {
-#     if(input$checkboxSelectValues == FALSE) show("checkboxRowsAnyDay")
-#     else {
-#       if(input$radioFilterByRowKinetics == 'kinetics') hide("checkboxRowsAnyDay")
-#       else show("checkboxRowsAnyDay")
-#     }
-#   })
 
 
 observeEvent(
@@ -917,29 +894,34 @@ observeEvent(
       updatePickerInput(session, 'selectVacDaysToNet', choices = character(0), selected = character(0))
     })
   
-  
   numRowsNet <- reactiveVal(NULL)
   networkEdgeListAndCount <- reactiveValues(edgeCount = NULL, edgeList = NULL)
+  
+  plotNetworkGraph <- function(){
+    networkEdgeListAndCount$edgeCount <- NULL
+    networkEdgeListAndCount$edgeList <- NULL
+    networkEListAndCount <- getNetworkEdgeListAndCount(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
+    networkEdgeListAndCount$edgeCount <- networkEListAndCount[['edgeCount']]
+    networkEdgeListAndCount$edgeList <- networkEListAndCount[['edgeList']]
+    numRowsNet(paste(input$numericNumRowsNet,"rows", ifelse(input$checkboxDescNet == TRUE, "descending ", "ascending ")))
+    updateNumericEdgeThresh()
+  }
+  
   observeEvent(
     {
       input$buttonPlotNet
     },
     {
-      networkEdgeListAndCount$edgeCount <- NULL
-      networkEdgeListAndCount$edgeList <- NULL
-      networkEListAndCount <- getNetworkEdgeListAndCount(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
-      networkEdgeListAndCount$edgeCount <- networkEListAndCount[['edgeCount']]
-      networkEdgeListAndCount$edgeList <- networkEListAndCount[['edgeList']]
-      numRowsNet(paste(input$numericNumRowsNet,"rows "))
-      updateNumericEdgeThresh()
+      plotNetworkGraph()
     })
   
-  netFilterString <- reactive({paste(numRowsNet(),
-                                    switch(input$radioEdgeCountThreshold,'a' = "All connections ", 'u' = "Unique connections ",'c' = "Common connections ",'v' = paste("Connections >",input$numericEdgeCountThreshold)),
-                                    ifelse(input$checkboxThresholdEdgesNet == TRUE,
-                                           paste(switch(input$radioLineLabelVariableNet,'MeanValue' = "Value", 'revrank' = "Rank"),"between",input$numericEdgeValueThresholdLo,"and",input$numericEdgeValueThresholdHi),
-                                           "")# the F in ifelse
-                                    )})
+  netFilterString <- reactive({
+    paste(numRowsNet(),
+      switch(input$radioEdgeCountThreshold,'a' = "All connections ", 'u' = "Unique connections ",'c' = "Common connections ",'v' = paste("Connections >",input$numericEdgeCountThreshold)),
+      ifelse(input$checkboxThresholdEdgesNet == TRUE,
+             paste(switch(input$radioLineLabelVariableNet,'MeanValue' = "Value", 'revrank' = "Rank"),"between",input$numericEdgeValueThresholdLo,"and",input$numericEdgeValueThresholdHi),
+             "")# the F in ifelse
+     )})
   output$netFilterString <- renderText({netFilterString()})
   
   networkFilteredEdgeListAndCount <- reactive({
@@ -963,16 +945,37 @@ observeEvent(
     geneIntersectsFromVaccGenesList(vennVaccGenesList())
   })
   
+  filenameForNet <- function(netType,fileType,vaccdays){
+    paste0(
+      switch(netType,"n" = "Network ","e" = "Euler ","v" = "Venn ","u" = "UpSetR ", 'x' = ""),
+      vaccdays," ",
+      netFilterString(),
+      fileType
+    )
+  }
+  
+  output$buttonSaveTablesNet <- downloadHandler(
+    filename = function(){filenameForNet('x',".xlsx",input$selectVacDaysToNet)},
+    content = function(file) {write.xlsx(
+      list(
+        Genes = if(is.null(networkFilteredEdgeListAndCount()[['edgeList']])) data.frame(Empty = "") else select(networkFilteredEdgeListAndCount()[['edgeList']],-c(revrank,MeanValueRound)),
+        Connections = if(is.null(networkFilteredEdgeListAndCount()[['edgeCount']])) data.frame(Empty = "") else arrange(networkFilteredEdgeListAndCount()[['edgeCount']],desc(Connections)),
+        Intersects = if(is.null(geneIntersectsFromVaccGenesList(vennVaccGenesList()))) data.frame(Empty = "") else geneIntersectsFromVaccGenesList(vennVaccGenesList())
+        ),
+      file)}
+    )
+  
+  
   
   output$plotVenn <- renderPlot({
     if(is.null(vennVaccGenesList())) NULL
     else grid.draw(venDiagramFromVaccGenesList(vennVaccGenesList()))
   })
   output$plotEuler <- renderPlot({
-    eulerFromVaccGenesList(vennVaccGenesList())
+    eulerFromVaccGenesList(vennVaccGenesList(),input$radioEulerShape)
   })
   output$plotUpset <- renderPlot({
-    upsetrFromVaccGenesList(vennVaccGenesList())
+    upsetrFromVaccGenesList(vennVaccGenesList(),input$radioUpsetOrder,input$checkboxEmptyintersections)
   })
   
   #input$plotNetSIZEheight below is to just react
@@ -988,13 +991,8 @@ observeEvent(
   output$plotEulerSIZE <- renderUI({plotOutput("plotEuler", height = input$plotNetSIZEheight)})
   output$plotUpsetSIZE <- renderUI({plotOutput("plotUpset", height = input$plotNetSIZEheight)})
   
-  output$buttonPNGNet <- downloadHandler(filename = function(){
-    paste0(
-    switch(input$radioVennNetworkeNet,"n" = "Network ","e" = "Euler ","v" = "Venn ","u" = "UpSetR "),
-    paste(input$selectVacDaysToNet)," ",
-    netFilterString(),
-    ".png"
-    )},
+  output$buttonPNGNet <- downloadHandler(
+    filename = function(){filenameForNet(input$radioVennNetworkeNet,".png",input$selectVacDaysToNet)},
     content = function(file) {
       # upsetR wants to draw directly and returns nothing
       if(input$radioVennNetworkeNet == "u") {
@@ -1009,6 +1007,7 @@ observeEvent(
       file,session$clientData[["output_plotNet_height"]],session$clientData[["output_plotNet_width"]],
       input$radioVennNetworkeNet)
       })
+  
   
   updateNumericEdgeThresh <- function() {
     minmax <- getEdgeMinMax(networkEdgeListAndCount$edgeList,input$radioLineLabelVariableNet)

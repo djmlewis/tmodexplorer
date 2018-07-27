@@ -13,17 +13,18 @@ vaccColoursForNames <- function(vaccnames, withDays = FALSE,namesNotColours = FA
   return(vaccCols)
 }
 
-eulerFromVaccGenesList <- function(vennData){
+eulerFromVaccGenesList <- function(vennData,shapes){
   if(is.null(vennData) || length(vennData)==0) return(NULL)
   vacCols <- vaccColoursForNames(names(vennData),TRUE)
   names(vennData) <- prettifyName(names(vennData),"(_)")
-  e <- euler(vennData, shape = 'ellipse')
-  plot(e,
+  e <- euler(vennData, shape = shapes)
+  p <- plot(e,
      edges = list(col = vacCols, lwd = 4),
      fills = list(fill = vacCols, alpha = 0.1),
      quantities = list(col = 'black', fontsize = 32),
      labels = list(fontsize = 24)
   )
+  return(p)
 }
 
 venDiagramFromVaccGenesList <- function(vennData){
@@ -104,11 +105,14 @@ geneIntersectsFromVaccGenesList <- function(vennData){
   
 }
 
-upsetrFromVaccGenesList <- function(vennData){
+upsetrFromVaccGenesList <- function(vennData,orderby, emptyintersections){
   if(is.null(vennData) || length(vennData)<2) return(NULL)
+  if(emptyintersections == TRUE) emptyintersections <- length(vennData) else emptyintersections <- NULL
   names(vennData) <- prettifyName(names(vennData),"(_)")
   ups <- upset(fromList(vennData),
                nsets = length(vennData),
+               empty.intersections = emptyintersections,
+               order.by = switch(orderby, 'f' = "freq", 'd' = "degree", 'fd' = c("freq","degree"), 'df' = c("degree","freq")),
                main.bar.color = '#728f17',
                sets.bar.color = '#eab945',
                matrix.color = '#4d600f',
