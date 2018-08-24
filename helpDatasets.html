@@ -40,6 +40,8 @@
       D2: Single dose of Boostrix or saline in Gent.<br>
       H: VSVHIVGAG or saline or no immunisation, in various sites in USA
       run by HVTN.<br>
+      Q: alpha-RIX-Tetra quadravalent seasonal influenza vaccine given
+      as a single dose in Gent.<br>
     </p>
     <h2><a name="Placebo_groups"></a>Placebo groups</h2>
     <p>There are various placebo groups included in the various datasets
@@ -60,6 +62,9 @@
       subjects were not randomised with the D trial and are separated
       from it in time by around a year.<br>
     </p>
+    <p>The alpha-RIX-Tetra protocol included 20 subjects all given the
+      influenza vaccine with no placebo group, as it was a control for a
+      human infection challenge. Only days 0-1-2-3 were sampled. </p>
     <p>The HVTN trial was problematic. Transcriptomics were run on whole
       blood collected at various time points after a single immunisation
       with VSV-HIV gag, following various DNA primings. However, only 17
@@ -119,15 +124,18 @@
     background corrected and quantile normalise as one group for the <i><b>ABCDD2</b></i>
     <i><b>probe expression</b> </i>dataset<i>. </i>I background
     corrected and quantile&nbsp; normalised the VSVHIVgag arrays
-    together for the <b><i>H </i></b><i><b>probe expression</b> </i>dataset.
-    These two data sets are presented separately. For the <i><b>fold-change
-        dataset</b></i> I normalised all the arrays <b>for each
-      participant separately</b>, as I calculate a fold-change from
-    baseline for each participant separately. Then I combined the
-    normalised mean data for ABCDD2 and H into one dataset. While this
-    may be an unusual way to normalise it is convenient in this
-    demonstration software to have all the vaccines available for
-    plotting in one dataset.<br>
+    together for the <b><i>H </i></b><i><b>probe expression</b> </i>dataset,
+    and similarly the alpha-RIX-Tetra for the Q dataset. These data sets
+    are presented separately. <br>
+    <br>
+    For the <i><b>fold-change dataset</b></i> I normalised all the
+    arrays <b>for each participant separately</b>, as I calculate a
+    fold-change from baseline for each participant separately and so
+    each participant is self-standardised to their day 0. Then I
+    combined the normalised mean data for ABCDD2, H and Q into one
+    dataset by column-binding. While this may be a nonstandard way to
+    normalise it is convenient in this demonstration software to have
+    all the vaccines available for plotting in one dataset.<br>
     <h2><a name="Cytokines_Data_"></a>Cytokines Data<br>
     </h2>
     <p>The&nbsp; cytokines dataset has been uploaded to the server and

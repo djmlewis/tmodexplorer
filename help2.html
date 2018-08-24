@@ -48,6 +48,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
                     kinetics for one treatment over different times</a></li>
               </ul>
               <li><a href="#3._Rows_In_Range_">3. Rows In Range</a><br>
@@ -62,6 +71,8 @@
           <li><a href="#Modules-Genes_Probes_tab">Modules-&gt;Genes</a></li>
           <li><a href="#Modules:Series_Probes_tab">Modules:Series</a></li>
         </ul>
+        <ul>
+        </ul>
         <li><a href="#Explore_Transcriptomics_By_Module_tab">Explore
             Transcriptomics By Module</a></li>
         <ul>
@@ -70,6 +81,8 @@
           <li><a href="#Modules-Genes_Modules_tab">Modules-&gt;Genes</a></li>
           <li><a href="#Modules:Series_Modules_tab">Modules:Series</a></li>
         </ul>
+        <li><a href="#Network_Genes_">Network Genes<br>
+          </a></li>
         <li><a href="#Transcriptomics_Lookup_tab_">Transcriptomics
             Lookup</a></li>
         <ul>
@@ -189,6 +202,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
       by commas</b> and are OR'd (search returns as many of those terms
     as it can find, treating each term separately). Commas are
     interpreted as search term dividers and cannot be 'escaped'. Select
@@ -255,8 +277,26 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
+
+
+
+
+
+
           Genes</b></a> tab and use&nbsp; the <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help2.html#Gene_Lookup_tab"><b>Gene
+
+
+
+
+
+
+
+
+
 
 
 
@@ -330,6 +370,15 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
+
+
+
+
+
+
         kinetics for one treatment over different times</b></h6>
     <p>This is a multi-column version of the <b>Treat~Time</b> filter.
       The <b>All Times</b> option is ignored as you can set which days
@@ -366,6 +415,15 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
       window set to the dataset min-max to illustrate that all values
       will be accepted. When filtering fold-change data it is probably
       worth ignoring day 0 (always 0 value) to save time. <b>Toggle: </b>double-click
+
+
+
+
+
+
+
+
+
 
 
 
@@ -407,6 +465,15 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
+
+
+
+
+
+
+
+
       combination</b> selected in the menus (single column), or across
     all the columns for the selected treatment if <b>All Times</b> is
     selected (note days 0 and -1 also included). When <b>All Times</b>
@@ -415,6 +482,15 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <b>The fact that the rows are ordered taking into account the time
       points and then filtered</b><b> is extremely important</b>, as the
     output from previous filters (keyword, value, kinetics) will be <b>re-filtered
+
+
+
+
+
+
+
+
+
 
 
 
@@ -463,9 +539,9 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <h4> Treatment, Days and Gene/Spot menus<br>
     </h4>
     Click 'All' to enter all available, or select one by one from
-    pop-down menu and they appear in the box. Click 'None' to clear. The
-    order of the columns as they appear in the box is respected for all
-    boxes like this - so the plot axis will retain the sequence you
+    pop-down menu and they appear in the box. Click 'Clear' to clear.
+    The order of the columns as they appear in the box is respected for
+    all boxes like this - so the plot axis will retain the sequence you
     enter here, unless it is plotting as an XY scatter using numerical
     values. Use the cursor to move between entries to add or delete a
     column at that point. Select an entry and delete.<br>
@@ -568,7 +644,7 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     Select treatment ~ time combinations from the menus. Select modules
     from the <b>Modules</b> menu which lists ones mapped to your
     selected spots or genes, as shown in <b>Modules</b>. Use <b>All</b>
-    or <b>None</b> buttons to add all, or clear selections.<br>
+    or <b>Clear</b> buttons to add all, or clear selections.<br>
     <br>
     <b>Boxplot</b> summarises the values of spots within the module.<br>
     <b>Lines</b> plots a line graph of the mean value of spots in the
@@ -579,6 +655,8 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     <b>Split</b> - uses facet_wrap to separate treatments into different
     panels. <br>
     Show / hide the <b>legend</b> and <b>0 |---- (zero</b>) line.<br>
+    <ol>
+    </ol>
     <h3> </h3>
     <h2><a name="Explore_Transcriptomics_By_Module_tab"></a>Explore
       Transcriptomics By Module tab<br>
@@ -605,6 +683,15 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     See the help for <b>Explore By Spot</b> <a
       href="#Select_tab_-_probes_">Select</a> tab for description of how
     to use <b>regex Keyword</b>, <b>Values Within Range</b> and <b>Row
+
+
+
+
+
+
+
+
+
 
 
 
@@ -684,6 +771,15 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
+
+
+
+
+
+
+
+
         (Spots) tab</b></a> as it allows the expression of the selected
     modules to be plotted for all treatment ~ time combinations as a
     time course. Use the slider to change plot height, and browser
@@ -736,6 +832,15 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
 
 
 
+
+
+
+
+
+
+
+
+
         Modules In Dataset</b> or <b>All Module Titles In Dataset</b>
       you can save the list by clicking the download button that
       appears. To repeat this selection (e.g. on another dataset) you
@@ -755,7 +860,124 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
     The bars can be coloured by individual modules when <b>Group By:</b>
     <b>Module</b> is selected, or by module <b>Title</b>, which may
     result in fewer boxes.<br>
-    <br>
+    <h2><a name="Network_Genes_"></a>Network Genes <br>
+    </h2>
+    This tool assists in visualising the sets of genes that are common
+    to the vaccine~day combinations selected, or unique to individual
+    vaccine~days, by plotting Venn / Euler / UpsetR diagrams or network
+    graphs. Selection of genes is always based on the <b>mean</b> gene
+    expression/fold-change <b>value</b> for the spots mapping to that
+    gene. I have avoided the technical term "edges" in the network graph
+    and used "connections" instead.<br>
+    <ol>
+      <li>Select vaccine~day combinations from the menus and click <b>Add</b>
+        to add to the list to plot. Select a combination added to the
+        list and delete, or click <b>Clear</b>.</li>
+      <li>Select number of genes to include, and whether selected on
+        basis of <b>descending</b> mean gene expression / fold-change
+        value (highest N values selected) or reverse (lowest N values
+        selected).</li>
+      <li>Once at least one combination is added the <b>Plot</b> button
+        appears. Click to draw graph, and again after any change to
+        selections.</li>
+    </ol>
+    Changes to the following options will cause the plot to
+    automatically redraw:
+    <ol>
+      <li>Slider to adjust plot height, or changing window width.</li>
+      <li>Filter based on number of connections a gene has to vaccines</li>
+      <ul>
+        <li>Use the bar selector to include <b>All</b> genes, just
+          those unique to one vaccine (<b>O-</b>), just those connected
+          to at least 2 vaccines (<b>-O-</b>), or those connected to 3
+          or more (<b>-O-&gt;</b>) using the <b>number box</b> to set
+          the threshold.</li>
+      </ul>
+      <li><b>Filter based on connection value</b><br>
+        The line connecting a gene to a vaccine represents the value
+        (expression-based value or rank of that gene in the N genes for
+        that vaccine) that the gene has in the vaccine~day combination.
+        Select between checkbox to bring up two boxes which allows genes
+        to be filtered by value or rank between two thresholds. Note
+        rank may be reverse to value in that rank #1 is always the top
+        gene, which may have the largest numerical value. This filter
+        allows the number of genes included in the plots to vary between
+        vaccine~days: for example take the top 100 genes for several
+        vaccine~day combinations but then filter those where the value
+        is &gt; 2: some vaccine~combinations may disappear or be reduced
+        in number of genes (nodes). If you filter by rank it is the same
+        as just reducing the number of genes included, but it plots
+        immediately.</li>
+      <li>Select <b>Network, Venn, Euler or UpsetR plot</b>.<br>
+      </li>
+      <ul>
+        <li><b>Network</b> plots have genes in circular nodes and
+          vaccine in square nodes. Lines show connections between genes
+          and vaccines. Genes connected to only one vaccine are white,
+          while those connected to every vaccine~day are red. Colours
+          between yellow and red are used to indicate increasing number
+          of connections, and will vary according to number of
+          vaccines~days plotted. The colours will not change if you
+          filter genes by value or connections.</li>
+      </ul>
+      <ol>
+        <ul>
+          <li>&nbsp;<b>Line thickness</b> is proportional to the value
+            which can be either actual gene expression / fold-change or
+            the rank. If it is an expression based value the thickness
+            depends on the highest - lowest across all vaccines, and so
+            some combinations may have thick lines, and others all thin.
+            If rank based then it will be limited by 1 ... N genes
+            selected and all combinations will have the same spread of
+            thicknesses. Select Labels to add labels showing the value.</li>
+          <li>&nbsp;<b>Spring graphs</b> assume the nodes repel each
+            other, but genes are pulled towards the vaccines by a force
+            proportional to the connection value. So where the nodes lie
+            on the graph is relevant. Typically vaccine~days with many
+            related genes will pull together, whereas those combinations
+            with few related genes will float away. This is seen clearly
+            in this figure where the live vaccines are close together,
+            as are the subunit vaccines, whereas the placebo
+            combinations are far apart:</li>
+        </ul>
+      </ol>
+    </ol>
+    <div align="center"><img src="network.png" alt="" width="512"
+        height="214"></div>
+    <ol>
+      <ol>
+        <ul>
+          <li><b>Groups</b> and <b>Circle</b> graphs place the genes in
+            a circle with the vaccines offset, and are less informative
+            but included for completeness.<br>
+          </li>
+        </ul>
+      </ol>
+      <ul>
+        <li><b>Venn Diagrams</b> are restricted to the first 5
+          vaccine~day combinations which is a restriction of the
+          VennDiagram R package, plus impossibility to read higher
+          levels.</li>
+        <li><b>Euler</b> diagrams are venn diagrams where the area of
+          the intersects is proportional to the set size. They are
+          rather ugly when the sets overlap but can convey more
+          information graphically when they do not.</li>
+        <li><b>UpsetR</b> is a way to represent complex set data which I
+          have minimally implemented. The best thing is to play with the
+          bar-ordering options based on set frequency and degree, and
+          read the paper.</li>
+      </ul>
+    </ol>
+    <div align="center"><img src="veu.png" alt="" width="650"
+        height="154"><br>
+    </div>
+    <ol>
+      <ul>
+      </ul>
+    </ol>
+    <blockquote> <b>Data tables</b> list genes based on the filters and
+      will change automatically when you apply filters. Export as single
+      Excel file with sheets for each table. </blockquote>
     <h2><a name="Transcriptomics_Lookup_tab_"></a>Transcriptomics Lookup
       tab<br>
     </h2>
@@ -783,6 +1005,15 @@ src="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplo
       to separate multiple search terms in the same way as selecting
       spots by keyword: <a
 href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExplorer/help.html#1._Regex_-_keyword_search_"><b>see
+
+
+
+
+
+
+
+
+
 
 
 
@@ -854,6 +1085,15 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
+
+
+
+
+
+
           increase </b>(from day 0) or <b>actual concentration values</b>
         when plotting.FI may give some wide error bars if a few outliers
         have big changes.<br>
@@ -862,6 +1102,15 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         plot:<br>
         <b>Boxplot</b> is the usual box-whiskers (IQR), <b>Violin</b>
         is a frequency distribution. They both offer the option to <b>Crop
+
+
+
+
+
+
+
+
+
 
 
 
@@ -939,6 +1188,15 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
         The bottom number may also be reduced by data missing from the
         dataset (e.g. if one participant skipped a visit that reduces
         the group size for that day by 1). This plot is useful if <b>Exclude
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1031,6 +1289,15 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
 
 
 
+
+
+
+
+
+
+
+
+
           cell values</b> when plotting.<br>
         When Cell Count Selected, the individual participant's cell
         counts are summarised on box plots, or the mean for the group
@@ -1067,6 +1334,8 @@ href="file:///Users/david/Dropbox/Hammersmith/PET/R_Analyses/Analyses/R/tmodExpl
     The plot can be copied at low resolution by right-clicking, or a
     Hi-Res image downloaded by clicking the button. The data table can
     be downloaded by clicking the button.<br>
+    <br>
+    <br>
     <br>
   </body>
 </html>

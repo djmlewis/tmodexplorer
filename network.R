@@ -106,7 +106,11 @@ geneIntersectsFromVaccGenesList <- function(vennData){
 }
 
 upsetrFromVaccGenesList <- function(vennData,orderby, emptyintersections){
-  if(is.null(vennData) || length(vennData)<2) return(NULL)
+  if(is.null(vennData)) return(NULL)
+  if(length(vennData)<2) {
+    return(grid.text("At least two sets are required for UpSetR plots"))
+  }
+  
   if(emptyintersections == TRUE) emptyintersections <- length(vennData) else emptyintersections <- NULL
   names(vennData) <- prettifyName(names(vennData),"(_)")
   ups <- upset(fromList(vennData),
@@ -125,11 +129,11 @@ upsetrFromVaccGenesList <- function(vennData,orderby, emptyintersections){
   return(ups)
 }
 
-upSetRPNG <- function(upsetrdata, file, h, w) {
-  if (is.null(upsetrdata))  {
+upSetRPNG <- function(upsetrdata,orderby, emptyintersections, file, h, w) {
+  if (is.null(upsetrdata) || length(upsetrdata)<2)  {
     png(file)
     grid.newpage()
-    grid.text("Nothing To Plot")
+    grid.text("At least two sets are required for UpSetR plots")
     dev.off()
   } else {
     png(
@@ -140,7 +144,7 @@ upSetRPNG <- function(upsetrdata, file, h, w) {
       units = 'px',
       bg = "white"
     )
-    upsetrFromVaccGenesList(upsetrdata)
+    upsetrFromVaccGenesList(upsetrdata,orderby, emptyintersections)
     dev.off()
   }
 }
@@ -240,7 +244,7 @@ getNetworkQgraph <- function(edgeListAndCount,netType,edgeWidthVar,showLineLabel
   numVaccNodes <- length(unique(data2q$Vaccine.Day))
   # numGeneNodes <- length(data2q$Gene)
   numGeneNodes <- nrow(edgeCountData)
-  
+
   mypal <- rev(heat.colors(max(edgeCountData$Connections, na.rm = TRUE), alpha = nodeAlpha))
   mypal[1] <- "#FFFFFF"
   edgeCountData <- edgeCountData %>%

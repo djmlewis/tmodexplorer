@@ -16,32 +16,53 @@
       </ul>
     </ul>
     <h1><a name="Introduction"></a>Introduction</h1>
-    The purpose of this app is just to visualise the expression of genes
-    as a time course after immunisation, either alone or when clustered
-    into Blood Transcriptional Modules (BTMs); and to look inside the
-    BTMs to observe how the individual genes are responding to the
-    vaccine stimulus. <br>
+    The purpose of this app is to be a <font size="+1"><b>data
+        visualisation tool</b></font> - nothing more. <i>No statistical
+      analysis is done</i> and you must be aware of the risk of <b>false
+      discovery</b>. However, it leverages the unique design of
+    BIOVACSAFE in that the same chip was used in the same clinical
+    sites, and so if the same genes or modules keep popping-up across
+    different vaccines (or the reverse) this has some significance.
+    Similarly the fact that we have a complete time course allows for
+    some discrimination based on the response curve and adjacent points.
+    While False Discovery statistics can be applied to two-point
+    comparisons (using packages like tmod or limma) where every gene is
+    considered possibly important in the setting of every other gene,
+    this tool allows a more nuanced approach to gene responses to the
+    vaccines tested based on the kinetics and comparison between
+    vaccines as well as placebos.<br>
+    <br>
+    The purpose is just to visualise <b>the expression of genes</b>
+    <b> as a time course after immunisation</b>, either alone or when
+    clustered into Blood Transcriptional Modules (BTMs). This mimics the
+    usual way immunologists observe cell or antibody kinetics. In
+    addition it allows to <b>look inside the BTMs</b> to observe how
+    the individual genes are responding to the vaccine stimulus. <br>
     <br>
     The datasets are composed of <b>rows</b> of data where each row is
-    a spot on the chip, and the <b>columns</b> contain the group mean
-    value (raw expression or fold-increase from baseline) for that spot.
-    The groups are a specific <b>treatment~time point</b> combination:
-    e.g. Boostrix~Day 1, Placebo~Day 0, etc. I use the term "spot" and
-    "row" interchangeably as they are the same. One "Probe" ( specific
-    nucleic acid sequence) may map to many spots, and one gene may map
-    to many probes. Row / Spot IDs are unique, ProbeNames and GeneNames
-    may be duplicated.<br>
+    a <font size="+1" color="#cc0000"><b>spot</b></font> on the chip,
+    and the <b>columns</b> contain the group mean value (raw expression
+    or fold-change from baseline) for that spot. The groups are a
+    specific <b>treatment~time point</b> combination: e.g. Boostrix~Day
+    1, Fluad~Day 7, etc. I use the term "spot" and "row" interchangeably
+    as they are the same. One "Probe" ( specific nucleic acid sequence)
+    may map to many spots, and one gene may map to many probes. Row /
+    Spot IDs are unique, ProbeNames and GeneNames may be duplicated
+    across rows.<br>
     <br>
     The simplest approach is to pick a particular vaccine~day
     combination&nbsp; - <i>e.g. Day 7 after immunisation with Boostrix</i>
     - and then sort rows by the values in that column. This imposes the
-    same row order on other time points and vaccines.Why do this? Well,
-    because with over 40k spots you have to order them somehow. The
-    grouping by <i><b>treatment</b></i> (vaccine or placebo) ~ <i><b>time</b></i>
-    combination is actually a natural grouping, if a bit
-    counter-intuitive when comparing between vaccines. You can also
-    order rows by value <i>at any time point for one selected vaccine,
-    </i>rather than specifying a specific day.<br>
+    same <b>row (spot) order</b> on other time points and vaccines. Why
+    do this? Well, because with over 40k spots you have to order them
+    somehow. The grouping by <i><b>treatment</b></i> (vaccine or
+    placebo) ~ <i><b>time</b></i> combination is actually a natural
+    grouping, if a bit counter-intuitive when comparing between
+    vaccines. You can also order rows by value <i>at any time point for
+      one selected vaccine, </i>rather than specifying a specific day.
+    The question becomes: <i>How do the top N genes in the day 1
+      response to Fluad behave on day 1 after Boostrix?</i> Or maybe: <i>How
+      do the top N genes on day 1 after Fluad behave over time?</i><br>
     <br>
     Having ordered the top or bottom spots, or found spots with values
     between a range, you can then group the spots or genes into a set of
@@ -54,12 +75,12 @@
     the whole module responds over time. You can treat these rows as a
     'pseudo-module' and see how this module changes over time in
     comparison with the predefined modules in tmod. Other search options
-    allow you to identify spots/probes/genes by their title or
-    description instead of (or as well as) their expression values, and
-    then follow these selected genes and the modules that contain them
-    over time.<br>
+    allow you to select spots/probes/genes by their title or description
+    instead of (or as well as) their expression values, and then follow
+    these selected genes and the modules that contain them over time.<br>
     <br>
     The figures below illustrates this: the spots have been sorted in <i>descending
+
       order of their fold-increase from baseline (day 0) in log2
       expression value in the participants 7 days after receiving
       Stamaril</i>. The top 10 spots with the highest fold-increase have
@@ -145,28 +166,28 @@
     By visualising the changes in gene and module expression we can ask
     how do the tmod modules respond after immunisation and how does this
     compare when we select individual genes? Are there other gene
-    groupings that may be better? Do some modules have so many
+    groupings that may be better? Do some BTMs have so many
     non-responding genes that they are not representative? Could we
     cluster new modules?<br>
     <h3><a name="Plots"></a>Plots</h3>
-    <p><b><em>Plots may take some time to appear - be patient!</em></b>
-      The more rows you select for plotting the slower it will be.
-      ggplot2 is not good at providing progress updates - so it may look
-      like nothing is happening. Some plots are drawn automatically and
-      these offer the choice of using R base graphics (faster) or
-      ggplot2 (slower but may be prettier). Other plots have a <b>Plot</b>
-      button, and will only draw or update when that is clicked, to
-      avoid slow refreshes when you alter several options. Plots have a
-      slider control&nbsp;<img alt="" src="slider.png" width="82"
-        height="20"> to change the height. Plot width always resizes
-      automatically with the window width. A low resolution image of
-      plots can be copied or saved by right-clicking on the plot, while
-      clicking <b>⤓ Plot As PNG</b> button downloads a high resolution
-      image. The plotting parameters are not sophisticated, but
-      generally the data used to create the plot are in a table below
-      and can be saved and imported into R or other packages for
-      plotting. Some tables can be saved as PNG files to incorporate
-      with plots as graphics.<br>
+    <p><font size="+1" color="#cc0000"><b><em>Plots may take some time
+            to appear - be patient!</em></b></font> The more rows you
+      select for plotting the slower it will be. ggplot2 is not good at
+      providing progress updates - so it may look like nothing is
+      happening. Some plots are drawn automatically and these offer the
+      choice of using R base graphics (faster) or ggplot2 (slower but
+      may be prettier). Other plots have a <b>Plot</b> button, and will
+      only draw or update when that is clicked, to avoid slow refreshes
+      when you alter several options. Plots have a slider control&nbsp;<img
+        alt="" src="slider.png" width="82" height="20"> to change the
+      height. Plot width always resizes automatically with the window
+      width. A low resolution image of plots can be copied or saved by
+      right-clicking on the plot, while clicking <b>⤓ Plot As PNG</b>
+      button downloads a high resolution image. The plotting parameters
+      are not sophisticated, but generally the data used to create the
+      plot are in a table below and can be saved and imported into R or
+      other packages for plotting. Some tables can be saved as PNG files
+      to incorporate with plots as graphics.<br>
     </p>
     <h4>Identifying data on line plots by clicking or selecting points<br>
     </h4>

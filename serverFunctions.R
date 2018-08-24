@@ -387,7 +387,6 @@ getGenesForValues <- function(genes,Min,Max){
 }
 
 getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
-
   kineticsdf <-  kineticsDF(kinetics, TRUE)
   
   col2match <- ifelse(asGenes == TRUE,"Gene","Spot")

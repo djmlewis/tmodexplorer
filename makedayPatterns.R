@@ -1,5 +1,6 @@
 
 dayPats <- list(
+  aRIXtetra = c(0, 1, 2, 3),
   STAMARIL = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
   VARILRIX = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
   AGRIPPAL = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
@@ -22,6 +23,7 @@ write_rds(dayPats,"dayPats.rds")
 
 vaccinecolours <-
   c(
+    aRIXtetra = "mediumpurple2",
     AGRIPPAL = "darkorchid4",
     BOOSTRIX = "red3",
     `ENGERIX B1` = "deeppink",

@@ -3,15 +3,30 @@ ui <-
   tagList(
     useShinyjs(),  # Set up shinyjs
     tags$style(".fa-info-circle {color:#fefc78};"),
+    tags$script('
+      var resizeListener;
+      var resizeIncrement = 1;
+      $(window).resize(function(){
+        //every time the window resize is called cancel the setTimeout() function
+        clearTimeout(resizeListener);
+        
+        //set out function to run after a specified amount of time 
+        resizeListener = setTimeout(function(){
+            resizeIncrement += 1;
+            Shiny.onInputChange("windowResizeNet", resizeIncrement);
+        },500);
+      });
+    '),
     hidden(div(id = "hiddenDiv",
     navbarPage(span(style = 'color: #fefc78;','tmodExplorer'), id = 'navbarTop', position = "static-top", theme = "theme.css", windowTitle = 'tmodExplorer',
                inverse = TRUE,
-               header = tagList(tags$style(type="text/css", "body {padding-top: 0px;};")),
+               header = tagList(
+                 tags$style(type="text/css", "body {padding-top: 0px;};")),
                
 ######################  TABS  #########
      #################### Password ################
      tabPanel('Password',
-              h4(style = "text-align: center; margin-top: 0px;",'Please enter the password you have been given to access tmodExplorer'),
+              h4(style = "text-align: center; margin-top: 0px;",'Please enter the password you have been given to access tmodExplorer and click Enter'),
               fluidRow(
                 column(6, offset = 3,
                        wellPanel(style = "background-color: #feffee;",
@@ -20,8 +35,8 @@ ui <-
                                    column(3,actionButton('buttonPassword','Enter',class = "btn-success"))
                                  )
                        ))),
-              h5(style = "text-align: center;","Please contact d.j.lewis@surrey.ac.uk to request a password")
-              
+              h5(style = "text-align: center;","Please contact d.j.lewis@surrey.ac.uk to request a password"),
+              h5(style = "text-align: center;","Please be aware that once logged-in the server will disconnect after a period of inactivity and you will have to re-connect and re-load from scratch - losing all your outputs. So either export regularly or keep the session alive with interaction.")
      ),
      #   #################### Dataset Load ######################
      tabPanel('Load transcriptomics',
@@ -219,9 +234,9 @@ ui <-
                                                      wellPanel(style = "background-color: #feffee;",
                                                                fluidRow(
                                                                  column(4,selectInput('selectVaccinesForSeries', label = "Treatment", choices = character(0), multiple = TRUE)),
-                                                                 column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllVaccinesSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllVaccinesSeries','None'))),
+                                                                 column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllVaccinesSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllVaccinesSeries','Clear'))),
                                                                  column(4,selectInput('selectDaysForSeries', label = "Times", choices = character(0), multiple = TRUE)),
-                                                                 column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllDaysSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllDaysSeries','None')))
+                                                                 column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllDaysSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllDaysSeries','Clear')))
                                                                )
                                                      ),
                                                      wellPanel(
@@ -230,7 +245,7 @@ ui <-
                                                          column(9,selectInput('selectGenesProbesForSeries', label = "Spots / Genes", choices = character(0), multiple = TRUE)),
                                                          column(3,div(style = "margin-top: 20px;",
                                                                       actionButton('buttonAddAllGenesProbesSeries','All', class="btn-outline-primary"),
-                                                                      actionButton('buttonRemoveGenesProbesSeries','None')))
+                                                                      actionButton('buttonRemoveGenesProbesSeries','Clear')))
                                                        )
                                                      )
                                               )
@@ -351,7 +366,7 @@ ui <-
                                                                           column(8, selectInput('selectColumnForModuleSeriesVaccines', label = "Treatment", choices = character(0), multiple = TRUE)),
                                                                           column(4,div(style = "margin-top: 20px;",
                                                                                        actionButton('buttonAddAllColumnsModuleSeriesVaccines','All', class="btn-outline-primary"),
-                                                                                       actionButton('buttonRemoveAllColumnsModuleSeriesVaccines','None')))
+                                                                                       actionButton('buttonRemoveAllColumnsModuleSeriesVaccines','Clear')))
                                                                         )
                                                                  ),
                                                                  column(6,
@@ -359,7 +374,7 @@ ui <-
                                                                           column(8, selectInput('selectColumnForModuleSeriesDays', label = "Times", choices = character(0), multiple = TRUE)),
                                                                           column(4, div(style = "margin-top: 20px;",
                                                                                         actionButton('buttonAddAllColumnsModuleSeriesDays','All', class="btn-outline-primary"),
-                                                                                        actionButton('buttonRemoveAllColumnsModuleSeriesDays','None'))))
+                                                                                        actionButton('buttonRemoveAllColumnsModuleSeriesDays','Clear'))))
                                                                  )
                                                                )
                                                      ),
@@ -368,7 +383,7 @@ ui <-
                                                                  column(9, selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
                                                                         awesomeCheckbox(status = 'success', 'checkboxShowPseudoModuleModuleSeries', 'Include Selected As Module', value = TRUE)),
                                                                  column(3, div(style = "margin-top: 20px;",actionButton('buttonAddAllModulesModuleSeries','All', class="btn-outline-primary"),
-                                                                               actionButton('buttonRemoveAllModulesModuleSeries','None'))
+                                                                               actionButton('buttonRemoveAllModulesModuleSeries','Clear'))
                                                                  )
                                                                ))
                                               )
@@ -392,128 +407,7 @@ ui <-
                          )
               ) # navProbe
      ),# explore by spot
-###########   Network  ##########
- tabPanel(value = 'Network Genes', title = span(style = "color: #defb9c;", "Network Genes"),
-         wellPanel(style = "background-color: #defb9c;",
-           fluidRow(
-             column(2,pickerInput('selectVaccNet', choices = NULL, options = list(`style` = "btn-success"))),
-             column(1,pickerInput('selectDayNet', choices = NULL, options = list(`style` = "btn-success"))),
-             column(1,actionButton('buttonAddVacDayNet','Add', class = 'btn-warning')),
-             column(3, selectInput('selectVacDaysToNet',label = NULL,
-                                   choices = character(0),
-                                   multiple = TRUE)),
-             column(1,actionButton('buttonClearNet','None')),
-             column(1,conditionalPanel(condition = "input.selectVacDaysToNet != null",
-                      actionBttn('buttonPlotNet','Plot',style = 'unite', size = 'sm', color = 'warning', block = TRUE)
-                      )),
-             column(1, numericInput("numericNumRowsNet",NULL,value = 10, min = 1, step = 1),
-                    bsTooltip("numericNumRowsNet","Number of rows to match", placement = 'top')),
-             column(2, awesomeCheckbox('checkboxDescNet', "Descending Value", value = TRUE, status = "success"))
-           )
-          ),
-         wellPanel(style = "background-color: #ffffff;",
-                   fluidRow(
-                     column(1,
-                            radioGroupButtons('radioVennNetworkeNet', NULL,
-                                              direction = 'vertical',justified = TRUE, #individual = TRUE,
-                                              choiceValues = list('n','v', 'e', 'u'),
-                                              selected = 'n',
-                                              choiceNames = list('Net','Venn','Euler',  'UpSetR'))
-                     ),
-                    column(10,
-                     fluidRow(
-                              # thresholds
-                              column(4,
-                                     radioGroupButtons('radioEdgeCountThreshold', NULL, selected = 'a',
-                                                       choiceValues = (list('a', 'u','c','v')),
-                                                       choiceNames = (list('All', 'Unique', 'Common', 'Connect >')),
-                                                       individual = TRUE, justified = TRUE, status = "danger"
-                                     )),
-                              column(1, style = "margin-top: 2px;", conditionalPanel(condition = "input.radioEdgeCountThreshold == 'v'",
-                                                                                     numericInput("numericEdgeCountThreshold",NULL,value = 2, min = 2, step = 1))),
-                              column(2,
-                                     radioGroupButtons('radioLineLabelVariableNet', NULL,
-                                                       choiceValues = list('MeanValue', 'revrank'),
-                                                       choiceNames = list('Value', 'Rank'),
-                                                       individual = TRUE, justified = TRUE, status = "warning"
-                                     )),
-                              column(2, style = "direction: rtl; margin-top: 2px;", awesomeCheckbox('checkboxThresholdEdgesNet', ":between", value = FALSE, status = "warning")),
-                              conditionalPanel(condition = "input.checkboxThresholdEdgesNet == true",
-                                               column(1, style = "margin-top: 2px;", numericInput("numericEdgeValueThresholdLo",NULL,value = 0),
-                                                      bsTooltip("numericEdgeValueThresholdLo","Only include genes with connection value above this", placement = 'bottom')),
-                                               column(1,style = "margin-top: 2px;",  numericInput("numericEdgeValueThresholdHi",NULL,value = 0),
-                                                      bsTooltip("numericEdgeValueThresholdHi","Only include genes with connection value below this", placement = 'bottom')),
-                                               column(1,style = "margin-top: 2px;", actionButton('buttonResetEdgeLimitNumericsNet','Min~Max', class = 'btn-outline-primary')))
-                            ),
-                   # network
-                      conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",
-                       fluidRow(
-                         column(3,
-                                radioGroupButtons('radioNetType', NULL,
-                                                  choiceValues = list('spring', 'groups','circle'),
-                                                  choiceNames = list('Spring', 'Groups','Circle'),
-                                                  individual = TRUE, justified = TRUE, status = "primary"
-                                )),
-                         column(1,style = "margin-top: -7px;",
-                                sliderInput("nodeAlphaNet", NULL, value = 0.9, min = 0.1, max = 1, step = 0.1, ticks = FALSE),
-                                bsTooltip("nodeAlphaNet", "Node transparency")),
-                         column(3,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Connection Labels", value = FALSE, status = "warning"))
-                       )),
-                     # venn
-                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",
-                      fluidRow(
-                        column(12,
-                            conditionalPanel(condition = "input.selectVacDaysToNet != null && input.selectVacDaysToNet.length > 5",
-                            h3(style = "text-align: center;","Only the first 5 vaccine~days can be included in the Venn diagram")
-                            )
-                        )
-                     )),
-                   # upset
-                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",
-                    fluidRow(
-                      column(7,
-                        radioGroupButtons('radioUpsetOrder', "Order by",
-                                       choiceValues = list('f', 'd','fd','df'),
-                                       choiceNames = list('Frequency', 'Degree','Frequency~Degree', 'Degree~Frequency'),
-                                       individual = TRUE, justified = TRUE, status = "success")),
-                      column(3,style = "margin-top: 25px;",
-                             awesomeCheckbox('checkboxEmptyintersections', "Include Empty Intersects", value = FALSE, status = "success"))
-                      
-                    )),
-                   # euler
-                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",
-                    fluidRow(
-                      column(3,
-                       radioGroupButtons('radioEulerShape', NULL,
-                         choiceValues = list('circle', 'ellipse'),
-                         choiceNames = list('Circles', 'Ellipses'),
-                         individual = TRUE, justified = TRUE, status = "success")
-                      )
-                    ))
-                    )#col10
-                   ),
-                   fluidRow(
-                     column(1,style = "margin-top: -7px;",
-                            sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
-                            bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height")),
-                     column(9, conditionalPanel(condition = "output.plotNet != null || output.plotUpset != null || output.plotVenn != null || output.plotEuler != null",
-                                                h3(style = "text-align: center;",textOutput("netFilterString")))),
-                     column(2,downloadButton(class="btn-warning btn-block",'buttonPNGNet', 'HiRes PNG'))
-                   ),
-                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",uiOutput("plotNetSIZE")),
-                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",uiOutput("plotUpsetSIZE")),
-                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),
-                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE"))
-         ),
-         conditionalPanel(condition = "output.plotNet != null || output.datatableIntersectsNet != null || output.datatableEdgeCountNet != null || output.datatableEdgeListNet != null",
-                          downloadButton(class="btn-outline-primary",'buttonSaveTablesNet', 'Tables xlsx')),
-          hr(),
-         fluidRow(
-           column(6,dataTableOutput('datatableIntersectsNet')),
-           column(6,dataTableOutput('datatableEdgeCountNet'))
-         ),
-         dataTableOutput('datatableEdgeListNet')
-       ),
+
      ############## MODULES #################
      tabPanel('Explore By Module',
               hidden(h4(id = "textDataNameModsHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; margin-left: 0px; margin-right: 0px; background-color: #b59800; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameMods'))),
@@ -687,14 +581,14 @@ ui <-
                                                                           column(8, selectInput('mselectColumnForModuleSeriesVaccines', label = "Treatment", choices = character(0), multiple = TRUE)),
                                                                           column(4, div(style = "margin-top: 20px;",
                                                                                         actionButton('mbuttonAddAllColumnsModuleSeriesVaccines','All', class="btn-outline-primary"),
-                                                                                        actionButton('mbuttonRemoveAllColumnsModuleSeriesVaccines','None'))))
+                                                                                        actionButton('mbuttonRemoveAllColumnsModuleSeriesVaccines','Clear'))))
                                                                  ),
                                                                  column(6,
                                                                         fluidRow(
                                                                           column(8, selectInput('mselectColumnForModuleSeriesDays', label = "Times", choices = character(0), multiple = TRUE)),
                                                                           column(4, div(style = "margin-top: 20px;",
                                                                                         actionButton('mbuttonAddAllColumnsModuleSeriesDays','All', class="btn-outline-primary"),
-                                                                                        actionButton('mbuttonRemoveAllColumnsModuleSeriesDays','None'))))
+                                                                                        actionButton('mbuttonRemoveAllColumnsModuleSeriesDays','Clear'))))
                                                                  )
                                                                )
                                                      ),
@@ -714,14 +608,14 @@ ui <-
                                                                                   fluidRow(
                                                                                     column(8, selectInput('mselectPlotModulesInSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE)),
                                                                                     column(4, style = "margin-top: 20px;", actionButton('mbuttonAddAllModuleSeries','All', class="btn-outline-primary"),
-                                                                                           actionButton('mbuttonRemoveAllModuleSeries','None'))
+                                                                                           actionButton('mbuttonRemoveAllModuleSeries','Clear'))
                                                                                   )
                                                                         )),
                                                        conditionalPanel(condition = "input.radioModulesModulesSeries == 'Modules'",
                                                                         wellPanel(style = "background-color: #dcefa0;",
                                                                                   fluidRow(
                                                                                     column(9,selectInput('mselectModuleAllModules', label = 'Modules In Dataset', character(0), multiple = TRUE)),
-                                                                                    column(1,style = "margin-top: 20px;",  actionButton('mbuttonRemoveAllModulesModuleSeries','None')),
+                                                                                    column(1,style = "margin-top: 20px;",  actionButton('mbuttonRemoveAllModulesModuleSeries','Clear')),
                                                                                     column(2,style = "margin-top: 20px;",  conditionalPanel(condition = "input.mselectModuleAllModules != null",
                                                                                                                                             downloadButton(class="btn-danger",'mbuttonSaveListTopModulesSeries', 'Modules List'), bsTooltip("mbuttonSaveListTopModulesSeries", "Modules List To Paste Into regex Keyword Search")
                                                                                     ))
@@ -731,7 +625,7 @@ ui <-
                                                                         wellPanel(style = "background-color: #dcefa0;",
                                                                                   fluidRow(
                                                                                     column(9, selectInput('mselectModuleTitles', label = 'Titles In Dataset', character(0), multiple = TRUE)),
-                                                                                    column(1,style = "margin-top: 20px;", actionButton('mbuttonRemoveAllModuleTitles','None')),
+                                                                                    column(1,style = "margin-top: 20px;", actionButton('mbuttonRemoveAllModuleTitles','Clear')),
                                                                                     column(2,style = "margin-top: 20px;", conditionalPanel(condition = "input.mselectModuleTitles != null",
                                                                                                                                            downloadButton(class="btn-danger",'mbuttonSaveListTopModuleTitlesSeries', 'Titles'), bsTooltip("mbuttonSaveListTopModuleTitlesSeries", "Titles List To Paste Into regex Keyword Search")
                                                                                     ))
@@ -757,6 +651,129 @@ ui <-
                          )
               )
      )), #explore by module
+###########   Network  ##########
+tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Genes"),
+         wellPanel(style = "background-color: #feffee;",
+                   h4("Select Vaccine~Day combinations to plot"),
+                   fluidRow(
+                     column(2,pickerInput('selectVaccNet', choices = NULL, options = list(`style` = "btn-success"))),
+                     column(1,pickerInput('selectDayNet', choices = NULL, options = list(`style` = "btn-success"))),
+                     column(1,actionButton('buttonAddVacDayNet','Add', class = 'btn-warning')),
+                     column(3, selectInput('selectVacDaysToNet',label = NULL,
+                                           choices = character(0),
+                                           multiple = TRUE)),
+                     column(1,actionButton('buttonClearNet','Clear')),
+                     column(1, numericInput("numericNumRowsNet",NULL,value = 10, min = 1, step = 1),
+                            bsTooltip("numericNumRowsNet","Number of rows to match", placement = 'top')),
+                     column(2, awesomeCheckbox('checkboxDescNet', "Descending", value = TRUE, status = "success")),
+                     column(1,conditionalPanel(condition = "input.selectVacDaysToNet != null",
+                                               actionBttn('buttonPlotNet','Plot',style = 'unite', size = 'sm', color = 'warning', block = TRUE)
+                     ))
+                   )
+         ),
+         wellPanel(style = "background-color: #ffffff;",
+                   fluidRow(
+                     column(1,
+                            radioGroupButtons('radioVennNetworkeNet', NULL,
+                                              direction = 'vertical',justified = TRUE, #individual = TRUE,
+                                              choiceValues = list('n','v', 'e', 'u'),
+                                              selected = 'n',
+                                              choiceNames = list('Net','Venn','Euler',  'UpSetR'))
+                     ),
+                     column(10,
+                            fluidRow(
+                              # thresholds
+                              column(4,
+                                     radioGroupButtons('radioEdgeCountThreshold', NULL, selected = 'a',
+                                                       choiceValues = (list('a', 'u','c','v')),
+                                                       choiceNames = (list('All', 'O-', '-O-', '-O- >')),
+                                                       individual = TRUE, justified = TRUE, status = "danger"
+                                     )),
+                              column(1, style = "margin-top: 2px;", conditionalPanel(condition = "input.radioEdgeCountThreshold == 'v'",
+                                                                                     numericInput("numericEdgeCountThreshold",NULL,value = 2, min = 2, step = 1))),
+                              column(2,
+                                     radioGroupButtons('radioLineLabelVariableNet', NULL,
+                                                       choiceValues = list('MeanValue', 'revrank'),
+                                                       choiceNames = list('Value', 'Rank'),
+                                                       individual = TRUE, justified = TRUE, status = "warning"
+                                     )),
+                              column(2, style = "direction: rtl; margin-top: 2px;", awesomeCheckbox('checkboxThresholdEdgesNet', ":between", value = FALSE, status = "warning")),
+                              conditionalPanel(condition = "input.checkboxThresholdEdgesNet == true",
+                                               column(1, style = "margin-top: 2px;", numericInput("numericEdgeValueThresholdLo",NULL,value = 0),
+                                                      bsTooltip("numericEdgeValueThresholdLo","Only include genes with connection value above this", placement = 'bottom')),
+                                               column(1,style = "margin-top: 2px;",  numericInput("numericEdgeValueThresholdHi",NULL,value = 0),
+                                                      bsTooltip("numericEdgeValueThresholdHi","Only include genes with connection value below this", placement = 'bottom')),
+                                               column(1,style = "margin-top: 2px;", actionButton('buttonResetEdgeLimitNumericsNet','Min~Max', class = 'btn-outline-primary')))
+                            ),
+                            # network
+                            conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",
+                                             fluidRow(
+                                               column(3,
+                                                      radioGroupButtons('radioNetType', NULL,
+                                                                        choiceValues = list('spring', 'groups','circle'),
+                                                                        choiceNames = list('Spring', 'Groups','Circle'),
+                                                                        individual = TRUE, justified = TRUE, status = "primary"
+                                                      )),
+                                               column(1,style = "margin-top: -7px;",
+                                                      sliderInput("nodeAlphaNet", NULL, value = 0.9, min = 0.1, max = 1, step = 0.1, ticks = FALSE),
+                                                      bsTooltip("nodeAlphaNet", "Node transparency")),
+                                               column(3,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "warning"))
+                                             )),
+                            # venn
+                            conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",
+                                             fluidRow(
+                                               column(12,
+                                                      conditionalPanel(condition = "input.selectVacDaysToNet != null && input.selectVacDaysToNet.length > 5",
+                                                                       h4(style = "text-align: center;","Only the first 5 vaccine~days can be included in the Venn diagram")
+                                                      )
+                                               )
+                                             )),
+                            # upset
+                            conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",
+                                             fluidRow(
+                                               column(7,
+                                                      radioGroupButtons('radioUpsetOrder', "Order by",
+                                                                        choiceValues = list('f', 'd','fd','df'),
+                                                                        choiceNames = list('Freq', 'Deg','Freq~Deg', 'Deg~Freq'),
+                                                                        individual = TRUE, justified = TRUE, status = "success")),
+                                               column(3,style = "margin-top: 25px;",
+                                                      awesomeCheckbox('checkboxEmptyintersections', "Empty", value = FALSE, status = "success"))
+                                               
+                                             )),
+                            # euler
+                            conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",
+                                             fluidRow(
+                                               column(3,
+                                                      radioGroupButtons('radioEulerShape', NULL,
+                                                                        choiceValues = list('circle', 'ellipse'),
+                                                                        choiceNames = list('Circles', 'Ellipses'),
+                                                                        individual = TRUE, justified = TRUE, status = "success")
+                                               )
+                                             ))
+                     )#col10
+                   ),
+                   fluidRow(
+                     column(1,style = "margin-top: -7px;",
+                            sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
+                            bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height")),
+                     column(9, conditionalPanel(condition = "output.plotNet != null || output.plotUpset != null || output.plotVenn != null || output.plotEuler != null",
+                                                h3(style = "text-align: center;",textOutput("netFilterString")))),
+                     column(2,downloadButton(class="btn-warning",'buttonPNGNet', 'HiRes PNG'))
+                   ),
+                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",uiOutput("plotNetSIZE")),
+                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",uiOutput("plotUpsetSIZE")),
+                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),
+                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE"))
+         ),
+         conditionalPanel(condition = "output.plotNet != null || output.datatableIntersectsNet != null || output.datatableEdgeCountNet != null || output.datatableEdgeListNet != null",
+                          downloadButton(class="btn-outline-primary",'buttonSaveTablesNet', 'Tables xlsx')),
+         hr(),
+         fluidRow(
+           column(6,dataTableOutput('datatableIntersectsNet')),
+           column(6,dataTableOutput('datatableEdgeCountNet'))
+         ),
+         dataTableOutput('datatableEdgeListNet')
+),
      ###########   Lookup  ##########
      tabPanel('Lookup',
               navbarPage(span(style = 'color: #000000;','Lookup'), id = 'navLookup',
@@ -868,7 +885,7 @@ ui <-
                                                                  column(8, selectInput('selectColumnForCellsSeriesVaccines', label = "Treatment", choices = character(0), multiple = TRUE)),
                                                                  column(4,div(style = "margin-top: 20px;",
                                                                               actionButton('buttonAddAllColumnsCellsSeriesVaccines','All', class="btn-outline-primary"),
-                                                                              actionButton('buttonRemoveAllColumnsCellsSeriesVaccines','None')))
+                                                                              actionButton('buttonRemoveAllColumnsCellsSeriesVaccines','Clear')))
                                                                )
                                                         ),
                                                         column(6,
@@ -876,7 +893,7 @@ ui <-
                                                                  column(8, selectInput('selectColumnForCellsSeriesDays', label = "Times", choices = character(0), multiple = TRUE)),
                                                                  column(4, div(style = "margin-top: 20px;",
                                                                                actionButton('buttonAddAllColumnsCellsSeriesDays','All', class="btn-outline-primary"),
-                                                                               actionButton('buttonRemoveAllColumnsCellsSeriesDays','None'))))
+                                                                               actionButton('buttonRemoveAllColumnsCellsSeriesDays','Clear'))))
                                                         )
                                                       )
                                             ),
@@ -885,7 +902,7 @@ ui <-
                                                         column(9, selectInput('selectCellsForSeries', label = 'Cell Types', character(0), multiple = TRUE)),
                                                         column(3, div(style = "margin-top: 20px;",
                                                                       actionButton('buttonAddAllCellsCellsSeries','All', class="btn-outline-primary"),
-                                                                      actionButton('buttonRemoveAllCellsCellsSeries','None'))
+                                                                      actionButton('buttonRemoveAllCellsCellsSeries','Clear'))
                                                         )
                                                       ))
                                      )
@@ -929,11 +946,11 @@ ui <-
                                    ),
                                    conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
                             ),
-                            column(4,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','None'))
+                            column(4,selectInput("cselectCytokines", "Cytokines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokines','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokines','Clear'))
                             ),
-                            column(4,selectInput("cselectTreatments", "Vaccines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineTreats','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineTreats','None'))
+                            column(4,selectInput("cselectTreatments", "Vaccines", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineTreats','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineTreats','Clear'))
                             ),
-                            column(3,selectInput("cselectDays", "Times", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','None'))
+                            column(3,selectInput("cselectDays", "Times", choices = character(0), multiple = TRUE),div(actionButton('cbuttonAddAllCytokineDays','All', class="btn-outline-primary"),actionButton('cbuttonAddNoneCytokineDays','Clear'))
                             )
                           ),
                           hr(),

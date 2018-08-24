@@ -208,7 +208,7 @@ server <- function(input, output, session) {
       if(nrow(res)>0) {
         updatePickerInput(session,"selectShapeDay", selected = as.character(res$Day[1]))
       }
-    })
+    },ignoreInit = TRUE,ignoreNULL = TRUE)
   
   observeEvent(
     input$dblclick_plotShapeMiniplot, 
@@ -224,7 +224,7 @@ server <- function(input, output, session) {
         updatePickerInput(session,"selectShapeDay", selected = selday)
         updateDayKineticsToDF(shapeKinetics()[[selday]])
       }
-    })
+    },ignoreInit = TRUE,ignoreNULL = TRUE)
   
   observeEvent(
     input$buttonShapeSaveDay,
@@ -855,6 +855,7 @@ observeEvent(
   ############################## Network ###########
   assign("vaccDaysToNet",NULL, envir = .GlobalEnv)
   
+  
   observeEvent(
     {
       input$selectVaccNet
@@ -947,11 +948,12 @@ observeEvent(
   
   filenameForNet <- function(netType,fileType,vaccdays){
     paste0(
+      trimws(paste0(
       switch(netType,"n" = "Network ","e" = "Euler ","v" = "Venn ","u" = "UpSetR ", 'x' = ""),
       vaccdays," ",
-      netFilterString(),
-      fileType
-    )
+      netFilterString()
+      )),
+      fileType)
   }
   
   output$buttonSaveTablesNet <- downloadHandler(
@@ -979,12 +981,30 @@ observeEvent(
   })
   
   #input$plotNetSIZEheight below is to just react
-  networkQgraph <- reactive({getNetworkQgraph(networkFilteredEdgeListAndCount(),input$radioNetType, 
-      input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet)})
+  triggerQgraph <- reactiveValues(v = 0)
+  # make it dependent on size values so it redraws
+  networkQgraph <- reactive({
+    triggerQgraph$v
+    return(getNetworkQgraph(networkFilteredEdgeListAndCount(),input$radioNetType, 
+      input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet))
+    })
   output$plotNet <- renderPlot({
     if(!is.null(networkQgraph())) plot(networkQgraph())
     else NULL
   })
+  
+  observeEvent(
+    {
+      input$windowResizeNet #<< this is a pseudo-input, a variable we created in the javascript inside the GUI
+      input$plotNetSIZEheight
+    },
+    {
+      # made networkQgraph() dependent on triggerQgraph$v a reactive value. If we change this we invalidate networkQgraph() and it redraws
+      # we do this as the circles get mishapen when resized and have to be redrawn. 
+      # the 0.5s delay ensures it completes all other drawing so we then update
+      if(!is.null(networkQgraph())) delay(500,{triggerQgraph$v <- triggerQgraph$v+1})
+    }, ignoreInit = TRUE, ignoreNULL = TRUE)
+  
   
   output$plotNetSIZE <- renderUI({plotOutput("plotNet", height = input$plotNetSIZEheight)})
   output$plotVennSIZE <- renderUI({plotOutput("plotVenn", height = input$plotNetSIZEheight)})
@@ -996,7 +1016,7 @@ observeEvent(
     content = function(file) {
       # upsetR wants to draw directly and returns nothing
       if(input$radioVennNetworkeNet == "u") {
-        upSetRPNG(vennVaccGenesList(),file,session$clientData[["output_plotNet_height"]],session$clientData[["output_plotNet_width"]])
+        upSetRPNG(vennVaccGenesList(),input$radioUpsetOrder,input$checkboxEmptyintersections,file,session$clientData[["output_plotNet_height"]],session$clientData[["output_plotNet_width"]])
       }
       else plotPlotPNG(
       switch(input$radioVennNetworkeNet,
