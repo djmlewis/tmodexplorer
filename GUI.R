@@ -755,7 +755,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                    fluidRow(
                      column(1,style = "margin-top: -7px;",
                             sliderInput("plotNetSIZEheight", NULL, value = 600, min = 300, max = 2500, step = 50, ticks = FALSE),
-                            bsTooltip("plotNetSIZEheight", "Click Plot to redraw graph after changing plot height")),
+                            bsTooltip("plotNetSIZEheight", "Plot height")),
                      column(9, conditionalPanel(condition = "output.plotNet != null || output.plotUpset != null || output.plotVenn != null || output.plotEuler != null",
                                                 h3(style = "text-align: center;",textOutput("netFilterString")))),
                      column(2,downloadButton(class="btn-warning",'buttonPNGNet', 'HiRes PNG'))
