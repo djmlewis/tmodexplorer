@@ -475,7 +475,7 @@ observeEvent(
                 }
               } 
 
-              # kinetics also acts on allData$data, working on spots so continue with that to reduce
+              # kinetics also acts on allData$data, working on Probes so continue with that to reduce
               assign("selectKinetics",input$checkboxSelectValues == TRUE && input$radioFilterByRowKinetics == 'kinetics', envir = .GlobalEnv)
               if(selectKinetics == TRUE && dataFrameOK(geneslist)) {
                 geneslist <- getGenesForKinetics(geneslist,shapeKinetics(), input$selectColumnVaccine,input$checkboxProbesGenes)
@@ -505,13 +505,13 @@ observeEvent(
                   filtersText(
                     paste0(gsub('_',' ',sortCol_Probes),' ❖ ',filterSubText,' ❖ ',
                            ifelse(input$checkboxDescending == TRUE, ' Sort ↓ ',' Sort ↑ '), ifelse(input$checkboxRowsAnyDay == TRUE," All Days ❖ ",' ❖ '),
-                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means',' Spots')
+                           ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means',' Probes')
                     ))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 } else {
                   filtersText(paste0(gsub('_',' ',sortCol_Probes),' ❖ [No filters] ❖ ',
                                      ifelse(input$checkboxDescending == TRUE, ' Sort Descending ❖ ',' Sort Ascending ❖ '),
-                                     ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means',' Spots')))
+                                     ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means',' Probes')))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 }
               } else {
@@ -551,7 +551,7 @@ observeEvent(
               } else {
                 topGenesAndModules(list(genes = NULL, modules = NULL, modsOnly = NULL))
                 removeNotification(id = "buttonApplySelection")
-                showNotification(paste0("Found 0 Spots and 0 Modules"," using filter: ", filtersText()), type = 'warning')
+                showNotification(paste0("Found 0 Probes and 0 Modules"," using filter: ", filtersText()), type = 'warning')
               }
             }
         } else {
@@ -579,7 +579,7 @@ observeEvent(
       
       updateSelectInput(session, 'selectVaccinesForSeries')
       updateSelectInput(session, 'selectDaysForSeries')
-      # need to determine if Spots or genes
+      # need to determine if Probes or genes
       pgColname <- ifelse('Spot' %in% names(topGenesAndModules()[['genes']]) == FALSE,"Gene","Spot")
       assign("genesOrProbes",pgColname, envir = .GlobalEnv)
       updateSelectInput(session, 'selectGenesProbesForSeries', label = pgColname, choices = topGenesAndModules()[['genes']][[pgColname]], selected = topGenesAndModules()[['genes']][[pgColname]])
@@ -590,10 +590,10 @@ observeEvent(
   )
   
   
-  #################### Top Spots #########################
+  #################### Top Probes #########################
   # output top genes
   output$datatableTopGenesUp <- renderDataTable({topGenesAndModules()[['genes']]})
-  output$buttonSaveTableTopGenesUpPlot <- downloadHandler(filename = function(){paste0("Selected Spots-Genes.png")},
+  output$buttonSaveTableTopGenesUpPlot <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.png")},
     content = function(file) {plotDataTable(topGenesAndModules()[['genes']],file,35)})
   
   dataFilterStr <- function(t) {
@@ -603,13 +603,13 @@ observeEvent(
     )
   }
   
-  output$buttonSaveTableProbes <- downloadHandler(filename = function(){paste0("Selected Spots-Genes.csv")},
+  output$buttonSaveTableProbes <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.csv")},
     content = function(file) {write.csv(topGenesAndModules()[['genes']], file, row.names = FALSE)})
   
   output$buttonSaveListGenes <- downloadHandler(filename = function(){paste0("Selected ",input$pickerSaveListTopGenes,".txt")},
    content = function(file) {write_lines(paste0(paste(unique(topGenesAndModules()[['genes']][[input$pickerSaveListTopGenes]]), collapse = ','),'\n\n# ',dataFilterStr('g')), file)})
   
-  #################### Top Spots Series #########################
+  #################### Top Probes Series #########################
   # topGenesInSeries <- NULL
   assign("topGenesInSeries",NULL, envir = .GlobalEnv)
   
@@ -675,7 +675,7 @@ observeEvent(
   observeEvent(input$buttonAddAllGenesProbesSeries,{updateSelectInput(session, 'selectGenesProbesForSeries', choices = topGenesAndModules()[['genes']][[genesOrProbes]], selected = topGenesAndModules()[['genes']][[genesOrProbes]])})
   observeEvent(input$buttonRemoveGenesProbesSeries,{updateSelectInput(session, 'selectGenesProbesForSeries', selected = character(0))})
   
-  output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Spots-Genes Series.csv")},
+  output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Probes-Genes Series.csv")},
      content = function(file) {write.csv(topGenesInSeries, file, row.names = FALSE)})
   
 

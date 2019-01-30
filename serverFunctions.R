@@ -96,7 +96,7 @@ showModalGenericFailure <- function(message){
 
 vaccinesDaysFromColNames <- function(coln) {
   u <- str_split(coln,'_',simplify = TRUE)
-  return(list(vaccines = sort(unique(u[,1])), days = unique(u[,2])))
+  return(list(vaccines = sort(unique(u[,1])), days = sort(as.numeric(unique(u[,2])))))
 }
 
 columnsFromVaccinesDays <- function(v,d) {
@@ -130,7 +130,7 @@ getNewData <- function(allData, folderNme) {
 
     allData$data<- read_rds(dataPath)
 
-    allData$data<- full_join(annotation,allData$data, by = 'Spot')
+    allData$data<- full_join(annotation,allData$data, by = 'ProbeName')
 
     allData$colNames <-
       names(allData$data)[grepl('_', names(allData$data))]
@@ -155,12 +155,12 @@ loadUploadedData <- function(allData, infiles,fileName) {
     annotPath <- infiles[infiles$name == 'annotation.rds',][['datapath']]
     dataPath <- infiles[infiles$name == 'data.rds',][['datapath']]
     if(!is.null(annotPath)&& !is.null(dataPath)) {
-      annotation <- read_rds(annotPath) %>%
-        select(Spot = X1, Gene, Description)
+      annotation <- read_rds(annotPath) #%>%
+        #select(Spot = X1, Gene, Description)
       
       allData$data <- read_rds(dataPath) %>%
-        rename(Spot = X1) %>%
-        full_join(annotation, by = 'Spot')
+        # rename(Spot = X1) %>%
+        full_join(annotation, by = 'ProbeName')
       
       allData$colNames <-
         names(allData$data)[grepl('_', names(allData$data))]
@@ -242,7 +242,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
           # just the selected column
           data4VaccDay <- data %>%
             # matches will find substrings so force it to match the whole string against colN
-            select(Spot, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), SystematicName, Description)
+            select(Spot, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), GeneName, SystematicName, Description)
         } else {
           # all columns with selected treatment
           data4VaccDay <- data %>%
@@ -251,7 +251,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
           mutate(Value = apply(.,1,stat,na.rm = TRUE))
           data4VaccDay <- cbind(
             select(data4VaccDay,Value),
-            select(data, Spot, ProbeName, Gene, Description)
+            select(data, Spot, ProbeName, Gene, GeneName, Description)
           )
         }
       }
@@ -482,7 +482,7 @@ lookupGenesProbes <- function(gene,annot, column, wholeWord) {
     map_dfr(gene,function(g){
       filter(annot,grepl(g,annot[[column]],ignore.case = TRUE))
     }) %>%
-    select(Gene,SystematicName,ProbeName,Spot, Description) %>%
+    select(Gene,GeneName,SystematicName,ProbeName,Spot, Description) %>%
     arrange(Gene,SystematicName,ProbeName)
 
   if(nrow(probes) == 0) {
@@ -716,6 +716,9 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
 }
 
 resForClickBrush <- function(res){
+  # CRC306B data has rows with NA so filter out or else hte first row may be NA
+  res <- filter(res,!is.na(Value))
+
   if(is.null(res) == FALSE && nrow(res) > 0 && !is.na(res[1,1])) {
     if("Spot" %in% names(res)) spot <- paste(res$Spot,collapse = ", ")
     else spot <-  NULL
@@ -731,7 +734,7 @@ resForClickBrush <- function(res){
 }
 
 handleClick <- function(data,click,facet,fact,yv) {
-  data <- as.data.frame(data)
+
   if(facet == TRUE) {
     res <- nearPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment', maxpoints = 1) 
   } else {
@@ -746,7 +749,7 @@ handleClick <- function(data,click,facet,fact,yv) {
 }
 
 handleBrush <- function(data,click,facet,fact,yv) {
-  data <- as.data.frame(data)
+
   if(facet == TRUE) {
     res <- brushedPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment') 
   } else {

@@ -68,10 +68,10 @@ ui <-
                                          fluidRow(style = "margin-bottom:10px;",
                                            column(4, offset = 4, style = "margin-top: 4px; color: black ", 
                                                   actionBttn('buttonApplySelection','Apply Filters',style = 'unite', size = 'sm', color = 'warning', block = TRUE),
-                                                  bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select spots or genes for plotting", placement = "top")),
+                                                  bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting", placement = "top")),
                                            column(2, offset = 2,
                                                   numericInput("rowsLimitNumeric", NULL, value = 100, min = 50, step = 50),
-                                                  bsTooltip("rowsLimitNumeric", "Limit to number of Spots / Genes returned. Suggest set to ~ 100 to avoid a very slow response", placement = 'top')
+                                                  bsTooltip("rowsLimitNumeric", "Limit to number of Probes / Genes returned. Suggest set to ~ 100 to avoid a very slow response", placement = 'top')
                                                   )
                                          )),
                         fluidRow(
@@ -184,7 +184,7 @@ ui <-
                          #################### Top Genes #######################
                          tabPanel('Selected Genes',
                                   
-                                  h4(style = "margin-top: 0px;",'Spots Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Combination'),
+                                  h4(style = "margin-top: 0px;",'Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Combination'),
                                   fluidRow(
                                     column(4,downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
                                     downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG')),
@@ -197,7 +197,7 @@ ui <-
                          #################### Top Spots Series ################
                          tabPanel('Genes:Series',
                                   wellPanel(style = "background-color: #FFFFFF",
-                                            h4(style = "margin-top: 0px;",'Time Course Of Spots Or Genes Meeting The Filters, By Treatment~Time'),
+                                            h4(style = "margin-top: 0px;",'Time Course Of Probes Or Genes Meeting The Filters, By Treatment~Time'),
                                             fluidRow(
                                               column(4,
                                                      wellPanel(style = "background-color: #feffee;",
@@ -211,8 +211,8 @@ ui <-
                                                                         awesomeRadio(status = 'warning', 'radioBoxLineProbesSeries', " ", choices = c(Lines = 'Lines',Boxplot = 'Boxplot')),
                                                                         conditionalPanel(condition = "input.radioBoxLineProbesSeries != 'Boxplot'",
                                                                                          span(id = "spancheckboxShowProbesOfGenesSeries",style = "color: red; font-weight: bold;  font-family: Verdana;",
-                                                                                              awesomeCheckbox(status = 'danger', 'checkboxShowProbesOfGenesSeries', 'Gene⫷Spots', value = FALSE),
-                                                                                              bsTooltip("spancheckboxShowProbesOfGenesSeries", "When Selected The Value Of Individual Spots For Each Gene Will Be Plotted Instead Of Gene Averages")),
+                                                                                              awesomeCheckbox(status = 'danger', 'checkboxShowProbesOfGenesSeries', 'Gene⫷Probes', value = FALSE),
+                                                                                              bsTooltip("spancheckboxShowProbesOfGenesSeries", "When Selected The Value Of Individual Probes For Each Gene Will Be Plotted Instead Of Gene Averages")),
                                                                                          awesomeCheckbox(status = 'success', 'checkboxShowPointsSeries', 'Points', value = FALSE),
                                                                                          conditionalPanel(condition = "input.checkboxShowProbesOfGenesSeries != true", awesomeCheckbox(status = 'success', 'checkboxShowSEMSeries', 'SEM', value = TRUE)),
                                                                                          conditionalPanel(condition = "input.radioFilterByRowKinetics != 'row' && input.checkboxSplitSeries == true", style = "color: #4178b6;",
@@ -242,7 +242,7 @@ ui <-
                                                      wellPanel(
                                                        style = "background-color: #feffee;",
                                                        fluidRow(
-                                                         column(9,selectInput('selectGenesProbesForSeries', label = "Spots / Genes", choices = character(0), multiple = TRUE)),
+                                                         column(9,selectInput('selectGenesProbesForSeries', label = "Probes / Genes", choices = character(0), multiple = TRUE)),
                                                          column(3,div(style = "margin-top: 20px;",
                                                                       actionButton('buttonAddAllGenesProbesSeries','All', class="btn-outline-primary"),
                                                                       actionButton('buttonRemoveGenesProbesSeries','Clear')))
@@ -268,7 +268,7 @@ ui <-
                          #################### Genes->Modules ##################
                          tabPanel('Genes->Modules',
                                   
-                                  h4(style = "margin-top: 0px;",'Modules Associated With Selected Spots or Genes'),
+                                  h4(style = "margin-top: 0px;",'Modules Associated With Selected Probes or Genes'),
                                   div(downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'),
                                       downloadButton(class="btn-warning",'buttonSaveTableGenesModulesPlot', 'Table As PNG')),
                                   hr(),
@@ -276,7 +276,7 @@ ui <-
                          #################### Modules #########################
                          tabPanel('Modules',
                                   wellPanel(style = "background-color: #FFFFFF",
-                                            h4(style = "margin-top: 0px;",'Expression Values Of Modules Associated With Selected Spots / Genes'),
+                                            h4(style = "margin-top: 0px;",'Expression Values Of Modules Associated With Selected Probes / Genes'),
                                             fluidRow(
                                               column(3,awesomeCheckbox(status = 'success', 'checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE)),
                                               column(1,awesomeCheckbox(status = 'success', 'checkboxShowLegendGenesModules', 'Legend', value = FALSE)),
@@ -292,7 +292,7 @@ ui <-
                                             ),
                                             fluidRow(
                                               column(1,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'HiRes PNG')),
-                                              column(11, p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Spot(s) Mapping To Module Genes Are Summarised"))
+                                              column(11, p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                                             )),
                                   downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Table'),
                                   downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Dataset'),
@@ -304,7 +304,7 @@ ui <-
                          #################### Modules->Genes ###################
                          tabPanel('Module->Genes',
                                   wellPanel(style = "background-color: #FFFFFF;",
-                                            h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Modules Associated With Selected Spots / Genes'),
+                                            h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Modules Associated With Selected Probes / Genes'),
                                             fluidRow(
                                               column(5,pickerInput(inputId = 'selectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
                                               column(2, awesomeCheckbox(status = 'success', 'checkboxShowMissingModuleGenes', 'Show Missing Genes', value = TRUE)),
@@ -318,7 +318,7 @@ ui <-
                                             ),
                                             fluidRow(
                                               column(1,downloadButton(class="btn-warning",'buttonPNGplotModuleGenes', 'HiRes PNG')),
-                                              column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Spot(s) Mapping To Module Genes Are Summarised"))
+                                              column(11,p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                                             )),
                                   downloadButton(class="btn-outline-primary",'buttonSaveTableModulesGenes', 'Table'),
                                   downloadButton(class="btn-danger",'buttonTableModulesGenesList', 'Module Genes List'), bsTooltip("buttonTableModulesGenesList", "Gene List To Paste Into regex Keyword Search"),
@@ -328,7 +328,7 @@ ui <-
                          #################### Modules Series ###################
                          tabPanel('Modules:Series',
                                   wellPanel(style = "background-color: #FFFFFF;",
-                                            h4(style = "margin-top: 0px;",'Time Course Of Modules Associated With Selected Spots / Genes'),
+                                            h4(style = "margin-top: 0px;",'Time Course Of Modules Associated With Selected Probes / Genes'),
                                             fluidRow(
                                               column(3,
                                                      wellPanel(style = "background-color: #feffee;",
@@ -406,7 +406,7 @@ ui <-
                                   dataTableOutput('datatableModuleSeries')
                          )
               ) # navProbe
-     ),# explore by spot
+     ),# explore by Probe
 
      ############## MODULES #################
      tabPanel('Explore By Module',

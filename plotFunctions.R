@@ -197,6 +197,8 @@ plotTopGenesInSeries <- function(data2plot,
         #select(-c(Spot))
     }
   
+  # since we added 306B we have rows with NA values so filter them out
+  plotData <- filter(plotData,!is.na(Value))
 
     plotData <- plotData %>%
       mutate(Gene = factor(Gene, levels = unique(Gene)))
