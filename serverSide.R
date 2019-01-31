@@ -568,19 +568,19 @@ observeEvent(
       # these are non-reactive and need a manual reboot
       output$plotModuleSeries <- renderPlot({NULL})
       output$datatableModuleSeries <- renderDataTable({NULL})
-      updateplotModuleSeriesBRUSH(list(Table = NULL, Spot = NULL, Gene = NULL))
+      updateplotModuleSeriesBRUSH(list(Table = NULL, ProbeName = NULL, Gene = NULL))
       
       updateSelectInput(session, 'selectColumnForModuleSeriesVaccines')
       updateSelectInput(session, 'selectColumnForModuleSeriesDays')
       
       output$plotTopGenesSeries <- renderPlot({NULL})
       output$datatableTopGenesSeries <- renderDataTable({NULL})
-      updateplotTopGenesSeriesBRUSH(list(Table = NULL, Spot = NULL, Gene = NULL))
+      updateplotTopGenesSeriesBRUSH(list(Table = NULL, ProbeName = NULL, Gene = NULL))
       
       updateSelectInput(session, 'selectVaccinesForSeries')
       updateSelectInput(session, 'selectDaysForSeries')
       # need to determine if Probes or genes
-      pgColname <- ifelse('Spot' %in% names(topGenesAndModules()[['genes']]) == FALSE,"Gene","Spot")
+      pgColname <- ifelse('ProbeName' %in% names(topGenesAndModules()[['genes']]) == FALSE,"Gene","ProbeName")
       assign("genesOrProbes",pgColname, envir = .GlobalEnv)
       updateSelectInput(session, 'selectGenesProbesForSeries', label = pgColname, choices = topGenesAndModules()[['genes']][[pgColname]], selected = topGenesAndModules()[['genes']][[pgColname]])
       
@@ -625,7 +625,7 @@ observeEvent(
              envir = .GlobalEnv)
       
       output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
-      updateplotTopGenesSeriesBRUSH(list(Table = NULL, Spot = NULL, Gene = NULL))
+      updateplotTopGenesSeriesBRUSH(list(Table = NULL, ProbeName = NULL, Gene = NULL))
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
         input$checkboxShowPointsSeries,input$checkboxShowSEMSeries,input$checkboxShowLegendSeries,dataAndFiltersText(),input$checkboxSplitSeries,
@@ -648,7 +648,7 @@ observeEvent(
   updateplotTopGenesSeriesBRUSH <- function(res) {
     output$plotTopGenesSeriesBRUSH <- renderTable({res$Table}, striped = TRUE)
     output$plotTopGenesSeriesGENEMOD <- renderText({res$GeneMod})
-    output$plotTopGenesSeriesSPOT <- renderText({res$Spot})
+    output$plotTopGenesSeriesSPOT <- renderText({res$ProbeName})
   }
   
   observeEvent(
@@ -765,7 +765,7 @@ observeEvent(
     input$buttonPlotModuleSeries
   },{
     output$plotModuleSeries <- renderPlot({NULL})
-    updateplotModuleSeriesBRUSH(list(Table = NULL, Spot = NULL, Gene = NULL))
+    updateplotModuleSeriesBRUSH(list(Table = NULL, ProbeName = NULL, Gene = NULL))
     
     assign("moduleValues",
            getModuleValuesForSeries(allData$data,
@@ -1177,7 +1177,7 @@ observeEvent(
     # these are non-reactive and need a manual reboot
     output$mplotModuleSeries <- renderPlot({NULL})
     output$mdatatableModuleSeries <- renderDataTable({NULL})
-    updatemplotModuleSeriesBRUSH(list(Table = NULL, Spot = NULL, Gene = NULL))
+    updatemplotModuleSeriesBRUSH(list(Table = NULL, ProbeName = NULL, Gene = NULL))
     
     updateSelectInput(session, 'mselectColumnForModuleSeriesVaccines', selected = character(0))
     updateSelectInput(session, 'mselectColumnForModuleSeriesDays', selected = character(0))
@@ -1267,7 +1267,7 @@ observeEvent({
                                                       brush = "brush_mplotModuleSeries"
                                                       ))})
     output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
-    updatemplotModuleSeriesBRUSH(list(Table = NULL, Spot = NULL, Gene = NULL))
+    updatemplotModuleSeriesBRUSH(list(Table = NULL, ProbeName = NULL, Gene = NULL))
     
 })
 output$buttonPNGmplotModuleSeries <- downloadHandler(filename = function(){paste0("Selected Modules Series.png")},

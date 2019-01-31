@@ -123,11 +123,8 @@ getNewData <- function(allData, folderNme) {
     showNotification("Please wait for data to load…", type = 'message', duration = 3)
 
     annotation <- read_rds(annotPath) 
-    allData$annot <- annotation # select(annotation,Gene, SystematicName,Description,Spot = X1, ProbeName)
+    allData$annot <- annotation 
     
-    # annotation <- annotation %>%
-    #   select(Spot = X1, ProbeName, Gene = Gene, Description)
-
     allData$data<- read_rds(dataPath)
 
     allData$data<- full_join(annotation,allData$data, by = 'ProbeName')
@@ -155,11 +152,9 @@ loadUploadedData <- function(allData, infiles,fileName) {
     annotPath <- infiles[infiles$name == 'annotation.rds',][['datapath']]
     dataPath <- infiles[infiles$name == 'data.rds',][['datapath']]
     if(!is.null(annotPath)&& !is.null(dataPath)) {
-      annotation <- read_rds(annotPath) #%>%
-        #select(Spot = X1, Gene, Description)
+      annotation <- read_rds(annotPath) 
       
       allData$data <- read_rds(dataPath) %>%
-        # rename(Spot = X1) %>%
         full_join(annotation, by = 'ProbeName')
       
       allData$colNames <-
@@ -237,7 +232,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
             select(Gene,Value)
         }
       } else { 
-        # Spot values not gene averages
+        # ProbeName values not gene averages
         if(allDays == FALSE || usingKinetics == TRUE) {
           # just the selected column
           data4VaccDay <- data %>%
@@ -276,8 +271,6 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
   # Note getSortedGenesForVaccDay is ...ForVaccDay, there is NO COLUMN variable in selData, it is just the selected day means
   # so we have to do all the calculations again, for each column now
   
-  # asGenes: detect whether it really is as genes based on the selData: if that lacks column Spot then it is
-  # asGenes <- ('Spot' %in% names(selData) == FALSE)
   asGenes <-   get("genesOrProbes", envir = .GlobalEnv) == "Gene"
 
   # selCols may have unknown combinations
@@ -289,7 +282,7 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
   if (asGenes == TRUE) {
     if (splitGenes == FALSE) {
       seriesData <- allData %>%
-        select(Gene, Spot, one_of(selCols)) %>%
+        select(Gene, ProbeName, one_of(selCols)) %>%
         filter(Gene %in% genesProbesSelected)
       
       # lets calc means first
@@ -326,7 +319,7 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
       
     } else {
       seriesData <- allData %>%
-        select(Gene, Spot, one_of(selCols)) %>%
+        select(Gene, ProbeName, one_of(selCols)) %>%
         filter(Gene %in% genesProbesSelected) %>%
         gather(
           key = 'Column',
@@ -338,8 +331,8 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
     }
   } else {
     seriesData <- allData %>%
-      select(Spot, Gene, one_of(selCols)) %>%
-      filter(Spot %in% genesProbesSelected) %>%
+      select(ProbeName, Gene, one_of(selCols)) %>%
+      filter(ProbeName %in% genesProbesSelected) %>%
       gather(
         key = 'Column',
         value = 'Value',
@@ -389,7 +382,7 @@ getGenesForValues <- function(genes,Min,Max){
 getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
   kineticsdf <-  kineticsDF(kinetics, TRUE)
   
-  col2match <- ifelse(asGenes == TRUE,"Gene","Spot")
+  col2match <- ifelse(asGenes == TRUE,"Gene","ProbeName")
 
   if(asGenes == TRUE) {
     selCols <- paste0(vacc,"_",kineticsdf$Day)
@@ -442,8 +435,8 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
       }
     )
     if(nrow(selGenes)>0) {
-      # avoid duplicate Probes from multiple hits. THIS ASSUMES Spot is unique
-      selGenes <- distinct(selGenes, Spot, .keep_all = TRUE)
+      # avoid duplicate Probes from multiple hits. THIS ASSUMES ProbeName is unique
+      selGenes <- distinct(selGenes, ProbeName, .keep_all = TRUE)
     }
   } else {
     if(wholeWord == TRUE) {
@@ -547,7 +540,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
       # extract just the module name from the name-Title
       selModName <- modNameFromMenuTitle(mod)
       actarmDayExpressionData <- allExpressionData %>%
-        select(matches(actarmcdDay), Gene, Spot)
+        select(matches(actarmcdDay), Gene, ProbeName)
       
       if (ncol(actarmDayExpressionData) > 1) {
         genesInMod <- tmod::getModuleMembers(selModName)[[selModName]]
@@ -562,7 +555,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
                 Module = selModName,
                 Gene = gene,
                 Value = exprV[[actarmcdDay]],
-                Spot = exprV[['Spot']],
+                ProbeName = exprV[['ProbeName']],
                 stringsAsFactors = FALSE
               )
             return(df)
@@ -572,7 +565,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
               Module = selModName,
               Gene = gene,
               Value = NA,
-              Spot = NA,
+              ProbeName = NA,
               stringsAsFactors = FALSE
             )
           )
@@ -720,7 +713,7 @@ resForClickBrush <- function(res){
   res <- filter(res,!is.na(Value))
 
   if(is.null(res) == FALSE && nrow(res) > 0 && !is.na(res[1,1])) {
-    if("Spot" %in% names(res)) spot <- paste(res$Spot,collapse = ", ")
+    if("ProbeName" %in% names(res)) spot <- paste(res$ProbeName,collapse = ", ")
     else spot <-  NULL
     if("Gene" %in% names(res)) geneMod <- paste(res$Gene,collapse = ", ")
     else {
@@ -728,9 +721,9 @@ resForClickBrush <- function(res){
       geneMod <- paste(modNameFromMenuTitlesVector(res$Module),collapse = ", ")
       # geneMod <- paste(res$Module,collapse = ", ")
     }
-    return(list(Table = xtable(res, auto = TRUE),Spot = spot, GeneMod = geneMod))
+    return(list(Table = xtable(res, auto = TRUE),ProbeName = spot, GeneMod = geneMod))
   }
-  return(list(Table = NULL, Spot = NULL, GeneMod = NULL))
+  return(list(Table = NULL, ProbeName = NULL, GeneMod = NULL))
 }
 
 handleClick <- function(data,click,facet,fact,yv) {
