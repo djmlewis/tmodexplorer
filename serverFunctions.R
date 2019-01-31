@@ -540,7 +540,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
       # extract just the module name from the name-Title
       selModName <- modNameFromMenuTitle(mod)
       actarmDayExpressionData <- allExpressionData %>%
-        select(matches(actarmcdDay), Gene, ProbeName)
+        select(matches(actarmcdDay), Gene, GeneName, ProbeName)
       
       if (ncol(actarmDayExpressionData) > 1) {
         genesInMod <- tmod::getModuleMembers(selModName)[[selModName]]
@@ -555,6 +555,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
                 Module = selModName,
                 Gene = gene,
                 Value = exprV[[actarmcdDay]],
+                GeneName = exprV[['GeneName']],
                 ProbeName = exprV[['ProbeName']],
                 stringsAsFactors = FALSE
               )
@@ -565,6 +566,7 @@ getGeneExpressionsInModule <- function(mod, actarmcdDay, allExpressionData, topG
               Module = selModName,
               Gene = gene,
               Value = NA,
+              GeneName = NA,
               ProbeName = NA,
               stringsAsFactors = FALSE
             )

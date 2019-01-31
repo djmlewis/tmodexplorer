@@ -989,7 +989,11 @@ observeEvent(
       input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet))
     })
   output$plotNet <- renderPlot({
-    if(!is.null(networkQgraph())) plot(networkQgraph())
+    if(!is.null(networkQgraph())) plot(networkQgraph()[['qgraph']])
+    else NULL
+  })
+  output$plotNetworkLegend <- renderPlot({
+    if(!is.null(networkQgraph())) plot(networkQgraph()[['plt']])
     else NULL
   })
   
@@ -1020,7 +1024,7 @@ observeEvent(
       }
       else plotPlotPNG(
       switch(input$radioVennNetworkeNet,
-             "n" = networkQgraph(),
+             "n" = networkQgraph()[['qgraph']],
              "e" = eulerFromVaccGenesList(vennVaccGenesList()),
              "v" = venDiagramFromVaccGenesList(vennVaccGenesList())
              ),

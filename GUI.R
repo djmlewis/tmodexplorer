@@ -695,6 +695,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                      radioGroupButtons('radioLineLabelVariableNet', NULL,
                                                        choiceValues = list('MeanValue', 'revrank'),
                                                        choiceNames = list('Value', 'Rank'),
+                                                       selected = 'revrank',# if Values are very small the lines appear missing which is confusing
                                                        individual = TRUE, justified = TRUE, status = "warning"
                                      )),
                               column(2, style = "direction: rtl; margin-top: 2px;", awesomeCheckbox('checkboxThresholdEdgesNet', ":between", value = FALSE, status = "warning")),
@@ -717,8 +718,13 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                                column(1,style = "margin-top: -7px;",
                                                       sliderInput("nodeAlphaNet", NULL, value = 0.9, min = 0.1, max = 1, step = 0.1, ticks = FALSE),
                                                       bsTooltip("nodeAlphaNet", "Node transparency")),
-                                               column(3,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "warning"))
-                                             )),
+                                               column(2,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "warning")),
+                                               column(6,img(src="edgeCols.png", width = "100%"))
+                                               
+                                             ),
+                                             # fluidRow(img(src="edgeCols.png", width = "100%")),
+                                             fluidRow(plotOutput("plotNetworkLegend", height = "40px"))
+                                             ),
                             # venn
                             conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",
                                              fluidRow(

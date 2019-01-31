@@ -245,13 +245,32 @@ getNetworkQgraph <- function(edgeListAndCount,netType,edgeWidthVar,showLineLabel
   # numGeneNodes <- length(data2q$Gene)
   numGeneNodes <- nrow(edgeCountData)
 
-  mypal <- rev(heat.colors(max(edgeCountData$Connections, na.rm = TRUE), alpha = nodeAlpha))
+  mypal <- c(brewer.pal(9,"YlOrRd"),rev(brewer.pal(7,"BuPu")))
+  maxedgeCount <- max(edgeCountData$Connections, na.rm = TRUE)
+  if(maxedgeCount>16) {
+    mypal <- rev(heat.colors(maxedgeCount, alpha = nodeAlpha))
+  }
   mypal[1] <- "#FFFFFF"
   edgeCountData <- edgeCountData %>%
     mutate(edgecol = mypal[Connections])
   # add the vaccine colours the others
   vaccnames <- vaccColoursForNames(unique(data2q$Vaccine.Day),TRUE,TRUE)
   vaccols <- vaccColoursForNames(vaccnames)
+  vax <- unique(vaccnames)
+  vaxcols <- vaccColoursForNames(vax)
+  df <- as_tibble(list(vax = vax, x = factor(vax, levels = vax),  y = factor(vax, levels = vax), colrs = vax))
+  plt <- ggplot(data = df, mapping = aes(x = x, y = y, color = vax)) +
+    theme_cowplot() +
+    theme(
+      legend.title = element_blank(),
+      legend.text = element_text(size = 16),
+      legend.position = 'top',
+      legend.direction = 'horizontal'
+    ) +
+    scale_color_manual(values = vaxcols) +
+    geom_point(shape = 15, size = 6)
+  lg <- ggpubr::as_ggplot(ggpubr::get_legend(plt))
+
   nodecolours <- c(edgeCountData$edgecol,rep('white',numVaccNodes))
   nodebordercolours <- c(rep('black',numGeneNodes),vaccols)
   nodeshapes <- c(rep('circle',numGeneNodes),rep('square',numVaccNodes))
@@ -272,10 +291,10 @@ getNetworkQgraph <- function(edgeListAndCount,netType,edgeWidthVar,showLineLabel
                edge.labels = linelabels,
                edgelist = TRUE, weighted= TRUE,
                arrows = FALSE, posCol = 'black',
-               legend = FALSE, 
+               legend = FALSE,
                layout = netType
   )
 
-  return(qg)
+  return(list(qgraph = qg, plt = lg))
 }
 
