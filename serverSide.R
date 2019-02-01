@@ -3,6 +3,7 @@ server <- function(input, output, session) {
   
 #   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
+  
   # initial hidden setup
   # hide the explores until load
   hideTab(inputId = "navbarTop", target = "Explore By Gene")
@@ -11,11 +12,11 @@ server <- function(input, output, session) {
   hideTab(inputId = "navbarTop", target = "Lookup")
 
     if(is_local == FALSE) {
-    hideTab(inputId = "navbarTop", target = "Load transcriptomics")
-    hideTab(inputId = "navbarTop", target = "ReadMe")
-    hideTab(inputId = "navbarTop", target = "Cells")
-    hideTab(inputId = "navbarTop", target = "Cytokines")
-  } else {
+      hideTab(inputId = "navbarTop", target = "Load transcriptomics")
+      hideTab(inputId = "navbarTop", target = "ReadMe")
+      hideTab(inputId = "navbarTop", target = "Cells")
+      hideTab(inputId = "navbarTop", target = "Cytokines")
+    } else {
     hideTab(inputId = "navbarTop", target = "Password")
   }
   
@@ -38,6 +39,7 @@ server <- function(input, output, session) {
       showTab(inputId = "navbarTop", target = "ReadMe")
       showTab(inputId = "navbarTop", target = "Cells")
       showTab(inputId = "navbarTop", target = "Cytokines")
+
     } else {
       sendSweetAlert(session, type = 'error', title = "Password", text = "That password is not recognised")
     }
@@ -989,7 +991,9 @@ observeEvent(
       input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet))
     })
   output$plotNet <- renderPlot({
-    if(!is.null(networkQgraph())) plot(networkQgraph()[['qgraph']])
+    if(!is.null(networkQgraph())) {
+      plot(networkQgraph()[['qgraph']])
+    }
     else NULL
   })
   output$plotNetworkLegend <- renderPlot({

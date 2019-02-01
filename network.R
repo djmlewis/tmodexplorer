@@ -264,8 +264,8 @@ getNetworkQgraph <- function(edgeListAndCount,netType,edgeWidthVar,showLineLabel
     theme(
       legend.title = element_blank(),
       legend.text = element_text(size = 16),
-      legend.position = 'top',
-      legend.direction = 'horizontal'
+      legend.position = 'right',
+      legend.direction = 'vertical'
     ) +
     scale_color_manual(values = vaxcols) +
     geom_point(shape = 15, size = 6)

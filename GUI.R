@@ -718,13 +718,12 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                                column(1,style = "margin-top: -7px;",
                                                       sliderInput("nodeAlphaNet", NULL, value = 0.9, min = 0.1, max = 1, step = 0.1, ticks = FALSE),
                                                       bsTooltip("nodeAlphaNet", "Node transparency")),
-                                               column(2,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "warning")),
-                                               column(6,img(src="edgeCols.png", width = "100%"))
-                                               
+                                               column(3,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "warning"))
                                              ),
-                                             # fluidRow(img(src="edgeCols.png", width = "100%")),
-                                             fluidRow(plotOutput("plotNetworkLegend", height = "40px"))
-                                             ),
+                                             fluidRow(
+                                               column(12,img(src="edgeCols.png", width = "100%"))
+                                             )
+                            ),
                             # venn
                             conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",
                                              fluidRow(
@@ -766,7 +765,11 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                                 h3(style = "text-align: center;",textOutput("netFilterString")))),
                      column(2,downloadButton(class="btn-warning",'buttonPNGNet', 'HiRes PNG'))
                    ),
-                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",uiOutput("plotNetSIZE")),
+                   conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",
+                    fluidRow(
+                      column(10,uiOutput("plotNetSIZE")),
+                      column(2,plotOutput("plotNetworkLegend"))
+                    )),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",uiOutput("plotUpsetSIZE")),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE"))
