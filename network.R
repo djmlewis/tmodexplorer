@@ -9,7 +9,13 @@ prettifyName <- function(name,style){
 vaccColoursForNames <- function(vaccnames, withDays = FALSE,namesNotColours = FALSE){
   if(withDays) vaccnames <- str_split(vaccnames,'_',simplify = TRUE)[,1]
   if(namesNotColours) return(vaccnames)
-  vaccCols <- map_chr(vaccnames,~vaccineColours[[.]])
+  vaccCols <- map_chr(vaccnames,function(vn) {
+    if(vn %in% names(vaccineColours)) return(vaccineColours[[vn]])
+    else {
+      showNotification(paste("Vaccine Color not found for",vn), type = 'error', duration = 3)
+      return("gray")
+    }
+    })
   return(vaccCols)
 }
 
@@ -235,7 +241,7 @@ getFilteredEdgeListAndEdgeCounts <- function(data2q, edgecount, edgeFilter, edge
   return(list(edgeList = data2q, edgeCount = edgecount))
 }
 
-getNetworkQgraph <- function(edgeListAndCount,netType,edgeWidthVar,showLineLabels,nodeAlpha) {
+getNetworkQgraph <- function(edgeListAndCount,netType,edgeWidthVar,showLineLabels,nodeAlpha,showLegend) {
   if(is.null(edgeListAndCount)) return(NULL)
   data2q <- edgeListAndCount[['edgeList']]
   edgeCountData <- edgeListAndCount[['edgeCount']]
@@ -258,19 +264,22 @@ getNetworkQgraph <- function(edgeListAndCount,netType,edgeWidthVar,showLineLabel
   vaccols <- vaccColoursForNames(vaccnames)
   vax <- unique(vaccnames)
   vaxcols <- vaccColoursForNames(vax)
-  df <- as_tibble(list(vax = vax, x = factor(vax, levels = vax),  y = factor(vax, levels = vax), colrs = vax))
-  plt <- ggplot(data = df, mapping = aes(x = x, y = y, color = vax)) +
-    theme_cowplot() +
-    theme(
-      legend.title = element_blank(),
-      legend.text = element_text(size = 16),
-      legend.position = 'right',
-      legend.direction = 'vertical'
-    ) +
-    scale_color_manual(values = vaxcols) +
-    geom_point(shape = 15, size = 6)
-  lg <- ggpubr::as_ggplot(ggpubr::get_legend(plt))
-
+  if(showLegend) {
+    df <- as_tibble(list(vax = vax, x = factor(vax, levels = vax),  y = factor(vax, levels = vax), colrs = vax))
+    plt <- ggplot(data = df, mapping = aes(x = x, y = y, color = vax)) +
+      theme_cowplot() +
+      theme(
+        legend.title = element_blank(),
+        legend.text = element_text(size = 16),
+        # legend.position = 'top',
+        legend.direction = 'horizontal'
+      ) +
+      scale_color_manual(values = vaxcols) +
+      geom_point(shape = 15, size = 6)
+    lg <- ggpubr::as_ggplot(ggpubr::get_legend(plt))
+  } else {
+    lg <- NULL
+  }
   nodecolours <- c(edgeCountData$edgecol,rep('white',numVaccNodes))
   nodebordercolours <- c(rep('black',numGeneNodes),vaccols)
   nodeshapes <- c(rep('circle',numGeneNodes),rep('square',numVaccNodes))

@@ -84,9 +84,12 @@ ui <-
                                 conditionalPanel(condition = "input.selectKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces will be kept")),
                                 textInput('textInputKeyword',NULL),
                                 h4(style = "margin-top: 0px;","Search:"),
-                                pickerInput('selectKeywordColumn',label = NULL,choices = c('Gene','Spot','ProbeName','SystematicName','Description'), options = list(`style` = "btn-success")),
-                                awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger")
-                            )))),
+                                pickerInput('selectKeywordColumn',label = NULL,
+                                            choices = NULL,#c('Gene','ProbeName','SystematicName','Description'),
+                                            options = list(`style` = "btn-success")),
+                                awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger"),
+                                awesomeCheckbox("checkboxGeneSearchStripSpaces","Strip Spaces", TRUE,status = "danger")
+                                )))),
                           column(10, # other searches
                                  wellPanel(style = "background-color: #ffffff;",
                                            fluidRow( # vacc - day pickers
@@ -188,7 +191,7 @@ ui <-
                                   fluidRow(
                                     column(4,downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
                                     downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG')),
-                                    column(2,pickerInput('pickerSaveListTopGenes',label = NULL, width = '100%', choices = c('Gene','Spot','ProbeName','SystematicName','Description'), options = list(`style` = "btn-danger"))),
+                                    column(2,pickerInput('pickerSaveListTopGenes',label = NULL, width = '100%', choices = c('Gene','ProbeName','SystematicName','Description'), options = list(`style` = "btn-danger"))),
                                     column(2,downloadButton(class="btn-danger",'buttonSaveListGenes', 'List'), bsTooltip("buttonSaveListGenes", "Download List To Paste Into Regex Keyword Search"))
                                   ),
                                   hr(),
@@ -718,7 +721,8 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                                column(1,style = "margin-top: -7px;",
                                                       sliderInput("nodeAlphaNet", NULL, value = 0.9, min = 0.1, max = 1, step = 0.1, ticks = FALSE),
                                                       bsTooltip("nodeAlphaNet", "Node transparency")),
-                                               column(3,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "warning"))
+                                               column(3,style = "margin-top: 2px;", awesomeCheckbox('checkboxLineLabelsNet', "Labels", value = FALSE, status = "warning")),
+                                               column(3,style = "margin-top: 2px;", awesomeCheckbox('checkboxLegendNet', "Legend", value = TRUE, status = "warning"))
                                              ),
                                              fluidRow(
                                                column(12,img(src="edgeCols.png", width = "100%"))
@@ -766,10 +770,12 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                      column(2,downloadButton(class="btn-warning",'buttonPNGNet', 'HiRes PNG'))
                    ),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",
-                    fluidRow(
-                      column(10,uiOutput("plotNetSIZE")),
-                      column(2,plotOutput("plotNetworkLegend"))
-                    )),
+                                    uiOutput("plotNetSIZE"),
+                                    plotOutput("plotNetworkLegend")),
+                    # fluidRow(
+                    #   column(10,uiOutput("plotNetSIZE")),
+                    #   column(2,plotOutput("plotNetworkLegend"))
+                    # )),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",uiOutput("plotUpsetSIZE")),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE"))
@@ -793,12 +799,14 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                             h5("Use commas to separate multiple names. Alternatively, leave box empty and click Lookup to return all probes & genes, then use search boxes above/below table to search"),
                                             fluidRow(
                                               column(2,style = "margin-top: 0px;",
-                                                     pickerInput('pickerGeneProbeLookup',label = NULL, choices = c('Gene','Spot','ProbeName','SystematicName','Description'), options = list(`style` = "btn-success"))),
-                                              column(5,textInput('textInputGeneLookup',NULL)),
+                                                     pickerInput('pickerGeneProbeLookup',label = NULL, choices = NULL, #c('Gene','ProbeName','SystematicName','Description'),
+                                                                 options = list(`style` = "btn-success"))),
+                                              column(4,textInput('textInputGeneLookup',NULL)),
                                               column(2,awesomeCheckbox("checkboxGeneLookupWholeWord","Whole Word", FALSE,status = "danger")),
-                                              column(3,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
+                                              column(2,awesomeCheckbox("checkboxGeneLookupStripSpaces","Strip Spaces", TRUE,status = "danger")),
+                                              column(2,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
                                             ),
-                                            h5("The search uses regex, but ignores case and always removes spaces")
+                                            h5("The search uses regex, and ignores case. Select Strip Spaces unless searching GeneName or Description")
                                   ),
                                   conditionalPanel(condition = "output.datatableGeneLookup != null",
                                                    downloadButton(class="btn-outline-primary",'buttonSaveTableGeneLookup', 'Table')), hr(),
@@ -1029,7 +1037,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
      #####
      footer = tagList(
        hr(),
-       div(style = "margin-left: 10px; margin-right: 10px; ", img(src = 'surrey.png'), img(src = 'ugent.png'), img(src = 'mpiib.png'),img(src = 'icl.png'), img(align = 'right', src = 'BIOVACSAFE_EEI.png')), #img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')
+       div(style = "margin-left: 10px; margin-right: 10px; ", img(src = 'surrey.png'), img(src = 'ugent.png'), img(src = 'mpiib.png'),img(src = 'icl.png'), img(align = 'right', src = 'aditec.png'),img(align = 'right', src = 'BIOVACSAFE_EEI.png')), #img(align = 'right', src = 'eei.png'),img(align = 'right', src = 'biovacsafe.png')
        hr()
      )
   )# navpage top

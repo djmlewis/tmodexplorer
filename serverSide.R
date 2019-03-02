@@ -52,10 +52,9 @@ server <- function(input, output, session) {
   files <- sort(basename(list.dirs(path = 'datafiles', recursive = FALSE)))
   updatePickerInput(session, 'selectDataFI', choices = files) # list(`Fold Increase From Baseline` = files[grepl("Fold", files)], `Raw Expression Values` = files[!grepl("Fold", files)]))
 
-  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, annot = NULL)
+  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL)
   observeEvent(input$buttonLoadDataFI, {if (getNewData(allData,input$selectDataFI) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
-  observeEvent(input$fileInputUploadData,{if(loadUploadedData(allData,input$fileInputUploadData,input$textInputUploadFileName)) {updateLoadControls()}})
-  
+
   output$buttonsavedatatableAll <- downloadHandler(filename = function(){paste0(allData$folder,".csv")},
     content = function(file) {write.csv(allData$data, file, row.names = FALSE)})
   
@@ -322,6 +321,10 @@ server <- function(input, output, session) {
     updateSelectInput(session, 'selectColumnForModuleSeriesVaccines', choices = vaccDays$vaccines, selected = character(0))
     updateSelectInput(session, 'selectColumnForModuleSeriesDays', choices = vaccDays$days, selected = character(0))
     
+    updatePickerInput(session, 'pickerGeneProbeLookup', choices = colnames(allData$data)[grepl("_",colnames(allData$data)) == FALSE], selected = 'Gene')
+    updatePickerInput(session, 'selectKeywordColumn', choices = colnames(allData$data)[grepl("_",colnames(allData$data)) == FALSE], selected = 'Gene')
+    
+    
     modulesAndFiltersText("")
     filtersText("")
     
@@ -431,8 +434,8 @@ observeEvent(
   observeEvent(
     input$checkboxGeneSearchWholeWord,
     {
-      if(input$checkboxGeneSearchWholeWord == FALSE && input$selectKeywordColumn != 'Description') {
-        showNotification("When searching columns other than 'Description', it is better to keep Whole Word selected otherwise you will match partial names - which may be not what you intend.", type = 'warning')
+      if(input$checkboxGeneSearchWholeWord == FALSE) {
+        showNotification("When searching columns that are not free text, it is better to keep Whole Word selected otherwise you will match partial names - which may be not what you intend.", type = 'warning')
       }
     }, ignoreInit = TRUE)
   
@@ -469,10 +472,10 @@ observeEvent(
                 if(input$textInputKeyword == "") {
                   showNotification("Empty keyword searches are ignored. No keyword filter has been applied.", type = 'error')
                 } else {
-                  if(input$checkboxGeneSearchWholeWord == FALSE && input$selectKeywordColumn != 'Description') {
+                  if(input$checkboxGeneSearchWholeWord == FALSE) {
                     showNotification("Warning: when searching columns other than 'Description' without having Whole Word selected you will match partial names - which may be not what you intend.", type = 'warning')
                   }
-                  geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$selectKeywordColumn,input$checkboxGeneSearchWholeWord)
+                  geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$selectKeywordColumn,input$checkboxGeneSearchWholeWord,input$checkboxGeneSearchStripSpaces)
                   if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" ')}
                 }
               } 
@@ -840,7 +843,12 @@ observeEvent(
   observeEvent({
     input$buttonGeneLookup
   },{
-    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, allData$annot, input$pickerGeneProbeLookup,input$checkboxGeneLookupWholeWord), envir = .GlobalEnv)
+    assign("lookedupGenes",lookupGenesProbes(input$textInputGeneLookup, 
+                                             select(allData$data,-contains("_")) ,
+                                             input$pickerGeneProbeLookup,
+                                             input$checkboxGeneLookupWholeWord,
+                                             input$checkboxGeneLookupStripSpaces),
+           envir = .GlobalEnv)
     output$datatableGeneLookup <- renderDataTable({lookedupGenes})
   })
   observeEvent({
@@ -988,7 +996,7 @@ observeEvent(
   networkQgraph <- reactive({
     triggerQgraph$v
     return(getNetworkQgraph(networkFilteredEdgeListAndCount(),input$radioNetType, 
-      input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet))
+      input$radioLineLabelVariableNet, input$checkboxLineLabelsNet,input$nodeAlphaNet,input$checkboxLegendNet))
     })
   output$plotNet <- renderPlot({
     if(!is.null(networkQgraph())) {
@@ -997,7 +1005,7 @@ observeEvent(
     else NULL
   })
   output$plotNetworkLegend <- renderPlot({
-    if(!is.null(networkQgraph())) plot(networkQgraph()[['plt']])
+    if(input$checkboxLegendNet && !is.null(networkQgraph())) plot(networkQgraph()[['plt']])
     else NULL
   })
   

@@ -46,7 +46,7 @@ dataFrameOK <- function(data2check) {
 
 extractColumnNames <- function(cnams) {
   colData <-
-    data_frame(COLNAMES = grep('_', cnams, value = TRUE)) %>%
+    tibble(COLNAMES = grep('_', cnams, value = TRUE)) %>%
     separate(
       COLNAMES,
       into = c('ACTARMCD', 'VACCDY'),
@@ -114,20 +114,14 @@ columnsFromVaccinesDays <- function(v,d) {
 
 getNewData <- function(allData, folderNme) {
   folderpath <- paste0('datafiles/', folderNme) #file.choose()
-  annotPath <- paste0(folderpath, '/', 'annotation.rds')
   dataPath <- paste0(folderpath, '/', 'data.rds')
   modPath <- paste0(folderpath, '/', 'modules.rds')
   modmeanPath <- paste0(folderpath, '/', 'modulesMeans.rds')
   
-  if (file.exists(dataPath) && file.exists(annotPath)) {
+  if (file.exists(dataPath)) {
     showNotification("Please wait for data to load…", type = 'message', duration = 3)
 
-    annotation <- read_rds(annotPath) 
-    allData$annot <- annotation 
-    
     allData$data<- read_rds(dataPath)
-
-    allData$data<- full_join(annotation,allData$data, by = 'ProbeName')
 
     allData$colNames <-
       names(allData$data)[grepl('_', names(allData$data))]
@@ -237,7 +231,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
           # just the selected column
           data4VaccDay <- data %>%
             # matches will find substrings so force it to match the whole string against colN
-            select(Spot, ProbeName, Gene, Value = matches(paste0('^', colN, '$')), GeneName, SystematicName, Description)
+            select(ProbeName, Gene, Value = matches(paste0('^', colN, '$')), GeneName, SystematicName, Description)
         } else {
           # all columns with selected treatment
           data4VaccDay <- data %>%
@@ -246,7 +240,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
           mutate(Value = apply(.,1,stat,na.rm = TRUE))
           data4VaccDay <- cbind(
             select(data4VaccDay,Value),
-            select(data, Spot, ProbeName, Gene, GeneName, Description)
+            select(data, ProbeName, Gene, GeneName, Description)
           )
         }
       }
@@ -411,11 +405,12 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 
 }
 
-getGenesForSearch <- function(geneslist,search,column,wholeWord){
+getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces){
   if(is.null(geneslist) || is.null(search)) return(NULL)
 
   # strip spaces from genes and probes
-  if((column %in% c("Gene","Spot","ProbeName")) && grepl(' ',search)) {
+  # if((column %in% c("Gene","ProbeName")) && grepl(' ',search)) 
+    if(stripSpaces == TRUE) {
     showNotification("Spaces have been stripped", type = 'warning')
     search <- gsub(" ","",search)
   }
@@ -424,9 +419,10 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
   if(grepl(',',search)) {
     searches <- unlist(strsplit(search,','))
     if(wholeWord == TRUE) {
-      #Spot has . in the name which will break as a word. Only description needs \\b
-      if(column == "Description") searches <- paste0("\\b",searches,"\\b")
-      else searches <- paste0("^",searches,"$")
+      # if(column == "Description") 
+        # searches <- paste0("\\b",searches,"\\b")
+      # else 
+        searches <- paste0("^",searches,"$")
       }
     selGenes <- map_dfr(
       searches,
@@ -440,9 +436,10 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
     }
   } else {
     if(wholeWord == TRUE) {
-      #Spot has . in the name which will break as a word. Only description needs \\b
-      if(column == "Description") search <- paste0("\\b",search,"\\b")
-      else search <- paste0("^",search,"$")
+      # if(column == "Description") 
+        # search <- paste0("\\b",search,"\\b")
+      # else 
+        search <- paste0("^",search,"$")
     }
     # no duplicates possible for single search term
     selGenes <- geneslist[grepl(search,geneslist[[column]], ignore.case = TRUE),]
@@ -451,10 +448,10 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord){
   return(selGenes)
 }
 
-lookupGenesProbes <- function(gene,annot, column, wholeWord) {
+lookupGenesProbes <- function(gene,annot, column, wholeWord, stripSpaces) {
   if(is.null(gene) || is.null(annot)) return(NULL)
 
-  if(grepl(' ',gene)) {
+  if(stripSpaces == TRUE) {
     showNotification("Spaces have been stripped", type = 'warning')
     gene <- gsub(" ","",gene)
   }
@@ -465,8 +462,7 @@ lookupGenesProbes <- function(gene,annot, column, wholeWord) {
   }
   
   if(wholeWord == TRUE) {
-    #Spot has . in the name which will break as a word. Only description needs \\b
-    if(column == "Description") gene <- paste0("\\b",gene,"\\b")
+    if(stripSpaces == TRUE) gene <- paste0("\\b",gene,"\\b")
     else gene <- paste0("^",gene,"$")
   }
   
@@ -475,8 +471,8 @@ lookupGenesProbes <- function(gene,annot, column, wholeWord) {
     map_dfr(gene,function(g){
       filter(annot,grepl(g,annot[[column]],ignore.case = TRUE))
     }) %>%
-    select(Gene,GeneName,SystematicName,ProbeName,Spot, Description) %>%
-    arrange(Gene,SystematicName,ProbeName)
+    # select(Gene,GeneName,SystematicName,ProbeName, Description) %>%
+    arrange(Gene)#,SystematicName,ProbeName)
 
   if(nrow(probes) == 0) {
     showNotification("Nothing found", type = 'error')
