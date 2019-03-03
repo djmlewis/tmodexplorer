@@ -38,6 +38,7 @@ options(shiny.maxRequestSize=30*1024^2)
 # Define serverside functions 
 source('serverFunctions.R')
 source('serverFunctions_Mods.R')
+source('serverFunctions_muscle.R')
 
 # Define plotting functions 
 source('plotFunctions.R')
