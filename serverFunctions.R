@@ -231,7 +231,7 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
           # just the selected column
           data4VaccDay <- data %>%
             # matches will find substrings so force it to match the whole string against colN
-            select(ProbeName, Gene, Value = matches(paste0('^', colN, '$')), GeneName, SystematicName, Description)
+            select(ProbeName, Gene, Value = matches(paste0('^', colN, '$')), GeneName, Description)
         } else {
           # all columns with selected treatment
           data4VaccDay <- data %>%
@@ -471,8 +471,7 @@ lookupGenesProbes <- function(gene,annot, column, wholeWord, stripSpaces) {
     map_dfr(gene,function(g){
       filter(annot,grepl(g,annot[[column]],ignore.case = TRUE))
     }) %>%
-    # select(Gene,GeneName,SystematicName,ProbeName, Description) %>%
-    arrange(Gene)#,SystematicName,ProbeName)
+    arrange(Gene)
 
   if(nrow(probes) == 0) {
     showNotification("Nothing found", type = 'error')

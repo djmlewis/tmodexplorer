@@ -1357,7 +1357,6 @@ output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){pas
 
 
 #################### Muscle #########################
-
 #### GLOBALS #####
 assign("hoursToPlotMuscle",c(3,24,72,120,168), envir = .GlobalEnv)
 assign("vaxToPlotMuscle",c("FLUAD","FENDRIX","PLACEBO"), envir = .GlobalEnv)
@@ -1611,7 +1610,8 @@ output$muscle_buttonsavedatatableFilteredSortedProbesMeansTidy_Selected <-
                   content = function(file) {write.csv(filteredSortedProbesMeansTidy_SelectedMuscle(), file, row.names = FALSE)})
 output$muscle_datatableFilteredSortedProbesMeansTidy_Selected <- renderDataTable(
   if(!is.null(filteredSortedProbesMeansTidy_SelectedMuscle())) {
-    select(filteredSortedProbesMeansTidy_SelectedMuscle(),`Feature Number`,isolate(input$muscle_selectFeatureProbeGene),contains("Gene"),FC)
+    # select(filteredSortedProbesMeansTidy_SelectedMuscle(),`Feature Number`,isolate(input$muscle_selectFeatureProbeGene),contains("Gene"),FC)
+    select(filteredSortedProbesMeansTidy_SelectedMuscle(),contains(" "),FC)
   }
   else NULL)
 
@@ -1651,7 +1651,7 @@ output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot(
                   mapping = aes_string(x = enquotedSelectedFeatureStringMuscle(),y = "FC")) +
         themeBase(TRUE) +
         geom_hline(yintercept = 0, linetype = 1, color = 'black', size = 0.8) +
-        geom_boxplot(fill = 'grey90') +##feffd8') +
+        geom_boxplot(fill = 'grey90', outlier.alpha = 0.0) + # dont show outlier dots as they are already plotted as geom_poins
         geom_point(data = filteredSortedProbesMeansTidy_SelectedMuscle(),
                    size = 5, shape = 4, color = 'black', fill = NA, show.legend = FALSE) +
         geom_point(mapping = aes(color = Participant,fill = Participant), alpha = 0.8, size = 5, position = position_jitter(width = 0.15)) +

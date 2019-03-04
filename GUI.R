@@ -85,7 +85,7 @@ ui <-
                                 textInput('textInputKeyword',NULL),
                                 h4(style = "margin-top: 0px;","Search:"),
                                 pickerInput('selectKeywordColumn',label = NULL,
-                                            choices = NULL,#c('Gene','ProbeName','SystematicName','Description'),
+                                            choices = NULL,
                                             options = list(`style` = "btn-success")),
                                 awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger"),
                                 awesomeCheckbox("checkboxGeneSearchStripSpaces","Strip Spaces", TRUE,status = "danger")
@@ -191,7 +191,7 @@ ui <-
                                   fluidRow(
                                     column(4,downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
                                     downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG')),
-                                    column(2,pickerInput('pickerSaveListTopGenes',label = NULL, width = '100%', choices = c('Gene','ProbeName','SystematicName','Description'), options = list(`style` = "btn-danger"))),
+                                    column(2,pickerInput('pickerSaveListTopGenes',label = NULL, width = '100%', choices = c('Gene','ProbeName','Description'), options = list(`style` = "btn-danger"))),
                                     column(2,downloadButton(class="btn-danger",'buttonSaveListGenes', 'List'), bsTooltip("buttonSaveListGenes", "Download List To Paste Into Regex Keyword Search"))
                                   ),
                                   hr(),
@@ -799,7 +799,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                             h5("Use commas to separate multiple names. Alternatively, leave box empty and click Lookup to return all probes & genes, then use search boxes above/below table to search"),
                                             fluidRow(
                                               column(2,style = "margin-top: 0px;",
-                                                     pickerInput('pickerGeneProbeLookup',label = NULL, choices = NULL, #c('Gene','ProbeName','SystematicName','Description'),
+                                                     pickerInput('pickerGeneProbeLookup',label = NULL, choices = NULL,
                                                                  options = list(`style` = "btn-success"))),
                                               column(4,textInput('textInputGeneLookup',NULL)),
                                               column(2,awesomeCheckbox("checkboxGeneLookupWholeWord","Whole Word", FALSE,status = "danger")),
