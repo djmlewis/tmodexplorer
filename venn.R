@@ -19,7 +19,7 @@ vv <- venn(x,simplify = TRUE,col = "red")
 vv
 aa <- attr(venn(x),'intersections')
 df <- map_dfr(names(aa),function(name){
-  data_frame(Group = name,Genes = paste0(aa[[name]],collapse = ','))
+  tibble(Group = name,Genes = paste0(aa[[name]],collapse = ','))
 })
 
 venn.diagram(x,NULL)

@@ -261,13 +261,14 @@ plotTopGenesInSeries <- function(data2plot,
             scale_shape_manual(values = as.integer(levels(dataWithShapes$Shape)), guide = 'none')
         }
         plot <- plot + 
+          # scale_x_continuous(breaks = unique(floor(Column))) +
           geom_line(data = dataWithShapes,  mapping = aes(x = Column,y = Value,colour = Gene,group = ProbeName), size = 1, show.legend = showlegend) # group = Gene is needed when we do not facet
       }
     }
     
     if (facet == TRUE) {
       plot <-  plot +
-        scale_x_continuous(breaks = plotData$Column) +
+        scale_x_continuous(breaks = unique(floor(plotData$Column))) +
         facet_wrap( ~ Treatment, ncol = numCols)
     }
     
@@ -320,7 +321,7 @@ plotModulesInSeries <- function(d,t,l,r,f,z,se,sC,xg,pp,numCols){
       
       # if facet_wrap we split column into real x values. If not we have factors. So only add scale_x_continuous to facet_wrap
       if(f == TRUE) {
-        p <- p +scale_x_continuous(breaks = unique(d$Column))
+        p <- p +scale_x_continuous(breaks = unique(floor(d$Column)))
       }
     } else { # boxplot
       p <- p +

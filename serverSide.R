@@ -26,7 +26,7 @@ server <- function(input, output, session) {
   assign("dataValueRange",expressionValueRangeVaccDay, envir = .GlobalEnv)
   shapeKinetics <- reactiveVal(NULL)
   
-  assign("dayPatterns",read_rds("dayPats.rds"), envir = .GlobalEnv)
+  # assign("dayPatterns",read_rds("dayPats.rds"), envir = .GlobalEnv)
   assign("vaccineColours",read_rds("vaccinecolours.rds"), envir = .GlobalEnv)
   
   
@@ -307,6 +307,8 @@ server <- function(input, output, session) {
     
     
     # these must be updated here as they do not observe allData
+    assign("dayPatterns",vaxDayPatterns(allData$colNames), envir = .GlobalEnv)
+    
     vaccDays <- vaccinesDaysFromColNames(allData$colNames)
     updatePickerInput(session, 'selectColumnVaccine', choices = vaccDays$vaccines)
     updatePickerInput(session, 'selectVaccNet', choices = vaccDays$vaccines)
@@ -1462,7 +1464,7 @@ observeEvent(input$muscle_buttonApplySelection,
      # make a tidy version of maxMins
      fspmTidyMax <- sortedMaxsMins %>%
        select(contains(" "),contains(tissvaxmaxmin)) %>%
-       rename_at(tissvaxmaxmin,funs(paste0("FC")))
+       rename_at(tissvaxmaxmin, ~ paste0("FC"))
      filteredSortedProbesMeansTidy_SelectedMuscle(fspmTidyMax)
      
      # disable the selection specific
@@ -1586,7 +1588,7 @@ output$muscle_plotSeriesFilteredSortedProbesMeans <- renderPlot(
                                y = "FC", 
                                color = enquotedSelectedFeatureStringMuscle(), 
                                fill = enquotedSelectedFeatureStringMuscle())) +
-        themeBase(FALSE) +
+        themeBaseMuscle(FALSE) +
         geom_hline(yintercept = 0, linetype = 1, color = 'black', size = 0.8) +
         geom_line(show.legend = input$muscle_checkboxPlotSeriesLegend,size = 1.5) +
         geom_point(show.legend = FALSE,size = 2) +
@@ -1649,7 +1651,7 @@ output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot(
         )
       p <- ggplot(data =  dfIndivs,
                   mapping = aes_string(x = enquotedSelectedFeatureStringMuscle(),y = "FC")) +
-        themeBase(TRUE) +
+        themeBaseMuscle(TRUE) +
         geom_hline(yintercept = 0, linetype = 1, color = 'black', size = 0.8) +
         geom_boxplot(fill = 'grey90', outlier.alpha = 0.0) + # dont show outlier dots as they are already plotted as geom_poins
         geom_point(data = filteredSortedProbesMeansTidy_SelectedMuscle(),

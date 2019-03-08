@@ -4,6 +4,15 @@ load('tmod.rda')
 
 
 ###### Functions
+vaxDayPatterns <- function(colnm) {
+  sp <- str_split_fixed(colnm[grepl("_",colnm)],"_", n=Inf)
+  xx <- tibble(V1 = sp[,1],V2 = sp[,2]) %>%
+    arrange(V1,as.numeric(V2)) %>%
+    group_by(V1) %>%
+    summarise(V3 = list(V2))
+  return(set_names(xx$V3,nm = xx$V1))
+}
+
 kineticsDF <- function(kinetics, filterExclude = FALSE) {
   df <- unnest(enframe(kinetics, name = "Day")) %>%
     mutate_if(is.character,as.numeric) %>%
@@ -282,7 +291,7 @@ getTopGenesInSeries <- function(allData, selData,selCols, facet, genesProbesSele
       # lets calc means first
       meansData <- seriesData %>%
         group_by(Gene) %>%
-        summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
+        summarise_at(vars(one_of(selCols)), ~ mean(., na.rm = TRUE)) %>%
         ungroup() %>%
         gather(
           key = 'Column',
@@ -383,7 +392,7 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
     # if asGenes calc means first
     datamatching <- data2Match %>%
       group_by(Gene) %>%
-      summarise_at(vars(one_of(selCols)), funs(mean(., na.rm = TRUE))) %>%
+      summarise_at(vars(one_of(selCols)), ~ mean(., na.rm = TRUE)) %>%
       ungroup()
   } else {
     datamatching <- data2Match

@@ -122,7 +122,9 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
           
           if(point == TRUE) {plot <-  plot + geom_point(data = data2plot,mapping = aes_string(colour = grouper, group = grouper), size = 2 ,show.legend=l)}
           
-          if(facet == TRUE) {plot <- plot + scale_x_continuous(breaks = data2plot$Column)}
+          if(facet == TRUE) {
+            plot <- plot + scale_x_continuous(breaks = unique(floor(data2plot$Column)))
+            }
           if(showSE == TRUE){
             data4SE <- data2plot %>%
               mutate(ymin = Mean-SE, ymax = Mean+SE)

@@ -1,37 +1,36 @@
 
-dayPats <- list(
-  aRIXtetra = c(0, 1, 2, 3),
-  STAMARIL = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
-  VARILRIX = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
-  AGRIPPAL = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
-  `FLUAD C` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
-  `ENGERIXB 1` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
-  `ENGERIXB 3` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
-  `ENGERIXB1 306B` = c(0, 1, 3, 7, 14, 28),
-  `ENGERIXB3 306B` = c(0, 1, 3, 7, 14, 28),
-  `FENDRIX1 306B` = c(0, 1, 3, 7, 14, 28),
-  `FENDRIX3 306B` = c(0, 1, 3, 7, 14, 28),
-  `PLACEBO AB1C` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
-  `PLACEBO B3` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
-  `FLUAD D` = c(0, 1, 3, 7, 21),
-  `PLACEBO D` = c(0, 1, 3, 7, 21),
-  `PLACEBO D2` = c(0, 1, 2, 3, 7, 28),
-  `CRC305E FENDRIX Blood` = c( 0,1,3,5,7),
-  `CRC305E FENDRIX Muscle` = c( 0,1,3,5,7),
-  `CRC305E FLUAD Blood` = c( 0,1,3,5,7),
-  `CRC305E FLUAD Muscle` = c( 0,1,3,5,7),
-  `CRC305E PLACEBO Blood` = c( 0,1,3,5,7),
-  `CRC305E PLACEBO Muscle` = c( 0,1,3,5,7),
-  BOOSTRIX = c(0, 1, 2, 3, 7, 28),
-  VSVHIVGAG = c(0, 1, 3, 7, 14),
-  `PLACEBO VSVHIVGAG` = c(0, 1, 3, 7, 14),
-  `VSVHIVGAG SHAM` = c(0, 1, 3, 7, 14),
-  `NONE VSVHIVGAG` = c(0, 1, 3, 7, 14)
-)
+# write_rds(
+#   list(
+#   aRIXtetra = c(0, 1, 2, 3),
+#   STAMARIL = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
+#   VARILRIX = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
+#   AGRIPPAL = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
+#   `FLUAD C` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
+#   `ENGERIXB 1` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
+#   `ENGERIXB 3` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
+#   `ENGERIXB1 306B` = c(0, 1, 3, 7, 14, 28),
+#   `ENGERIXB3 306B` = c(0, 1, 3, 7, 14, 28),
+#   `FENDRIX1 306B` = c(0, 1, 3, 7, 14, 28),
+#   `FENDRIX3 306B` = c(0, 1, 3, 7, 14, 28),
+#   `PLACEBO AB1C` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
+#   `PLACEBO B3` = c(-1, 0, 1, 2, 3, 4, 5, 7, 14, 21, 28),
+#   `FLUAD D` = c(0, 1, 3, 7, 21),
+#   `PLACEBO D` = c(0, 1, 3, 7, 21),
+#   `PLACEBO D2` = c(0, 1, 2, 3, 7, 28),
+#   `CRC305E FENDRIX Blood` = c( 0,0.125,1,3,5,7),
+#   `CRC305E FENDRIX Muscle` = c( 0.125,1,3,5,7),
+#   `CRC305E FLUAD Blood` = c( 0,0.125,1,3,5,7),
+#   `CRC305E FLUAD Muscle` = c( 0.125,1,3,5,7),
+#   `CRC305E PLACEBO Blood` = c( 0,0.125,1,3,5,7),
+#   `CRC305E PLACEBO Muscle` = c( 0.125,1,3,5,7),
+#   BOOSTRIX = c(0, 1, 2, 3, 7, 28),
+#   VSVHIVGAG = c(0, 1, 3, 7, 14),
+#   `PLACEBO VSVHIVGAG` = c(0, 1, 3, 7, 14),
+#   `VSVHIVGAG SHAM` = c(0, 1, 3, 7, 14),
+#   `NONE VSVHIVGAG` = c(0, 1, 3, 7, 14)
+# ),"dayPats.rds")
 
-write_rds(dayPats,"dayPats.rds")
-
-vaccinecolours <-
+write_rds(
   c(
     aRIXtetra = "mediumpurple2",
     AGRIPPAL = "darkorchid4",
@@ -68,6 +67,4 @@ vaccinecolours <-
     `PLACEBO VSVHIVGAG` = "lightsteelblue1",
     `NONE VSVHIVGAG` = "grey50",
     black = "black"
-  )
-
-write_rds(vaccinecolours,"vaccinecolours.rds")
+  ),"vaccinecolours.rds")

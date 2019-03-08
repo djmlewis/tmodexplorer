@@ -33,7 +33,7 @@ getGenesForSearch <- function(dframe,searchTerms,variableToSearch,wholeWord){
   return(selGenes)
 }
 
-themeBase <- function(rotate = FALSE) {
+themeBaseMuscle <- function(rotate = FALSE) {
   a <- ifelse(rotate,60,0)
   hj <- ifelse(rotate,1,0.5)
   
