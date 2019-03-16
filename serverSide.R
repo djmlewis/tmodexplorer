@@ -52,7 +52,7 @@ server <- function(input, output, session) {
   files <- sort(basename(list.dirs(path = 'datafiles', recursive = FALSE)))
   updatePickerInput(session, 'selectDataFI', choices = files) # list(`Fold Increase From Baseline` = files[grepl("Fold", files)], `Raw Expression Values` = files[!grepl("Fold", files)]))
 
-  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL)
+  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, muscleIndividuals = NULL)
   observeEvent(input$buttonLoadDataFI, {if (getNewData(allData,input$selectDataFI) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
 
   output$buttonsavedatatableAll <- downloadHandler(filename = function(){paste0(allData$folder,".csv")},
@@ -107,7 +107,7 @@ server <- function(input, output, session) {
   defaultKineticsForDataset <- function(data) {
     days <- vaccDaysInDataset()
     set_names(replicate(length(days),
-                        {data_frame(Min = data[["Min"]],
+                        {tibble(Min = data[["Min"]],
                                     Max = data[["Max"]], 
                                     Exclude = FALSE)}, 
                         simplify = FALSE),
@@ -141,7 +141,7 @@ server <- function(input, output, session) {
   observeEvent(
     input$buttonCopyValuesShapeData,
     {
-      assign("copiedDayKinetics",data_frame(Exclude = input$checkboxShapeSkipDay ,Min = input$numberShapeDayMin, Max = input$numberShapeDayMax), envir = .GlobalEnv)
+      assign("copiedDayKinetics",tibble(Exclude = input$checkboxShapeSkipDay ,Min = input$numberShapeDayMin, Max = input$numberShapeDayMax), envir = .GlobalEnv)
     }
   )
   
@@ -187,7 +187,7 @@ server <- function(input, output, session) {
   saveKineticsDayValues <- function(ignore,day,minVal,maxVal) {
     curKinetics <- shapeKinetics()
     if(ignore == TRUE) {
-      curKinetics[[day]] <- data_frame(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = TRUE)
+      curKinetics[[day]] <- tibble(Min = dataValueRange[["Min"]],Max = dataValueRange[["Max"]], Exclude = TRUE)
       if(kineticsNotAllExcluded(curKinetics)) {
         resetShapeNumericsToDataset()
         shapeKinetics(curKinetics)
@@ -195,7 +195,7 @@ server <- function(input, output, session) {
         showNotification("This window cannot be excluded as at least one window must be defined", type = 'error')
       }
     } else {
-      curKinetics[[day]] <- data_frame(Min = minVal,Max = maxVal, Exclude = ignore)
+      curKinetics[[day]] <- tibble(Min = minVal,Max = maxVal, Exclude = ignore)
       shapeKinetics(curKinetics)
     }
   }
@@ -1360,307 +1360,69 @@ output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){pas
 
 #################### Muscle #########################
 #### GLOBALS #####
-assign("hoursToPlotMuscle",c(3,24,72,120,168), envir = .GlobalEnv)
-assign("vaxToPlotMuscle",c("FLUAD","FENDRIX","PLACEBO"), envir = .GlobalEnv)
-assign("tissToPlotMuscle",c("Muscle","Blood"), envir = .GlobalEnv)
-
 assign("fc_individualsMuscle",NULL, envir = .GlobalEnv)
-assign("fc_meansMuscle",NULL, envir = .GlobalEnv)
-assign("fc_means_maxMuscle",NULL, envir = .GlobalEnv)
+assign("choicesDayBlood",c(`Pre-immunisation` = "0",`3 hours` = 0.125,`1 day` = 1,`3 days` = 3,`5 days` = 5,`7 days` = 7), envir = .GlobalEnv)
+assign("choicesDayMuscle",c(`3 hours` = 0.125,`1 day` = 1,`3 days` = 3,`5 days` = 5,`7 days` = 7), envir = .GlobalEnv)
 
 ##### REACTIVE VALS ####
-filteredSortedProbesMeansAllMuscle <- reactiveVal(NULL)
-filteredSortedProbesMeansTidyMuscle <- reactiveVal(NULL)
-filteredSortedProbesMeansTidy_SelectedMuscle <- reactiveVal(NULL)
-filteredSortedProbesIndividualsTidyMuscle <- reactiveVal(NULL)
+filteredSortedProbesTidyMuscle <- reactiveVal(NULL)
 tissueVaccineHourFilteredMuscle <- reactiveVal(NULL)
 enquotedSelectedFeatureStringMuscle <- reactiveVal(NULL)
 plotTitleBaseMuscle <- reactiveVal(NULL)
 
 observeEvent(input$buttonLoadMuscle, {
-  
-  ##### READ DATA ####
-  assign("fc_individualsMuscle",read_rds("muscledata/FoldChange_individuals.rds"), envir = .GlobalEnv)
-  assign("fc_meansMuscle",read_rds("muscledata/FoldChange_means.rds"), envir = .GlobalEnv)
-  assign("fc_means_maxMuscle",read_rds("muscledata/FoldChange_means_max.rds"), envir = .GlobalEnv)
-  
-  showNotification("Muscle Data File Loaded")
+  assign("fc_individualsMuscle",read_rds("datafiles/CRC305ABCDD2QE•HVTN•CRC306B/FC_muscle_individuals.rds"), envir = .GlobalEnv)
   hide("divLoadMuscle")
   show("divMuscle", anim = TRUE)
 })
 
 ##### Filter Probes ####
+observeEvent(input$muscle_selectColumnTissue,
+{
+  if(input$muscle_selectColumnTissue == "Muscle") updatePickerInput(session,"muscle_selectColumnHour", choices = choicesDayMuscle)
+  else updatePickerInput(session,"muscle_selectColumnHour", choices = choicesDayBlood)
+},
+ignoreInit = TRUE, ignoreNULL = TRUE)
+
 observeEvent(input$muscle_buttonApplySelection,
   {
-   enquotedSelectedFeatureStringMuscle(paste0("`",isolate(input$muscle_selectFeatureProbeGene),"`"))
-   selectedTissVaccHour <- paste(isolate(input$muscle_selectColumnTissue),isolate(input$muscle_selectColumnVaccine),isolate(input$muscle_selectColumnHour), sep = "_")
-   tissueVaccineHourFilteredMuscle(selectedTissVaccHour)
-   
-   ######### ALL TIMES
-   if(input$muscle_selectColumnHour == "All Times") {
-     tissvaxmaxmin <- paste(isolate(input$muscle_selectColumnTissue),isolate(input$muscle_selectColumnVaccine),
-                            if_else(input$muscle_checkboxDescending,"Max","Min"),
-                            sep = "_")
-     if(isolate(input$muscle_checkboxDescending) == TRUE) {
-       sortedMaxsMins <- fc_means_maxMuscle[[isolate(input$muscle_selectFeatureProbeGene)]] %>% 
-         select(-contains("Min")) %>%
-         arrange_at(.vars = tissvaxmaxmin,desc)
-     } else {
-       sortedMaxsMins <- fc_means_maxMuscle[[isolate(input$muscle_selectFeatureProbeGene)]] %>% 
-         select(-contains("Max")) %>%
-         arrange_at(.vars = tissvaxmaxmin)
-     }
+    selectedTissVaccHour <- paste0("CRC305E ",
+                                  isolate(input$muscle_selectColumnVaccine)," ",
+                                  isolate(input$muscle_selectColumnTissue),"_",
+                                  isolate(input$muscle_selectColumnHour))
+    filteredSortedRowMeans <- select(fc_individualsMuscle,ProbeName,Gene,starts_with(selectedTissVaccHour))
+     # do keyword search
+    filteredSortedRowMeans <- 
+      getGenesForSearch(filteredSortedRowMeans,input$muscle_textInputKeyword,"Gene",TRUE,TRUE) %>%
+      gather(key = "Participant",value = "FC",-c(ProbeName,Gene)) %>%
+      mutate(Participant = gsub(paste0(selectedTissVaccHour,"•CRC305E-"),"",Participant))
+
+     # set the global variables
+    filteredSortedProbesTidyMuscle(filteredSortedRowMeans)
+    tissueVaccineHourFilteredMuscle(paste(isolate(input$muscle_selectColumnVaccine),
+                                           isolate(input$muscle_selectColumnTissue),
+                                           isolate(input$muscle_selectColumnHour)))
      
-     
-     # check for max min slice
-     if(isolate(input$muscle_checkboxSelectValues) == TRUE) {
-       sortedMaxsMins <- sortedMaxsMins %>%
-         filter_at(.vars = tissvaxmaxmin,
-                   any_vars(between(.,
-                                    isolate(input$muscle_numberExpressionMin),
-                                    isolate(input$muscle_numberExpressionMax))))
-     }
-     
-     # check for start end rows slice
-     if(isolate(input$muscle_checkboxSelectRows) &&
-        nrow(sortedMaxsMins)>0 &&
-        nrow(sortedMaxsMins)>=isolate(input$muscle_numberGenesStart) &&
-        nrow(sortedMaxsMins)>=isolate(input$muscle_numberGenesEnd)
-     )
-       sortedMaxsMins <- sortedMaxsMins[isolate(input$muscle_numberGenesStart):isolate(input$muscle_numberGenesEnd),]
-     
-     # check we are not over max permitted rows
-     if(nrow(sortedMaxsMins)>isolate(input$muscle_rowsLimitNumeric))
-       sortedMaxsMins <- sortedMaxsMins[1:isolate(input$muscle_rowsLimitNumeric),]
-     
-     # select the rows with matching feature nums in the actual means and indivs data
-     filteredSortedRowMeans <- fc_meansMuscle[[isolate(input$muscle_selectFeatureProbeGene)]] %>%
-       filter(`Feature Number` %in% sortedMaxsMins$`Feature Number`)
-     
-     # set the global variable
-     filteredSortedProbesMeansAllMuscle(filteredSortedRowMeans)
-     
-     # make a tidy version of all Tiss Vax Hours to plot
-     fspmTidy <- map_dfr(tissToPlotMuscle, function(tiss){
-       tissCols <- filteredSortedRowMeans %>%
-         select(contains(" "),contains(tiss))
-       dftis <- map_dfr(vaxToPlotMuscle, function(vax){
-         selCols <- select(tissCols,contains(" "),contains(vax))
-         #so we can have as many annotation cols which are ignored
-         colnames(selCols)[grepl(vax,colnames(selCols))] <- hoursToPlotMuscle
-         tidyCols <- gather(selCols, key = "Hours", value = "FC",-contains(" ")) %>%
-           mutate(
-             Vaccine = vax,
-             Hours = as.numeric(Hours)
-           )
-       })
-       dftis <- dftis %>%
-         mutate(Tissue = tiss)
-       return(dftis)
-     }) %>%
-       arrange(`Feature Number`,`Probe Name`,`Gene Symbol`,Tissue,Vaccine,Hours)
-     filteredSortedProbesMeansTidyMuscle(fspmTidy)
-     
-     # make a tidy version of maxMins
-     fspmTidyMax <- sortedMaxsMins %>%
-       select(contains(" "),contains(tissvaxmaxmin)) %>%
-       rename_at(tissvaxmaxmin, ~ paste0("FC"))
-     filteredSortedProbesMeansTidy_SelectedMuscle(fspmTidyMax)
-     
-     # disable the selection specific
-     filteredSortedProbesIndividualsTidyMuscle(NULL)
-     
-   }
-   ########### SELECTED HOUR
-   else {
-     # make a sorted version of all Tiss Vax Hours to tabulate
-     if(isolate(input$muscle_checkboxDescending) == TRUE) {
-       filteredSortedRowMeans <- fc_meansMuscle[[isolate(input$muscle_selectFeatureProbeGene)]] %>% 
-         arrange_at(.vars = selectedTissVaccHour,desc)
-     }
-     else {
-       filteredSortedRowMeans <- fc_meansMuscle[[isolate(input$muscle_selectFeatureProbeGene)]] %>% 
-         arrange_at(.vars = selectedTissVaccHour)
-     }
-     
-     # check for keyword search
-     if(isolate(input$muscle_checkboxSelectKeyword) == TRUE) {
-       filteredSortedRowMeans <- 
-         isolate(getGenesForSearch(filteredSortedRowMeans,
-                                   input$muscle_textInputKeyword,
-                                   input$muscle_selectKeywordColumn,
-                                   input$muscle_checkboxGeneSearchWholeWord))
-     }
-     
-     # check for max min slice
-     if(isolate(input$muscle_checkboxSelectValues) == TRUE) {
-       filteredSortedRowMeans <- filteredSortedRowMeans %>%
-         filter_at(.vars = selectedTissVaccHour,
-                   any_vars(between(.,
-                                    isolate(input$muscle_numberExpressionMin),
-                                    isolate(input$muscle_numberExpressionMax))))
-     }
-     
-     # check for start end rows slice
-     if(isolate(input$muscle_checkboxSelectRows) &&
-        nrow(filteredSortedRowMeans)>0 &&
-        nrow(filteredSortedRowMeans)>=isolate(input$muscle_numberGenesStart) &&
-        nrow(filteredSortedRowMeans)>=isolate(input$muscle_numberGenesEnd)
-     ) {
-       filteredSortedRowMeans <- filteredSortedRowMeans[isolate(input$muscle_numberGenesStart):isolate(input$muscle_numberGenesEnd),]
-     }
-     
-     # check we are not over max permitted rows
-     if(nrow(filteredSortedRowMeans)>isolate(input$muscle_rowsLimitNumeric)) {
-       filteredSortedRowMeans <- filteredSortedRowMeans[1:isolate(input$muscle_rowsLimitNumeric),]
-     }
-     
-     # set the global variabe
-     filteredSortedProbesMeansAllMuscle(filteredSortedRowMeans)
-     
-     # make a tidy version of all Tiss Vax Hours to plot
-     fspmTidy <- map_dfr(tissToPlotMuscle, function(tiss){
-       tissCols <- filteredSortedRowMeans %>%
-         select(contains(" "),contains(tiss))
-       dftis <- map_dfr(vaxToPlotMuscle, function(vax){
-         selCols <- select(tissCols,contains(" "),contains(vax))
-         #so we can have as many annotation cols which are ignored
-         colnames(selCols)[grepl(vax,colnames(selCols))] <- hoursToPlotMuscle
-         tidyCols <- gather(selCols, key = "Hours", value = "FC",-contains(" ")) %>%
-           mutate(
-             Vaccine = vax,
-             Hours = as.numeric(Hours)
-           )
-       })
-       dftis <- dftis %>%
-         mutate(Tissue = tiss)
-       return(dftis)
-     }) %>%
-       arrange(`Feature Number`,`Probe Name`,`Gene Symbol`,Tissue,Vaccine,Hours)
-     filteredSortedProbesMeansTidyMuscle(fspmTidy)
-     
-     # prune the tidy to just selected TVH
-     fspmTidySelected <- fspmTidy %>%
-       filter(Hours == as.numeric(isolate(input$muscle_selectColumnHour)), 
-              Vaccine == isolate(input$muscle_selectColumnVaccine), 
-              Tissue == isolate(input$muscle_selectColumnTissue)) %>%
-       arrange(desc(FC))
-     filteredSortedProbesMeansTidy_SelectedMuscle(fspmTidySelected)
-     
-     # extract the relevant info from individuals
-     featuresToInclude <- filteredSortedRowMeans[[isolate(input$muscle_selectFeatureProbeGene)]]
-     filteredSortedRowIndividuals <- fc_individualsMuscle %>% 
-       filter_at(isolate(input$muscle_selectFeatureProbeGene), any_vars(. %in% featuresToInclude)) %>%  
-       select(contains(" "), starts_with(tissueVaccineHourFilteredMuscle())) %>%
-       gather(key = "Participant", value = "FC", contains("CRC")) %>%
-       mutate(
-         Participant = gsub(".*CRC305E-","",Participant),
-         Hours = as.numeric(isolate(input$muscle_selectColumnHour)), 
-         Vaccine = isolate(input$muscle_selectColumnVaccine), 
-         Tissue = isolate(input$muscle_selectColumnTissue)) %>%
-       arrange(Tissue,Vaccine,Hours)
-     
-     filteredSortedProbesIndividualsTidyMuscle(filteredSortedRowIndividuals)
-     
-     # header string
-     if(is.null(enquotedSelectedFeatureStringMuscle())) plotTitleBaseMuscle(NULL)
-     else {
-       s <- paste(gsub("`","",enquotedSelectedFeatureStringMuscle()),gsub("_"," ",tissueVaccineHourFilteredMuscle()),
-                  if_else(input$muscle_selectColumnHour == "All Times","","hours"))
-       if(input$muscle_checkboxSelectKeyword == TRUE) s <- paste0(s," (",input$muscle_selectKeywordColumn,":'",str_trunc(input$muscle_textInputKeyword,width = 20, ellipsis = "…"),"')")
-       if(input$muscle_checkboxSelectValues == TRUE) s <- paste0(s," (values ",input$muscle_numberExpressionMin,":",input$muscle_numberExpressionMax,")")
-       if(input$muscle_checkboxSelectRows == TRUE) s <- paste0(s," (rows ",input$muscle_numberGenesStart,"-",input$muscle_numberGenesEnd,")")
-       s <- paste(s,if_else(input$muscle_checkboxDescending, "descending","ascending"))
-       plotTitleBaseMuscle(s)
-     }
-   }
+
    showNotification("Muscle Data Filtered")
   },
-             ignoreInit = TRUE)
+  ignoreInit = TRUE)
 
 
-output$muscle_plotSeriesFilteredSortedProbesMeans <- renderPlot(
-  {
-    if(!is.null(filteredSortedProbesMeansTidyMuscle()) && nrow(filteredSortedProbesMeansTidyMuscle())>0) {
-      p <- ggplot(filteredSortedProbesMeansTidyMuscle(), 
-                  mapping = 
-                    aes_string(x = "Hours", 
-                               y = "FC", 
-                               color = enquotedSelectedFeatureStringMuscle(), 
-                               fill = enquotedSelectedFeatureStringMuscle())) +
-        themeBaseMuscle(FALSE) +
-        geom_hline(yintercept = 0, linetype = 1, color = 'black', size = 0.8) +
-        geom_line(show.legend = input$muscle_checkboxPlotSeriesLegend,size = 1.5) +
-        geom_point(show.legend = FALSE,size = 2) +
-        scale_x_continuous(name = "Hours after immunisation",breaks = hoursToPlotMuscle) +
-        scale_y_continuous(name = "Log2 Fold Change") +
-        scale_color_discrete(labels = function(lab){truncLabels(lab,input$muscle_checkboxPlotSeriesTrunc)}) +
-        scale_fill_discrete(labels = function(lab){truncLabels(lab,input$muscle_checkboxPlotSeriesTrunc)}) +
-        facet_wrap(Tissue~Vaccine) +
-        ggtitle(label = plotTitleBaseMuscle())
-      return(p)
-    }
-    else return(NULL)
-  }#,
-  #  res = 300
-)
-
-### output$muscle_headerFilteredSortedProbesMeansTidy_Selected 
-output$muscle_headerFilteredSortedProbesMeansTidy_Selected <- renderText(plotTitleBaseMuscle())
-output$muscle_buttonsavedatatableFilteredSortedProbesMeansTidy_Selected <- 
-  downloadHandler(filename = function(){currTimeDateFile("Filtered data",".csv")},
-                  content = function(file) {write.csv(filteredSortedProbesMeansTidy_SelectedMuscle(), file, row.names = FALSE)})
-output$muscle_datatableFilteredSortedProbesMeansTidy_Selected <- renderDataTable(
-  if(!is.null(filteredSortedProbesMeansTidy_SelectedMuscle())) {
-    # select(filteredSortedProbesMeansTidy_SelectedMuscle(),`Feature Number`,isolate(input$muscle_selectFeatureProbeGene),contains("Gene"),FC)
-    select(filteredSortedProbesMeansTidy_SelectedMuscle(),contains(" "),FC)
-  }
-  else NULL)
-
-output$muscle_headerFilteredSortedProbesMeansTidy_All <- renderText(
-  if(is.null(plotTitleBaseMuscle())) NULL else paste0(plotTitleBaseMuscle(), ": all tissue ~ vaccine ~ hour combinations (tidy data)"))
-output$muscle_buttonsavedatatableFilteredSortedProbesMeansAllTidy <- 
-  downloadHandler(filename = function(){currTimeDateFile("All data (tidy)",".csv")},
-                  content = function(file) {write.csv(filteredSortedProbesMeansTidyMuscle(), file, row.names = FALSE)})
-output$muscle_datatableFilteredSortedProbesMeansAllTidy <- renderDataTable(
-  if(!is.null(filteredSortedProbesMeansTidyMuscle())) {
-    filteredSortedProbesMeansTidyMuscle()
-  }
-  else NULL)
 
 ############ Plot Individuals #####
 output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot(
   {
-    if(!is.null(filteredSortedProbesIndividualsTidyMuscle()) && 
-       !is.null(filteredSortedProbesMeansTidy_SelectedMuscle()) &&
-       nrow(filteredSortedProbesIndividualsTidyMuscle())>0 &&
-       nrow(filteredSortedProbesMeansTidy_SelectedMuscle())>0 ) {
-      #arrange by the FC mean and use the order for levels so boxplot is arranged by FC left to right
-      dfMeans <- filteredSortedProbesMeansTidy_SelectedMuscle() %>%
-        arrange(desc(FC)) %>%
-        mutate(
-          `Feature Number` = factor(`Feature Number`, levels = unique(`Feature Number`)),
-          `Gene Symbol` = factor(`Gene Symbol`, levels = unique(`Gene Symbol`)),
-          `Probe Name` = factor(`Feature Number`, levels = unique(`Probe Name`))
-        )
-      dfIndivs <- filteredSortedProbesIndividualsTidyMuscle() %>%
-        mutate(
-          `Feature Number` = factor(`Feature Number`, levels = unique(dfMeans$`Feature Number`)),
-          `Gene Symbol` = factor(`Gene Symbol`, levels = unique(dfMeans$`Gene Symbol`)),
-          `Probe Name` = factor(`Feature Number`, levels = unique(dfMeans$`Probe Name`))
-        )
-      p <- ggplot(data =  dfIndivs,
-                  mapping = aes_string(x = enquotedSelectedFeatureStringMuscle(),y = "FC")) +
+    if(!is.null(filteredSortedProbesTidyMuscle()) &&
+       nrow(filteredSortedProbesTidyMuscle())>0) {
+      p <- ggplot(data =  filteredSortedProbesTidyMuscle(),
+                  mapping = aes_string(x = "Gene",y = "FC")) +
         themeBaseMuscle(TRUE) +
-        geom_hline(yintercept = 0, linetype = 1, color = 'black', size = 0.8) +
+        geom_hline(yintercept = 0, linetype = 2, color = 'black', size = 0.8) +
         geom_boxplot(fill = 'grey90', outlier.alpha = 0.0) + # dont show outlier dots as they are already plotted as geom_poins
-        geom_point(data = filteredSortedProbesMeansTidy_SelectedMuscle(),
-                   size = 5, shape = 4, color = 'black', fill = NA, show.legend = FALSE) +
         geom_point(mapping = aes(color = Participant,fill = Participant), alpha = 0.8, size = 5, position = position_jitter(width = 0.15)) +
-        scale_x_discrete(name = enquotedSelectedFeatureStringMuscle(),
-                         labels = function(lab){truncLabels(lab,input$muscle_checkboxPlotIndividualsTrunc)}) +
         scale_y_continuous(name = "Log2 Fold Change") +
-        ggtitle(label = paste(plotTitleBaseMuscle(),"- individual probes and means"))
+        ggtitle(label = paste(tissueVaccineHourFilteredMuscle(),"- individual probes and means"))
       return(p)
     }
     else NULL
@@ -1669,13 +1431,7 @@ output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot(
 )
 
 
-output$muscle_filteredSortedProbesIndividualsTidy <- renderDataTable(filteredSortedProbesIndividualsTidyMuscle())
-
-output$muscle_buttonFilteredSortedProbesMeansList <- 
-  downloadHandler(filename = function(){currTimeDateFile("Filtered data list",".txt")},
-                  content = function(file) {
-                    write_lines(makeTextListOfFilteredGenes(filteredSortedProbesMeansTidy_SelectedMuscle(),plotTitleBaseMuscle()), path = file)
-                  })
+output$muscle_filteredSortedProbesTidyMuscle <- renderDataTable(filteredSortedProbesTidyMuscle())
 
 #################### Cells #########################
 assign("cellsData",NULL, envir = .GlobalEnv)

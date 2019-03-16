@@ -126,6 +126,8 @@ getNewData <- function(allData, folderNme) {
   dataPath <- paste0(folderpath, '/', 'data.rds')
   modPath <- paste0(folderpath, '/', 'modules.rds')
   modmeanPath <- paste0(folderpath, '/', 'modulesMeans.rds')
+  musclePath <- paste0(folderpath, '/', 'FC_muscle_individuals.rds')
+  
   
   if (file.exists(dataPath)) {
     showNotification("Please wait for data to load…", type = 'message', duration = 3)
@@ -143,6 +145,11 @@ getNewData <- function(allData, folderNme) {
     if (file.exists(modPath) && file.exists(modmeanPath)) {
       allData$modules <- read_rds(modPath)
       allData$modulesMeans <- read_rds(modmeanPath)
+    }
+    
+    # try for muscle
+    if (file.exists(musclePath)) {
+      allData$muscleIndividuals <- read_rds(musclePath)
     }
     
     return(TRUE)
@@ -416,10 +423,9 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 
 getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces){
   if(is.null(geneslist) || is.null(search)) return(NULL)
-
+  
   # strip spaces from genes and probes
-  # if((column %in% c("Gene","ProbeName")) && grepl(' ',search)) 
-    if(stripSpaces == TRUE) {
+  if(stripSpaces == TRUE) {
     showNotification("Spaces have been stripped", type = 'warning')
     search <- gsub(" ","",search)
   }
@@ -428,11 +434,8 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces){
   if(grepl(',',search)) {
     searches <- unlist(strsplit(search,','))
     if(wholeWord == TRUE) {
-      # if(column == "Description") 
-        # searches <- paste0("\\b",searches,"\\b")
-      # else 
-        searches <- paste0("^",searches,"$")
-      }
+      searches <- paste0("^",searches,"$")
+    }
     selGenes <- map_dfr(
       searches,
       function(s){
@@ -440,20 +443,16 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces){
       }
     )
     if(nrow(selGenes)>0) {
-      # avoid duplicate Probes from multiple hits. THIS ASSUMES ProbeName is unique
       selGenes <- distinct(selGenes, ProbeName, .keep_all = TRUE)
     }
   } else {
     if(wholeWord == TRUE) {
-      # if(column == "Description") 
-        # search <- paste0("\\b",search,"\\b")
-      # else 
-        search <- paste0("^",search,"$")
+      search <- paste0("^",search,"$")
     }
     # no duplicates possible for single search term
     selGenes <- geneslist[grepl(search,geneslist[[column]], ignore.case = TRUE),]
   }
-
+  
   return(selGenes)
 }
 

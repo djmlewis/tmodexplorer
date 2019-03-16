@@ -407,10 +407,13 @@ ui <-
                                                    downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSeries', 'Table')),
                                   hr(),
                                   dataTableOutput('datatableModuleSeries')
+                         ),
+               #################### Muscle Individuals ###################
+                         tabPanel('Muscle'
+                                  
                          )
               ) # navProbe
      ),# explore by Probe
-
      ############## MODULES #################
      tabPanel('Explore By Module',
               hidden(h4(id = "textDataNameModsHeader", style = "text-align: center; margin-top: 0px; margin-bottom:0px; margin-left: 0px; margin-right: 0px; background-color: #b59800; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;", textOutput('textDataNameMods'))),
@@ -834,7 +837,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
      ),
 
 ###########   Muscle  ##########
-tabPanel(value = 'Muscle', title = span(style = "color: #ffb4d7;", "Muscle"),
+tabPanel(value = 'muscleExplorer', title = span(style = "color: #ffb4d7;", "muscleExplorer"),
   div(id = "divLoadMuscle",
      h4(style = "text-align: center; margin-top: 0px;",'Muscle Data Are Not Loaded Automatically. Click The Button To Load Muscle Data'),
      fluidRow(
@@ -852,255 +855,41 @@ tabPanel(value = 'Muscle', title = span(style = "color: #ffb4d7;", "Muscle"),
     navbarPage(span(style = 'color: #000000;','Muscle'), id = 'navMuscle',
       tabPanel(
         'Select Muscle Genes',
-        wellPanel(style = "background-color: #fff1f7;",
-          conditionalPanel(
-            condition = "input.muscle_selectColumnHour != null && input.muscle_selectColumnVaccine != null",
+          wellPanel(
+            style = "background-color: #ffffff;",
             fluidRow(
-              style = "margin-bottom:10px;",
-              column(
-                4,
-                offset = 4,
-                style = "margin-top: 4px; color: black ",
-                actionBttn(
-                  'muscle_buttonApplySelection',
-                  'Apply Filters',
-                  style = 'unite',
-                  size = 'sm',
-                  color = 'warning',
-                  block = TRUE
-                ),
-                bsTooltip(
-                  'muscle_buttonApplySelection',
-                  "Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting",
-                  placement = "top"
-                )
-              ),
-              column(
-                2,
-                offset = 2,
-                numericInput(
-                  "muscle_rowsLimitNumeric",
-                  NULL,
-                  value = 100,
-                  min = 50,
-                  step = 50
-                ),
-                bsTooltip(
-                  "muscle_rowsLimitNumeric",
-                  "Limit to number of rows returned. Suggest set to <100 to avoid a very slow response",
-                  placement = 'top'
-                )
-              )
+              column(2, style = "margin-top: 25px;", pickerInput(
+                'muscle_selectColumnVaccine',
+                choices = c(Fluad = "FLUAD", Fendrix = "FENDRIX", Placebo = "PLACEBO"),
+                options = list(`style` = "btn-success")
+              )),
+              column(2, style = "margin-top: 25px;", pickerInput(
+                'muscle_selectColumnTissue',
+                choices = c(list(Muscle = "Muscle", Blood = "Blood")),
+                options = list(`style` = "btn-success")
+              )),
+              column(2, style = "margin-top: 25px;",pickerInput(
+                'muscle_selectColumnHour',
+                choices = c(`3 hours` = 0.125,`1 day` = 1,`3 days` = 3,`5 days` = 5,`7 days` = 7),
+                options = list(`style` = "btn-success")
+              )),
+              column(5, textInput('muscle_textInputKeyword', "Genes To Plot")),
+              column(1,style = "margin-top: 25px;",actionBttn(
+                'muscle_buttonApplySelection',
+                'Plot',
+                style = 'unite',
+                size = 'sm',
+                color = 'warning',
+                block = TRUE
+              ))
             )
           ),
-          fluidRow(
-            column(4, # keywrd column
-                   wellPanel(
-                     style = "background-color: #feffee;",
-                     conditionalPanel(
-                       condition = "input.muscle_selectColumnHour != null && input.muscle_selectColumnVaccine != null",
-                       awesomeCheckbox(
-                         status = 'success',
-                         'muscle_checkboxSelectKeyword',
-                         label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;", '1. Keyword regex search'),
-                         value = FALSE
-                       ),
-                       conditionalPanel(
-                         condition = "input.muscle_checkboxSelectKeyword == true",
-                         conditionalPanel(
-                           condition = "input.muscle_selectKeywordColumn != 'Gene Description' && input.muscle_selectKeywordColumn != 'Gene Name'",
-                           p(style = "color: #44b84b;", "Spaces will be stripped")
-                         ),
-                         conditionalPanel(condition = "input.muscle_selectKeywordColumn == 'Gene Description' || input.muscle_selectKeywordColumn == 'Gene Name'",
-                                          p(style = "color: #44b84b;", "Spaces will be kept")),
-                         textInput('muscle_textInputKeyword', NULL),
-                         h4(style = "margin-top: 0px;", "Search:"),
-                         fluidRow(
-                           column(7,pickerInput(
-                             'muscle_selectKeywordColumn',
-                             label = NULL,
-                             choices = c('Gene Symbol', 'Gene Name', 'Feature Number', 'Probe Name', 'ENSEMBLE ID', 'Gene Description'),
-                             options = list(`style` = "btn-success")
-                           )),
-                           column(5,awesomeCheckbox("muscle_checkboxGeneSearchWholeWord", "Whole Word", FALSE, status = "danger"))
-                         ))
-                     )
-                   )
-            ),
-            column(
-              8,
-              # other searches
-              wellPanel(
-                style = "background-color: #ffffff;",
-                fluidRow(
-                  # vacc - Hour pickers
-                  column(
-                    2,
-                    pickerInput(
-                      'muscle_selectColumnTissue',
-                      choices = c(list(Muscle = "Muscle", Blood = "Blood")),
-                      options = list(`style` = "btn-success")
-                    )
-                  ),
-                  column(
-                    2,
-                    pickerInput(
-                      'muscle_selectColumnVaccine',
-                      choices = c(Fluad = "FLUAD", Fendrix = "FENDRIX", Placebo = "PLACEBO"),
-                      options = list(`style` = "btn-success")
-                    )
-                  ),
-                  column(
-                    2,
-                    pickerInput(
-                      'muscle_selectColumnHour',
-                      choices = c(`3 hours` = 3,  `24 hours` = 24,  `72 hours` = 72, `120 hours` = 120, `168 hours` = 168, `All Times` = "All Times"),
-                      options = list(`style` = "btn-success")
-                    )),
-                  column(
-                    2,
-                    pickerInput(
-                      'muscle_selectFeatureProbeGene',
-                      label = NULL,
-                      choices = c( 'Gene Symbol', 'Probe Name','Feature Number'),
-                      options = list(`style` = "btn-warning")
-                    )
-                  ),
-                  column(
-                    4,
-                    awesomeCheckbox(
-                      status = 'success',
-                      'muscle_checkboxDescending',
-                      label = h4(style = "margin-top: 0px;font-weight: bold;", 'Sort Descending'),
-                      value = TRUE
-                    )
-                  )
-                ),
-                # vacc Hour
-                ### searches 1 & 2
-                fluidRow(column(6,
-                                conditionalPanel(
-                                  condition = "input.muscle_selectColumnHour != null && input.muscle_selectColumnVaccine != null",
-                                  wellPanel(
-                                    style = "background-color: #feffee;",
-                                    awesomeCheckbox(
-                                      status = 'success',
-                                      'muscle_checkboxSelectValues',
-                                      label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;", '2. Values In Range:'),
-                                      value = FALSE
-                                    ),
-                                    conditionalPanel(
-                                      condition = "input.muscle_checkboxSelectValues == true",
-                                      fluidRow(
-                                        column(6, numericInput("muscle_numberExpressionMin", "Lowest:", value = 0)),
-                                        column(6, numericInput("muscle_numberExpressionMax", "Highest:", value = 0
-                                        ))
-                                      )
-                                    )
-                                  )
-                                ) # well conpan pickers
-                ),
-                column(6, ## Filter ROWS
-                       conditionalPanel(
-                         condition = "input.muscle_selectColumnHour != null && input.muscle_selectColumnVaccine != null",
-                         wellPanel(
-                           style = "background-color: #feffee;",
-                           awesomeCheckbox(
-                             status = 'success',
-                             'muscle_checkboxSelectRows',
-                             label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;", '3. Rows In Range:'),
-                             value = FALSE
-                           ),
-                           conditionalPanel(condition = "input.muscle_checkboxSelectRows == true",
-                                            fluidRow(
-                                              column(6,numericInput(
-                                                "muscle_numberGenesStart",
-                                                "From:",
-                                                1,
-                                                min = 1,
-                                                max = NA,
-                                                step = 5
-                                              )),
-                                              column(6,numericInput(
-                                                "muscle_numberGenesEnd",
-                                                "To:",
-                                                10,
-                                                min = 1,
-                                                max = NA,
-                                                step = 5
-                                              ))
-                                            ))
-                         )
-                       )
-                )) # Searches 1 & 2
-              )
-            )
-          )# fluid row selection options
-        ), # filters well panel
-        #### PLOT SERIES
-        conditionalPanel(condition = "output.muscle_datatableFilteredSortedProbesMeansTidy_Selected != null",
-          fluidRow(
-           column(7,h3(style = "margin-top: 0px;", "Responses Of Filtered Features: All Tissues~Vaccines~Hours")),
-           column(2,
-                  awesomeCheckbox(
-                    status = 'success',
-                    'muscle_checkboxPlotSeriesLegend',
-                    label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;", 'Show Legend'),
-                    value = FALSE
-                  )),
-           column(2,awesomeCheckbox(
-             status = 'success',
-             'muscle_checkboxPlotSeriesTrunc',
-             label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;", 'Truncate Labels'),
-             value = FALSE
-           )),
-           column(1,downloadButton(class="btn-warning",'muscle_buttonPlotSeriesMeans', 'HiRes PNG'))
-          )
-        ),
-          wellPanel(style = "background-color: #ffffff;",
-                   plotOutput("muscle_plotSeriesFilteredSortedProbesMeans", height = "800px")
-          ),
-          ###### DATA TABLE 1 
-          conditionalPanel(condition = "output.muscle_datatableFilteredSortedProbesMeansTidy_Selected != null",
-            fluidRow(
-             column(10,h3(style = "margin-top: 5px;", textOutput('muscle_headerFilteredSortedProbesMeansTidy_Selected',container = span))),
-             column(1,style = "margin-bottom: 10px;", downloadButton(class="btn-outline-primary",'muscle_buttonsavedatatableFilteredSortedProbesMeansTidy_Selected', 'Table')),
-             column(1,downloadButton(class="btn-danger",'muscle_buttonFilteredSortedProbesMeansList', 'Text'))
-            )
-          ),
-          hr(),
-          dataTableOutput('muscle_datatableFilteredSortedProbesMeansTidy_Selected'),
-          ###### DATA TABLE 2
-          hr(),
-        conditionalPanel(condition = "output.muscle_datatableFilteredSortedProbesMeansAllTidy != null",
-          fluidRow(
-           column(1,style = "margin-bottom: 10px;", downloadButton(class="btn-outline-primary",'muscle_buttonsavedatatableFilteredSortedProbesMeansAllTidy', 'Table')),
-           column(11,h3(style = "margin-top: 5px;", textOutput('muscle_headerFilteredSortedProbesMeansTidy_All',container = span)))
-          )
+        wellPanel(style = "background-color: #ffffff;",
+                  plotOutput("muscle_plotIndividualsFilteredSortedProbesIndividuals", height = "800px")
         ),
         hr(),
-        dataTableOutput('muscle_datatableFilteredSortedProbesMeansAllTidy')
-      ),# Select & Plot'
-      tabPanel('Plot Muscle Individuals',
-              conditionalPanel(condition = "output.muscle_filteredSortedProbesIndividualsTidy != null",
-                fluidRow(
-                 column(9,h3(style = "margin-top: 0px;", "Individual Probe Values Of Each Participant For Selected Tissue~Vaccine~Hour")),
-                 column(2,
-                        awesomeCheckbox(
-                          status = 'success',
-                          'muscle_checkboxPlotIndividualsTrunc',
-                          label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;", 'Truncate Labels'),
-                          value = TRUE
-                        )),
-                 column(1,downloadButton(class="btn-warning",'muscle_buttonPlotIndividualProbes', 'HiRes PNG'))
-                )
-              ),
-               wellPanel(style = "background-color: #ffffff;",
-                         plotOutput("muscle_plotIndividualsFilteredSortedProbesIndividuals", height = "800px")
-               ),
-               hr(),
-               dataTableOutput('muscle_filteredSortedProbesIndividualsTidy')
-      )
+        dataTableOutput('muscle_filteredSortedProbesTidyMuscle')
+      )# Select & Plot'
       )#navMuscle
     )# div muscle
   )# hidden muscle
