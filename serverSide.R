@@ -1359,13 +1359,14 @@ output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){pas
 
 
 #################### Muscle #########################
-#### GLOBALS #####
+#### GLOBALS
 assign("fc_individualsMuscle",NULL, envir = .GlobalEnv)
 assign("choicesDayBlood",c(`Pre-immunisation` = "0",`3 hours` = 0.125,`1 day` = 1,`3 days` = 3,`5 days` = 5,`7 days` = 7), envir = .GlobalEnv)
 assign("choicesDayMuscle",c(`3 hours` = 0.125,`1 day` = 1,`3 days` = 3,`5 days` = 5,`7 days` = 7), envir = .GlobalEnv)
 
-##### REACTIVE VALS ####
+##### REACTIVE VALS
 filteredSortedProbesTidyMuscle <- reactiveVal(NULL)
+meanFilteredSortedProbesTidyMuscle <- reactiveVal(NULL)
 tissueVaccineHourFilteredMuscle <- reactiveVal(NULL)
 enquotedSelectedFeatureStringMuscle <- reactiveVal(NULL)
 plotTitleBaseMuscle <- reactiveVal(NULL)
@@ -1376,7 +1377,7 @@ observeEvent(input$buttonLoadMuscle, {
   show("divMuscle", anim = TRUE)
 })
 
-##### Filter Probes ####
+##### Filter Probes
 observeEvent(input$muscle_selectColumnTissue,
 {
   if(input$muscle_selectColumnTissue == "Muscle") updatePickerInput(session,"muscle_selectColumnHour", choices = choicesDayMuscle)
@@ -1390,15 +1391,23 @@ observeEvent(input$muscle_buttonApplySelection,
                                   isolate(input$muscle_selectColumnVaccine)," ",
                                   isolate(input$muscle_selectColumnTissue),"_",
                                   isolate(input$muscle_selectColumnHour))
-    filteredSortedRowMeans <- select(fc_individualsMuscle,ProbeName,Gene,starts_with(selectedTissVaccHour))
+    filteredSortedRows <- select(fc_individualsMuscle,ProbeName,Gene,starts_with(selectedTissVaccHour))
      # do keyword search
-    filteredSortedRowMeans <- 
-      getGenesForSearch(filteredSortedRowMeans,input$muscle_textInputKeyword,"Gene",TRUE,TRUE) %>%
+    filteredSortedRows <- 
+      getGenesForSearch(filteredSortedRows,input$muscle_textInputKeyword,"Gene",TRUE,TRUE) %>%
       gather(key = "Participant",value = "FC",-c(ProbeName,Gene)) %>%
-      mutate(Participant = gsub(paste0(selectedTissVaccHour,"•CRC305E-"),"",Participant))
+      mutate(Participant = as.factor(gsub(paste0(selectedTissVaccHour,"•CRC305E-"),"",Participant)))
 
+    medianFilteredSortedRows <- filteredSortedRows %>%
+      group_by(Gene) %>%
+      summarise(medianFC = median(FC,na.rm = TRUE)) %>%
+      arrange(desc(medianFC))
+    
+    filteredSortedRows <- filteredSortedRows %>%
+      mutate(Gene = factor(Gene,levels = unique(medianFilteredSortedRows$Gene)))
+    
      # set the global variables
-    filteredSortedProbesTidyMuscle(filteredSortedRowMeans)
+    filteredSortedProbesTidyMuscle(filteredSortedRows)
     tissueVaccineHourFilteredMuscle(paste(isolate(input$muscle_selectColumnVaccine),
                                            isolate(input$muscle_selectColumnTissue),
                                            isolate(input$muscle_selectColumnHour)))
@@ -1410,7 +1419,7 @@ observeEvent(input$muscle_buttonApplySelection,
 
 
 
-############ Plot Individuals #####
+############ Plot Individuals 
 output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot(
   {
     if(!is.null(filteredSortedProbesTidyMuscle()) &&
@@ -1419,10 +1428,11 @@ output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot(
                   mapping = aes_string(x = "Gene",y = "FC")) +
         themeBaseMuscle(TRUE) +
         geom_hline(yintercept = 0, linetype = 2, color = 'black', size = 0.8) +
-        geom_boxplot(fill = 'grey90', outlier.alpha = 0.0) + # dont show outlier dots as they are already plotted as geom_poins
-        geom_point(mapping = aes(color = Participant,fill = Participant), alpha = 0.8, size = 5, position = position_jitter(width = 0.15)) +
+        geom_boxplot(mapping = aes(fill = Gene), alpha = 0.2, outlier.alpha = 0.0, show.legend = FALSE) + # dont show outlier dots as they are already plotted as geom_poins
+        geom_point(mapping = aes(color = Participant, shape = Participant), alpha = 1, size = 5, position = position_jitter(width = 0.15)) +
         scale_y_continuous(name = "Log2 Fold Change") +
-        ggtitle(label = paste(tissueVaccineHourFilteredMuscle(),"- individual probes and means"))
+        scale_fill_viridis_d(option = "A", direction = -1) +
+        ggtitle(label = paste(tissueVaccineHourFilteredMuscle()," days - individual probes for genes"))
       return(p)
     }
     else NULL

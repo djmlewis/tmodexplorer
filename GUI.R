@@ -839,7 +839,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
 ###########   Muscle  ##########
 tabPanel(value = 'muscleExplorer', title = span(style = "color: #ffb4d7;", "muscleExplorer"),
   div(id = "divLoadMuscle",
-     h4(style = "text-align: center; margin-top: 0px;",'Muscle Data Are Not Loaded Automatically. Click The Button To Load Muscle Data'),
+     h4(style = "text-align: center; margin-top: 0px;",'Individual Muscle Data Are Not Loaded Automatically. Click The Button To Load Muscle Data'),
      fluidRow(
        column(8, offset = 2,
               wellPanel(style = "background-color: #fff1f7;",
