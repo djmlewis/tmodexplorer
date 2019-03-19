@@ -65,15 +65,3 @@ currTimeDateFile <- function(file,suffix){
   paste0(file," ",gsub(":","",as.character(Sys.time())),suffix)
 }
 
-makeTextListOfFilteredGenes <- function(filteredDF,listTitle) {
-  df <- select(filteredDF,contains(" "))
-  datalist <- map_chr(colnames(df),function(cn){
-    gns <- df %>%
-      select_at(vars(cn)) %>%
-      filter_all(all_vars(!is.na(.)))
-    gns <- unique(gns[[cn]])
-    txt <- paste0(cn,"\n",paste(gns, collapse = ','),"\n\n") #unique(df[[cn]])
-  })
-  datalist <- paste(listTitle,paste(datalist, collapse = ""),"*************************", gsub(",","\n",paste(datalist, collapse = "")),sep = "\n\n")
-  return(datalist)
-}

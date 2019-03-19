@@ -122,15 +122,15 @@ columnsFromVaccinesDays <- function(v,d) {
 
 
 getNewData <- function(allData, folderNme) {
-  folderpath <- paste0('datafiles/', folderNme) #file.choose()
-  dataPath <- paste0(folderpath, '/', 'data.rds')
-  modPath <- paste0(folderpath, '/', 'modules.rds')
-  modmeanPath <- paste0(folderpath, '/', 'modulesMeans.rds')
-  musclePath <- paste0(folderpath, '/', 'FC_muscle_individuals.rds')
+  folderpath <- file.path('datafiles/', folderNme) #file.choose()
+  dataPath <- file.path(folderpath, 'data.rds')
+  modPath <- file.path(folderpath, 'modules.rds')
+  modmeanPath <- file.path(folderpath, 'modulesMeans.rds')
+  musclePath <- file.path(folderpath, 'FC_muscle_individuals.rds')
   
   
   if (file.exists(dataPath)) {
-    showNotification("Please wait for data to load…", type = 'message', duration = 3)
+    showNotification("Please wait for data to load…", type = 'message', duration = 6)
 
     allData$data<- read_rds(dataPath)
 
@@ -759,5 +759,27 @@ handleBrush <- function(data,click,facet,fact,yv) {
   }
   
   return(resForClickBrush(res))
+}
+
+makeTextListOfFilteredGenes <- function(geneprobeDF,alldata,colmnames,listTitle) {
+  useProbeName <- "ProbeName" %in% colmnames
+  col2Search <- if_else(useProbeName,"ProbeName","Gene")
+  geneprobelist <- geneprobeDF[[col2Search]]
+  df <- select(alldata,-contains("_")) %>%
+    filter_at(col2Search,all_vars(. %in% geneprobelist))
+
+
+  datalist <- map_chr(colnames(df),function(cn){
+    gns <- df %>%
+      select_at(vars(cn)) %>%
+      filter_all(all_vars(!is.na(.)))
+    gns <- unique(gns[[cn]])
+    txt <- paste0(cn,"\n",paste(gns, collapse = ','),"\n\n") 
+  })
+  datalist <- paste(paste(paste(rep_len("—",nchar(listTitle)),collapse = ""),listTitle,paste(rep_len("—",nchar(listTitle)),collapse = ""), sep = "\n"),
+                    paste(datalist, collapse = ""),
+                    "########## Separated by newline ##########", 
+                    gsub(",","\n",paste(datalist, collapse = "")),sep = "\n\n")
+  return(datalist)
 }
 

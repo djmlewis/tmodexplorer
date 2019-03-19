@@ -18,7 +18,7 @@ ui <-
       });
     '),
     hidden(div(id = "hiddenDiv",
-    navbarPage(span(style = 'color: #fefc78;','tmodExplorer'), id = 'navbarTop', position = "static-top", theme = "theme.css", windowTitle = 'tmodExplorer',
+    navbarPage(span(style = 'color: #fefc78;','biovacsafeExplorer'), id = 'navbarTop', position = "static-top", theme = "theme.css", windowTitle = 'tmodExplorer',
                inverse = TRUE,
                header = tagList(
                  tags$style(type="text/css", "body {padding-top: 0px;};")),
@@ -67,7 +67,7 @@ ui <-
                         conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                          fluidRow(style = "margin-bottom:10px;",
                                            column(4, offset = 4, style = "margin-top: 4px; color: black ", 
-                                                  actionBttn('buttonApplySelection','Apply Filters',style = 'unite', size = 'sm', color = 'warning', block = TRUE),
+                                                  actionBttn('buttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
                                                   bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting", placement = "top")),
                                            column(2, offset = 2,
                                                   numericInput("rowsLimitNumeric", NULL, value = 100, min = 50, step = 50),
@@ -189,10 +189,9 @@ ui <-
                                   
                                   h4(style = "margin-top: 0px;",'Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Combination'),
                                   fluidRow(
-                                    column(4,downloadButton(class="btn-outline-primary",'buttonSaveTableProbes', 'Table'),
-                                    downloadButton(class="btn-warning",'buttonSaveTableTopGenesUpPlot', 'Table As PNG')),
-                                    column(2,pickerInput('pickerSaveListTopGenes',label = NULL, width = '100%', choices = c('Gene','ProbeName','Description'), options = list(`style` = "btn-danger"))),
-                                    column(2,downloadButton(class="btn-danger",'buttonSaveListGenes', 'List'), bsTooltip("buttonSaveListGenes", "Download List To Paste Into Regex Keyword Search"))
+                                    column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTableProbes', 'Table')),
+                                    column(2,downloadButton(class="btn-warning btn-block",'buttonSaveTableTopGenesUpPlot', 'Table PNG')),
+                                    column(2,downloadButton(class="btn-danger btn-block",'buttonSaveListGenes', 'List'), bsTooltip("buttonSaveListGenes", "Download List To Paste Into Regex Keyword Search"))
                                   ),
                                   hr(),
                                   dataTableOutput('datatableTopGenesUp')
@@ -205,7 +204,7 @@ ui <-
                                               column(4,
                                                      wellPanel(style = "background-color: #feffee;",
                                                                conditionalPanel(condition = "input.selectVaccinesForSeries != null && input.selectDaysForSeries != null && input.selectGenesProbesForSeries != null",
-                                                                                actionBttn('buttonPlotSeries','Plot',style = 'unite', size = 'sm', color = 'warning', block = TRUE)
+                                                                                actionBttn('buttonPlotSeries','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
                                                                                 ),
                                                                conditionalPanel(condition = "input.selectVaccinesForSeries == null || input.selectDaysForSeries == null || input.selectGenesProbesForSeries == null",
                                                                                 p(style = "color: #728f17; text-align: center;","Choose Some Variables To Plot")),
@@ -257,7 +256,7 @@ ui <-
                                                       uiOutput("plotTopGenesSeriesSIZE")),
                                             conditionalPanel(condition = "output.plotTopGenesSeries != null",
                                              fluidRow(
-                                               column(1, downloadButton(class="btn-warning",'buttonPNGplotTopGenesSeries', 'HiRes PNG')),
+                                               column(1, downloadButton(class="btn-warning btn-block",'buttonPNGplotTopGenesSeries', 'HiRes PNG')),
                                                column(8, offset = 1,
                                                       conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines' && output.plotTopGenesSeriesBRUSH == null",p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
                                                       tableOutput("plotTopGenesSeriesBRUSH")
@@ -272,8 +271,10 @@ ui <-
                          tabPanel('Genes->Modules',
                                   
                                   h4(style = "margin-top: 0px;",'Modules Associated With Selected Probes or Genes'),
-                                  div(downloadButton(class="btn-outline-primary",'buttonSaveTableGenesModules', 'Table'),
-                                      downloadButton(class="btn-warning",'buttonSaveTableGenesModulesPlot', 'Table As PNG')),
+                                  div(fluidRow(
+                                    column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTableGenesModules', 'Table')),
+                                    column(2,downloadButton(class="btn-warning btn-block",'buttonSaveTableGenesModulesPlot', 'Table PNG'))
+                                    )),
                                   hr(),
                                   dataTableOutput('datatableGenesModules')),
                          #################### Modules #########################
@@ -297,11 +298,14 @@ ui <-
                                               column(1,downloadButton(class="btn-warning",'buttonPNGplotGenesModules', 'HiRes PNG')),
                                               column(11, p(style = "margin-top: 10px;color: #44b84b;text-align: center;", "Values Of Individual Probe(s) Mapping To Module Genes Are Summarised"))
                                             )),
-                                  downloadButton(class="btn-outline-primary",'buttonSaveTableModulesSummary', 'Table'),
-                                  downloadButton(class="btn-outline-primary",'buttonSaveTableModulesRaw', 'Raw Dataset'),
-                                  downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryPlot', 'Table As PNG'),
-                                  downloadButton(class="btn-warning",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG'),
-                                  downloadButton(class="btn-danger",'buttonSaveTableModulesSummaryList', 'Modules & Titles List'), bsTooltip("buttonSaveTableModulesSummaryList", "Modules & Titles List To Paste Into regex Keyword Search"),
+                                  fluidRow(
+                                    column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTableModulesSummary', 'Table')),
+                                    column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTableModulesRaw', 'Raw Dataset')),
+                                    column(2,downloadButton(class="btn-warning btn-block",'buttonSaveTableModulesSummaryPlot', 'Table PNG')),
+                                    column(2,downloadButton(class="btn-warning btn-block",'buttonSaveTableModulesSummaryListPlot', 'Modules List As PNG')),
+                                    column(2,downloadButton(class="btn-danger btn-block",'buttonSaveTableModulesSummaryList', 'Modules & Titles List')), 
+                                    bsTooltip("buttonSaveTableModulesSummaryList", "Modules & Titles List To Paste Into regex Keyword Search")
+                                  ),
                                   hr(),
                                   dataTableOutput('datatableSelModulesOnly')),
                          #################### Modules->Genes ###################
@@ -336,7 +340,7 @@ ui <-
                                               column(3,
                                                      wellPanel(style = "background-color: #feffee;",
                                                                conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines != null && input.selectColumnForModuleSeriesDays != null && input.selectModuleForSeries != null",
-                                                                                actionBttn('buttonPlotModuleSeries','Plot',style = 'unite', size = 'sm', color = 'warning', block = TRUE)
+                                                                                actionBttn('buttonPlotModuleSeries','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
                                                                ),
                                                                conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines == null || input.selectColumnForModuleSeriesDays == null || input.selectModuleForSeries == null",
                                                                                 p(style = "color: #728f17; text-align: center;","Choose Treatment~Times & Modules To Plot")),
@@ -408,10 +412,50 @@ ui <-
                                   hr(),
                                   dataTableOutput('datatableModuleSeries')
                          ),
-               #################### Muscle Individuals ###################
-                         tabPanel('Muscle'
-                                  
-                         )
+                         #################### Muscle Individuals ###################
+                         tabPanel(value = 'muscleExplorer', title = span(style = "color: #520000;", "CRC305E"),
+                                  h4(style = "margin-top: 10px;",'Expression Values Of Probes Mapping Selected Genes In Individual CRC305E Participants For Specified Vaccine ~ Tissue ~ Time'),
+                                  wellPanel(style = "background-color: #fff1f7;",
+                                      fluidRow(
+                                        column(11, textInput('muscle_textInputKeyword', "Genes To Plot")),
+                                        column(1,style = "margin-top: 25px;",actionButton('muscle_buttonRemoveAllGenes','Clear'))
+                                      ),
+                                      fluidRow(
+                                        column(2, 
+                                               pickerInput(
+                                                 'muscle_selectColumnVaccine',
+                                                 choices = c(Fluad = "FLUAD", Fendrix = "FENDRIX", Placebo = "PLACEBO"),
+                                                 options = list(`style` = "btn-success")
+                                               )),
+                                        column(2, 
+                                               pickerInput(
+                                                 'muscle_selectColumnTissue',
+                                                 choices = c(list(Muscle = "Muscle", Blood = "Blood")),
+                                                 options = list(`style` = "btn-success")
+                                               )),
+                                        column(2,
+                                               pickerInput(
+                                                 'muscle_selectColumnHour',
+                                                 choices = c(`3 hours` = 0.125,`1 day` = 1,`3 days` = 3,`5 days` = 5,`7 days` = 7),
+                                                 options = list(`style` = "btn-success")
+                                               )),
+                                        column(2, awesomeCheckbox("muscle_checkboxGeneSearchWholeWord","Whole Word", TRUE, status = "danger")),
+                                        column(2, style = "margin-top: -10px;", 
+                                               sliderInput("muscle_PlotGenesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500),
+                                               bsTooltip("muscle_PlotGenesSIZEheight", "Plot height")
+                                        ),
+                                        column(2,
+                                               conditionalPanel(condition = "input.muscle_textInputKeyword.length > 0 ",
+                                                                actionBttn('muscle_buttonApplySelection','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
+                                               ))
+                                      )
+                            ),
+                            wellPanel(style = "background-color: #ffffff;",
+                                      uiOutput("muscle_plotIndividualsFilteredSortedProbesIndividualsSIZE")
+                            ),
+                            hr(),
+                            dataTableOutput('muscle_filteredSortedProbesTidyMuscle')
+                         )#tab muscle
               ) # navProbe
      ),# explore by Probe
      ############## MODULES #################
@@ -424,7 +468,7 @@ ui <-
                          #################### Selecting Modules ################
                          tabPanel('Select Modules',
                                   fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
-                                                                                actionBttn('mbuttonApplySelection','Apply Filters',style = 'unite', size = 'sm', color = 'warning', block = TRUE),
+                                                                                actionBttn('mbuttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
                                                                                 bsTooltip('mbuttonApplySelection',"Apply filters to select modules for plotting. Selected filters are applied in order left → right", placement = "top")
                                   ))),
                                   br(),
@@ -507,7 +551,7 @@ ui <-
                                   fluidRow(
                                     column(6,
                                             downloadButton(class="btn-outline-primary",'mbuttonSaveTableModules', 'Table'),
-                                            downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table As PNG'),
+                                            downloadButton(class="btn-warning",'buttonSaveTableTopModulesUpPlot', 'Table PNG'),
                                             downloadButton(class="btn-warning",'buttonSaveTableTopModulesUOnlypPlot', 'Modules List As PNG')),
                                     column(2,pickerInput('pickerSaveListTopModules',label = NULL, width = '100%', choices = c('Module','Title','Category'), options = list(`style` = "btn-danger"))),
                                     column(2,downloadButton(class="btn-danger",'mbuttonSaveListTopModules', 'Download List'), bsTooltip("mbuttonSaveListTopModules", "Download List To Paste Into Regex Keyword Search"))
@@ -550,7 +594,7 @@ ui <-
                                                                                 ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries != null) ||
                                                                                 (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles != null) ||
                                                                                 (input.radioModulesModulesSeries == 'Modules' && input.mselectModuleAllModules != null))",
-                                                                                actionBttn('mbuttonPlotModuleSeries','Plot',style = 'unite', size = 'sm', color = 'warning', block = TRUE)
+                                                                                actionBttn('mbuttonPlotModuleSeries','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
                                                                ),
                                                                conditionalPanel(condition = "input.mselectColumnForModuleSeriesVaccines == null || input.mselectColumnForModuleSeriesDays == null ||
                                                                                 ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries == null) ||
@@ -673,7 +717,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                             bsTooltip("numericNumRowsNet","Number of rows to match", placement = 'top')),
                      column(2, awesomeCheckbox('checkboxDescNet', "Descending", value = TRUE, status = "success")),
                      column(1,conditionalPanel(condition = "input.selectVacDaysToNet != null",
-                                               actionBttn('buttonPlotNet','Plot',style = 'unite', size = 'sm', color = 'warning', block = TRUE)
+                                               actionBttn('buttonPlotNet','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
                      ))
                    )
          ),
@@ -775,10 +819,6 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'n'",
                                     uiOutput("plotNetSIZE"),
                                     plotOutput("plotNetworkLegend")),
-                    # fluidRow(
-                    #   column(10,uiOutput("plotNetSIZE")),
-                    #   column(2,plotOutput("plotNetworkLegend"))
-                    # )),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'u'",uiOutput("plotUpsetSIZE")),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'v'",uiOutput("plotVennSIZE")),
                    conditionalPanel(condition = "input.radioVennNetworkeNet == 'e'",uiOutput("plotEulerSIZE"))
@@ -835,65 +875,6 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                          )
               )
      ),
-
-###########   Muscle  ##########
-tabPanel(value = 'muscleExplorer', title = span(style = "color: #ffb4d7;", "muscleExplorer"),
-  div(id = "divLoadMuscle",
-     h4(style = "text-align: center; margin-top: 0px;",'Individual Muscle Data Are Not Loaded Automatically. Click The Button To Load Muscle Data'),
-     fluidRow(
-       column(8, offset = 2,
-              wellPanel(style = "background-color: #fff1f7;",
-                        fluidRow(
-                          column(8,offset = 2, 
-                                 actionBttn('buttonLoadMuscle','Load Muscle Data',style = 'unite', size = 'sm', color = 'success', block = TRUE)
-                          )
-                        )
-              )))
-  ),
-  hidden(
-  div(id = "divMuscle",
-    navbarPage(span(style = 'color: #000000;','Muscle'), id = 'navMuscle',
-      tabPanel(
-        'Select Muscle Genes',
-          wellPanel(
-            style = "background-color: #ffffff;",
-            fluidRow(
-              column(2, style = "margin-top: 25px;", pickerInput(
-                'muscle_selectColumnVaccine',
-                choices = c(Fluad = "FLUAD", Fendrix = "FENDRIX", Placebo = "PLACEBO"),
-                options = list(`style` = "btn-success")
-              )),
-              column(2, style = "margin-top: 25px;", pickerInput(
-                'muscle_selectColumnTissue',
-                choices = c(list(Muscle = "Muscle", Blood = "Blood")),
-                options = list(`style` = "btn-success")
-              )),
-              column(2, style = "margin-top: 25px;",pickerInput(
-                'muscle_selectColumnHour',
-                choices = c(`3 hours` = 0.125,`1 day` = 1,`3 days` = 3,`5 days` = 5,`7 days` = 7),
-                options = list(`style` = "btn-success")
-              )),
-              column(5, textInput('muscle_textInputKeyword', "Genes To Plot")),
-              column(1,style = "margin-top: 25px;",actionBttn(
-                'muscle_buttonApplySelection',
-                'Plot',
-                style = 'unite',
-                size = 'sm',
-                color = 'warning',
-                block = TRUE
-              ))
-            )
-          ),
-        wellPanel(style = "background-color: #ffffff;",
-                  plotOutput("muscle_plotIndividualsFilteredSortedProbesIndividuals", height = "800px")
-        ),
-        hr(),
-        dataTableOutput('muscle_filteredSortedProbesTidyMuscle')
-      )# Select & Plot'
-      )#navMuscle
-    )# div muscle
-  )# hidden muscle
-),#tab muscle
 ###########   Cells  ##########
 tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
          div(id = "divLoadCells",
@@ -916,7 +897,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                                 column(4,
                                        wellPanel(style = "background-color: #fff4e5;",
                                                  conditionalPanel(condition = "input.selectColumnForCellsSeriesVaccines != null && input.selectColumnForCellsSeriesDays != null && input.selectCellsForSeries != null",
-                                                                  actionBttn('buttonPlotCellsSeries','Plot',style = 'unite', size = 'sm', color = 'warning', block = TRUE)
+                                                                  actionBttn('buttonPlotCellsSeries','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
                                                  ),
                                                  conditionalPanel(condition = "input.selectColumnForCellsSeriesVaccines == null || input.selectColumnForCellsSeriesDays == null || input.selectCellsForSeries == null",
                                                                   p(style = "color: #728f17; text-align: center;","Choose Treatment~Times & Cells To Plot")),
@@ -1021,7 +1002,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                           fluidRow(
                             column(1,style = "margin-top: 20px;",
                                    conditionalPanel(condition = "input.cselectCytokines != null && input.cselectTreatments != null && input.cselectDays != null",
-                                                    actionBttn('buttonPlotCytokines','Plot',style = 'unite', size = 'sm', color = 'warning', block = TRUE)
+                                                    actionBttn('buttonPlotCytokines','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
                                    ),
                                    conditionalPanel(condition = "input.cselectCytokines == null || input.cselectTreatments == null || input.cselectDays == null", p(style = "color: #728f17; text-align: center;","Choose Variables To Plot"))
                             ),
