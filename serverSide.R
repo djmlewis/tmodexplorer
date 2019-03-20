@@ -595,7 +595,8 @@ observeEvent(
       updateSelectInput(session, 'selectGenesProbesForSeries', label = pgColname, choices = topGenesAndModules()[['genes']][[pgColname]], selected = topGenesAndModules()[['genes']][[pgColname]])
       
       updateTextInput(session, 'muscle_textInputKeyword', value = paste(topGenesAndModules()[['genes']][["Gene"]], collapse = ","))
-      output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot({NULL})
+      output$muscleplotIndividualsFilteredSortedProbesIndividuals <- renderPlot({NULL})
+      # assign("muscleGGplotIndividuals",NULL, envir = .GlobalEnv)
       filteredSortedProbesTidyMuscle(NULL)
       tissueVaccineHourFilteredMuscle(NULL)
       
@@ -864,7 +865,8 @@ observeEvent(
     input$muscle_buttonRemoveAllGenes,
     {
       updateTextInput(session, 'muscle_textInputKeyword', value = character(0))
-      output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot({NULL})
+      output$muscleplotIndividualsFilteredSortedProbesIndividuals <- renderPlot({NULL})
+      # assign("muscleGGplotIndividuals",NULL, envir = .GlobalEnv)
       filteredSortedProbesTidyMuscle(NULL)
       tissueVaccineHourFilteredMuscle(NULL)
       
@@ -900,32 +902,44 @@ observeEvent(
                                                        isolate(input$muscle_selectColumnTissue),
                                                        isolate(input$muscle_selectColumnHour)))
                  
-                 output$muscle_plotIndividualsFilteredSortedProbesIndividuals <- renderPlot(
-                   {
-                     if(!is.null(filteredSortedProbesTidyMuscle()) &&
-                        nrow(filteredSortedProbesTidyMuscle())>0) {
-                       p <- ggplot(data =  filteredSortedProbesTidyMuscle(),
-                                   mapping = aes_string(x = "Gene",y = "FC")) +
-                         themeBaseMuscle(TRUE) +
-                         geom_hline(yintercept = 0, linetype = 2, color = 'black', size = 0.8) +
-                         geom_boxplot(mapping = aes(fill = Gene), alpha = 0.2, outlier.alpha = 0.0, show.legend = FALSE) + # dont show outlier dots as they are already plotted as geom_poins
-                         geom_point(mapping = aes(color = Participant, shape = Participant), alpha = 0.9, size = 5, position = position_jitter(width = 0.15, height = 0)) +
-                         scale_y_continuous(name = paste("Log2 Fold Change From",if_else(isolate(input$muscle_selectColumnTissue) == "Muscle","Unimmunised Leg","Pre Immunisation"))) +
-                         scale_fill_viridis_d(option = "A", direction = -1) +
-                         ggtitle(label = paste(tissueVaccineHourFilteredMuscle()," days - individual probes for genes"))
-                       return(p)
-                     }
-                     else NULL
-                   }#,
-                   #  res = 300
-                 )
-                 
+                 if(!is.null(filteredSortedProbesTidyMuscle()) &&
+                    nrow(filteredSortedProbesTidyMuscle())>0) {
+                   muscleGGplotIndividuals <- 
+                     ggplot(data =  filteredSortedProbesTidyMuscle(), mapping = aes_string(x = "Gene",y = "FC")) +
+                     themeBaseMuscle(TRUE) +
+                     geom_hline(yintercept = 0, linetype = 2, color = 'black', size = 0.8) +
+                     geom_boxplot(mapping = aes(fill = Gene), alpha = 0.2, outlier.alpha = 0.0, show.legend = FALSE) + # dont show outlier dots as they are already plotted as geom_poins
+                     geom_point(mapping = aes(color = Participant, shape = Participant), alpha = 0.9, size = 5, position = position_jitter(width = 0.15, height = 0)) +
+                     scale_y_continuous(name = paste("Log2 Fold Change From",if_else(isolate(input$muscle_selectColumnTissue) == "Muscle","Unimmunised Leg","Pre Immunisation"))) +
+                     scale_fill_viridis_d(option = "A", direction = -1) +
+                     ggtitle(label = paste(tissueVaccineHourFilteredMuscle()," days - individual probes for genes"))
+                   
+                   # return(p)
+                 }
+                 else {
+                   muscleGGplotIndividuals <- NULL
+                   # return(NULL)
+                 }
+                 output$muscleplotIndividualsFilteredSortedProbesIndividuals <- renderPlot({muscleGGplotIndividuals})
+                 output$buttonSavemuscleplotIndividualsFilteredSortedProbesIndividualsSIZE <- downloadHandler(
+                   filename = function(){paste0(tissueVaccineHourFilteredMuscle(),".png")},
+                   content = function(file) {
+                      printPlotPNG(muscleGGplotIndividuals,
+                      file,session$clientData[["output_muscleplotIndividualsFilteredSortedProbesIndividuals_height"]],
+                      session$clientData[["output_muscleplotIndividualsFilteredSortedProbesIndividuals_width"]])}
+                   )
                },
                ignoreInit = TRUE)
   
-  output$muscle_plotIndividualsFilteredSortedProbesIndividualsSIZE <- 
-    renderUI({plotOutput("muscle_plotIndividualsFilteredSortedProbesIndividuals", height = isolate(input$muscle_PlotGenesSIZEheight))})
+  output$muscleplotIndividualsFilteredSortedProbesIndividualsSIZE <- 
+    renderUI({plotOutput("muscleplotIndividualsFilteredSortedProbesIndividuals", height = isolate(input$muscle_PlotGenesSIZEheight))})
+  
   output$muscle_filteredSortedProbesTidyMuscle <- renderDataTable(filteredSortedProbesTidyMuscle())
+  
+  
+  output$buttonSaveTablemuscle_filteredSortedProbesTidyMuscle <- downloadHandler(
+    filename = function(){paste0(tissueVaccineHourFilteredMuscle(),".csv")},
+    content = function(file) {write.csv(filteredSortedProbesTidyMuscle(), file, row.names = FALSE)})
   
   ############################## Gene Lookup ###########
   assign("lookedupGenes",NULL, envir = .GlobalEnv)

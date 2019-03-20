@@ -460,8 +460,13 @@ ui <-
                                       )
                             ),
                             wellPanel(style = "background-color: #ffffff;",
-                                      uiOutput("muscle_plotIndividualsFilteredSortedProbesIndividualsSIZE")
+                                uiOutput("muscleplotIndividualsFilteredSortedProbesIndividualsSIZE"),
+                                conditionalPanel(condition = "output.muscle_filteredSortedProbesTidyMuscle != null",
+                                  fluidRow(column(2,downloadButton(class="btn-warning btn-block",'buttonSavemuscleplotIndividualsFilteredSortedProbesIndividualsSIZE', 'PNG'))))
                             ),
+                            hr(),
+                            conditionalPanel(condition = "output.muscle_filteredSortedProbesTidyMuscle != null",
+                              fluidRow(column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTablemuscle_filteredSortedProbesTidyMuscle', 'Table')))),
                             hr(),
                             dataTableOutput('muscle_filteredSortedProbesTidyMuscle')
                          )#tab muscle
