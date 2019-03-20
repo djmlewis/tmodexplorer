@@ -715,7 +715,7 @@ getModuleValuesForSeries <- function(genesdata,modules,series, ribbon,facet) {
 
 resForClickBrush <- function(res){
   # CRC306B data has rows with NA so filter out or else hte first row may be NA
-  res <- filter(res,!is.na(Value))
+  if("Value" %in% colnames(res)) res <- filter(res,!is.na(Value))
 
   if(is.null(res) == FALSE && nrow(res) > 0 && !is.na(res[1,1])) {
     if("ProbeName" %in% names(res)) spot <- paste(res$ProbeName,collapse = ", ")

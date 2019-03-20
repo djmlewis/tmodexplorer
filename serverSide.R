@@ -839,7 +839,10 @@ observeEvent(
   })
   
   observeEvent(input$brush_plotModuleSeries, 
-    {if(input$radioRibbonBoxModuleSeries != 'Boxplot') updateplotModuleSeriesBRUSH(handleBrush(moduleValues,input$brush_plotModuleSeries,input$checkboxShowFacetModuleSeries,FALSE,"Value"))
+    {if(input$radioRibbonBoxModuleSeries != 'Boxplot') updateplotModuleSeriesBRUSH(handleBrush(moduleValues,
+        input$brush_plotModuleSeries,
+        input$checkboxShowFacetModuleSeries,
+        FALSE,"Value"))
   })
   
   
@@ -907,7 +910,7 @@ observeEvent(
                          geom_hline(yintercept = 0, linetype = 2, color = 'black', size = 0.8) +
                          geom_boxplot(mapping = aes(fill = Gene), alpha = 0.2, outlier.alpha = 0.0, show.legend = FALSE) + # dont show outlier dots as they are already plotted as geom_poins
                          geom_point(mapping = aes(color = Participant, shape = Participant), alpha = 0.9, size = 5, position = position_jitter(width = 0.15, height = 0)) +
-                         scale_y_continuous(name = "Log2 Fold Change") +
+                         scale_y_continuous(name = paste("Log2 Fold Change From",if_else(isolate(input$muscle_selectColumnTissue) == "Muscle","Unimmunised Leg","Pre Immunisation"))) +
                          scale_fill_viridis_d(option = "A", direction = -1) +
                          ggtitle(label = paste(tissueVaccineHourFilteredMuscle()," days - individual probes for genes"))
                        return(p)
@@ -1381,15 +1384,23 @@ updatemplotModuleSeriesBRUSH <- function(res) {
 }
 
 observeEvent(input$click_mplotModuleSeries, 
-             {if(input$mradioRibbonBoxModuleSeries != 'Boxplot') {
-               res <- handleClick(ggplotSelectedModulesSeries[['table']],input$click_mplotModuleSeries,input$mcheckboxShowFacetModuleSeries,FALSE,"Mean")
+             {
+               if(input$mradioRibbonBoxModuleSeries != 'Boxplot') {
+               res <- handleClick(ggplotSelectedModulesSeries[['table']],
+                                  input$click_mplotModuleSeries,
+                                  input$mcheckboxShowFacetModuleSeries,
+                                  FALSE,"Mean")
                if(!is.null(res$Table)) updatemplotModuleSeriesBRUSH(res)
                }
 })
 
 observeEvent(input$brush_mplotModuleSeries, 
-             {if(input$mradioRibbonBoxModuleSeries != 'Boxplot') {
-               updatemplotModuleSeriesBRUSH(handleBrush(ggplotSelectedModulesSeries[['table']],input$brush_mplotModuleSeries,input$mcheckboxShowFacetModuleSeries,FALSE,"Mean"))
+             {
+               if(input$mradioRibbonBoxModuleSeries != 'Boxplot') {
+               updatemplotModuleSeriesBRUSH(handleBrush(ggplotSelectedModulesSeries[['table']],
+                                                        input$brush_mplotModuleSeries,
+                                                        input$mcheckboxShowFacetModuleSeries,
+                                                        FALSE,"Mean"))
              }
 })
 

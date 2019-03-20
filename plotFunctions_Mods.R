@@ -123,7 +123,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
           if(point == TRUE) {plot <-  plot + geom_point(data = data2plot,mapping = aes_string(colour = grouper, group = grouper), size = 2 ,show.legend=l)}
           
           if(facet == TRUE) {
-            plot <- plot + scale_x_continuous(breaks = unique(floor(data2plot$Column)))
+            plot <- plot + scale_x_continuous("Days After Immunisation",breaks = unique(floor(data2plot$Column)))
             }
           if(showSE == TRUE){
             data4SE <- data2plot %>%
@@ -143,6 +143,7 @@ plotSelectedModulesSeries <- function(alldata,selCol,selmod,t,l,z,boxRibbon,face
         plot <- addSortColPlot(sortCol,facet,plot,levels(data2plot$Column))
       }
       
+      plot <- plot+scale_y_continuous("Log2 Fold Change")
     }
   }
   return(list(plot = plot, table = data2plot))
