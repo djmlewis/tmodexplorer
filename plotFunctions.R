@@ -417,7 +417,7 @@ getTopGenesInSeriesToPlotWithModules <- function(allData, topGenes,selCols,facet
   return(moduleValues)
 }
 
-plotDataTable <- function(data2plot,file, widthFactor) {
+plotDataTable <- function(data2plot,file, widthFactor,hires=TRUE) {
   # plot <-  NULL
   if (is.null(data2plot) || nrow(data2plot) < 1) {
     png(file)
@@ -433,7 +433,7 @@ plotDataTable <- function(data2plot,file, widthFactor) {
     h <- convertHeight(grobHeight(t),'mm', valueOnly = TRUE)
     w <- convertHeight(grobWidth(t),'mm', valueOnly = TRUE)
     
-    png(file, height = h*1.8, width = w*widthFactor, units = 'mm', res = 300, bg = "transparent")
+    png(file, height = h*1.8, width = w*widthFactor, units = 'mm', res = if_else(hires == TRUE,300,72), bg = "transparent")
     grid.newpage()
     grid.draw(t)
     dev.off()
@@ -441,7 +441,7 @@ plotDataTable <- function(data2plot,file, widthFactor) {
   }
 }
 
-printPlotPNG <- function(plot2plot,file, h,w) {
+printPlotPNG <- function(plot2plot,file, h,w,highRes = TRUE) {
   if (is.null(plot2plot)) {
     png(file)
     grid.newpage()
@@ -449,14 +449,15 @@ printPlotPNG <- function(plot2plot,file, h,w) {
     dev.off()
   } else {
     # we set res in renderplot as 72, so we have to scale-up the h,w to get higher resolution
-    png(file, height = h*300/72, width = w*300/72, res = 300, units = 'px', bg = "white")
+    resLevel <- if_else(highRes,300,72)
+    png(file, height = h*resLevel/72, width = w*resLevel/72, res = resLevel, units = 'px', bg = "white")
     print(plot2plot)
     dev.off()
     
   }
 }
 
-plotPlotPNG <- function(plot2plot,file, h,w, gridDraw) {
+plotPlotPNG <- function(plot2plot,file, h,w, gridDraw,highRes = TRUE) {
   if (is.null(plot2plot)) {
     png(file)
     grid.newpage()
@@ -464,7 +465,8 @@ plotPlotPNG <- function(plot2plot,file, h,w, gridDraw) {
     dev.off()
   } else {
     # we set res in renderplot as 72, so we have to scale-up the h,w to get higher resolution
-    png(file, height = h*300/72, width = w*300/72, res = 300, units = 'px', bg = "white")
+    resLevel <- if_else(highRes,300,72)
+    png(file, height = h*resLevel/72, width = w*resLevel/72, res = resLevel, units = 'px', bg = "white")
     switch(gridDraw,
       "v" = grid.draw(plot2plot),
       plot(plot2plot))

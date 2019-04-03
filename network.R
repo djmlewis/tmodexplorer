@@ -135,7 +135,7 @@ upsetrFromVaccGenesList <- function(vennData,orderby, emptyintersections){
   return(ups)
 }
 
-upSetRPNG <- function(upsetrdata,orderby, emptyintersections, file, h, w) {
+upSetRPNG <- function(upsetrdata,orderby, emptyintersections, file, h, w,highRes = TRUE) {
   if (is.null(upsetrdata) || length(upsetrdata)<2)  {
     png(file)
     grid.newpage()
@@ -146,7 +146,7 @@ upSetRPNG <- function(upsetrdata,orderby, emptyintersections, file, h, w) {
       file,
       height = h * 300 / 72,
       width = w * 300 / 72,
-      res = 300,
+      res = if_else(highRes == TRUE,300,72),
       units = 'px',
       bg = "white"
     )
