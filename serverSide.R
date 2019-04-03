@@ -513,14 +513,14 @@ observeEvent(
               if(dataFrameOK(geneslist)) {
                 if(nchar(filterSubText) > 0) {
                   filtersText(
-                    paste0(gsub('_',' ',sortCol_Probes),' ❖ ',filterSubText,' ❖ ',
-                           ifelse(input$checkboxDescending == TRUE, ' Sort ↓ ',' Sort ↑ '), ifelse(input$checkboxRowsAnyDay == TRUE," All Days ❖ ",' ❖ '),
+                    paste0(gsub('_',' ',sortCol_Probes),' • ',filterSubText,' • ',
+                           ifelse(input$checkboxDescending == TRUE, ' Sort ↓ ',' Sort ↑ '), ifelse(input$checkboxRowsAnyDay == TRUE," All Days • ",' • '),
                            ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means',' Probes')
                     ))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 } else {
-                  filtersText(paste0(gsub('_',' ',sortCol_Probes),' ❖ [No filters] ❖ ',
-                                     ifelse(input$checkboxDescending == TRUE, ' Sort Descending ❖ ',' Sort Ascending ❖ '),
+                  filtersText(paste0(gsub('_',' ',sortCol_Probes),' • [No filters] • ',
+                                     ifelse(input$checkboxDescending == TRUE, ' Sort Descending • ',' Sort Ascending • '),
                                      ifelse(input$checkboxProbesGenes == TRUE, ' Gene Means',' Probes')))
                   dataAndFiltersText(paste0(allData$folder,': ',filtersText()))
                 }
@@ -1328,9 +1328,13 @@ output$buttonSaveTableTopModulesUOnlypPlot <- downloadHandler(filename = functio
 output$mbuttonSaveTableModules <- downloadHandler(filename = function(){paste0("Selected By Modules.csv")},
   content = function(file) {write.csv(topModulesSelected(), file, row.names = FALSE)})
 
-
-output$mbuttonSaveListTopModules <- downloadHandler(filename = function(){paste0("Selected By Modules-",input$pickerSaveListTopModules,".txt")},
-  content = function(file) {write_lines(paste0(paste(unique(topModulesSelected()[[input$pickerSaveListTopModules]]), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
+## amendThisNow
+output$mbuttonSaveListTopModules <- downloadHandler(filename = function(){paste0("Selected By Modules.txt")},
+  content = function(file) {
+    write_lines(
+      makeTextListOfFilteredModules(topModulesSelected(),
+                                  dataFilterStr('m')),file)
+    })
 
   # Plot Modules Selected #
 ggplotSelectedModules <-
@@ -1600,7 +1604,6 @@ observeEvent(input$buttonPlotCytokines, {
   output$cdatatableCytokines <- renderDataTable({cdp$data})
   output$cplotCytokines <- renderPlot({cdp$plot} ,res = 72)
   output$cplotCytokinesSIZE <- renderUI({plotOutput("cplotCytokines", height = isolate(input$cnumberPlotCytokinesSIZEheight))})
-  
 })
 output$cbuttonPNGplotCytokines <- downloadHandler(filename = function(){paste0("Selected Cytokines.png")},
   content = function(file) {printPlotPNG(cytokinesDataAndPlot$plot,file,

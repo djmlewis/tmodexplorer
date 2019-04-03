@@ -783,3 +783,18 @@ makeTextListOfFilteredGenes <- function(geneprobeDF,alldata,colmnames,listTitle)
   return(datalist)
 }
 
+makeTextListOfFilteredModules <- function(moduleDF,listTitle) {
+  
+  datalist <- map_chr(c("Module","Title","Category"),function(cn){
+    gns <- moduleDF %>%
+      select_at(vars(cn)) %>%
+      filter_all(all_vars(!is.na(.) & nchar(.)>0))
+    gns <- unique(gns[[cn]])
+    txt <- paste0(cn,"\n",paste(gns, collapse = ','),"\n\n") 
+  })
+  datalist <- paste(paste(paste(rep_len("—",nchar(listTitle)),collapse = ""),listTitle,paste(rep_len("—",nchar(listTitle)),collapse = ""), sep = "\n"),
+                    paste(datalist, collapse = ""),
+                    "########## Separated by newline ##########", 
+                    gsub(",","\n",paste(datalist, collapse = "")),sep = "\n\n")
+  return(datalist)
+}
