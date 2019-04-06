@@ -74,7 +74,9 @@ getMaxMinValueFromData <- function(alldata,allcols){
     data <- alldata %>%
       select(one_of(allcols))
     if(ncol(data)>0) {
-      return(list(Min = floor(min(data, na.rm = TRUE)),Max = ceiling(max(data, na.rm = TRUE))))
+      return(list(
+       Min = floor(min(data, na.rm = TRUE)),
+       Max = ceiling(max(data, na.rm = TRUE))))
     } else {
       return(list(Min = 0, Max = 0))
     }
@@ -237,7 +239,8 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
             select(-Gene) %>%
             # row max / min for gene
           mutate(
-            Value = apply(.,1,stat,na.rm = TRUE),
+            ## suppressWarnings is dangerous but used as there are empty sets tested for max and this generates a warning for every row which blocks the programm
+            Value = suppressWarnings(apply(.,1,stat,na.rm = TRUE)),
             Gene = geneNames) %>%
             select(Gene,Value)
         }
@@ -253,7 +256,9 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
           data4VaccDay <- data %>%
             # find cols containing treatment name
             select(contains(str_split(colN,"_",simplify = TRUE)[1])) %>%
-          mutate(Value = apply(.,1,stat,na.rm = TRUE))
+          mutate(
+            ## suppressWarnings is dangerous but used as there are empty sets tested for max and this generates a warning for every row which blocks the programm
+            Value = suppressWarnings(apply(.,1,stat,na.rm = TRUE)))
           data4VaccDay <- cbind(
             select(data4VaccDay,Value),
             select(data, ProbeName, Gene, GeneName, Description)
