@@ -240,7 +240,12 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
             # row max / min for gene
           mutate(
             ## suppressWarnings is dangerous but used as there are empty sets tested for max and this generates a warning for every row which blocks the programm
-            Value = suppressWarnings(apply(.,1,stat,na.rm = TRUE)),
+            # Value = suppressWarnings(apply(.,1,stat,na.rm = TRUE)),
+            Value = apply(.,1,function(v){
+              if(sum(is.finite(v)) == 0) return(if_else(descend,-Inf,Inf))
+              if(descend) return(max(v,na.rm = TRUE))
+              return(min(v,na.rm = TRUE))
+            }),
             Gene = geneNames) %>%
             select(Gene,Value)
         }
@@ -258,7 +263,14 @@ getSortedGenesForVaccDay <- function(data, colN, descend, asGenes,allDays,usingK
             select(contains(str_split(colN,"_",simplify = TRUE)[1])) %>%
           mutate(
             ## suppressWarnings is dangerous but used as there are empty sets tested for max and this generates a warning for every row which blocks the programm
-            Value = suppressWarnings(apply(.,1,stat,na.rm = TRUE)))
+            # Value = suppressWarnings(apply(.,1,stat,na.rm = TRUE))
+            # min and max issue a warning for every row if only NAs are present, so we check for this first and return hi/lo result accordingly
+            Value = apply(.,1,function(v){
+              if(sum(is.finite(v)) == 0) return(if_else(descend,-Inf,Inf))
+              if(descend) return(max(v,na.rm = TRUE))
+              return(min(v,na.rm = TRUE))
+            })
+            )
           data4VaccDay <- cbind(
             select(data4VaccDay,Value),
             select(data, ProbeName, Gene, GeneName, Description)
