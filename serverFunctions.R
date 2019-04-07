@@ -735,13 +735,13 @@ resForClickBrush <- function(res){
   if("Value" %in% colnames(res)) res <- filter(res,!is.na(Value))
 
   if(is.null(res) == FALSE && nrow(res) > 0 && !is.na(res[1,1])) {
-    if("ProbeName" %in% names(res)) spot <- paste(res$ProbeName,collapse = ", ")
+    if("ProbeName" %in% names(res)) spot <- paste(res$ProbeName,collapse = ",")
     else spot <-  NULL
-    if("Gene" %in% names(res)) geneMod <- paste(res$Gene,collapse = ", ")
+    if("Gene" %in% names(res)) geneMod <- paste(res$Gene,collapse = ",")
     else {
       # module name and title may be pasted so split out module name
-      geneMod <- paste(modNameFromMenuTitlesVector(res$Module),collapse = ", ")
-      # geneMod <- paste(res$Module,collapse = ", ")
+      geneMod <- paste(modNameFromMenuTitlesVector(res$Module),collapse = ",")
+      # geneMod <- paste(res$Module,collapse = ",")
     }
     return(list(Table = xtable(res, auto = TRUE),ProbeName = spot, GeneMod = geneMod))
   }

@@ -151,7 +151,7 @@ lookupModules <- function(mods2find,modmeans,arrangeby,wholeWord) {
   }
   
   d <- map_dfr(names(l),function(mod) {
-    df <- data.frame(Module = mod, Gene = paste(l[[mod]], collapse = ", "), stringsAsFactors = FALSE)
+    df <- data.frame(Module = mod, Gene = paste(l[[mod]], collapse = ","), stringsAsFactors = FALSE)
   })
 
   mods <- full_join(mods,d,by = "Module")

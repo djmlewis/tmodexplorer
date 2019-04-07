@@ -103,7 +103,7 @@ geneIntersectsFromVaccGenesList <- function(vennData){
   elements <-  lapply(combs, function(i) Setdiff_venn(vennData[i], vennData[setdiff(names(vennData), i)]))
   # n.elements <- sapply(elements, length)
   elementsDF <- map_dfr(names(elements),function(name){
-    tibble(Set = name,Genes = paste0(elements[[name]],collapse = ', '))
+    tibble(Set = name,Genes = paste0(elements[[name]],collapse = ','))
   }) %>%
     filter(nchar(Genes)>0)
   
