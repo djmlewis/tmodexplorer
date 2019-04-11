@@ -55,7 +55,7 @@ ui <-
               hidden(h4(id = "textDataNameHeader", style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; background-color: #b59800; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;",
                         textOutput('textDataName'))),
               conditionalPanel(condition = "output.datatableAll != null",
-                fluidRow(column(2,downloadButton(class="btn-outline-primary btn-block",'buttonsavedatatableAll', 'Table')))),
+                fluidRow(column(1,downloadButton(class="btn-outline-primary btn-block",'buttonsavedatatableAll', 'Table')))),
               hr(),
               dataTableOutput('datatableAll')
      ),
@@ -69,11 +69,13 @@ ui <-
                #################### Selecting  ################
                tabPanel('Select Genes',
                         conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                         fluidRow(style = "margin-bottom:10px;",
-                                           column(4, offset = 4, style = "margin-top: 4px; color: black ", 
+                                          fluidRow(style = "margin-bottom:10px;",
+                                           column(4, awesomeCheckbox(status = 'danger', 'checkboxExcludeLINC', label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE)),
+                                           bsTooltip("checkboxExcludeLINC", "lincRNA and lncRNA probes will be excluded from ALL searches", placement = 'bottom'),
+                                            column(4, style = "margin-top: 4px; color: black ", 
                                                   actionBttn('buttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
                                                   bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting", placement = "top")),
-                                           column(2, offset = 2,
+                                            column(2, offset = 2,
                                                   numericInput("rowsLimitNumeric", NULL, value = 100, min = 50, step = 50),
                                                   bsTooltip("rowsLimitNumeric", "Limit to number of Probes / Genes returned. Suggest set to ~ 100 to avoid a very slow response", placement = 'top')
                                                   )
@@ -84,15 +86,19 @@ ui <-
                                 conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                 awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
                                 conditionalPanel(condition = "input.checkboxSelectKeyword == true",
-                                conditionalPanel(condition = "input.selectKeywordColumn != 'Description'",p(style = "color: #44b84b;","Spaces will be stripped")),
-                                conditionalPanel(condition = "input.selectKeywordColumn == 'Description'",p(style = "color: #44b84b;","Spaces will be kept")),
+                                radioGroupButtons('radioKeywordIncludeExclude', NULL,
+                                 choiceValues = list('in', 'ex'),choiceNames = list('Include', 'Exclude'), selected = 'in',
+                                 individual = FALSE, justified = TRUE, status = "danger"),
+                                bsTooltip('radioKeywordIncludeExclude',"Use to include or exclude matched values from subsequent filters", placement = "top"),
                                 textInput('textInputKeyword',NULL),
                                 h4(style = "margin-top: 0px;","Search:"),
                                 pickerInput('selectKeywordColumn',label = NULL,
                                             choices = NULL,
                                             options = list(`style` = "btn-success")),
                                 awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger"),
-                                awesomeCheckbox("checkboxGeneSearchStripSpaces","Strip Spaces", TRUE,status = "danger")
+                                awesomeCheckbox("checkboxGeneSearchStripSpaces","Trim Spaces", FALSE,status = "danger"),
+                                conditionalPanel(condition = "input.checkboxGeneSearchStripSpaces == true",p(style = "color: #44b84b;","Spaces will be stripped")),
+                                conditionalPanel(condition = "input.checkboxGeneSearchStripSpaces == false",p(style = "color: #44b84b;","Spaces will be kept"))
                                 )))),
                           column(10, # other searches
                                  wellPanel(style = "background-color: #ffffff;",
@@ -183,7 +189,6 @@ ui <-
                                                    )))
                                                  )
                                                ) # Searches 1 & 2
-
                                  )
                           )#column
                         )# row
@@ -259,25 +264,38 @@ ui <-
                                               )
                                             ),
                                             wellPanel(style = "background-color: #FFFFFF;",
+                                                      p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select"),
                                                       uiOutput("plotTopGenesSeriesSIZE")),
                                             conditionalPanel(condition = "output.plotTopGenesSeries != null",
                                              fluidRow(
                                                column(2, downloadButton(class="btn-warning btn-block",'buttonPNGplotTopGenesSeries', 'PNG')),
                                                column(2,awesomeCheckbox(status = 'warning', 'checkboxHiRes_topgenesseries', 'HiRes', value = TRUE),
                                                       bsTooltip("buttonPNGplotTopGenesSeries","Use HiRes checkbox to set 300 or 72 dpi")),
-                                               column(6,
-                                                      conditionalPanel(condition = "input.radioBoxLineProbesSeries == 'Lines' && output.plotTopGenesSeriesBRUSH == null",p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
-                                                      tableOutput("plotTopGenesSeriesBRUSH")),
-                                               column(2,style = "background-color: #f8ffeb; border: 1px solid #eaeaea;", 
+                                               column(4, offset = 4, style = 
+                                                        "background-color: #f8ffeb; 
+                                                        border: 1px solid #eaeaea;
+                                                        white-space: -moz-pre-wrap !important;  
+                                                        white-space: -webkit-pre-wrap;
+                                                        white-space: -pre-wrap;
+                                                        white-space: -o-pre-wrap;
+                                                        white-space: pre-wrap; 
+                                                        word-wrap: break-word;
+                                                        word-break: break-all;
+                                                        white-space: normal;
+                                                        max-width: 100%;
+                                                      ",
                                                       textOutput("plotTopGenesSeriesGENEMOD"),
                                                       p(), 
-                                                      span(style = "color: #008f51",textOutput("plotTopGenesSeriesSPOT")))
-                                             ))
+                                                      span(style = "color: #008f51;",
+                                                    textOutput("plotTopGenesSeriesSPOT")))
+                                             ),
+                                             tableOutput("plotTopGenesSeriesBRUSH"))
                                   ),
                                   conditionalPanel(condition = "output.datatableTopGenesSeries != null",
                                     fluidRow(column(2,downloadButton(class="btn-outline-primary btn-block", 'buttonSaveTableProbesSeries', 'Table')))),
                                   hr(),
-                                  dataTableOutput('datatableTopGenesSeries')),
+                                  dataTableOutput('datatableTopGenesSeries')
+                          ),
                          #################### Genes->Modules ##################
                          tabPanel('Genes->Modules',
                                   
@@ -418,18 +436,27 @@ ui <-
                                               )
                                             ),
                                             wellPanel(style = "background-color: #FFFFFF;",
+                                                      p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select"),
                                                       uiOutput("plotModuleSeriesSIZE")
                                             ),
                                             fluidRow(conditionalPanel(condition = "output.plotModuleSeries != null",
                                               column(2,downloadButton(class="btn-warning btn-block",'buttonPNGplotModuleSeries', 'PNG')),
                                               column(2,awesomeCheckbox(status = 'warning', 'checkboxHiRes_modulesseries', 'HiRes', value = TRUE),
                                                      bsTooltip("buttonPNGplotModuleSeries","Use HiRes checkbox to set 300 or 72 dpi")),
-                                              column(6,
-                                                     conditionalPanel(condition = "input.radioRibbonBoxModuleSeries == 'Lines' && output.plotModuleSeriesBRUSH == null",p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
-                                                     tableOutput("plotModuleSeriesBRUSH")),
-                                              column(2,style = "background-color: #f8ffeb; border: 1px solid #eaeaea;", 
+                                              column(4, offset = 4,style = "background-color: #f8ffeb; border: 1px solid #eaeaea;
+                                                        white-space: -moz-pre-wrap !important;  
+                                                        white-space: -webkit-pre-wrap;
+                                                        white-space: -pre-wrap;
+                                                         white-space: -o-pre-wrap;
+                                                         white-space: pre-wrap; 
+                                                         word-wrap: break-word;
+                                                         word-break: break-all;
+                                                         white-space: normal;
+                                                         max-width: 100%;
+                                                         ", 
                                                      textOutput("plotModuleSeriesGENEMOD"))
-                                            ))
+                                            )),
+                                                   tableOutput("plotModuleSeriesBRUSH")
                                   ),
                                   conditionalPanel(condition = "output.datatableModuleSeries != null",
                                                    fluidRow(column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTableModulesSeries', 'Table')))),
@@ -730,18 +757,28 @@ ui <-
                                               )
                                   ),
                                   wellPanel(style = "background-color: #FFFFFF;",
-                                    uiOutput("mplotModuleSeriesSIZE"),
+                                            p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select"),
+                                            uiOutput("mplotModuleSeriesSIZE"),
                                     fluidRow(conditionalPanel(condition = "output.mplotModuleSeries != null",
                                       column(2,downloadButton(class="btn-warning btn-block",'buttonPNGmplotModuleSeries', 'PNG')),
                                       column(2,awesomeCheckbox(status = 'warning', 'checkboxHiRes_mplotmoduleseries', 'HiRes', value = TRUE),
                                              bsTooltip("buttonPNGmplotModuleSeries","Use HiRes checkbox to set 300 or 72 dpi")),
-                                      column(6,
-                                             conditionalPanel(condition = "input.mradioRibbonBoxModuleSeries == 'Lines' && output.mplotModuleSeriesBRUSH == null",
-                                              p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select")),
-                                             tableOutput("mplotModuleSeriesBRUSH")),
-                                      column(2,style = "background-color: #f8ffeb; border: 1px solid #eaeaea;", 
+                                      column(4, offset = 4,style = "background-color: #f8ffeb; border: 1px solid #eaeaea;
+                                                        white-space: -moz-pre-wrap !important;  
+                                                        white-space: -webkit-pre-wrap;
+                                                         white-space: -pre-wrap;
+                                                         white-space: -o-pre-wrap;
+                                                         white-space: pre-wrap; 
+                                                         word-wrap: break-word;
+                                                         word-break: break-all;
+                                                         white-space: normal;
+                                                         max-width: 100%;
+                                                         ", 
                                              textOutput("mplotModuleSeriesGENEMOD")))
-                                  )),
+                                  ),
+                                  conditionalPanel(condition = "output.mplotModuleSeries != null",
+                                         tableOutput("mplotModuleSeriesBRUSH"))
+                                  ),
                                   conditionalPanel(condition = "output.mdatatableModuleSeries != null",
                                     fluidRow(column(2,downloadButton(class="btn-outline-primary btn-block",'mbuttonSaveTableModulesSeries', 'Table')))),
                                   hr(),
@@ -896,10 +933,10 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                                                  options = list(`style` = "btn-success"))),
                                               column(4,textInput('textInputGeneLookup',NULL)),
                                               column(2,awesomeCheckbox("checkboxGeneLookupWholeWord","Whole Word", FALSE,status = "danger")),
-                                              column(2,awesomeCheckbox("checkboxGeneLookupStripSpaces","Strip Spaces", TRUE,status = "danger")),
+                                              column(2,awesomeCheckbox("checkboxGeneLookupStripSpaces","Trim Spaces", TRUE,status = "danger")),
                                               column(2,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
                                             ),
-                                            h5("The search uses regex, and ignores case. Select Strip Spaces unless searching GeneName or Description")
+                                            h5("The search uses regex, and ignores case. Select Trim Spaces unless searching GeneName or Description")
                                   ),
                                   conditionalPanel(condition = "output.datatableGeneLookup != null",
                                     fluidRow(column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTableGeneLookup', 'Table')))),

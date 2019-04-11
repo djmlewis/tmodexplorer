@@ -471,6 +471,9 @@ observeEvent(
               # keyword acts on allData$data, ignores genes/probes so start with that to reduce
               geneslist <- allData$data
               
+              # take out lincRNA from the start
+              if(input$checkboxExcludeLINC == TRUE) geneslist <- filter(geneslist, lincRNA == FALSE)
+              
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
               if(input$checkboxSelectKeyword == TRUE) {
                 # ignore an empty search
@@ -480,7 +483,15 @@ observeEvent(
                   if(input$checkboxGeneSearchWholeWord == FALSE) {
                     showNotification("Warning: when searching columns other than 'Description' without having Whole Word selected you will match partial names - which may be not what you intend.", type = 'warning')
                   }
-                  geneslist <- getGenesForSearch(geneslist,input$textInputKeyword,input$selectKeywordColumn,input$checkboxGeneSearchWholeWord,input$checkboxGeneSearchStripSpaces)
+                  geneslist <- getGenesForSearch(
+                    geneslist,
+                    input$textInputKeyword,
+                    input$selectKeywordColumn,
+                    input$checkboxGeneSearchWholeWord,
+                    input$checkboxGeneSearchStripSpaces,
+                    # we use filter so if the match is TRUE it is included
+                    input$radioKeywordIncludeExclude == "in"
+                  )
                   if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" ')}
                 }
               } 
@@ -893,7 +904,7 @@ observeEvent(
                  filteredSortedRows <- select(allData$muscleIndividuals,ProbeName,Gene,starts_with(paste0(selectedTissVaccHour,"•")))
                  # do keyword search
                  filteredSortedRows <- 
-                   getGenesForSearch(filteredSortedRows,input$muscle_textInputKeyword,"Gene",input$muscle_checkboxGeneSearchWholeWord,TRUE) %>%
+                   getGenesForSearch(filteredSortedRows,input$muscle_textInputKeyword,"Gene",input$muscle_checkboxGeneSearchWholeWord,TRUE,TRUE) %>%
                    gather(key = "Participant",value = "FC",-c(ProbeName,Gene)) %>%
                    mutate(Participant = as.factor(gsub(paste0(selectedTissVaccHour,"•CRC305E-"),"",Participant)))
                  

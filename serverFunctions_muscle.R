@@ -1,37 +1,4 @@
 
-# getGenesForSearch <- function(dframe,searchTerms,variableToSearch,wholeWord){
-#   if(is.null(dframe) || is.null(searchTerms)) return(NULL)
-#   
-#   # strip spaces from genes and probes
-#   if((!grepl("Description",variableToSearch) && !variableToSearch == "Gene Name") && grepl(' ',searchTerms)) {
-#     searchTerms <- gsub(" ","",searchTerms)
-#   }
-#   
-#   if(grepl(',',searchTerms)) {
-#    # multiple searchTerms
-#     searches <- unlist(strsplit(searchTerms,','))
-#     if(wholeWord == TRUE) {
-#       if(grepl("Description",variableToSearch) || variableToSearch == "Gene Name") searches <- paste0("\\b",searches,"\\b")
-#       else searches <- paste0("^",searches,"$")
-#     }
-#     selGenes <- map_dfr(searches, ~ filter_at(dframe,.vars = variableToSearch,
-#                                               any_vars(grepl(.x,., ignore.case = TRUE)))
-#     )
-#     if(nrow(selGenes)>0) {
-#       selGenes <- distinct(selGenes,`Feature Number`, .keep_all = TRUE)
-#     }
-#   } else {
-#   # single search term
-#     if(wholeWord == TRUE) {
-#       if(grepl("Description",variableToSearch) || variableToSearch == "Gene Name") searchTerms <- paste0("\\b",searches,"\\b")
-#       else searchTerms <- paste0("^",searchTerms,"$")
-#     }
-#     # no duplicates possible for single searchTerms term
-#     selGenes <- filter_at(dframe,.vars = variableToSearch,any_vars(grepl(searchTerms,., ignore.case = TRUE)))
-#   }
-#   
-#   return(selGenes)
-# }
 
 themeBaseMuscle <- function(rotate = FALSE) {
   a <- ifelse(rotate,60,0)

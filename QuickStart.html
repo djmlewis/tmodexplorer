@@ -10,84 +10,129 @@
     <h2>Quick Start On Exploring Transcriptomics Datasets<br>
     </h2>
     <ol>
-      <li><b>Load transcriptomics</b> <b>tab</b>. Choose a dataset to
-        explore from the menu and click <b>Load Dataset.</b> <br>
-        The dataset appears showing some annotation data in the first
-        columns and then the log2 normalised gene expression values.
-        Datasets have expression values of individual spots as rows
-        (mapping to ProbeNames (nucleic acid sequences) and genes - one
-        ProbeName may map to several spots, and one Gene may map to
-        several ProbeNames). Each column is the mean expression for one
-        vaccine~day combinations, where participants have been grouped
-        by treatment (e.g. BOOSTRIX_1 column is group mean for Boostrix
-        vaccinated participants on Day 1). Both Fold Change (from Day 0)
-        and Raw Expression value datasets are available.<br>
+      <li><b>Load transcriptomics</b> <b>tab</b>. This now has only one
+        consolidated dataset, so just click <b>Load Dataset.</b> <br>
+        <ul>
+          <li> The dataset appears showing some annotation data in the
+            first columns and then the log2 normalised gene expression
+            (GE) values for each Treatment~Time combination.</li>
+          <li>The "Gene" column is a portmanteau label in which I have
+            tried to compensate for variable annotation of the chipset.
+            See details for further info.<br>
+          </li>
+          <li>&nbsp;Datasets now have expression values of individual
+            ProbeNames as rows (mapping to the mean of any duplicated
+            spots on the chip with the same ProbeName (nucleic acid
+            sequences)). Therefore the ProbeNames now are unique and not
+            duplicated. This was a compromise to allow integration of
+            306B expression values which were run on an Agilent chip
+            which has only a subset of Probes from the BIOVACSAFE chip.
+          </li>
+        </ul>
       </li>
-      <li><b>Explore By Gene</b> tab: Select this and the following
-        options appear:<br>
+      <ul>
+        <li>Subsequently if you choose to work with gene averages,
+          resulting datasets will have one gene per row. <br>
+        </li>
+        <li>Each GE column is the mean expression for one treatment~day
+          combinations, where participants have been grouped by
+          treatment (e.g. BOOSTRIX_1 column is group mean for Boostrix
+          vaccinated participants on Day 1). <br>
+        </li>
+      </ul>
+      <li><b>Explore By Gene</b> tab: Once a dataset is loaded this tab
+        appears. Select this and the following options appear:<br>
       </li>
       <ol>
-        <li><b>Select Genes</b>: Filter the rows of spot expression
-          values by some criteria. If you click <b>Apply Filters</b>
-          with the default setting the 10 rows with spots having the
-          highest value in the column matching the Vaccine~Day
-          combination selected in the menus will be selected and all
-          other rows filtered-out. <br>
-          Select <b>Gene Averages</b> to select top 10 genes based on
-          the mean gene expression values (calculated from all spots
-          mapping to probes that map to that gene). instead of
-          spots.&nbsp; As returning more than 100 rows from a filter
-          will take a long time to display, at the top right is a box to
-          enter a maximum number of rows to return whatever the filter
-          settings - the default is 100.<br>
-          Other filter options include <b>keyword</b> to select rows
-          using a text-based filter on the annotation columns; and by <b>value</b>
-          of the rows in the selected column or across all columns. See
-          the detailed instructions for further information.<br>
-          <br>
-          <i> Once you have clicked "Apply Filters" the following tabs
+        <li><b>Select Genes</b>: <b>Filter the rows of probe expression
+            values by some criteria</b>.<br>
+          <ul>
+            <li>You must select a treatment and time (I suggest try
+              Fluad C, day 1 to start)<br>
+            </li>
+          </ul>
+          <ul>
+            <li>If you click <b>Apply Filters</b> with the default
+              setting the 10 rows with probes having the highest value
+              in the column matching the Vaccine~Day combination
+              selected in the menus will be selected and all other rows
+              filtered-out. </li>
+          </ul>
+          <ul>
+            <li> Select <b>Gene Averages</b> to select based on the
+              mean gene expression values (calculated from all&nbsp;
+              probes that map to that gene).</li>
+            <li>As returning more than 100 rows from a filter will take
+              a long time to display, at the top right is a box to enter
+              a maximum number of rows to return whatever the filter
+              settings - the default is 100.</li>
+          </ul>
+          <ul>
+            <li> Other filter options include <b>keyword</b> to select
+              rows using a text-based filter on the annotation columns;
+              and by <b>value</b> of the rows in the selected column or
+              across all columns. See the detailed instructions for
+              further information.</li>
+          </ul>
+          <i>Once you have clicked "Apply Filters" the following tabs
             now appear:</i><br>
         </li>
         <ol>
         </ol>
-        <li><b>Selected Genes</b>&nbsp; lists the selected rows (spots
+        <li><b>Selected Genes</b>&nbsp; lists the selected rows (probes
           or genes) that meet the filter criteria.</li>
+        <ul>
+          <li>Use the red ⤓Text File button to download a useful text
+            file with all the annotation symbols for the selected
+            probes/genes. Copy-paste the <b>Gene</b> labels into boxes
+            in this tool that accept identifiers. For other online
+            resources such as Gene Ontology or other analysis tools use
+            the GeneSymbol or Entrez or ENSEMBL IDs.<br>
+          </li>
+        </ul>
         <ol>
         </ol>
-        <li><b>Genes:Series</b>: plot the time course of selected rows
-          values. Select some vaccines and days to plot, and the spots /
-          genes to plot. Click <b>Plot</b> button each time you change
-          options.</li>
+        <li><b>Genes:Series</b>: plot the time course of selected
+          probes/genes values. Select some vaccines and days to plot,
+          and the probes / genes to plot. Click <b>Plot</b> button each
+          time you change options.</li>
         <ol>
         </ol>
-        <li><b>Genes-&gt;Modules</b> lists genes matching selected rows,
-          and identifies which modules contain these genes (if any).
-          Filtered spots/genes that do not match any module are not
-          listed - pay attention to the Rank column as it assists with
-          understanding which rows are missing because they do not match
-          any modules.<br>
+        <li><b>Genes-&gt;Modules</b> Modules work on the basis of the
+          GeneSymbol name. The table lists selected genes (or genes
+          matching selected probes), and identifies which modules
+          contain these genes (if any). Filtered genes that do not match
+          any module are not listed - pay attention to the Rank column
+          as it assists with understanding which selected genes are
+          missing because they do not match any modules.<br>
         </li>
         <ol>
         </ol>
-        <li><b>Modules</b> box plot of the all the row values which map
-          to genes contained within the selected modules. Include the
-          filters-selected genes as a separate "pseudo-module". Plots
-          automatically after every options change. <b>Note:</b> the
-          values are from the treatment-time combination selected in the
-          menus in <b>Select Genes</b> - to see a different time or
-          treatment you must change the filters and re-apply.<br>
+        <li><b>Modules</b> box plot of the all the mean of probe values
+          which map to genes contained within the selected modules
+          (remember, many spots -&gt; one probe, many probes -&gt; one
+          gene). You can include the filters-selected genes as a
+          separate "pseudo-module" to compare the fold-change in GE of
+          the selected genes compared with the module means. Plots
+          automatically after every options change. <b>Note:</b> <b>the
+
+            box plot values are for the treatment-time combination
+            selected in the menus in </b><b>Select Genes</b><b> - to
+            see a different time or treatment you must change the
+            filters and re-apply</b>.<br>
         </li>
         <ol>
         </ol>
         <li><b>Module-&gt;Genes</b>&nbsp; For every selected module it
-          lists the genes contained within that module. Select a module
-          from the menu to plot a box plot summarising the row values
-          for each gene (some genes may have only one spot, others many
-          probes/spots). Genes that also passed the filters indicated by
-          ▶︎. Plots automatically. Some modules may have very few
-          filtered genes, or a wide spread of gene expressions. Reflects
-          how the clustering of genes within a module may not reflect
-          the clustering of genes in response to the vaccines.</li>
+          lists all the genes contained within that module. Select a
+          module from the menu to plot a box plot summarising the row
+          values for each gene (some genes may have only one probe,
+          others many probes/spots). Genes that are also included by the
+          filters indicated by ▶︎. Plots automatically. Some modules may
+          have very few filtered genes, or a wide spread of gene
+          expressions. <i>Reflects how the clustering of genes within a
+            module may not reflect the clustering of genes in response
+            to the vaccines</i>.</li>
         <ol>
         </ol>
         <li><b>Module:Series</b> plot the time course of row values
@@ -95,20 +140,74 @@
           modules from those identified by the genes filter. Click Plot
           button to create or update plot. Include the selected genes as
           a separate "pseudo-module".</li>
+        <li><b>CRC305E. </b>This trial included participants receiving
+          Fendrix, Fluad or saline placebo injection into the leg, and
+          then blood samples on day 0 and one timepoint post
+          vaccination, and a muscle biopsy at the single
+          post-vaccination time point from both injected and uninjected
+          legs. GE values are presented as fold change in blood GE from
+          day 0 to the single post immunisation time point, and fold
+          change in muscle GE between injected:uninjected legs on the
+          single post immunisation time point. As there were only 3
+          participants per time point, some variation may exist in the
+          mean GE values that can be plotted in the time course graphs.
+          Therefore, this tab allows the GE of individual participants
+          to be visualised. Select a treatment~tissue~time (in hours)
+          combination and the plot of participants and the means/medians
+          will be shown for selected genes. The genes selected by the
+          filters in <b>Select Genes</b> tab are filled-in
+          automatically, but any <b>Gene</b> identifier can be pasted
+          in.<br>
+        </li>
+      </ol>
+      <li><b>Explore By Module</b> tab:<br>
+        This works on the same principles as <b>Explore By Gene</b>
+        except you filter modules by keyword or based on the mean or
+        median value of all the <u>probes</u> mapping to that module
+        (modules-&gt;genes-&gt;probes). Probes are not averaged into
+        gene values. </li>
+      <ol>
+        <li><b>Select Module</b> filter modules by mean or median probe
+          values, or keyword. Click <b>Apply Selection</b>.<br>
+          <i> Once you have clicked "Apply Filters" the following tabs
+            now appear:</i><br>
+        </li>
+        <li><b>Selected Modules</b> - box plot of the all the row values
+          which map to genes contained within the selected modules.
+          Plots automatically.</li>
+        <li><b>Module-&gt;Gene</b>s For every selected module it lists
+          the genes contained within that module and then plots a box
+          plot summarising the row values for each gene (some genes may
+          have only one probe, others many probes). Select a module from
+          the menu. Plots automatically. Some modules may have very few
+          upregulated genes, or a wide spread of gene expressions.
+          Reflects how the clustering of genes within a module may not
+          reflect the clustering of genes in response to the vaccines. <b>Note:</b>
+          the values are from the treatment-time combination selected in
+          the menus in <b>Select Module</b> - to see a different time
+          or treatment you must change the filters and re-apply. </li>
+        <li><b>Module:Series</b> plot the time course of row values
+          within each module. Select some vaccines and days, and some
+          modules. Click <b>Plot</b> button each time you change
+          options. Select modules to plot from the options: modules
+          selected in <b>Select Modules</b> tab; <b>all modules
+            available</b> in database, all modules available in database
+          clustered under their functional <b>Title</b> categories.</li>
       </ol>
       <li><b>Network Genes<br>
-        </b>Plots Venn / Euler / UpsetR diagrams or network graph of
-        genes in common or unique to specific vaccine~day combinations,
-        based on gene expression / fold-change values. Note no
-        statistical analysis is done.<br>
+        </b>This is a stand-alone module. Plots Venn / Euler / UpsetR
+        diagrams or network graph of genes in common or unique to
+        specific vaccine~day combinations, based on gene expression
+        fold-change or gene rank values. Note <i>no statistical
+          analysis is done</i>.<br>
       </li>
       <ol>
         <li>Select vaccine~day combinations and <b>Add</b> to the list
           to plot.</li>
-        <li>Select number of rows (genes) to include, and whether top <i>N</i>
+        <li>Select number of genes to include, and whether top <i>N</i>
           selected on basis of <b>descending</b> mean gene expression
-          value (highest values selected) or reverse (lowest values
-          selected).</li>
+          value (highest genes selected) or reverse (lowest <i>N</i>
+          genes selected).</li>
         <li>Click <b>Plot</b> to draw graph, and after any change to
           selections.</li>
         <li>Select Network, Venn, Euler or UpsetR plot.</li>
@@ -119,65 +218,17 @@
           automatically. Export as single Excel file with sheets for
           each table. Export plots as High Res PNG by clicking button.</li>
         <li>See detailed instructions for further information on
-          filtering and plots.<br>
-        </li>
+          filtering and plots.</li>
+        <ol>
+        </ol>
       </ol>
     </ol>
     <ol>
-      <ol>
-        <ol>
-        </ol>
-      </ol>
-      <li><b>Explore By Module</b> tab:<br>
-        This works on the same principles as <b>Explore By Gene</b>
-        except you filter modules by keyword or based on the mean or
-        median value of all the spots mapping to that module. </li>
-      <ol>
-        <li><b>Select Module</b> filter modules by mean or median spot
-          values, or keyword. Click <b>Apply Selection</b>.<br>
-          <i> Once you have clicked "Apply Filters" the following tabs
-            now appear:</i><br>
-        </li>
-        <ol>
-        </ol>
-        <li><b>Selected Modules</b> - box plot of the all the row values
-          which map to genes contained within the selected modules.
-          Plots automatically.</li>
-        <ol>
-        </ol>
-        <li><b>Module-&gt;Gene</b>s For every selected module it lists
-          the genes contained within that module and then plots a box
-          plot summarising the row values for each gene (some genes may
-          have only one spot, others many probes/spots). Select a module
-          from the menu. Plots automatically. Some modules may have very
-          few upregulated genes, or a wide spread of gene expressions.
-          Reflects how the clustering of genes within a module may not
-          reflect the clustering of genes in response to the vaccines. <b>Note:</b>
-          the values are from the treatment-time combination selected in
-          the menus in <b>Select Module</b> - to see a different time
-          or treatment you must change the filters and re-apply. </li>
-        <ol>
-        </ol>
-        <li><b>Module:Series</b> plot the time course of row values
-          within each module. Select some vaccines and days, and some
-          modules. Click <b>Plot</b> button each time you change
-          options. Select modules to plot from the options: modules
-          selected in <b>Select Modules</b> tab; <b>all modules
-            available</b> in database, all modules available in database
-          clustered under their functional <b>Title</b> categories.<br>
-          <br>
-          <br>
-        </li>
-        <ol>
-        </ol>
-      </ol>
-      <li>For help on the various options presented on the screens and
-        for <b>Lookup</b>, <b>Cells</b> and <b>Cytokines</b>: see <b>Detailed
-
-
-
-          Instructions For Use</b> in <b>ReadMe</b>.<br>
-      </li>
+    </ol>
+    For help on the various options presented on the screens and for <b>Lookup</b>,
+    <b>Cells</b> and <b>Cytokines</b>: see <b>Detailed Instructions
+      For Use</b> in <b>ReadMe</b>.<br>
+    <ol>
     </ol>
   </body>
 </html>

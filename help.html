@@ -19,74 +19,84 @@
     The purpose of this app is to be a <font size="+1"><b>data
         visualisation tool</b></font> - nothing more. <i>No statistical
       analysis is done</i> and you must be aware of the risk of <b>false
+
       discovery</b>. However, it leverages the unique design of
     BIOVACSAFE in that the same chip was used in the same clinical
     sites, and so if the same genes or modules keep popping-up across
-    different vaccines (or the reverse) this has some significance.
-    Similarly the fact that we have a complete time course allows for
-    some discrimination based on the response curve and adjacent points.
-    While False Discovery statistics can be applied to two-point
-    comparisons (using packages like tmod or limma) where every gene is
-    considered possibly important in the setting of every other gene,
-    this tool allows a more nuanced approach to gene responses to the
-    vaccines tested based on the kinetics and comparison between
-    vaccines as well as placebos.<br>
+    different vaccines (or the reverse) this may have some <i><b>biological
+        significance</b></i>. Similarly the fact that we have a complete
+    time course allows for some selection of gene sets based on the
+    response curve and adjacent points. While False Discovery statistics
+    can be applied to two-point comparisons (using packages like tmod or
+    limma) where every gene is considered possibly important in the
+    setting of every other gene, this tool allows a more nuanced
+    approach to gene responses to the vaccines tested based on the
+    kinetics and comparison of response/non-response between vaccines as
+    well as placebos. This mimics the usual way immunologists observe
+    cell or antibody kinetics and draw inferences from those, as well as
+    by doing statistical testing.<br>
     <br>
-    The purpose is just to visualise <b>the expression of genes</b>
-    <b> as a time course after immunisation</b>, either alone or when
-    clustered into Blood Transcriptional Modules (BTMs). This mimics the
-    usual way immunologists observe cell or antibody kinetics. In
+    An additional purpose is to visualise <b>the expression of genes</b><b>
+      when clustered into Blood Transcriptional Modules</b> (BTMs). In
     addition it allows to <b>look inside the BTMs</b> to observe how
     the individual genes are responding to the vaccine stimulus. <br>
     <br>
-    The datasets are composed of <b>rows</b> of data where each row is
-    a <font size="+1" color="#cc0000"><b>spot</b></font> on the chip,
-    and the <b>columns</b> contain the group mean value (raw expression
-    or fold-change from baseline) for that spot. The groups are a
-    specific <b>treatment~time point</b> combination: e.g. Boostrix~Day
-    1, Fluad~Day 7, etc. I use the term "spot" and "row" interchangeably
-    as they are the same. One "Probe" ( specific nucleic acid sequence)
-    may map to many spots, and one gene may map to many probes. Row /
-    ProbeNames are unique, GeneNames may be duplicated
-    across rows.<br>
+    In this version of the tool, datasets are composed of <b>rows</b>
+    of data where each row is a <b>mean value of spots mapping to a
+      single unique probe (a defined RNA sequence)</b> on the chip, and
+    the <b>columns</b> contain the <b>group mean value</b> (raw
+    expression or fold-change from baseline) for that probe. In the data
+    preparation, initially all spots mapping to a unique probe were
+    averaged for each participant at each time point. Then those means
+    were averaged for each probe by combining participants into one
+    group. The groups are a specific <b>treatment~time point</b>
+    combination: e.g. Boostrix~Day 1, Fluad~Day 7, etc. I use the term
+    "probe" and "row" interchangeably as they are the same. One "Probe"
+    ( specific nucleic acid sequence) may map to many spots, and one
+    gene may map to many probes. Row / ProbeNames are unique, GeneNames
+    may be duplicated across rows. (Previous versions had one spot per
+    row, but to incorporate 306B data which maps only a subset of the
+    BIOVACSAFE chip probes, the average of probe values had to be used).<br>
     <br>
     The simplest approach is to pick a particular vaccine~day
     combination&nbsp; - <i>e.g. Day 7 after immunisation with Boostrix</i>
     - and then sort rows by the values in that column. This imposes the
-    same <b>row (spot) order</b> on other time points and vaccines. Why
-    do this? Well, because with over 40k spots you have to order them
-    somehow. The grouping by <i><b>treatment</b></i> (vaccine or
+    same <b>row (probe) order</b> on other time points and vaccines.
+    Why do this? Well, because with over 40k probes you have to order
+    them somehow. The grouping by <i><b>treatment</b></i> (vaccine or
     placebo) ~ <i><b>time</b></i> combination is actually a natural
     grouping, if a bit counter-intuitive when comparing between
     vaccines. You can also order rows by value <i>at any time point for
       one selected vaccine, </i>rather than specifying a specific day.
     The question becomes: <i>How do the top N genes in the day 1
       response to Fluad behave on day 1 after Boostrix?</i> Or maybe: <i>How
+
       do the top N genes on day 1 after Fluad behave over time?</i><br>
     <br>
-    Having ordered the top or bottom spots, or found spots with values
-    between a range, you can then group the spots or genes into a set of
-    interest - e.g. the top 10 fold-increased genes on day 7 after
-    Boostrix. <i><b>This set of selected spots-&gt;probes-&gt;genes
-        becomes the core building-block of subsequent analysis</b></i>.
-    You can plot how the expression changes over time (in all the
-    treatment groups); which modules the genes belong to; observe how
-    the other genes in those modules are responding over time; or how
-    the whole module responds over time. You can treat these rows as a
-    'pseudo-module' and see how this module changes over time in
-    comparison with the predefined modules in tmod. Other search options
-    allow you to select spots/probes/genes by their title or description
-    instead of (or as well as) their expression values, and then follow
-    these selected genes and the modules that contain them over time.<br>
+    Having ordered the top or bottom probes, or found probes with values
+    between a range, you can then group the probes or genes into a set
+    of interest - e.g. the top 10 fold-increased genes on day 7 after
+    Boostrix. <i><b>This set of selected probes-&gt;genes becomes the
+        core building-block of subsequent analysis</b></i>. You can plot
+    how the expression changes over time (in all the treatment groups);
+    which modules the genes belong to; observe how the other genes in
+    those modules are responding over time; or how the whole module
+    responds over time. You can treat these rows as a 'pseudo-module'
+    and see how this module changes over time in comparison with the
+    predefined modules in tmod. Other search options allow you to select
+    probes/genes by their title or description instead of (or as well
+    as) their expression values, and then follow these selected genes
+    and the modules that contain them over time.<br>
     <br>
-    The figures below illustrates this: the spots have been sorted in <i>descending
+    The figures below illustrates this: the probes have been sorted in <i>descending
+
 
       order of their fold-increase from baseline (day 0) in log2
       expression value in the participants 7 days after receiving
-      Stamaril</i>. The top 10 spots with the highest fold-increase have
-    been selected and the time series plotted as individual lines for
-    Stamaril, Fluad and Placebo, or as a boxplot for these spots treated
-    as though they belonged to a pseudo-module.<br>
+      Stamaril</i>. The top 10 probes with the highest fold-increase
+    have been selected and the time series plotted as individual lines
+    for Stamaril, Fluad and Placebo, or as a boxplot for these probes
+    treated as though they belonged to a pseudo-module.<br>
     <br>
     <div align="center"><img src="selgenesseries.png" alt="Selected
         Probes" width="554" height="250"> &nbsp;<img
@@ -96,33 +106,33 @@
     <br>
     We can then identify the modules to which those genes belong, and
     plot the changes in those modules over time. Note that while the
-    kinetics of the spots is clear-cut, the modules are less so, with
+    kinetics of the probes is clear-cut, the modules are less so, with
     some non-responding modules. This reflects that fact that modules
     contain many other genes that may not be responding to Stamaril at
     all, or even down-regulated, as&nbsp; the genes in the modules have
     been clustered by their authors on the basis of various criteria:<br>
     <div align="center"><img src="selmods.png" alt="Selected Modules"
-        align="middle" width="550" height="249">&nbsp;&nbsp; <img
+        width="550" align="middle" height="249">&nbsp;&nbsp; <img
         src="selmodsseries.png" alt="Selected Modules Timecourse"
-        align="middle" width="550" height="249"><br>
+        width="550" align="middle" height="249"><br>
     </div>
     <br>
-    When plotting the time-course of genes as an average of the spots,
-    it may become apparent by wide SEM ribbons that spots mapping the
+    When plotting the time-course of genes as an average of the probes,
+    it may become apparent by wide SEM ribbons that probes mapping the
     same gene are behaving discordantly. It is possible to split the
-    gene averages back into the component spots to identify which genes
-    have aberrant spots using the <a href="#Gene%E2%AB%B7Probes"><b>Gene⫷Spots</b></a>
+    gene averages back into the component probes to identify which genes
+    have aberrant probes using the <a href="#Gene%E2%AB%B7Probes"><b>Gene⫷Probes</b></a>
     option. For example, as shown in the figure below for some top genes
-    upregulated on day 7 after Stamaril, while the two IFIT2 spots (red)
-    respond similarly, one of the OAS2 spots (green) is a log2 lower
-    than the other two, and the two RSAD2 spots are far apart (blue).
-    These discrepancies are also seen in the wide SEM ribbons.<br>
+    upregulated on day 7 after Stamaril, while the two IFIT2 probes
+    (red) respond similarly, one of the OAS2 probes (green) is a log2
+    lower than the other two, and the two RSAD2 probes are far apart
+    (blue). These discrepancies are also seen in the wide SEM ribbons.<br>
     <div align="center"><img src="probessplit.png" alt="Genes Split Into
         Probes" width="640" height="250"><br>
     </div>
     <br>
     <br>
-    Choosing the correct day to sort the spots by is important as the
+    Choosing the correct day to sort the probes by is important as the
     kinetics of responding genes varies significantly. For example
     sorting on day 1 after Fluad brings up genes with a very sharp
     kinetics associated with cytokines etc. Sorting on day 7 brings up
@@ -139,12 +149,11 @@
     </div>
     <br>
     <br>
-    <br>
     There is also an option to go straight to exploring by modules, in
     which case you just select tmod modules and observe their response
     over time. Modules can be selected in the same way as individual
-    spots or genes - by identifying those most up- or down-regulated
-    modules (based on median or mean value of all spots mapping to the
+    probes or genes - by identifying those most up- or down-regulated
+    modules (based on median or mean value of all probes mapping to the
     module) for a selected treatment ~ time; or by searching for modules
     by text keyword. The basic concept is the same, as shown here where
     the <i>top 10 modules up-regulated on day 7 after Stamaril</i> are
@@ -178,16 +187,18 @@
       choice of using R base graphics (faster) or ggplot2 (slower but
       may be prettier). Other plots have a <b>Plot</b> button, and will
       only draw or update when that is clicked, to avoid slow refreshes
-      when you alter several options. Plots have a slider control&nbsp;<img
-        alt="" src="slider.png" width="82" height="20"> to change the
-      height. Plot width always resizes automatically with the window
-      width. A low resolution image of plots can be copied or saved by
-      right-clicking on the plot, while clicking <b>⤓ Plot As PNG</b>
-      button downloads a high resolution image. The plotting parameters
-      are not sophisticated, but generally the data used to create the
-      plot are in a table below and can be saved and imported into R or
-      other packages for plotting. Some tables can be saved as PNG files
-      to incorporate with plots as graphics.<br>
+      when you alter several options. Plots may have a slider
+      control&nbsp;<img alt="" src="slider.png" width="82" height="20">
+      to change the height. Plot width always resizes automatically with
+      the window width. A low resolution image of plots can be copied or
+      saved by right-clicking on the plot, while clicking <b>⤓ Plot As
+        PNG</b> button downloads a 300 dpi high resolution image if the
+      <b>HiRes </b>checkbox is selected or else a 72 dpi low res image.
+      The plotting parameters are not sophisticated and only modestly
+      customisable, but generally the data used to create the plot are
+      in a table below and can be saved and imported into R or other
+      packages for plotting. Some tables can be saved as PNG files to
+      incorporate with plots as graphics.<br>
     </p>
     <h4>Identifying data on line plots by clicking or selecting points<br>
     </h4>
@@ -197,28 +208,43 @@
     plotted if you are not displaying points). Clicking line segments
     between points does nothing. Click and drag a rectangle to include
     multiple points. A table will appear displaying the data, which can
-    be copied. A comma-separated list of gene/spot and module names is
+    be copied. A comma-separated list of gene/probe and module names is
     also shown to easily copy and paste into search boxes.<br>
     <p> </p>
     <h3><a name="Data_Tables_"></a>Data Tables<br>
     </h3>
     Where a data table is shown, the entire table can be searched using
-    the box above,&nbsp; or individual columns searched using the boxes
-    below each column. Tables can be downloaded as a csv file suitable
-    for opening in Excel or R by clicking the <b>⤓ Table</b> button. A
-    PNG image of the data table can also be downloaded in some cases by
-    clicking the button <b>⤓ Table as PNG</b>. This can be pasted onto
-    graphics. It is very tricky to calculate the width correctly using
-    grid.table, so the image may be clipped or extra wide, but a
-    transparent background will be generated.<br>
+    the box above it,&nbsp; or individual columns searched using the
+    boxes below each column. Tables can be downloaded as a csv file
+    suitable for opening in Excel or R by clicking the <b>⤓ Table</b>
+    button. A PNG image of the data table can also be downloaded in some
+    cases by clicking the button <b>⤓ Table as PNG</b>. This can be
+    pasted onto graphics. It is very tricky to calculate the width
+    correctly using grid.table, so the image may be clipped or extra
+    wide, but a transparent background will be generated.<br>
     <br>
-    <h3><a name="Saving_Gene_Probe_ProbeNames_and_"></a>Saving Gene,
-      ProbeNames and Module Lists<br>
+    <h3><a name="Saving_Gene_Probe_ProbeNames_and_"></a>Saving
+      Annotations Lists<br>
     </h3>
-    The datasets have been normalised together so that ProbeNames, row
-    IDs and Gene names are the same across vaccines. This allows
-    identification of responses for a specific spot/probe/gene between
-    vaccines.<br>
+    The datasets have been normalised together so that ProbeNames are
+    the same across vaccines. This allows identification of responses
+    for a specific probe/gene between vaccines. Clicking the red Text
+    File button where available allows a text file with comma-separated
+    and newline-separated lists of the selected annotation symbols. In
+    tmodExplorer it is best to use the <b>Gene</b> annotations to paste
+    into filter boxes as these are a portmanteau of the various other
+    annotations, and will always be available for every probe. Outside
+    tmodExplorer probably the GeneSymbol, Entrez or ENSEMBL identifiers
+    should be used, but may not be available for every probe on the
+    chip. The <b>Gene</b> annotation has been assembled by sequentially
+    selecting&nbsp; the GeneSymbol defined on the chipset (HGNC, may be
+    out of date) if available, then the GeneSymbol mapped to a probe ID
+    using the David webtool, then the ENSEMBLE ID, finally the ProbeName
+    if there is no annotation available. Some probes match lincRNA
+    sequences, and if no GeneSymbol is available, the Description is
+    used instead where a lincRNA term is detected. All this is a
+    compromise, but it means that the <b>Gene</b> identifier should
+    have some meaningful label attached where possible.<br>
     <br>
   </body>
 </html>

@@ -438,69 +438,86 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 
 }
 
-getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces){
+getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces, includeSearch){
   if(is.null(geneslist) || is.null(search)) return(NULL)
+  # unlist and stringsplit does not affect a single string, but turns comma separated searches into a vector
+  search <- unlist(strsplit(search,',')) 
+  # trim spaces from genes and probes
+  if(stripSpaces == TRUE) search <- trimws(search, which = "both")#gsub(" ","",search)
+  if(wholeWord == TRUE) search <- paste0("^",search,"$")
+  rowIndices <- unlist(map(search, ~grep(.,geneslist[[column]], ignore.case = TRUE)))
+  if(includeSearch == TRUE) selGenes <- geneslist[rowIndices,]
+  else selGenes <- geneslist[-rowIndices,]
+  # if(nrow(selGenes)>0) selGenes <- distinct(selGenes, ProbeName, .keep_all = TRUE)
+    # # selGenes <- map_dfr(
+    #   #   searches,
+    #   #   function(s){
+    #   #     geneslist[grepl(s,geneslist[[column]], ignore.case = TRUE),]
+    #   #   }
+    #   # )
+    #   # if(nrow(selGenes)>0) {
+    #   #   selGenes <- distinct(selGenes, ProbeName, .keep_all = TRUE)
+    #   # }
+    # } else {
+    #   selGenes <- geneslist[-rowIndices,]
+    #   # selGenes <- geneslist
+    #   # walk(
+    #   #   searches,
+    #   #   function(s){
+    #   #     selGenes <<- selGenes[grepl(s,selGenes[[column]], ignore.case = TRUE) == FALSE,]
+    #   #   })
+    # }
   
-  # strip spaces from genes and probes
-  if(stripSpaces == TRUE) {
-    showNotification("Spaces have been stripped", type = 'warning')
-    search <- gsub(" ","",search)
-  }
-  
-  # multiple search ?
-  if(grepl(',',search)) {
-    searches <- unlist(strsplit(search,','))
-    if(wholeWord == TRUE) {
-      searches <- paste0("^",searches,"$")
-    }
-    selGenes <- map_dfr(
-      searches,
-      function(s){
-        geneslist[grepl(s,geneslist[[column]], ignore.case = TRUE),]
-      }
-    )
-    if(nrow(selGenes)>0) {
-      selGenes <- distinct(selGenes, ProbeName, .keep_all = TRUE)
-    }
-  } else {
-    if(wholeWord == TRUE) {
-      search <- paste0("^",search,"$")
-    }
-    # no duplicates possible for single search term
-    selGenes <- geneslist[grepl(search,geneslist[[column]], ignore.case = TRUE),]
-  }
+  # } else {
+  #   if(wholeWord == TRUE) {
+  #     search <- paste0("^",search,"$")
+  #   }
+  #   # no duplicates possible for single search term
+  #   # selGenes <- geneslist[xor(grepl(search,geneslist[[column]], ignore.case = TRUE),includeSearch),]
+  #   selGenes <- filter(geneslist,grepl(search,geneslist[[column]], ignore.case = TRUE) == includeSearch)
+  # }
   
   return(selGenes)
 }
 
-lookupGenesProbes <- function(gene,annot, column, wholeWord, stripSpaces) {
-  if(is.null(gene) || is.null(annot)) return(NULL)
+lookupGenesProbes <- function(search,annot, column, wholeWord, stripSpaces) {
+  if(is.null(search) || is.null(annot)) return(NULL)
 
-  if(stripSpaces == TRUE) {
-    showNotification("Spaces have been stripped", type = 'warning')
-    gene <- gsub(" ","",gene)
-  }
-
-  if(grepl(',',gene)) {
-    # multiple search
-    gene <- unlist(strsplit(gene,','))
-  }
-  
-  if(wholeWord == TRUE) {
-    if(stripSpaces == TRUE) gene <- paste0("\\b",gene,"\\b")
-    else gene <- paste0("^",gene,"$")
-  }
-  
-  
-  probes <- 
-    map_dfr(gene,function(g){
-      filter(annot,grepl(g,annot[[column]],ignore.case = TRUE))
-    }) %>%
+  # unlist and stringsplit does not affect a single string, but turns comma separated searches into a vector
+  search <- unlist(strsplit(search,',')) 
+  # trim spaces from genes and probes
+  if(stripSpaces == TRUE) search <- trimws(search, which = "both")#gsub(" ","",search)
+  if(wholeWord == TRUE) search <- paste0("^",search,"$")
+  rowIndices <- unlist(map(search, ~grep(.,annot[[column]], ignore.case = TRUE)))
+  probes <- annot[rowIndices,]  %>%
     arrange(Gene)
-
+  
   if(nrow(probes) == 0) {
     showNotification("Nothing found", type = 'error')
     return(NULL)
+    
+  # if(stripSpaces == TRUE) {
+  #   showNotification("Spaces have been trimmed", type = 'warning')
+  #   gene <- gsub(" ","",gene)
+  # }
+  # 
+  # if(grepl(',',gene)) {
+  #   # multiple search
+  #   gene <- unlist(strsplit(gene,','))
+  # }
+  # 
+  # if(wholeWord == TRUE) {
+  #   if(stripSpaces == TRUE) gene <- paste0("\\b",gene,"\\b")
+  #   else gene <- paste0("^",gene,"$")
+  # }
+  # 
+  # 
+  # probes <- 
+  #   map_dfr(gene,function(g){
+  #     filter(annot,grepl(g,annot[[column]],ignore.case = TRUE))
+  #   }) %>%
+  #   arrange(Gene)
+
   }
   
   return(probes)
