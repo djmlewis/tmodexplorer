@@ -95,10 +95,7 @@ ui <-
                                 pickerInput('selectKeywordColumn',label = NULL,
                                             choices = NULL,
                                             options = list(`style` = "btn-success")),
-                                awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger"),
-                                awesomeCheckbox("checkboxGeneSearchStripSpaces","Trim Spaces", FALSE,status = "danger"),
-                                conditionalPanel(condition = "input.checkboxGeneSearchStripSpaces == true",p(style = "color: #44b84b;","Spaces will be stripped")),
-                                conditionalPanel(condition = "input.checkboxGeneSearchStripSpaces == false",p(style = "color: #44b84b;","Spaces will be kept"))
+                                awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger")
                                 )))),
                           column(10, # other searches
                                  wellPanel(style = "background-color: #ffffff;",
@@ -543,8 +540,6 @@ ui <-
                                                                                 h4(style = "margin-top: 0px;","Search:"),
                                                                                 awesomeRadio(status = 'success', 'mradioKeywordColumn',NULL,choices = c('Title','Module'), inline = TRUE),
                                                                                 bsTooltip("mradioKeywordColumn", "Search in Module Names or Module Titles"),
-                                                                                conditionalPanel(condition = "input.mradioKeywordColumn == 'Module'",p(style = "color: #44b84b;","Spaces will be stripped")),
-                                                                                conditionalPanel(condition = "input.mradioKeywordColumn == 'Title'",p(style = "color: #44b84b;","Spaces will be kept")),
                                                                                 awesomeCheckbox("mcheckboxModuleSearchWholeWord","Whole Word", TRUE,status = "danger")
                                                                       ))
                                               ),
@@ -931,12 +926,11 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                                               column(2,style = "margin-top: 0px;",
                                                      pickerInput('pickerGeneProbeLookup',label = NULL, choices = NULL,
                                                                  options = list(`style` = "btn-success"))),
-                                              column(4,textInput('textInputGeneLookup',NULL)),
+                                              column(6,textInput('textInputGeneLookup',NULL)),
                                               column(2,awesomeCheckbox("checkboxGeneLookupWholeWord","Whole Word", FALSE,status = "danger")),
-                                              column(2,awesomeCheckbox("checkboxGeneLookupStripSpaces","Trim Spaces", TRUE,status = "danger")),
                                               column(2,div(actionButton("buttonGeneLookup", "Lookup",class = "btn-success"),actionButton("buttonGeneLookupNone", "Clear")))
                                             ),
-                                            h5("The search uses regex, and ignores case. Select Trim Spaces unless searching GeneName or Description")
+                                            h5("The search uses regex, and ignores case")
                                   ),
                                   conditionalPanel(condition = "output.datatableGeneLookup != null",
                                     fluidRow(column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTableGeneLookup', 'Table')))),
@@ -1056,7 +1050,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                                                  fluidRow(
                                                    column(4,awesomeCheckbox(status = 'danger', 'checkboxOverrideVaccineNamesCells', 'Override Group Names', value = FALSE)),
                                                    column(8, textInput('textVaccineNamesCells', label = NULL),
-                                                          bsTooltip("textVaccineNamesCells","Comma-separated list of alternative treatment names, applied in the same order. Will be ignored if length not identical to number of treatments selected. Spaces are not stripped"))
+                                                          bsTooltip("textVaccineNamesCells","Comma-separated list of alternative treatment names, applied in the same order. Will be ignored if length not identical to number of treatments selected."))
                                                  )),
                                        fluidRow(
                                          column(4,offset = 4,

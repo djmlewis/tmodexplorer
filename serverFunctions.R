@@ -438,6 +438,7 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 
 }
 
+
 getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces, includeSearch){
   if(is.null(geneslist) || is.null(search)) return(NULL)
   # unlist and stringsplit does not affect a single string, but turns comma separated searches into a vector
@@ -480,7 +481,7 @@ getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces, in
   return(selGenes)
 }
 
-lookupGenesProbes <- function(search,annot, column, wholeWord, stripSpaces) {
+lookupGenesProbes <- function(search,annot, column, wholeWord, stripSpaces = TRUE) {
   if(is.null(search) || is.null(annot)) return(NULL)
 
   # unlist and stringsplit does not affect a single string, but turns comma separated searches into a vector

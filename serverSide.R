@@ -58,7 +58,7 @@ server <- function(input, output, session) {
   observeEvent(input$buttonLoadDataFI, {if (getNewData(allData,input$selectDataFI) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
 
   output$buttonsavedatatableAll <- downloadHandler(filename = function(){paste0(allData$folder,".csv")},
-    content = function(file) {write.csv(allData$data, file, row.names = FALSE)})
+    content = function(file) {write_excel_csv(allData$data, file, na = "")})
   
   output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
   
@@ -488,7 +488,7 @@ observeEvent(
                     input$textInputKeyword,
                     input$selectKeywordColumn,
                     input$checkboxGeneSearchWholeWord,
-                    input$checkboxGeneSearchStripSpaces,
+                    TRUE, # we always trim spaces input$checkboxGeneSearchStripSpaces,
                     # we use filter so if the match is TRUE it is included
                     input$radioKeywordIncludeExclude == "in"
                   )
@@ -620,7 +620,6 @@ observeEvent(
   
   #################### Top Probes #########################
   # output top genes
-  output$datatableTopGenesUp <- renderDataTable({topGenesAndModules()[['genes']]})
   output$buttonSaveTableTopGenesUpPlot <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.png")},
     content = function(file) {plotDataTable(topGenesAndModules()[['genes']],file,35,input$checkboxHiRes_topgenes)})
   
@@ -631,8 +630,24 @@ observeEvent(
     )
   }
   
+  addDescriptionToGenes <- function(genes){
+    annot <- select(allData$data,-contains("_"))
+    genes %>%
+      mutate(
+        Description = map_chr(Gene,function(g){
+          paste(unique(lookupGenesProbes(g,annot, "Gene", TRUE,TRUE)[["Description"]]),
+                collapse = " • ")
+        })
+      )
+  }
+  
+  output$datatableTopGenesUp <- renderDataTable({
+    addDescriptionToGenes(topGenesAndModules()[['genes']])
+    })
   output$buttonSaveTableProbes <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.csv")},
-    content = function(file) {write.csv(topGenesAndModules()[['genes']], file, row.names = FALSE)})
+    content = function(file) {write_excel_csv(
+      addDescriptionToGenes(topGenesAndModules()[['genes']]),
+      file, na = "")})
   
   output$buttonSaveListGenes <- downloadHandler(filename = function(){
     return("Selected Probes Genes.txt")
@@ -713,7 +728,7 @@ observeEvent(
   observeEvent(input$buttonRemoveGenesProbesSeries,{updateSelectInput(session, 'selectGenesProbesForSeries', selected = character(0))})
   
   output$buttonSaveTableProbesSeries <- downloadHandler(filename = function(){paste0("Selected Probes-Genes Series.csv")},
-     content = function(file) {write.csv(topGenesInSeries, file, row.names = FALSE)})
+     content = function(file) {write_excel_csv(topGenesInSeries, file, na = "")})
   
 
   #################### Genes->Modules #########################
@@ -723,7 +738,7 @@ observeEvent(
   })
 
   output$buttonSaveTableGenesModules <- downloadHandler(filename = function(){paste0("Selected Genes -> Modules.csv")},
-     content = function(file) {write.csv(topGenesAndModules()[['modules']], file, row.names = FALSE)})
+     content = function(file) {write_excel_csv(topGenesAndModules()[['modules']], file, na = "")})
   output$buttonSaveTableGenesModulesPlot <- downloadHandler(filename = function(){paste0("Selected Genes -> Modules.png")},
     content = function(file) {plotDataTable(topGenesAndModules()[['modules']],file,35,input$checkboxHiRes_tablemodules)})
   
@@ -735,9 +750,9 @@ observeEvent(
   # draw / save table
   output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['summStats']]})
   output$buttonSaveTableModulesSummary <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Summary.csv")},
-    content = function(file) {write.csv(geneExpressionsForModules()[['summStats']], file, row.names = FALSE)})
+    content = function(file) {write_excel_csv(geneExpressionsForModules()[['summStats']], file, na = "")})
   output$buttonSaveTableModulesRaw <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Raw.csv")},
-    content = function(file) {write.csv(geneExpressionsForModules()[['expressions']], file, row.names = FALSE)})
+    content = function(file) {write_excel_csv(geneExpressionsForModules()[['expressions']], file, na = "")})
   
   output$buttonSaveTableModulesSummaryPlot <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Table.png")},
     content = function(file) {plotDataTable(geneExpressionsForModules()[['summStats']],file,10.9,input$checkboxHiRes_modulessummary)})
@@ -786,7 +801,7 @@ observeEvent(
   
   
   output$buttonSaveTableModulesGenes <- downloadHandler(filename = function(){paste0("Selected Genes-",input$selectModuleForGenes,"-Genes.csv")},
-     content = function(file) {write.csv(expressionsInModule(), file, row.names = FALSE)})
+     content = function(file) {write_excel_csv(expressionsInModule(), file, na = "")})
   
   ggplotModuleGenes <- reactive({plotModuleGenes(expressionsInModule(),isolate(input$selectModuleForGenes),
                                 dataAndFiltersText(),input$checkboxShowLegendModuleGenes, input$checkboxShowZeroModuleGenes,
@@ -868,7 +883,7 @@ observeEvent(
   
   
   output$buttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected Genes-Modules Series.csv")},
-    content = function(file) {write.csv(moduleValues, file, row.names = FALSE)})
+    content = function(file) {write_excel_csv(moduleValues, file, na = "")})
   
   observeEvent(input$buttonAddAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = mods4Genes())})
   observeEvent(input$buttonRemoveAllModulesModuleSeries,{updateSelectInput(session, 'selectModuleForSeries', selected = character(0))})
@@ -960,7 +975,7 @@ observeEvent(
   
   output$buttonSaveTablemuscle_filteredSortedProbesTidyMuscle <- downloadHandler(
     filename = function(){paste0(tissueVaccineHourFilteredMuscle(),".csv")},
-    content = function(file) {write.csv(filteredSortedProbesTidyMuscle(), file, row.names = FALSE)})
+    content = function(file) {write_excel_csv(filteredSortedProbesTidyMuscle(), file, na = "")})
   
   ############################## Gene Lookup ###########
   assign("lookedupGenes",NULL, envir = .GlobalEnv)
@@ -971,7 +986,8 @@ observeEvent(
                                              select(allData$data,-contains("_")) ,
                                              input$pickerGeneProbeLookup,
                                              input$checkboxGeneLookupWholeWord,
-                                             input$checkboxGeneLookupStripSpaces),
+                                             TRUE # we always trim spaces input$checkboxGeneLookupStripSpaces
+                                             ),
            envir = .GlobalEnv)
     output$datatableGeneLookup <- renderDataTable({lookedupGenes})
   })
@@ -983,7 +999,7 @@ observeEvent(
   })
 
   output$buttonSaveTableGeneLookup <- downloadHandler(filename = function(){paste0("Gene Lookup.csv")},
-   content = function(file) {write.csv(lookedupGenes, file, row.names = FALSE)})
+   content = function(file) {write_excel_csv(lookedupGenes, file, na = "")})
   
   
   ############################## Network ###########
@@ -1337,7 +1353,7 @@ output$buttonSaveTableTopModulesUOnlypPlot <- downloadHandler(filename = functio
   content = function(file) {plotDataTable(select(topModulesSelected(),Rank:Category),file,10.9,input$checkboxHiRes_mmodulesplot)})
 
 output$mbuttonSaveTableModules <- downloadHandler(filename = function(){paste0("Selected By Modules.csv")},
-  content = function(file) {write.csv(topModulesSelected(), file, row.names = FALSE)})
+  content = function(file) {write_excel_csv(topModulesSelected(), file, na = "")})
 
 ## amendThisNow
 output$mbuttonSaveListTopModules <- downloadHandler(filename = function(){paste0("Selected By Modules.txt")},
@@ -1368,7 +1384,7 @@ expressionsInModuleModule <- reactive({getGeneExpressionsInModule(input$mselectM
 # # redraw the table of gene expressions for the module selected
 output$mdatatableModuleGenes <- renderDataTable({select(expressionsInModuleModule(),-Selected)})
 output$buttonSaveTableModulesGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".csv")},
-                                                      content = function(file) {write.csv(expressionsInModuleModule(), file, row.names = FALSE)})
+                                                      content = function(file) {write_excel_csv(expressionsInModuleModule(), file, na = "")})
 
 output$mbuttonTopModulesGenesList <- downloadHandler(filename = function(){paste0("Genes In ",input$mselectModuleForGenes,".txt")},
   content = function(file) {write_lines(paste0(paste(rev(unique(expressionsInModuleModule()[['Gene']])), collapse = ','),'\n\n# ',
@@ -1469,7 +1485,7 @@ observeEvent(input$mbuttonRemoveAllModulesModuleSeries,{updateSelectInput(sessio
 
 
 output$mbuttonSaveTableModulesSeries <- downloadHandler(filename = function(){paste0("Selected By Modules Series.csv")},
-  content = function(file) {write.csv(ggplotSelectedModulesSeries[['table']], file, row.names = FALSE)})
+  content = function(file) {write_excel_csv(ggplotSelectedModulesSeries[['table']], file, na = "")})
 
 output$mbuttonSaveListTopModuleTitlesSeries <- downloadHandler(filename = function(){paste0("Selected By Modules Titles For Series.txt")},
  content = function(file) {write_lines(paste0(paste(unique(input$mselectModuleTitles), collapse = ','),'\n\n# ',dataFilterStr('m')), file)})
@@ -1500,7 +1516,7 @@ observeEvent({
 })
 
 output$mbuttonSaveTableModuleLookup <- downloadHandler(filename = function(){paste0("Module Lookup.csv")},
-  content = function(file) {write.csv(lookedupMods, file, row.names = FALSE)})
+  content = function(file) {write_excel_csv(lookedupMods, file, na = "")})
 
 
 
@@ -1576,7 +1592,7 @@ output$buttonPNGplotCellsSeries <- downloadHandler(filename = function(){paste0(
                                          input$checkboxHiRes_cells)})
 
 output$buttonSaveTableCellsSeries <- downloadHandler(filename = function(){paste0("Cell Kinetics.csv")},
-  content = function(file) {write.csv(ggplotSelectedCellsSeries[['table']], file, row.names = FALSE)})
+  content = function(file) {write_excel_csv(ggplotSelectedCellsSeries[['table']], file, na = "")})
 
 #################### Cytokines #########################
 
@@ -1623,7 +1639,7 @@ output$cbuttonPNGplotCytokines <- downloadHandler(filename = function(){paste0("
                                          input$checkboxHiRes_cytokines)})
 
 output$buttonSaveTableCytokines <- downloadHandler(filename = function(){paste0("Selected Cytokines.csv")},
-  content = function(file) {write.csv(cytokinesDataAndPlot$data, file, row.names = FALSE)})
+  content = function(file) {write_excel_csv(cytokinesDataAndPlot$data, file, na = "")})
 
 observeEvent(input$cbuttonAddAllCytokines,{updateSelectInput(session, 'cselectCytokines', selected = sort(unique(cytokines[["Fold Increase"]][["CYTOKINE"]])))})
 observeEvent(input$cbuttonAddNoneCytokines,{updateSelectInput(session, 'cselectCytokines', selected = character(0))})
