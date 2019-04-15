@@ -132,7 +132,7 @@ getNewData <- function(allData, folderNme) {
   
   
   if (file.exists(dataPath)) {
-    showNotification("Please wait for data to load…", type = 'message', duration = 6)
+    showNotification("Please wait for data to load…", type = 'message', duration = 120, id = "dataLoadingNotification")
 
     allData$data<- read_rds(dataPath)
 
@@ -407,6 +407,10 @@ getGenesForValues <- function(genes,Min,Max){
 }
 
 getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
+  # kinetics is going to have days not present in the vaccine's days, so we intersect those with the actual column names
+  # kinetics <- kinetics[str_split_fixed(intersect(paste0(vacc,"_",names(kinetics)),colnames(data2Match)),"_",2)[,2]]
+  kinetics <- kinetics[paste0(vacc,"_",names(kinetics)) %in% colnames(data2Match)]
+  # kinetics is now safe to make a DF as it has lost irrelevant days
   kineticsdf <-  kineticsDF(kinetics, TRUE)
   
   col2match <- ifelse(asGenes == TRUE,"Gene","ProbeName")

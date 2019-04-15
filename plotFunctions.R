@@ -474,18 +474,28 @@ plotPlotPNG <- function(plot2plot,file, h,w, gridDraw,highRes = TRUE) {
   }
 }
 
-getGGplotShapeMiniplot <- function(kinetics,dataValueRange) {
+getGGplotShapeMiniplot <- function(kinetics,dataValueRange,vacSelected,colNames) {
   if(is.null(kinetics)) return(NULL)
   df <-  kineticsDF(kinetics) %>%
-    mutate(DayF = 1:length(Day))
-    
-    plot <- ggplot(df, aes(xmin = DayF-0.4, xmax = DayF+0.4, ymin = Min, ymax = Max)) +
+    mutate(
+      DayIndex = 1:length(Day),
+      DayPresent = (paste0(vacSelected,"_",Day) %in% colNames == TRUE),
+      Status = case_when(
+        DayPresent == FALSE ~ "DayAbsent",
+        Exclude == TRUE ~ "Exclude",
+        TRUE ~ "Include")
+      )
+  colourFillScale <- c(DayAbsent = "white", Exclude = 'white', Include = "#f9b800",`TRUE` = 'black',`FALSE` = 'white')
+  colourLineScale <- c(DayAbsent = "white", Exclude = 'grey20', Include = "#f9b800",`TRUE` = 'black',`FALSE` = 'white')
+  plot <- ggplot(df, aes(xmin = DayIndex-0.4, xmax = DayIndex+0.4, ymin = Min, ymax = Max)) +
       theme(axis.title = element_blank()) +
-      scale_x_continuous(labels = as.character(df$Day),breaks = df$DayF) +
-      geom_rect(mapping = aes(fill = Exclude, color = Exclude), alpha = 0.3, show.legend = FALSE) +
-      geom_point(aes(x = DayF, y = Y), shape = 8, size = 3) +
-      scale_fill_manual(values = c(`TRUE` = "white", `FALSE` = "#f9b800")) +
-      scale_color_manual(values = c(`TRUE` = "grey20", `FALSE` = "#f9b800")) +
+      scale_x_continuous(labels = as.character(df$Day),breaks = df$DayIndex) +
+      geom_rect(mapping = aes(fill = Status, color = Status), alpha = 0.3, show.legend = FALSE) +
+      geom_point(aes(x = DayIndex, y = Y, color = DayPresent), shape = 8, size = 3, show.legend = FALSE) +
+      scale_fill_manual(values = colourFillScale) +
+      scale_color_manual(values = colourLineScale) +
+      # scale_fill_manual(values = c(`TRUE` = "white", `FALSE` = "#f9b800")) +
+      # scale_color_manual(values = c(`TRUE` = "grey20", `FALSE` = "#f9b800")) +
       geom_hline(yintercept = c(dataValueRange[["Min"]],dataValueRange[["Max"]]), linetype = 2, color = 'grey50')
   
   return(plot)

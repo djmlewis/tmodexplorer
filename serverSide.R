@@ -20,6 +20,7 @@ server <- function(input, output, session) {
     hideTab(inputId = "navbarTop", target = "Password")
   }
   
+  
   assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   assign("expressionValueRangeVaccDay",list(Max = 0, Min = 0), envir = .GlobalEnv)
   expressionValueRangeVaccAllDays <- reactiveVal(list(Max = 0, Min = 0))
@@ -55,6 +56,11 @@ server <- function(input, output, session) {
   updatePickerInput(session, 'selectDataFI', choices = files) # list(`Fold Increase From Baseline` = files[grepl("Fold", files)], `Raw Expression Values` = files[!grepl("Fold", files)]))
 
   allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, muscleIndividuals = NULL)
+  
+  observeEvent(allData$data, {
+    removeNotification(id = "dataLoadingNotification",session)
+  }, ignoreInit = TRUE, ignoreNULL = TRUE)
+  
   observeEvent(input$buttonLoadDataFI, {if (getNewData(allData,input$selectDataFI) == TRUE) {updateLoadControls()}},ignoreInit = TRUE)
 
   output$buttonsavedatatableAll <- downloadHandler(filename = function(){paste0(allData$folder,".csv")},
@@ -80,15 +86,17 @@ server <- function(input, output, session) {
       modrange <- getMaxMinValueFromModulesData(allData,c(selCol), input$mcheckboxModuleMedians)
       updateNumericInput(session,'mnumberExpressionMin',value = modrange[['Min']])
       updateNumericInput(session,'mnumberExpressionMax',value = modrange[['Max']])
-      # removeNotification(id = "updateModuleMinMax")
-      # showNotification(id = "updateModuleMinMax", paste0("Module Max Min Reset To ", ifelse(length(selCol)==1,"Selected Column","Whole Dataset"), " Max Min"))
     }
   }
   
   # KINETICS MATCHING ###############
   assign("copiedDayKinetics",NULL, envir = .GlobalEnv)
   
-  
+  output$vaccineHasDay <- reactive({paste0(input$selectColumnVaccine,"_",input$selectShapeDay) %in% allData$colNames})
+  # to access vaccineHasDay in GUI we need to force it to recalculate even though its not rendered in the GUI
+  outputOptions(output, "vaccineHasDay", suspendWhenHidden = FALSE)
+  output$textVaccineHasDay <- renderText({paste(input$selectShapeDay,"not available for",input$selectColumnVaccine)})
+
   vaccDaysInDataset <- function() {
     vaccinesDaysFromColNames(allData$colNames)$days
   }
@@ -110,8 +118,8 @@ server <- function(input, output, session) {
     days <- vaccDaysInDataset()
     set_names(replicate(length(days),
                         {tibble(Min = data[["Min"]],
-                                    Max = data[["Max"]], 
-                                    Exclude = FALSE)}, 
+                                Max = data[["Max"]], 
+                                Exclude = FALSE)}, 
                         simplify = FALSE),
               days)
   }
@@ -208,7 +216,7 @@ server <- function(input, output, session) {
       df <-  kineticsDF(shapeKinetics()) %>%
         mutate(DayF = 1:length(Day))
       res <- nearPoints(df, input$click_plotShapeMiniplot, xvar = "DayF", yvar = "Y", maxpoints = 1,threshold = 10) 
-      if(nrow(res)>0) {
+      if(nrow(res)>0 && paste0(input$selectColumnVaccine,"_",res$Day[1]) %in% allData$colNames) {
         updatePickerInput(session,"selectShapeDay", selected = as.character(res$Day[1]))
       }
     },ignoreInit = TRUE,ignoreNULL = TRUE)
@@ -219,7 +227,7 @@ server <- function(input, output, session) {
       df <-  kineticsDF(shapeKinetics()) %>%
         mutate(DayF = 1:length(Day))
       res <- nearPoints(df, input$dblclick_plotShapeMiniplot, xvar = "DayF", yvar = "Y", maxpoints = 1,threshold = 10) 
-      if(nrow(res)>0) {
+      if(nrow(res)>0 && paste0(input$selectColumnVaccine,"_",res$Day[1]) %in% allData$colNames) {
         # dayF is an index 1...ndays. Use that to lookup the index of day that has the Day value
         selday <- as.character(res$Day[1])
         selKinDF <- shapeKinetics()[[selday]]
@@ -268,7 +276,7 @@ server <- function(input, output, session) {
    })
   
   
-  ggPlotShapeMiniplot <- reactive({getGGplotShapeMiniplot(shapeKinetics(),expressionValueRangeVaccAllDays())})
+  ggPlotShapeMiniplot <- reactive({getGGplotShapeMiniplot(shapeKinetics(),expressionValueRangeVaccAllDays(),input$selectColumnVaccine,colnames(allData$data))})
   output$plotShapeMiniplot <- renderPlot({ggPlotShapeMiniplot()})
   
   

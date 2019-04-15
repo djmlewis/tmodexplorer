@@ -111,7 +111,7 @@ ui <-
                                                   column(4,awesomeCheckbox(status = 'success', 'checkboxDescending', label = h4(style = "margin-top: 0px;font-weight: bold;",'Sort Descending'), value = TRUE))
                                                   )))
                                            ),# vacc day
-                                           ### searches 1 & 2
+                                           ### searches VALUE and ROWS
                                                fluidRow(
                                                 column(10,
                                                       conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
@@ -139,6 +139,7 @@ ui <-
                                                          )
                                                         ),
                                                         conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
+                                                        # KINETICS
                                                         fluidRow(
                                                           column(5,
                                                             conditionalPanel(condition = "input.checkboxRowsAnyDay == true",
@@ -150,21 +151,24 @@ ui <-
                                                             fluidRow(
                                                               column(2, actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
                                                               column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                                               column(5,awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE))
+                                                               column(5,conditionalPanel(condition = "output.vaccineHasDay",awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE)))
                                                             ),
-                                                            fluidRow(  
-                                                              conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                                                               column(6,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
-                                                                               column(6,numericInput("numberShapeDayMax", "Highest:", value = 0)))
-                                                            ),
-                                                            fluidRow(
-                                                              column(6, 
-                                                                     actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-warning'),
-                                                                     actionButton('buttonPasteValuesShapeData',NULL, icon = icon("paste"), class = 'btn-warning')),
-                                                              conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                                              column(6, 
-                                                                actionButton('buttonResetValuesShapeVaccine',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
-                                                                actionButton('buttonResetValuesShapeData',NULL, icon = icon("folder-open"),class = 'btn-outline-primary')))
+                                                            conditionalPanel(condition = "output.vaccineHasDay == false",h4(textOutput("textVaccineHasDay"))),
+                                                            conditionalPanel(condition = "output.vaccineHasDay",
+                                                              fluidRow(  
+                                                                conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                                                 column(6,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
+                                                                                 column(6,numericInput("numberShapeDayMax", "Highest:", value = 0)))
+                                                              ),
+                                                              fluidRow(
+                                                                column(6, 
+                                                                       actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-warning'),
+                                                                       actionButton('buttonPasteValuesShapeData',NULL, icon = icon("paste"), class = 'btn-warning')),
+                                                                conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                                column(6, 
+                                                                  actionButton('buttonResetValuesShapeVaccine',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
+                                                                  actionButton('buttonResetValuesShapeData',NULL, icon = icon("folder-open"),class = 'btn-outline-primary')))
+                                                              )
                                                             )
                                                           )),
                                                         fluidRow(style = "margin-top: 10px;",
