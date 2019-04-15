@@ -90,9 +90,14 @@ server <- function(input, output, session) {
   }
   
   # KINETICS MATCHING ###############
+  
+  vaccineHasThisDay <- function(vax,day){
+    return(paste0(vax,"_",day) %in% allData$colNames)
+  }
+  
   assign("copiedDayKinetics",NULL, envir = .GlobalEnv)
   
-  output$vaccineHasDay <- reactive({paste0(input$selectColumnVaccine,"_",input$selectShapeDay) %in% allData$colNames})
+  output$vaccineHasDay <- reactive({vaccineHasThisDay(input$selectColumnVaccine,input$selectShapeDay)})#paste0(input$selectColumnVaccine,"_",input$selectShapeDay) %in% allData$colNames})
   # to access vaccineHasDay in GUI we need to force it to recalculate even though its not rendered in the GUI
   outputOptions(output, "vaccineHasDay", suspendWhenHidden = FALSE)
   output$textVaccineHasDay <- renderText({paste(input$selectShapeDay,"not available for",input$selectColumnVaccine)})
@@ -216,7 +221,7 @@ server <- function(input, output, session) {
       df <-  kineticsDF(shapeKinetics()) %>%
         mutate(DayF = 1:length(Day))
       res <- nearPoints(df, input$click_plotShapeMiniplot, xvar = "DayF", yvar = "Y", maxpoints = 1,threshold = 10) 
-      if(nrow(res)>0 && paste0(input$selectColumnVaccine,"_",res$Day[1]) %in% allData$colNames) {
+      if(nrow(res)>0 && vaccineHasThisDay(input$selectColumnVaccine,res$Day[1])){ #paste0(input$selectColumnVaccine,"_",res$Day[1]) %in% allData$colNames) {
         updatePickerInput(session,"selectShapeDay", selected = as.character(res$Day[1]))
       }
     },ignoreInit = TRUE,ignoreNULL = TRUE)
@@ -227,7 +232,7 @@ server <- function(input, output, session) {
       df <-  kineticsDF(shapeKinetics()) %>%
         mutate(DayF = 1:length(Day))
       res <- nearPoints(df, input$dblclick_plotShapeMiniplot, xvar = "DayF", yvar = "Y", maxpoints = 1,threshold = 10) 
-      if(nrow(res)>0 && paste0(input$selectColumnVaccine,"_",res$Day[1]) %in% allData$colNames) {
+      if(nrow(res)>0 && vaccineHasThisDay(input$selectColumnVaccine,res$Day[1])){ #paste0(input$selectColumnVaccine,"_",res$Day[1]) %in% allData$colNames) {
         # dayF is an index 1...ndays. Use that to lookup the index of day that has the Day value
         selday <- as.character(res$Day[1])
         selKinDF <- shapeKinetics()[[selday]]
@@ -425,6 +430,7 @@ observeEvent(
   {
     if(is.null(dayPatterns[[input$selectColumnVaccine]])) {showNotification(type = 'error', ui = paste0("There is a problem with data formatting - no day numbers could be found for ",input$selectColumnVaccine))}
     updatePickerInput(session, 'selectColumnDay', choices = dayPatterns[[input$selectColumnVaccine]])
+    updatePickerInput(session, 'selectShapeDay', choices = dayPatterns[[input$selectColumnVaccine]])
     respondToChangeColumn("vacc")
   })
 
