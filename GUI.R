@@ -516,7 +516,80 @@ ui <-
                               fluidRow(column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTablemuscle_filteredSortedProbesTidyMuscle', 'Table')))),
                             hr(),
                             dataTableOutput('muscle_filteredSortedProbesTidyMuscle')
-                         )#tab muscle
+                         ),#tab muscle
+                          #################### GO ###################
+               tabPanel(value = 'GOexplorer', title = span(style = "color: #000000;", "GO"),
+                        h4(style = "margin-top: 10px;",'Gene Ontology Explorer'),
+                                fluidRow(
+                                  column(8,
+                                    wellPanel(style = "background-color: #eeeeee;",
+                                      fluidRow(
+                                        column(10, textInput('go_textInputKeyword', "Genes to GO (ProbeName and other gene identifiers are not recognised)")),
+                                        column(1,style = "margin-top: 25px;",actionBttn('go_buttonGO','GO',style = 'simple', size = 'md', color = 'warning', block = TRUE)),
+                                        column(1,style = "margin-top: 25px;",actionButton('go_buttonClear','Clear'))
+                                      ),
+                                      fluidRow(
+                                        column(4,selectInput(inputId = 'go_select_BP', label = h4("Biological Processes"), choices = NULL, multiple = TRUE)),
+                                        column(4,selectInput(inputId = 'go_select_MF', label = h4("Molecular Functions"), choices = NULL, multiple = TRUE)),
+                                        column(4,selectInput(inputId = 'go_select_CC', label = h4("Cellular Components"), choices = NULL, multiple = TRUE))
+                                      )
+                                    )
+                                  ),
+                                  column(4,
+                                   wellPanel(style = "background-color: #fefdca;",
+                                      fluidRow(style = "margin-bottom: 10px;",
+                                        column(6, 
+                                         conditionalPanel(condition = "output.go_datatableGOSummary != null && input.go_selectColumnDay != null && (input.go_select_BP != null || input.go_select_MF != null || input.go_select_CC != null)",
+                                                          actionBttn('go_buttonPlot','Plot',style = 'simple', size = 'md', color = 'warning', block = TRUE))
+                                         ),
+                                        column(6,div(#style = "margin-top: 20px;",
+                                          actionButton('go_buttonAddAllVaccDays','All', class="btn-outline-primary"),
+                                          actionButton('go_buttonRemoveAllVaccDays','Clear')))
+                                      ),
+                                      fluidRow(
+                                       column(6,pickerInput('go_selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
+                                       column(6,selectInput('go_selectColumnDay', label = NULL, choices = NULL, multiple = TRUE))
+                                       ),
+                                      fluidRow(
+                                        column(6,awesomeCheckbox(status = 'success',inputId = 'go_checkboxGOtermMeans',label =  "GOterm mean", value = FALSE)),
+                                        column(6,awesomeCheckbox(status = 'success',inputId = 'go_checkboxJitterX',label =  "Jitter X", value = TRUE))
+                                      )
+                                   )
+                                )
+                              ),
+                        conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
+                          wellPanel(style = "background-color: #ffffff;",
+                           h4("Genes And GO terms kinetics"),
+                            plotOutput("go_plotGenesSeries"))
+                        ),
+                        conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
+                          fluidRow(style = "margin-bottom: 10px;",
+                            column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatablePlotDataGOtermMeans_download', 'Table')),
+                            column(10,h4("Plot data: GO term means"))
+                          )),
+                          dataTableOutput("go_datatablePlotDataGOtermMeans"),
+                        conditionalPanel(condition = "output.go_datatablePlotData != null",
+                          hr(),
+                          fluidRow(style = "margin-bottom: 10px;",
+                            column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatablePlotData_download', 'Table')),
+                            column(10,h4("Plot data: Gene ~ GOterm means"))
+                          )),
+                          dataTableOutput("go_datatablePlotData"),
+                        conditionalPanel(condition = "output.go_datatableGOSummary != null",
+                          hr(),
+                          fluidRow(style = "margin-bottom: 10px;",
+                            column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatableGOSummary_download', 'Table')),
+                            column(10,h4("GO terms means"))
+                          )),
+                          dataTableOutput("go_datatableGOSummary"),
+                        conditionalPanel(condition = "output.go_datatableGO != null",
+                        hr(),
+                        fluidRow(style = "margin-bottom: 10px;",
+                          column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatableGO_download', 'Table')),
+                          column(10,h4("GO terms Gene Means"))
+                          )),
+                          dataTableOutput("go_datatableGO")
+               )#tab GO
               ) # navProbe
      ),# explore by Probe
      ############## MODULES #################

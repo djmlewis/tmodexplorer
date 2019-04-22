@@ -55,7 +55,17 @@ server <- function(input, output, session) {
   files <- sort(basename(list.dirs(path = 'datafiles', recursive = FALSE)))
   updatePickerInput(session, 'selectDataFI', choices = files) # list(`Fold Increase From Baseline` = files[grepl("Fold", files)], `Raw Expression Values` = files[!grepl("Fold", files)]))
 
-  allData <- reactiveValues(data = NULL,colNames = NULL, folder = NULL,folderpath = NULL, modules = NULL, modulesMeans = NULL, muscleIndividuals = NULL)
+  allData <-
+    reactiveValues(
+      data = NULL,
+      colNames = NULL,
+      folder = NULL,
+      folderpath = NULL,
+      modules = NULL,
+      modulesMeans = NULL,
+      muscleIndividuals = NULL,
+      goData = NULL
+    )
   
   observeEvent(allData$data, {
     removeNotification(id = "dataLoadingNotification",session)
@@ -326,6 +336,7 @@ server <- function(input, output, session) {
     
     vaccDays <- vaccinesDaysFromColNames(allData$colNames)
     updatePickerInput(session, 'selectColumnVaccine', choices = vaccDays$vaccines)
+    updatePickerInput(session, 'go_selectColumnVaccine', choices = vaccDays$vaccines)
     updatePickerInput(session, 'selectVaccNet', choices = vaccDays$vaccines)
     
     updatePickerInput(session, 'selectVacDaysToNet', choices = character(0), selected = character(0))
@@ -506,7 +517,7 @@ observeEvent(
                     # we use filter so if the match is TRUE it is included
                     input$radioKeywordIncludeExclude == "in"
                   )
-                  if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText,'"',input$textInputKeyword,'" ')}
+                  if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText," ",input$radioKeywordIncludeExclude,"clude ",'"',input$textInputKeyword,'" • ')}
                 }
               } 
 
@@ -515,7 +526,7 @@ observeEvent(
               if(selectKinetics == TRUE && dataFrameOK(geneslist)) {
                 geneslist <- getGenesForKinetics(geneslist,shapeKinetics(), input$selectColumnVaccine,input$checkboxProbesGenes)
                 if(dataFrameOK(geneslist)) {
-                  filterSubText <-  paste0(filterSubText," match ",kineticsString(shapeKinetics()))
+                  filterSubText <-  paste0(filterSubText," match ",kineticsString(shapeKinetics())," • ")
                 } 
               }
               
@@ -990,6 +1001,162 @@ observeEvent(
   output$buttonSaveTablemuscle_filteredSortedProbesTidyMuscle <- downloadHandler(
     filename = function(){paste0(tissueVaccineHourFilteredMuscle(),".csv")},
     content = function(file) {write_excel_csv(filteredSortedProbesTidyMuscle(), file, na = "")})
+  #################### GO #########################
+  selectedGOdata <- reactiveVal(NULL)
+  selectedGOdataSummary <- reactiveVal(NULL)
+  plotGOGEdata <- reactiveVal(NULL)
+  plotGOGEdataGOtermMeans <- reactiveVal(NULL)
+  plotGOplot <- reactiveVal(NULL)
+  
+  observeEvent(
+    {
+      input$go_selectColumnVaccine
+    },
+    {
+      if(is.null(dayPatterns[[input$selectColumnVaccine]])) {showNotification(type = 'error', ui = paste0("There is a problem with data formatting - no day numbers could be found for ",input$selectColumnVaccine))}
+      updateSelectInput(session, 'go_selectColumnDay', choices = dayPatterns[[input$go_selectColumnVaccine]], selected = character(0))
+    })
+  
+  observeEvent(
+    input$go_buttonClear,
+    {
+      updateTextInput(session, 'go_textInputKeyword', value = character(0))
+      selectedGOdata(NULL)
+    },ignoreNULL = TRUE, ignoreInit = TRUE
+  )
+  
+  observeEvent(input$go_buttonAddAllVaccDays,{updateSelectInput(session, 'go_selectColumnDay', selected = dayPatterns[[input$go_selectColumnVaccine]])})
+  observeEvent(input$go_buttonRemoveAllVaccDays,{updateSelectInput(session, 'go_selectColumnDay', selected = character(0))})
+  
+  
+  observeEvent(
+    selectedGOdata(),
+    {
+      removeNotification("calcGOnotify")
+    }, ignoreNULL = FALSE,ignoreInit = TRUE
+  )
+  observeEvent(
+    plotGOplot(),
+    {
+      removeNotification("plotGOnotify")
+    }, ignoreNULL = FALSE,ignoreInit = TRUE
+  )
+  
+  observeEvent(
+    input$go_buttonPlot,
+    {
+      plotGOplot(NULL)
+      showNotification("Please wait while GO terms are plotted …",id = "plotGOnotify",duration = 120)
+      selectedgodata <- selectedGOdata()# %>%
+          #select(-GOaccession)
+        GEdataSelectedDays <- allData$data %>%
+          select(Gene,paste(input$go_selectColumnVaccine,input$go_selectColumnDay,sep = "_"))
+        
+        # c() ignores NULL
+        goAllData <- 
+          map_dfr(c(input$go_select_CC,input$go_select_MF,input$go_select_BP), function(goterm){
+            genes4goterm <- selectedgodata %>%
+              filter(
+                GOterm == goterm
+              )
+    
+            GEdataForDaysGOterm <- GEdataSelectedDays %>%
+              filter(Gene %in% unique(genes4goterm$Gene)) %>%
+              group_by(Gene) %>%
+              # summarise mean but could split probes here
+              summarise_if(is.numeric,mean,na.rm = TRUE)
+    
+            GEdataAndGOterms <- full_join(genes4goterm,GEdataForDaysGOterm, by = "Gene")
+    
+            GEdataAndGOterms <- GEdataAndGOterms %>%
+              gather(key = "Day", value = "Expression", -c(Gene,GOterm,GOdomain,GOaccession), convert = FALSE,factor_key = FALSE) %>%
+              mutate(
+                Day = as.numeric(gsub(paste0(input$go_selectColumnVaccine,"_"),"",Day)),
+                # make an unique gene-term so we can plot genes that map several terms separately
+                GeneGOaccession = paste(Gene, GOaccession)
+                )
+        })
+      plotGOGEdata(goAllData)
+      goAllDataTerms <- goAllData %>%
+        group_by(GOterm,Day) %>%
+        summarise(Expression = mean(Expression, na.rm = TRUE))
+      plotGOGEdataGOtermMeans(goAllDataTerms)
+      
+      plotGOplot(ggplotGO(
+        data2plot = if(input$go_checkboxGOtermMeans == TRUE) goAllDataTerms else goAllData,
+        jitterX = input$go_checkboxJitterX,
+        Grouper = if_else(input$go_checkboxGOtermMeans, "GOterm", "GeneGOaccession")
+      ))
+      
+    },ignoreNULL = TRUE, ignoreInit = TRUE
+  )
+  
+  observeEvent(input$go_buttonGO,
+     {
+       if(!is.null(allData$goData)) {
+         selectedGOdata(NULL)
+        showNotification("Please wait while GO terms filtered…",id = "calcGOnotify",duration = 120)
+         search <- getSearchItemsFromCommaList(input$go_textInputKeyword,wholeWord = FALSE,stripSpaces = TRUE,makeUpper = TRUE)
+         godata <- allData$goData %>%
+           filter(Gene %in% search) %>%
+           select(Gene,everything()) %>%
+           arrange(Gene,GOdomain,GOaccession,GOterm)
+         selectedGOdata(godata)
+         
+         godataNgenes <- godata %>%
+           group_by(GOdomain,GOaccession,GOterm) %>%
+           summarise(
+             GeneCount = n(),
+             Genes = paste(Gene, collapse = ",")
+           ) %>%
+           arrange(GOdomain,desc(GeneCount))
+         selectedGOdataSummary(godataNgenes)
+         
+         updateSelectInput(session, 'go_select_MF',choices = filter(godataNgenes,GOdomain == "MF")[["GOterm"]],selected = character(0))
+         updateSelectInput(session, 'go_select_BP',choices = filter(godataNgenes,GOdomain == "BP")[["GOterm"]],selected = character(0))
+         updateSelectInput(session, 'go_select_CC',choices = filter(godataNgenes,GOdomain == "CC")[["GOterm"]],selected = character(0))
+       } else {
+         selectedGOdata(NULL)
+         selectedGOdataSummary(NULL)
+       }
+     }, ignoreInit = TRUE
+  )
+  
+  
+  output$go_plotGenesSeries <- renderPlot({
+    plotGOplot()
+  })
+  output$go_datatablePlotDataGOtermMeans <- renderDataTable({
+    if(is.null(plotGOGEdataGOtermMeans())) return(NULL)
+    plotGOGEdataGOtermMeans()},options = list(pageLength = 10))
+  output$go_datatablePlotDataGOtermMeans_download <- downloadHandler(
+    filename = function(){paste0("GO kinetics plot data GOterm means.csv")},
+    content = function(file) {write_excel_csv(plotGOGEdataGOtermMeans(), file, na = "")})
+  
+  
+  output$go_datatablePlotData <- renderDataTable({
+    if(is.null(plotGOGEdata())) return(NULL)
+    select(plotGOGEdata(),-GeneGOaccession)},options = list(pageLength = 10))
+  output$go_datatablePlotData_download <- downloadHandler(
+    filename = function(){paste0("GO kinetics plot data.csv")},
+    content = function(file) {write_excel_csv(plotGOGEdata(), file, na = "")})
+  
+  
+  output$go_datatableGO <- renderDataTable({
+    if(is.null(selectedGOdata())) return(NULL)
+    selectedGOdata()},options = list(pageLength = 10))
+  output$go_datatableGO_download <- downloadHandler(
+    filename = function(){paste0("GOterms for genes data.csv")},
+    content = function(file) {write_excel_csv(selectedGOdata(), file, na = "")})
+  
+  
+  output$go_datatableGOSummary <- renderDataTable({
+    if(is.null(selectedGOdataSummary())) return(NULL)
+    selectedGOdataSummary()},options = list(pageLength = 10))
+  output$go_datatableGOSummary_download <- downloadHandler(
+    filename = function(){paste0("GOterms summary data.csv")},
+    content = function(file) {write_excel_csv(selectedGOdataSummary(), file, na = "")})
+  
   
   ############################## Gene Lookup ###########
   assign("lookedupGenes",NULL, envir = .GlobalEnv)

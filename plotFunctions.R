@@ -501,3 +501,27 @@ getGGplotShapeMiniplot <- function(kinetics,dataValueRange,vacSelected,colNames)
   return(plot)
 }
 
+ggplotGO <- function(data2plot,jitterX,Grouper){
+    if(is.null(data2plot)) return(NULL)
+    jitType <- if(jitterX == TRUE) position_jitter(width = 0.3, height = 0) else "identity"
+    plt <- ggplot(data = data2plot,mapping = aes_string(x = 'Day', y = 'Expression', group = Grouper)) +
+      theme_bw() + 
+      theme(
+        panel.grid = element_blank(),
+        panel.grid.major.x = element_line(linetype = "dotted", color = 'grey50', size = 0.25),
+        axis.title = element_text(size = 16, face = "bold"),
+        strip.text = element_text(size = 14),
+        axis.line.x = element_line(size = 1),
+        axis.line.y = element_line(size = 1),
+        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 16),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 14)
+        )  +
+      geom_hline(yintercept = 0, linetype = "dashed", color = 'grey50', size = 0.5) +
+      geom_line(aes(color = GOterm),position = jitType, size = 1) +
+      scale_x_continuous(breaks = unique(data2plot$Day)) +
+      scale_color_discrete(name = "GO term")
+
+    return(plt)
+}

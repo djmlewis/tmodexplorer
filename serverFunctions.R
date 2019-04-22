@@ -129,7 +129,7 @@ getNewData <- function(allData, folderNme) {
   modPath <- file.path(folderpath, 'modules.rds')
   modmeanPath <- file.path(folderpath, 'modulesMeans.rds')
   musclePath <- file.path(folderpath, 'FC_muscle_individuals.rds')
-  
+  goDataPath <- file.path(folderpath, 'GO.rds')
   
   if (file.exists(dataPath)) {
     showNotification("Please wait for data to load…", type = 'message', duration = 120, id = "dataLoadingNotification")
@@ -152,6 +152,11 @@ getNewData <- function(allData, folderNme) {
     # try for muscle
     if (file.exists(musclePath)) {
       allData$muscleIndividuals <- read_rds(musclePath)
+    }
+    
+    # try for GO
+    if (file.exists(goDataPath)) {
+      allData$goData <- read_rds(goDataPath)
     }
     
     return(TRUE)
@@ -442,46 +447,26 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 
 }
 
-
-getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces, includeSearch){
-  if(is.null(geneslist) || is.null(search)) return(NULL)
+getSearchItemsFromCommaList <- function(search,wholeWord,stripSpaces, makeUpper = FALSE){
+  if(is.null(search)) return(NULL)
+  if(makeUpper) search <- toupper(search)
   # unlist and stringsplit does not affect a single string, but turns comma separated searches into a vector
   search <- unlist(strsplit(search,',')) 
   # trim spaces from genes and probes
   if(stripSpaces == TRUE) search <- trimws(search, which = "both")#gsub(" ","",search)
   if(wholeWord == TRUE) search <- paste0("^",search,"$")
+  return(search)
+}
+
+getGenesForSearch <- function(geneslist,search,column,wholeWord, stripSpaces, includeSearch){
+  if(is.null(geneslist) || is.null(search)) return(NULL)
+  # unlist and stringsplit does not affect a single string, but turns comma separated searches into a vector
+  search <- getSearchItemsFromCommaList(search,wholeWord,stripSpaces)
+  if(is.null(search)) return(NULL)
+  
   rowIndices <- unlist(map(search, ~grep(.,geneslist[[column]], ignore.case = TRUE)))
   if(includeSearch == TRUE) selGenes <- geneslist[rowIndices,]
   else selGenes <- geneslist[-rowIndices,]
-  # if(nrow(selGenes)>0) selGenes <- distinct(selGenes, ProbeName, .keep_all = TRUE)
-    # # selGenes <- map_dfr(
-    #   #   searches,
-    #   #   function(s){
-    #   #     geneslist[grepl(s,geneslist[[column]], ignore.case = TRUE),]
-    #   #   }
-    #   # )
-    #   # if(nrow(selGenes)>0) {
-    #   #   selGenes <- distinct(selGenes, ProbeName, .keep_all = TRUE)
-    #   # }
-    # } else {
-    #   selGenes <- geneslist[-rowIndices,]
-    #   # selGenes <- geneslist
-    #   # walk(
-    #   #   searches,
-    #   #   function(s){
-    #   #     selGenes <<- selGenes[grepl(s,selGenes[[column]], ignore.case = TRUE) == FALSE,]
-    #   #   })
-    # }
-  
-  # } else {
-  #   if(wholeWord == TRUE) {
-  #     search <- paste0("^",search,"$")
-  #   }
-  #   # no duplicates possible for single search term
-  #   # selGenes <- geneslist[xor(grepl(search,geneslist[[column]], ignore.case = TRUE),includeSearch),]
-  #   selGenes <- filter(geneslist,grepl(search,geneslist[[column]], ignore.case = TRUE) == includeSearch)
-  # }
-  
   return(selGenes)
 }
 
