@@ -272,7 +272,8 @@ ui <-
                                                column(2, downloadButton(class="btn-warning btn-block",'buttonPNGplotTopGenesSeries', 'PNG')),
                                                column(2,awesomeCheckbox(status = 'warning', 'checkboxHiRes_topgenesseries', 'HiRes', value = TRUE),
                                                       bsTooltip("buttonPNGplotTopGenesSeries","Use HiRes checkbox to set 300 or 72 dpi")),
-                                               column(4, offset = 4, style = 
+                                               column(4, 
+                                                      offset = 4, style = 
                                                         "background-color: #f8ffeb; 
                                                         border: 1px solid #eaeaea;
                                                         white-space: -moz-pre-wrap !important;  
@@ -524,7 +525,7 @@ ui <-
                                   column(8,
                                     wellPanel(style = "background-color: #eeeeee;",
                                       fluidRow(
-                                        column(10, textInput('go_textInputKeyword', "Genes to GO (ProbeName and other gene identifiers are not recognised)")),
+                                        column(10, textInput('go_textInputKeyword', "GeneSymbols to GO (other gene identifiers are not recognised)")),
                                         column(1,style = "margin-top: 25px;",actionBttn('go_buttonGO','GO',style = 'simple', size = 'md', color = 'warning', block = TRUE)),
                                         column(1,style = "margin-top: 25px;",actionButton('go_buttonClear','Clear'))
                                       ),
@@ -551,16 +552,58 @@ ui <-
                                        column(6,selectInput('go_selectColumnDay', label = NULL, choices = NULL, multiple = TRUE))
                                        ),
                                       fluidRow(
-                                        column(6,awesomeCheckbox(status = 'success',inputId = 'go_checkboxGOtermMeans',label =  "GOterm mean", value = FALSE)),
-                                        column(6,awesomeCheckbox(status = 'success',inputId = 'go_checkboxJitterX',label =  "Jitter X", value = TRUE))
+                                        column(6, conditionalPanel(condition = "input.go_checkboxGOtermMeans == false",
+                                               awesomeCheckbox(status = 'success',inputId = 'go_checkboxJitterX',label =  "Jitter X", value = TRUE))),
+                                        column(6,awesomeCheckbox(status = 'success',inputId = 'go_checkboxGOtermMeans',label =  "GOterm mean", value = FALSE))
                                       )
                                    )
                                 )
                               ),
                         conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
                           wellPanel(style = "background-color: #ffffff;",
-                           h4("Genes And GO terms kinetics"),
+                          fluidRow(
+                            column(8,h4("Genes And GO terms kinetics")),
+                            column(2,downloadButton(class="btn-warning btn-block",'go_plotGenesSeries_download', 'PNG')),
+                            column(2,awesomeCheckbox(status = 'warning', 'checkboxHiRes_go_plotGenesSeries', 'HiRes', value = TRUE),
+                                   bsTooltip("go_plotGenesSeries_download","Use HiRes checkbox to set 300 or 72 dpi"))
+                          ),
                             plotOutput("go_plotGenesSeries"))
+                        ),
+                        div(
+                               # border: 1px solid #2c4400;
+                               style = 
+                                 "background-color: #ecffcb; 
+                                                  color: #2c4400;
+                                                  white-space: -moz-pre-wrap !important;  
+                                                  white-space: -webkit-pre-wrap;
+                                                  white-space: -pre-wrap;
+                                                  white-space: -o-pre-wrap;
+                                                  white-space: pre-wrap; 
+                                                  word-wrap: break-word;
+                                                  word-break: break-all;
+                                                  white-space: normal;
+                                                  max-width: 100%;
+                                                  margin-bottom: 1px;
+                                                ",
+                               textOutput("textGOmatched")
+                        ),
+                        div(
+                               # border: 1px solid #821300;
+                               style = 
+                                 "background-color: #ffd4cd; 
+                                                  color: #821300;
+                                                  white-space: -moz-pre-wrap !important;  
+                                                  white-space: -webkit-pre-wrap;
+                                                  white-space: -pre-wrap;
+                                                  white-space: -o-pre-wrap;
+                                                  white-space: pre-wrap; 
+                                                  word-wrap: break-word;
+                                                  word-break: break-all;
+                                                  white-space: normal;
+                                                  max-width: 100%;
+                                                  margin-bottom: 10px;
+                                                ",
+                               textOutput("textGONotMatched")
                         ),
                         conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
                           fluidRow(style = "margin-bottom: 10px;",

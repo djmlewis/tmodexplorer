@@ -497,7 +497,10 @@ observeEvent(
               geneslist <- allData$data
               
               # take out lincRNA from the start
-              if(input$checkboxExcludeLINC == TRUE) geneslist <- filter(geneslist, lincRNA == FALSE)
+              if(input$checkboxExcludeLINC == TRUE) {
+                geneslist <- filter(geneslist, lincRNA == FALSE)
+                filterSubText <-  paste0(filterSubText,'lincRNA excluded • ')
+              }
               
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
               if(input$checkboxSelectKeyword == TRUE) {
@@ -1007,6 +1010,9 @@ observeEvent(
   plotGOGEdata <- reactiveVal(NULL)
   plotGOGEdataGOtermMeans <- reactiveVal(NULL)
   plotGOplot <- reactiveVal(NULL)
+  textGOmatched <- reactiveVal(NULL)
+  textGONotMatched <- reactiveVal(NULL)
+  
   
   observeEvent(
     {
@@ -1065,7 +1071,7 @@ observeEvent(
               group_by(Gene) %>%
               # summarise mean but could split probes here
               summarise_if(is.numeric,mean,na.rm = TRUE)
-    
+            
             GEdataAndGOterms <- full_join(genes4goterm,GEdataForDaysGOterm, by = "Gene")
     
             GEdataAndGOterms <- GEdataAndGOterms %>%
@@ -1077,13 +1083,22 @@ observeEvent(
                 )
         })
       plotGOGEdata(goAllData)
+      
       goAllDataTerms <- goAllData %>%
         group_by(GOterm,Day) %>%
-        summarise(Expression = mean(Expression, na.rm = TRUE))
+        # summarise(Expression = mean(Expression, na.rm = TRUE))
+        summarise(
+          Ymax = mean_se(Expression)$ymax,
+          Ymin = mean_se(Expression)$ymin,
+          SEM = Ymax-Ymin,
+          Expression = mean_se(Expression)$y
+        )
+      
       plotGOGEdataGOtermMeans(goAllDataTerms)
       
       plotGOplot(ggplotGO(
         data2plot = if(input$go_checkboxGOtermMeans == TRUE) goAllDataTerms else goAllData,
+        ismeans = input$go_checkboxGOtermMeans,
         jitterX = input$go_checkboxJitterX,
         Grouper = if_else(input$go_checkboxGOtermMeans, "GOterm", "GeneGOaccession")
       ))
@@ -1103,6 +1118,10 @@ observeEvent(
            arrange(Gene,GOdomain,GOaccession,GOterm)
          selectedGOdata(godata)
          
+         # set what we did / not find
+         textGOmatched(paste(unique(godata$Gene),collapse = ","))
+         textGONotMatched(paste(setdiff(search,unique(godata$Gene)),collapse = ","))
+
          godataNgenes <- godata %>%
            group_by(GOdomain,GOaccession,GOterm) %>%
            summarise(
@@ -1122,17 +1141,31 @@ observeEvent(
      }, ignoreInit = TRUE
   )
   
+  output$textGOmatched <- renderText({textGOmatched()})
+  output$textGONotMatched <- renderText({textGONotMatched()})
   
   output$go_plotGenesSeries <- renderPlot({
     plotGOplot()
   })
+  
+  output$go_plotGenesSeries_download <- 
+    downloadHandler(filename = function(){paste0("GO kinetics.png")},
+                    content = function(file) {
+                      printPlotPNG(plotGOplot(),
+                                   file,
+                                   session$clientData[["output_go_plotGenesSeries_height"]],
+                                   session$clientData[["output_go_plotGenesSeries_width"]],
+                                   input$checkboxHiRes_go_plotGenesSeries)})
+  
+  
+  
   output$go_datatablePlotDataGOtermMeans <- renderDataTable({
     if(is.null(plotGOGEdataGOtermMeans())) return(NULL)
     plotGOGEdataGOtermMeans()},options = list(pageLength = 10))
   output$go_datatablePlotDataGOtermMeans_download <- downloadHandler(
     filename = function(){paste0("GO kinetics plot data GOterm means.csv")},
     content = function(file) {write_excel_csv(plotGOGEdataGOtermMeans(), file, na = "")})
-  
+
   
   output$go_datatablePlotData <- renderDataTable({
     if(is.null(plotGOGEdata())) return(NULL)
