@@ -1005,6 +1005,7 @@ observeEvent(
     filename = function(){paste0(tissueVaccineHourFilteredMuscle(),".csv")},
     content = function(file) {write_excel_csv(filteredSortedProbesTidyMuscle(), file, na = "")})
   #################### GO #########################
+  assign("goPalette",NULL, envir = .GlobalEnv)
   selectedGOdata <- reactiveVal(NULL)
   selectedGOdataSummary <- reactiveVal(NULL)
   plotGOGEdata <- reactiveVal(NULL)
@@ -1046,6 +1047,44 @@ observeEvent(
     {
       removeNotification("plotGOnotify")
     }, ignoreNULL = FALSE,ignoreInit = TRUE
+  )
+  
+  observeEvent(input$go_buttonGO,
+               {
+                 if(!is.null(allData$goData)) {
+                   selectedGOdata(NULL)
+                   showNotification("Please wait while GO terms filtered…",id = "calcGOnotify",duration = 120)
+                   search <- getSearchItemsFromCommaList(input$go_textInputKeyword,wholeWord = FALSE,stripSpaces = TRUE,makeUpper = TRUE)
+                   godata <- allData$goData %>%
+                     filter(Gene %in% search) %>%
+                     select(Gene,everything()) %>%
+                     arrange(Gene,GOdomain,GOaccession,GOterm)
+                   selectedGOdata(godata)
+                   
+                   gotermsSelected <- sample(unique(godata$GOterm))
+                   assign("goPalette",purrr::set_names(rainbow(length(gotermsSelected)),nm = gotermsSelected), envir = .GlobalEnv)
+                   
+                   # set what we did / not find
+                   textGOmatched(paste(unique(godata$Gene),collapse = ","))
+                   textGONotMatched(paste(setdiff(search,unique(godata$Gene)),collapse = ","))
+                   
+                   godataNgenes <- godata %>%
+                     group_by(GOdomain,GOaccession,GOterm) %>%
+                     summarise(
+                       GeneCount = n(),
+                       Genes = paste(Gene, collapse = ",")
+                     ) %>%
+                     arrange(GOdomain,desc(GeneCount))
+                   selectedGOdataSummary(godataNgenes)
+                   
+                   updateSelectInput(session, 'go_select_MF',choices = filter(godataNgenes,GOdomain == "MF")[["GOterm"]],selected = character(0))
+                   updateSelectInput(session, 'go_select_BP',choices = filter(godataNgenes,GOdomain == "BP")[["GOterm"]],selected = character(0))
+                   updateSelectInput(session, 'go_select_CC',choices = filter(godataNgenes,GOdomain == "CC")[["GOterm"]],selected = character(0))
+                 } else {
+                   selectedGOdata(NULL)
+                   selectedGOdataSummary(NULL)
+                 }
+               }, ignoreInit = TRUE
   )
   
   observeEvent(
@@ -1100,45 +1139,11 @@ observeEvent(
         data2plot = if(input$go_checkboxGOtermMeans == TRUE) goAllDataTerms else goAllData,
         ismeans = input$go_checkboxGOtermMeans,
         jitterX = input$go_checkboxJitterX,
-        Grouper = if_else(input$go_checkboxGOtermMeans, "GOterm", "GeneGOaccession")
+        Grouper = if_else(input$go_checkboxGOtermMeans, "GOterm", "GeneGOaccession"),
+        pal = if(input$go_checkboxUsePalette) goPalette else NULL
       ))
       
     },ignoreNULL = TRUE, ignoreInit = TRUE
-  )
-  
-  observeEvent(input$go_buttonGO,
-     {
-       if(!is.null(allData$goData)) {
-         selectedGOdata(NULL)
-        showNotification("Please wait while GO terms filtered…",id = "calcGOnotify",duration = 120)
-         search <- getSearchItemsFromCommaList(input$go_textInputKeyword,wholeWord = FALSE,stripSpaces = TRUE,makeUpper = TRUE)
-         godata <- allData$goData %>%
-           filter(Gene %in% search) %>%
-           select(Gene,everything()) %>%
-           arrange(Gene,GOdomain,GOaccession,GOterm)
-         selectedGOdata(godata)
-         
-         # set what we did / not find
-         textGOmatched(paste(unique(godata$Gene),collapse = ","))
-         textGONotMatched(paste(setdiff(search,unique(godata$Gene)),collapse = ","))
-
-         godataNgenes <- godata %>%
-           group_by(GOdomain,GOaccession,GOterm) %>%
-           summarise(
-             GeneCount = n(),
-             Genes = paste(Gene, collapse = ",")
-           ) %>%
-           arrange(GOdomain,desc(GeneCount))
-         selectedGOdataSummary(godataNgenes)
-         
-         updateSelectInput(session, 'go_select_MF',choices = filter(godataNgenes,GOdomain == "MF")[["GOterm"]],selected = character(0))
-         updateSelectInput(session, 'go_select_BP',choices = filter(godataNgenes,GOdomain == "BP")[["GOterm"]],selected = character(0))
-         updateSelectInput(session, 'go_select_CC',choices = filter(godataNgenes,GOdomain == "CC")[["GOterm"]],selected = character(0))
-       } else {
-         selectedGOdata(NULL)
-         selectedGOdataSummary(NULL)
-       }
-     }, ignoreInit = TRUE
   )
   
   output$textGOmatched <- renderText({textGOmatched()})

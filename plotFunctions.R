@@ -501,9 +501,10 @@ getGGplotShapeMiniplot <- function(kinetics,dataValueRange,vacSelected,colNames)
   return(plot)
 }
 
-ggplotGO <- function(data2plot,ismeans,jitterX,Grouper){
+ggplotGO <- function(data2plot,ismeans,jitterX,Grouper,pal){
     if(is.null(data2plot)) return(NULL)
-    jitType <- if(jitterX == TRUE && ismeans == FALSE) position_jitter(width = 0.3, height = 0) else "identity"
+
+  jitType <- if(jitterX == TRUE && ismeans == FALSE) position_jitter(width = 0.3, height = 0) else "identity"
     plt <- ggplot(data = data2plot,mapping = aes_string(x = 'Day', group = Grouper)) +
       theme_bw() + 
       theme(
@@ -520,10 +521,19 @@ ggplotGO <- function(data2plot,ismeans,jitterX,Grouper){
         )  +
       geom_hline(yintercept = 0, linetype = "dashed", color = 'grey50', size = 0.5) +
       geom_line(aes(y = Expression, color = GOterm),position = jitType, size = 1) +
-      scale_x_continuous(breaks = unique(data2plot$Day)) +
-      scale_color_discrete(name = "GO term")
-      if(ismeans) plt <- plt +
+      scale_x_continuous(breaks = unique(data2plot$Day))
+    
+      if(ismeans) {
+        plt <- plt +
         geom_ribbon(aes(ymax = Ymax, ymin = Ymin, fill = GOterm), alpha = 0.2, show.legend = FALSE)
+      }
+    
+    if(is.null(pal)) plt <- plt + scale_color_discrete(name = "GO term")
+    else {
+      plt <- plt + 
+        scale_color_manual(name = "GO term",values = pal) +
+        scale_fill_manual(values = pal)
+    }
     
     return(plt)
 }

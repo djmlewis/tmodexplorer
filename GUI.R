@@ -552,9 +552,10 @@ ui <-
                                        column(6,selectInput('go_selectColumnDay', label = NULL, choices = NULL, multiple = TRUE))
                                        ),
                                       fluidRow(
-                                        column(6, conditionalPanel(condition = "input.go_checkboxGOtermMeans == false",
-                                               awesomeCheckbox(status = 'success',inputId = 'go_checkboxJitterX',label =  "Jitter X", value = TRUE))),
-                                        column(6,awesomeCheckbox(status = 'success',inputId = 'go_checkboxGOtermMeans',label =  "GOterm mean", value = FALSE))
+                                        column(4, conditionalPanel(condition = "input.go_checkboxGOtermMeans == false",
+                                               awesomeCheckbox(status = 'success',inputId = 'go_checkboxJitterX',label =  "Jitter", value = TRUE))),
+                                        column(4,awesomeCheckbox(status = 'success',inputId = 'go_checkboxGOtermMeans',label =  "GOterm mean", value = FALSE)),
+                                        column(4,awesomeCheckbox(status = 'success',inputId = 'go_checkboxUsePalette',label =  "Palette", value = TRUE))
                                       )
                                    )
                                 )
