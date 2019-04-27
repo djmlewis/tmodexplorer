@@ -519,122 +519,169 @@ ui <-
                             dataTableOutput('muscle_filteredSortedProbesTidyMuscle')
                          ),#tab muscle
                           #################### GO ###################
-               tabPanel(value = 'GOexplorer', title = span(style = "color: #000000;", "GO"),
-                        h4(style = "margin-top: 10px;",'Gene Ontology Explorer'),
-                                fluidRow(
-                                  column(8,
-                                    wellPanel(style = "background-color: #eeeeee;",
-                                      fluidRow(
-                                        column(10, textInput('go_textInputKeyword', "GeneSymbols to GO (other gene identifiers are not recognised)")),
-                                        column(1,style = "margin-top: 25px;",actionBttn('go_buttonGO','GO',style = 'simple', size = 'md', color = 'warning', block = TRUE)),
-                                        column(1,style = "margin-top: 25px;",actionButton('go_buttonClear','Clear'))
-                                      ),
-                                      fluidRow(
-                                        column(4,selectInput(inputId = 'go_select_BP', label = h4("Biological Processes"), choices = NULL, multiple = TRUE)),
-                                        column(4,selectInput(inputId = 'go_select_MF', label = h4("Molecular Functions"), choices = NULL, multiple = TRUE)),
-                                        column(4,selectInput(inputId = 'go_select_CC', label = h4("Cellular Components"), choices = NULL, multiple = TRUE))
-                                      )
-                                    )
+               tabPanel(value = 'GO', title = span(style = "color: #007b52;", "GO"),
+                  navbarPage(span(style = 'color: #007b52;','GOexplorer'), id = 'navLookup',
+                    tabPanel(value = 'GOA Plot', title = span(style = "color: #FFFFFF;", "GOA Plot"),
+                      navbarPage("",
+                        tabPanel(value = 'Select Annotations', title = "Select Annotations",
+                                 wellPanel(style = "background-color: #eefff9;",
+                                           fluidRow(
+                                             column(8, textInput('go_textInputKeyword', "Enter Genes to annotate (other gene identifiers may not be recognised)")),
+                                             column(2,style = "margin-top: 25px;",actionBttn('go_buttonGO','GO',style = 'simple', size = 'md', color = 'warning', block = TRUE)),
+                                             column(2,style = "margin-top: 25px;",actionButton('go_buttonClear','Clear'))
+                                           ),
+                                          conditionalPanel(condition = "output.go_datatableGOSummary != null",
+                                              p("Matched Genes", style =  "color: #2c4400; margin-bottom: 1px;margin-top: 1px;"),
+                                              div(style = 
+                                              "background-color: #ecffcb; 
+                                              color: #2c4400;
+                                              white-space: -moz-pre-wrap !important;  
+                                              white-space: -webkit-pre-wrap;
+                                              white-space: -pre-wrap;
+                                              white-space: -o-pre-wrap;
+                                              white-space: pre-wrap; 
+                                              word-wrap: break-word;
+                                              word-break: break-all;
+                                              white-space: normal;
+                                              max-width: 100%;
+                                              margin-bottom: 1px;
+                                              margin-top: 1px;
+                                              ",
+                                              textOutput("textGOmatched")),
+                                            
+                                              p("Unmatched Genes", style =  "color: #821300; margin-bottom: 1px;margin-top: 1px;"),
+                                              div(style = 
+                                              "background-color: #ffd4cd; 
+                                              color: #821300;
+                                              white-space: -moz-pre-wrap !important;  
+                                              white-space: -webkit-pre-wrap;
+                                              white-space: -pre-wrap;
+                                              white-space: -o-pre-wrap;
+                                              white-space: pre-wrap; 
+                                              word-wrap: break-word;
+                                              word-break: break-all;
+                                              white-space: normal;
+                                              max-width: 100%;
+                                              margin-bottom: 1px;
+                                              margin-top: 1px;
+                                              ",
+                                              textOutput("textGONotMatched"))
+                                          )
                                   ),
-                                  column(4,
-                                   wellPanel(style = "background-color: #fefdca;",
-                                      fluidRow(style = "margin-bottom: 10px;",
-                                        column(6, 
-                                         conditionalPanel(condition = "output.go_datatableGOSummary != null && input.go_selectColumnDay != null && (input.go_select_BP != null || input.go_select_MF != null || input.go_select_CC != null)",
-                                                          actionBttn('go_buttonPlot','Plot',style = 'simple', size = 'md', color = 'warning', block = TRUE))
-                                         ),
-                                        column(6,div(#style = "margin-top: 20px;",
-                                          actionButton('go_buttonAddAllVaccDays','All', class="btn-outline-primary"),
-                                          actionButton('go_buttonRemoveAllVaccDays','Clear')))
-                                      ),
-                                      fluidRow(
-                                       column(6,pickerInput('go_selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
-                                       column(6,selectInput('go_selectColumnDay', label = NULL, choices = NULL, multiple = TRUE))
-                                       ),
-                                      fluidRow(
-                                        column(4, conditionalPanel(condition = "input.go_checkboxGOtermMeans == false",
-                                               awesomeCheckbox(status = 'success',inputId = 'go_checkboxJitterX',label =  "Jitter", value = TRUE))),
-                                        column(4,awesomeCheckbox(status = 'success',inputId = 'go_checkboxGOtermMeans',label =  "GOterm mean", value = FALSE)),
-                                        column(4,awesomeCheckbox(status = 'success',inputId = 'go_checkboxUsePalette',label =  "Palette", value = TRUE))
-                                      )
-                                   )
+                                 wellPanel(style = "background-color: #fefdca;",
+                                           fluidRow(
+                                             column(4,checkboxGroupInput(inputId = 'go_select_BP', label = h4(style = 'color: #007b52;',"Biological Processes"), choices = NULL, selected = character(0))),
+                                             column(4,checkboxGroupInput(inputId = 'go_select_MF', label = h4(style = 'color: #007b52;',"Molecular Functions"), choices = NULL, selected = character(0))),
+                                             column(4,checkboxGroupInput(inputId = 'go_select_CC', label = h4(style = 'color: #007b52;',"Cellular Components"), choices = NULL, selected = character(0)))
+                                           )
+                                 ),
+                                 conditionalPanel(condition = "output.go_datatableGOSummary != null",
+                                                  hr(),
+                                                  fluidRow(style = "margin-bottom: 10px;",
+                                                           column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatableGOSummary_download', 'Table')),
+                                                           column(10,h4("Mean Log2 Fold Change in Expression of GO annotations"))
+                                                  )),
+                                 dataTableOutput("go_datatableGOSummary"),
+                                 conditionalPanel(condition = "output.go_datatableGO != null",
+                                                  hr(),
+                                                  fluidRow(style = "margin-bottom: 10px;",
+                                                           column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatableGO_download', 'Table')),
+                                                           column(10,h4("Mean Log2 Fold Change in Expression of Individual Genes ~ GO annotations"))
+                                                  )),
+                                 dataTableOutput("go_datatableGO")
+                        ),
+                        tabPanel(value = 'Plot Annotations', title = "Plot Annotations",
+                           wellPanel(style = "background-color: #fefdca;",
+                              fluidRow(
+                                column(3,pickerInput('go_selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
+                                column(5,selectInput('go_selectColumnDay', label = NULL, choices = NULL, multiple = TRUE)),
+                                column(2,div(#style = "margin-top: 20px;",
+                                  actionButton('go_buttonAddAllVaccDays','All', class="btn-outline-primary"),
+                                  actionButton('go_buttonRemoveAllVaccDays','Clear'))),
+                                column(2,actionBttn('go_buttonPlot','Plot',style = 'simple', size = 'md', color = 'warning', block = TRUE))
+                              ),
+                              fluidRow(
+                                column(3,awesomeCheckbox(status = 'success',inputId = 'go_checkboxGOtermMeans',label =  "GOterm means", value = FALSE)),
+                                column(2,conditionalPanel(condition = "input.go_checkboxGOtermMeans == true",
+                                                          awesomeCheckbox(status = 'success',inputId = 'go_checkboxSEM',label =  "SEM", value = FALSE))),
+                                column(2, conditionalPanel(condition = "input.go_checkboxGOtermMeans == false",
+                                          awesomeCheckbox(status = 'success',inputId = 'go_checkboxJitterX',label =  "Jitter", value = TRUE))),
+                                column(3,awesomeCheckbox(status = 'success',inputId = 'go_checkboxUsePalette',label =  "Fixed Colours", value = TRUE)),
+                                column(2,awesomeCheckbox(status = 'success',inputId = 'go_checkboxUseLegend',label =  "Legend", value = TRUE))
+                              )
+                           ),
+                            conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
+                              wellPanel(style = "background-color: #ffffff;",
+                                uiOutput("go_plotGenesSeriesSIZE"),
+                                fluidRow(
+                                  column(2,sliderInput("go_plotGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500),
+                                         bsTooltip("go_plotGenesSeriesSIZEheight", "Plot height")),
+                                  column(2,offset = 6, downloadButton(class="btn-warning btn-block",'go_plotGenesSeries_download', 'PNG')),
+                                  column(2,awesomeCheckbox(status = 'warning', 'checkboxHiRes_go_plotGenesSeries', 'HiRes', value = TRUE),
+                                         bsTooltip("go_plotGenesSeries_download","Use HiRes checkbox to set 300 or 72 dpi"))
+                                ),
+                                fluidRow(
+                                  column(6,tableOutput("go_plotGenesSeries_clicktable")),
+                                  column(3,
+                                         div(style = 
+                                              "
+                                              white-space: -moz-pre-wrap !important;  
+                                              white-space: -webkit-pre-wrap;
+                                              white-space: -pre-wrap;
+                                              white-space: -o-pre-wrap;
+                                              white-space: pre-wrap; 
+                                              word-wrap: break-word;
+                                              word-break: break-all;
+                                              white-space: normal;
+                                              max-width: 100%;
+                                              ",textOutput("go_plotGenesSeries_clickTextGOterm"))),
+                                  column(3,
+                                         div(style = 
+                                               "
+                                              white-space: -moz-pre-wrap !important;  
+                                              white-space: -webkit-pre-wrap;
+                                              white-space: -pre-wrap;
+                                              white-space: -o-pre-wrap;
+                                              white-space: pre-wrap; 
+                                              word-wrap: break-word;
+                                              word-break: break-all;
+                                              white-space: normal;
+                                              max-width: 100%;
+                                              ",textOutput("go_plotGenesSeries_clickTextGene")))
+                                )
+                              )
+                            ),
+                            conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
+                              fluidRow(style = "margin-bottom: 10px;",
+                                column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatablePlotDataGOtermMeans_download', 'Table')),
+                                column(10,h4("Mean Log2 Fold Change in Expression of plotted GO annotations"))
+                              )),
+                              dataTableOutput("go_datatablePlotDataGOtermMeans"),
+                            conditionalPanel(condition = "output.go_datatablePlotData != null",
+                                hr(),
+                                fluidRow(style = "margin-bottom: 10px;",
+                                  column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatablePlotData_download', 'Table')),
+                                  column(10,h4("Mean Log2 Fold Change in Expression of Plotted Individual Genes ~ GO annotations"))
                                 )
                               ),
-                        conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
-                          wellPanel(style = "background-color: #ffffff;",
-                          fluidRow(
-                            column(8,h4("Genes And GO terms kinetics")),
-                            column(2,downloadButton(class="btn-warning btn-block",'go_plotGenesSeries_download', 'PNG')),
-                            column(2,awesomeCheckbox(status = 'warning', 'checkboxHiRes_go_plotGenesSeries', 'HiRes', value = TRUE),
-                                   bsTooltip("go_plotGenesSeries_download","Use HiRes checkbox to set 300 or 72 dpi"))
-                          ),
-                            plotOutput("go_plotGenesSeries"))
-                        ),
-                        div(
-                               # border: 1px solid #2c4400;
-                               style = 
-                                 "background-color: #ecffcb; 
-                                                  color: #2c4400;
-                                                  white-space: -moz-pre-wrap !important;  
-                                                  white-space: -webkit-pre-wrap;
-                                                  white-space: -pre-wrap;
-                                                  white-space: -o-pre-wrap;
-                                                  white-space: pre-wrap; 
-                                                  word-wrap: break-word;
-                                                  word-break: break-all;
-                                                  white-space: normal;
-                                                  max-width: 100%;
-                                                  margin-bottom: 1px;
-                                                ",
-                               textOutput("textGOmatched")
-                        ),
-                        div(
-                               # border: 1px solid #821300;
-                               style = 
-                                 "background-color: #ffd4cd; 
-                                                  color: #821300;
-                                                  white-space: -moz-pre-wrap !important;  
-                                                  white-space: -webkit-pre-wrap;
-                                                  white-space: -pre-wrap;
-                                                  white-space: -o-pre-wrap;
-                                                  white-space: pre-wrap; 
-                                                  word-wrap: break-word;
-                                                  word-break: break-all;
-                                                  white-space: normal;
-                                                  max-width: 100%;
-                                                  margin-bottom: 10px;
-                                                ",
-                               textOutput("textGONotMatched")
-                        ),
-                        conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
-                          fluidRow(style = "margin-bottom: 10px;",
-                            column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatablePlotDataGOtermMeans_download', 'Table')),
-                            column(10,h4("Plot data: GO term means"))
-                          )),
-                          dataTableOutput("go_datatablePlotDataGOtermMeans"),
-                        conditionalPanel(condition = "output.go_datatablePlotData != null",
+                              dataTableOutput("go_datatablePlotData")
+                        ) # tab plot anno
+                      ) #navbar sub
+                 ),#tab GO Plot
+                 tabPanel(value = 'GO Enrich', title = span(style = "color: #FFFFFF;", "GO Enrich"),
+                          h4("Use the buttons below to open a new page to undertake GO analysis."),
+                          h5("GeneSymbol, DavidGeneSymbol and EnsemblTID identifiers may be variably identified when pasted into the search box. Use comma delimited lists for the pantherdb.org search box and newline delimited lists in geneontology.org. If you use the Select Genes > Selected Genes tabs to filter genes then the download Text File button provides a convenient list of these gene identifiers in comma and NL delimited lists that can be cut-pasted into the search boxes"),
                           hr(),
-                          fluidRow(style = "margin-bottom: 10px;",
-                            column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatablePlotData_download', 'Table')),
-                            column(10,h4("Plot data: Gene ~ GOterm means"))
-                          )),
-                          dataTableOutput("go_datatablePlotData"),
-                        conditionalPanel(condition = "output.go_datatableGOSummary != null",
-                          hr(),
-                          fluidRow(style = "margin-bottom: 10px;",
-                            column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatableGOSummary_download', 'Table')),
-                            column(10,h4("GO terms means"))
-                          )),
-                          dataTableOutput("go_datatableGOSummary"),
-                        conditionalPanel(condition = "output.go_datatableGO != null",
-                        hr(),
-                        fluidRow(style = "margin-bottom: 10px;",
-                          column(2,downloadButton(class="btn-outline-primary btn-block",'go_datatableGO_download', 'Table')),
-                          column(10,h4("GO terms Gene Means"))
-                          )),
-                          dataTableOutput("go_datatableGO")
-               )#tab GO
-              ) # navProbe
+                          fluidRow(style = "margin-bottom: 25px;",
+                            column(5,offset = 1, 
+                              actionButton('pantherdborg','Open http://pantherdb.org in a new page', class = 'btn-outline-primary', onclick ="window.open('http://pantherdb.org', '_blank')")),
+                            column(5,offset = 1,
+                              actionButton('geneontology','Open http://geneontology.org in a new page', class = 'btn-outline-primary', onclick ="window.open('http://geneontology.org', '_blank')"))
+                          )
+                   )# tab goenrich
+               )#nav GO
+              )# tab GO
+            ) # navProbe
      ),# explore by Probe
      ############## MODULES #################
      tabPanel('Explore By Module',

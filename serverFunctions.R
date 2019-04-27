@@ -744,42 +744,43 @@ resForClickBrush <- function(res){
   if(is.null(res) == FALSE && nrow(res) > 0 && !is.na(res[1,1])) {
     if("ProbeName" %in% names(res)) spot <- paste(res$ProbeName,collapse = ",")
     else spot <-  NULL
-    if("Gene" %in% names(res)) geneMod <- paste(res$Gene,collapse = ",")
-    else {
+    if("GOterm" %in% names(res)) goterm <- paste(unique(res$GOterm),collapse = ",")
+    else goterm <-  NULL
+    if("Gene" %in% names(res)) geneMod <- paste(unique(res$Gene),collapse = ",")
+    else if("Module" %in% names(res)) {
       # module name and title may be pasted so split out module name
       geneMod <- paste(modNameFromMenuTitlesVector(res$Module),collapse = ",")
-      # geneMod <- paste(res$Module,collapse = ",")
-    }
-    return(list(Table = xtable(res, auto = TRUE),ProbeName = spot, GeneMod = geneMod))
+    } else geneMod <- NULL
+    return(list(Table = xtable(res, auto = TRUE),ProbeName = spot, GeneMod = geneMod, Goterm = goterm))
   }
-  return(list(Table = NULL, ProbeName = NULL, GeneMod = NULL))
+  return(list(Table = NULL, ProbeName = NULL, GeneMod = NULL, Goterm = NULL))
 }
 
-handleClick <- function(data,click,facet,fact,yv) {
+handleClick <- function(data,click,facet,fact,yv,xv = "Column",pv = 'Treatment') {
 
   if(facet == TRUE) {
-    res <- nearPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment', maxpoints = 1) 
+    res <- nearPoints(data, click, xvar = xv, yvar = yv, panelvar1 = pv, maxpoints = 1) 
   } else {
     if(fact == TRUE) {
     data <- data %>%
       mutate(Column = factor(Column, levels = unique(Column)))
     }
-    res <- nearPoints(data, click, xvar = "Column", yvar = yv, maxpoints = 1) 
+    res <- nearPoints(data, click, xvar = xv, yvar = yv, maxpoints = 1) 
   }
 
   return(resForClickBrush(res))
 }
 
-handleBrush <- function(data,click,facet,fact,yv) {
+handleBrush <- function(data,click,facet,fact,yv,xv = "Column",pv = 'Treatment') {
 
   if(facet == TRUE) {
-    res <- brushedPoints(data, click, xvar = "Column", yvar = yv, panelvar1 = 'Treatment') 
+    res <- brushedPoints(data, click, xvar = xv, yvar = yv, panelvar1 = pv) 
   } else {
     if(fact == TRUE) {
       data <- data %>%
         mutate(Column = factor(Column, levels = unique(Column)))
     }
-    res <- brushedPoints(data, click, xvar = "Column", yvar = yv) 
+    res <- brushedPoints(data, click, xvar = xv, yvar = yv) 
   }
   
   return(resForClickBrush(res))

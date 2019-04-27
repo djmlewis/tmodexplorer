@@ -1061,8 +1061,8 @@ observeEvent(
                      arrange(Gene,GOdomain,GOaccession,GOterm)
                    selectedGOdata(godata)
                    
-                   gotermsSelected <- sample(unique(godata$GOterm))
-                   assign("goPalette",purrr::set_names(rainbow(length(gotermsSelected)),nm = gotermsSelected), envir = .GlobalEnv)
+                   gotermsSelected <- unique(godata$GOterm)
+                   assign("goPalette",purrr::set_names(sample(rainbow(length(gotermsSelected))),nm = gotermsSelected), envir = .GlobalEnv)
                    
                    # set what we did / not find
                    textGOmatched(paste(unique(godata$Gene),collapse = ","))
@@ -1076,10 +1076,9 @@ observeEvent(
                      ) %>%
                      arrange(GOdomain,desc(GeneCount))
                    selectedGOdataSummary(godataNgenes)
-                   
-                   updateSelectInput(session, 'go_select_MF',choices = filter(godataNgenes,GOdomain == "MF")[["GOterm"]],selected = character(0))
-                   updateSelectInput(session, 'go_select_BP',choices = filter(godataNgenes,GOdomain == "BP")[["GOterm"]],selected = character(0))
-                   updateSelectInput(session, 'go_select_CC',choices = filter(godataNgenes,GOdomain == "CC")[["GOterm"]],selected = character(0))
+                   updateCheckboxGroupInput(session, 'go_select_MF',choices = filter(godataNgenes,GOdomain == "MF")[["GOterm"]],selected = character(0))
+                   updateCheckboxGroupInput(session, 'go_select_BP',choices = filter(godataNgenes,GOdomain == "BP")[["GOterm"]],selected = character(0))
+                   updateCheckboxGroupInput(session, 'go_select_CC',choices = filter(godataNgenes,GOdomain == "CC")[["GOterm"]],selected = character(0))
                  } else {
                    selectedGOdata(NULL)
                    selectedGOdataSummary(NULL)
@@ -1090,68 +1089,103 @@ observeEvent(
   observeEvent(
     input$go_buttonPlot,
     {
-      plotGOplot(NULL)
-      showNotification("Please wait while GO terms are plotted …",id = "plotGOnotify",duration = 120)
-      selectedgodata <- selectedGOdata()# %>%
-          #select(-GOaccession)
-        GEdataSelectedDays <- allData$data %>%
-          select(Gene,paste(input$go_selectColumnVaccine,input$go_selectColumnDay,sep = "_"))
-        
-        # c() ignores NULL
-        goAllData <- 
-          map_dfr(c(input$go_select_CC,input$go_select_MF,input$go_select_BP), function(goterm){
-            genes4goterm <- selectedgodata %>%
-              filter(
-                GOterm == goterm
-              )
-    
-            GEdataForDaysGOterm <- GEdataSelectedDays %>%
-              filter(Gene %in% unique(genes4goterm$Gene)) %>%
-              group_by(Gene) %>%
-              # summarise mean but could split probes here
-              summarise_if(is.numeric,mean,na.rm = TRUE)
-            
-            GEdataAndGOterms <- full_join(genes4goterm,GEdataForDaysGOterm, by = "Gene")
-    
-            GEdataAndGOterms <- GEdataAndGOterms %>%
-              gather(key = "Day", value = "Expression", -c(Gene,GOterm,GOdomain,GOaccession), convert = FALSE,factor_key = FALSE) %>%
-              mutate(
-                Day = as.numeric(gsub(paste0(input$go_selectColumnVaccine,"_"),"",Day)),
-                # make an unique gene-term so we can plot genes that map several terms separately
-                GeneGOaccession = paste(Gene, GOaccession)
+      goas2plot <- c(input$go_select_CC,input$go_select_MF,input$go_select_BP)
+      if(length(goas2plot)>0 && !is.null(selectedGOdata()) && length(input$go_selectColumnDay)>0) {
+        plotGOplot(NULL)
+        showNotification("Please wait while GO terms are plotted …",id = "plotGOnotify",duration = 120)
+        selectedgodata <- selectedGOdata()# %>%
+            #select(-GOaccession)
+          GEdataSelectedDays <- allData$data %>%
+            select(Gene,paste(input$go_selectColumnVaccine,input$go_selectColumnDay,sep = "_"))
+          
+          # c() ignores NULL
+          goAllData <- 
+            map_dfr(goas2plot, function(goterm){
+              genes4goterm <- selectedgodata %>%
+                filter(
+                  GOterm == goterm
                 )
-        })
-      plotGOGEdata(goAllData)
       
-      goAllDataTerms <- goAllData %>%
-        group_by(GOterm,Day) %>%
-        # summarise(Expression = mean(Expression, na.rm = TRUE))
-        summarise(
-          Ymax = mean_se(Expression)$ymax,
-          Ymin = mean_se(Expression)$ymin,
-          SEM = Ymax-Ymin,
-          Expression = mean_se(Expression)$y
-        )
+              GEdataForDaysGOterm <- GEdataSelectedDays %>%
+                filter(Gene %in% unique(genes4goterm$Gene)) %>%
+                group_by(Gene) %>%
+                # summarise mean but could split probes here
+                summarise_if(is.numeric,mean,na.rm = TRUE)
+              
+              GEdataAndGOterms <- full_join(genes4goterm,GEdataForDaysGOterm, by = "Gene")
       
-      plotGOGEdataGOtermMeans(goAllDataTerms)
-      
-      plotGOplot(ggplotGO(
-        data2plot = if(input$go_checkboxGOtermMeans == TRUE) goAllDataTerms else goAllData,
-        ismeans = input$go_checkboxGOtermMeans,
-        jitterX = input$go_checkboxJitterX,
-        Grouper = if_else(input$go_checkboxGOtermMeans, "GOterm", "GeneGOaccession"),
-        pal = if(input$go_checkboxUsePalette) goPalette else NULL
-      ))
-      
+              GEdataAndGOterms <- GEdataAndGOterms %>%
+                gather(key = "Day", value = "Expression", -c(Gene,GOterm,GOdomain,GOaccession), convert = FALSE,factor_key = FALSE) %>%
+                mutate(
+                  Day = as.numeric(gsub(paste0(input$go_selectColumnVaccine,"_"),"",Day)),
+                  # make an unique gene-term so we can plot genes that map several terms separately
+                  GeneGOaccession = paste(Gene, GOaccession)
+                  )
+          })
+        plotGOGEdata(goAllData)
+        
+        goAllDataTerms <- goAllData %>%
+          group_by(GOterm,Day) %>%
+          # summarise(Expression = mean(Expression, na.rm = TRUE))
+          summarise(
+            Ymax = mean_se(Expression)$ymax,
+            Ymin = mean_se(Expression)$ymin,
+            SEM = Ymax-Ymin,
+            Expression = mean_se(Expression)$y
+          )
+        
+        plotGOGEdataGOtermMeans(goAllDataTerms)
+        
+        plotGOplot(ggplotGO(
+          data2plot = if(input$go_checkboxGOtermMeans == TRUE) goAllDataTerms else goAllData,
+          vacc = input$go_selectColumnVaccine,
+          ismeans = input$go_checkboxGOtermMeans,
+          jitterX = input$go_checkboxJitterX,
+          Grouper = if_else(input$go_checkboxGOtermMeans, "GOterm", "GeneGOaccession"),
+          pal = if(input$go_checkboxUsePalette) goPalette else NULL,
+          sems = input$go_checkboxSEM,
+          leg = input$go_checkboxUseLegend
+        ))
+    }
     },ignoreNULL = TRUE, ignoreInit = TRUE
   )
   
   output$textGOmatched <- renderText({textGOmatched()})
   output$textGONotMatched <- renderText({textGONotMatched()})
   
-  output$go_plotGenesSeries <- renderPlot({
-    plotGOplot()
-  })
+  output$go_plotGenesSeriesSIZE <- renderUI({tagList(
+    plotOutput("go_plotGenesSeries", 
+               height = input$go_plotGenesSeriesSIZEheight,
+               click = "click_go_plotGenesSeries",
+               brush = "brush_go_plotGenesSeries"
+    ))})
+  
+  output$go_plotGenesSeries <- renderPlot({ plotGOplot()})
+  
+  updateBrushClickGO <- function(res){
+    output$go_plotGenesSeries_clicktable <- renderTable({
+      if("GeneGOaccession" %in% colnames(res$Table)) select(res$Table,-GeneGOaccession)
+      else res$Table
+      }, striped = TRUE)
+    output$go_plotGenesSeries_clickTextGene <- renderText({res$GeneMod})
+    output$go_plotGenesSeries_clickTextGOterm <- renderText({res$Goterm})
+  }
+  
+  observeEvent(
+    input$click_go_plotGenesSeries, 
+    {
+      res <- handleClick(if(input$go_checkboxGOtermMeans == TRUE) plotGOGEdataGOtermMeans() else plotGOGEdata(),
+                         input$click_go_plotGenesSeries,FALSE,FALSE,"Expression","Day","")
+      if(!is.null(res$Table)) {
+        updateBrushClickGO(res)
+      }
+    })
+  
+  observeEvent(input$brush_go_plotGenesSeries,
+    {
+      updateBrushClickGO(handleBrush(if(input$go_checkboxGOtermMeans == TRUE) plotGOGEdataGOtermMeans() else plotGOGEdata(),
+                                                input$brush_go_plotGenesSeries,FALSE,FALSE,"Expression","Day",""))
+    })
   
   output$go_plotGenesSeries_download <- 
     downloadHandler(filename = function(){paste0("GO kinetics.png")},
@@ -1195,7 +1229,7 @@ observeEvent(
     filename = function(){paste0("GOterms summary data.csv")},
     content = function(file) {write_excel_csv(selectedGOdataSummary(), file, na = "")})
   
-  
+
   ############################## Gene Lookup ###########
   assign("lookedupGenes",NULL, envir = .GlobalEnv)
   observeEvent({

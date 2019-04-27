@@ -501,7 +501,7 @@ getGGplotShapeMiniplot <- function(kinetics,dataValueRange,vacSelected,colNames)
   return(plot)
 }
 
-ggplotGO <- function(data2plot,ismeans,jitterX,Grouper,pal){
+ggplotGO <- function(data2plot,vacc,ismeans,jitterX,Grouper,pal,sems,leg){
     if(is.null(data2plot)) return(NULL)
 
   jitType <- if(jitterX == TRUE && ismeans == FALSE) position_jitter(width = 0.3, height = 0) else "identity"
@@ -510,29 +510,32 @@ ggplotGO <- function(data2plot,ismeans,jitterX,Grouper,pal){
       theme(
         panel.grid = element_blank(),
         panel.grid.major.x = element_line(linetype = "dotted", color = 'grey50', size = 0.25),
+        plot.title = element_text(size = 18, face = "bold"),
         axis.title = element_text(size = 16, face = "bold"),
         strip.text = element_text(size = 14),
         axis.line.x = element_line(size = 1),
         axis.line.y = element_line(size = 1),
         axis.text.y = element_text(size = 16),
         axis.text.x = element_text(size = 16),
-        legend.title = element_blank(),
+        legend.title = element_text(size = 14, face = "bold"),
         legend.text = element_text(size = 14)
         )  +
       geom_hline(yintercept = 0, linetype = "dashed", color = 'grey50', size = 0.5) +
-      geom_line(aes(y = Expression, color = GOterm),position = jitType, size = 1) +
-      scale_x_continuous(breaks = unique(data2plot$Day))
+      geom_line(aes(y = Expression, color = GOterm),position = jitType, size = 1, show.legend = leg) +
+      scale_x_continuous(breaks = unique(data2plot$Day)) +
+      scale_y_continuous("Log2 Fold Change") +
+      ggtitle(vacc)
     
-      if(ismeans) {
+      if(ismeans && sems) {
         plt <- plt +
         geom_ribbon(aes(ymax = Ymax, ymin = Ymin, fill = GOterm), alpha = 0.2, show.legend = FALSE)
       }
     
-    if(is.null(pal)) plt <- plt + scale_color_discrete(name = "GO term")
+    if(is.null(pal)) plt <- plt + scale_color_discrete(name = "GO annotation")
     else {
       plt <- plt + 
-        scale_color_manual(name = "GO term",values = pal) +
-        scale_fill_manual(values = pal)
+        scale_color_manual(name = "GO annotation",values = pal) +
+        scale_fill_manual(name = "GO annotation",values = pal)
     }
     
     return(plt)
