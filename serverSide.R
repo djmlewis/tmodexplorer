@@ -76,7 +76,7 @@ server <- function(input, output, session) {
   output$buttonsavedatatableAll <- downloadHandler(filename = function(){paste0(allData$folder,".csv")},
     content = function(file) {write_excel_csv(allData$data, file, na = "")})
   
-  output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE))
+  output$datatableAll <- renderDataTable({allData$data},options = list(searching = TRUE,pageLength = 10))
   
   updateExpressionValueRangeVaccDay <- function(selCol){
     if(!is.null(selCol) && all(selCol %in% allData$colNames)){
@@ -499,7 +499,7 @@ observeEvent(
               # take out lincRNA from the start
               if(input$checkboxExcludeLINC == TRUE) {
                 geneslist <- filter(geneslist, lincRNA == FALSE)
-                filterSubText <-  paste0(filterSubText,'lincRNA excluded • ')
+                filterSubText <-  paste0(filterSubText,'-lincRNA • ')
               }
               
               # apply the filters sequentially, do regex first before gene averages in getSortedGenesForVaccDay strips description
@@ -520,7 +520,13 @@ observeEvent(
                     # we use filter so if the match is TRUE it is included
                     input$radioKeywordIncludeExclude == "in"
                   )
-                  if(dataFrameOK(geneslist)) {filterSubText <-  paste0(filterSubText," ",input$radioKeywordIncludeExclude,"clude ",'"',input$textInputKeyword,'" • ')}
+                  if(dataFrameOK(geneslist)) {
+                    
+                    filterSubText <-  paste0(filterSubText," ",
+                                             input$radioKeywordIncludeExclude,"clude ",'"',
+                                             if_else(nchar(input$textInputKeyword)>40,
+                                                     str_trunc(input$textInputKeyword,width = 30,side = "right"),input$textInputKeyword),
+                                             '" • ')}
                 }
               } 
 
@@ -671,7 +677,7 @@ observeEvent(
   
   output$datatableTopGenesUp <- renderDataTable({
     addDescriptionToGenes(topGenesAndModules()[['genes']])
-    })
+    },options = list(pageLength = 10))
   output$buttonSaveTableProbes <- downloadHandler(filename = function(){paste0("Selected Probes-Genes.csv")},
     content = function(file) {write_excel_csv(
       addDescriptionToGenes(topGenesAndModules()[['genes']]),
@@ -702,7 +708,7 @@ observeEvent(
                                  input$selectGenesProbesForSeries,input$checkboxShowProbesOfGenesSeries), 
              envir = .GlobalEnv)
       
-      output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries})
+      output$datatableTopGenesSeries <- renderDataTable({topGenesInSeries},options = list(pageLength = 10))
       updateplotTopGenesSeriesBRUSH(list(Table = NULL, ProbeName = NULL, Gene = NULL))
       
       ggplotTopGenesInSeries <- plotTopGenesInSeries(topGenesInSeries,
@@ -763,7 +769,7 @@ observeEvent(
   # output assoc modules
   output$datatableGenesModules <- renderDataTable({
     topGenesAndModules()[['modules']]
-  })
+  },options = list(pageLength = 10))
 
   output$buttonSaveTableGenesModules <- downloadHandler(filename = function(){paste0("Selected Genes -> Modules.csv")},
      content = function(file) {write_excel_csv(topGenesAndModules()[['modules']], file, na = "")})
@@ -776,7 +782,7 @@ observeEvent(
   geneExpressionsForModules <- reactive({
     getExpressionsForModules(topGenesAndModules(),sortCol_Probes,allData$data, input$checkboxShowPsuedoModuleGenesModules,filtersText())})
   # draw / save table
-  output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['summStats']]})
+  output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['summStats']]},options = list(pageLength = 10))
   output$buttonSaveTableModulesSummary <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Summary.csv")},
     content = function(file) {write_excel_csv(geneExpressionsForModules()[['summStats']], file, na = "")})
   output$buttonSaveTableModulesRaw <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Raw.csv")},
@@ -820,7 +826,7 @@ observeEvent(
   expressionsInModule <- reactive({getGeneExpressionsInModule(input$selectModuleForGenes,sortCol_Probes,
                                                               allData$data,topGenesAndModules()[['genes']])})
   # redraw the table of gene expressions for the module selected
-  output$datatableModuleGenes <- renderDataTable({expressionsInModule()})
+  output$datatableModuleGenes <- renderDataTable({expressionsInModule()},options = list(pageLength = 10))
   output$buttonTableModulesGenesList <- downloadHandler(filename = function(){paste0("Genes In ",input$selectModuleForGenes,".txt")},
     content = function(file) {write_lines(paste0(paste(rev(unique(expressionsInModule()[['Gene']])), collapse = ','),'\n\n# ',
       input$selectModuleForGenes,'\n\n# ',
@@ -866,7 +872,7 @@ observeEvent(
              envir = .GlobalEnv)
     }
     
-    output$datatableModuleSeries <- renderDataTable({moduleValues})
+    output$datatableModuleSeries <- renderDataTable({moduleValues},options = list(pageLength = 10))
 
     assign("ggplotModulesInSeries",
            plotModulesInSeries(moduleValues,dataAndFiltersText(),input$checkboxShowLegendModuleSeries,
@@ -998,7 +1004,7 @@ observeEvent(
   output$muscleplotIndividualsFilteredSortedProbesIndividualsSIZE <- 
     renderUI({plotOutput("muscleplotIndividualsFilteredSortedProbesIndividuals", height = isolate(input$muscle_PlotGenesSIZEheight))})
   
-  output$muscle_filteredSortedProbesTidyMuscle <- renderDataTable(filteredSortedProbesTidyMuscle())
+  output$muscle_filteredSortedProbesTidyMuscle <- renderDataTable({filteredSortedProbesTidyMuscle()},options = list(pageLength = 10))
   
   
   output$buttonSaveTablemuscle_filteredSortedProbesTidyMuscle <- downloadHandler(
@@ -1007,13 +1013,13 @@ observeEvent(
   #################### GO #########################
   assign("goPalette",NULL, envir = .GlobalEnv)
   selectedGOdata <- reactiveVal(NULL)
+  selectedGOdataAllGenesForAnnos <- reactiveVal(NULL)
   selectedGOdataSummary <- reactiveVal(NULL)
   plotGOGEdata <- reactiveVal(NULL)
   plotGOGEdataGOtermMeans <- reactiveVal(NULL)
   plotGOplot <- reactiveVal(NULL)
   textGOmatched <- reactiveVal(NULL)
   textGONotMatched <- reactiveVal(NULL)
-  
   
   observeEvent(
     {
@@ -1076,12 +1082,25 @@ observeEvent(
                      ) %>%
                      arrange(GOdomain,desc(GeneCount))
                    selectedGOdataSummary(godataNgenes)
+                   
+                   
                    updateCheckboxGroupInput(session, 'go_select_MF',choices = filter(godataNgenes,GOdomain == "MF")[["GOterm"]],selected = character(0))
                    updateCheckboxGroupInput(session, 'go_select_BP',choices = filter(godataNgenes,GOdomain == "BP")[["GOterm"]],selected = character(0))
                    updateCheckboxGroupInput(session, 'go_select_CC',choices = filter(godataNgenes,GOdomain == "CC")[["GOterm"]],selected = character(0))
+                   
+                   
+                   # create the df with all genes for all annos
+                   selectedgodataAllGenesForAllAnnos <- allData$goData %>%
+                     filter(GOterm %in% gotermsSelected) %>%
+                     select(GOterm,everything()) %>%
+                     arrange(GOdomain,GOaccession,GOterm,Gene)
+                   selectedGOdataAllGenesForAnnos(selectedgodataAllGenesForAllAnnos)
+                   
+                   
                  } else {
                    selectedGOdata(NULL)
                    selectedGOdataSummary(NULL)
+                   selectedGOdataAllGenesForAnnos(NULL)
                  }
                }, ignoreInit = TRUE
   )
@@ -1089,17 +1108,19 @@ observeEvent(
   observeEvent(
     input$go_buttonPlot,
     {
+      # c() ignores NULL
       goas2plot <- c(input$go_select_CC,input$go_select_MF,input$go_select_BP)
       if(length(goas2plot)>0 && !is.null(selectedGOdata()) && length(input$go_selectColumnDay)>0) {
         plotGOplot(NULL)
         showNotification("Please wait while GO terms are plotted …",id = "plotGOnotify",duration = 120)
-        selectedgodata <- selectedGOdata()# %>%
-            #select(-GOaccession)
-          GEdataSelectedDays <- allData$data %>%
+        
+        # put in the relevant dataset if allgenesallannos requested
+        selectedgodata <- if(input$go_checkboxGOAllGenesAllAnnos == TRUE) selectedGOdataAllGenesForAnnos() else selectedGOdata()
+        
+        GEdataSelectedDays <- allData$data %>%
             select(Gene,paste(input$go_selectColumnVaccine,input$go_selectColumnDay,sep = "_"))
           
-          # c() ignores NULL
-          goAllData <- 
+        goAllData <- 
             map_dfr(goas2plot, function(goterm){
               genes4goterm <- selectedgodata %>%
                 filter(
@@ -1126,7 +1147,6 @@ observeEvent(
         
         goAllDataTerms <- goAllData %>%
           group_by(GOterm,Day) %>%
-          # summarise(Expression = mean(Expression, na.rm = TRUE))
           summarise(
             Ymax = mean_se(Expression)$ymax,
             Ymin = mean_se(Expression)$ymin,
@@ -1152,6 +1172,9 @@ observeEvent(
   
   output$textGOmatched <- renderText({textGOmatched()})
   output$textGONotMatched <- renderText({textGONotMatched()})
+  
+  # GOselectedAnnos <- reactiveVal(c(input$go_select_CC,input$go_select_MF,input$go_select_BP))
+  output$textGOselectedAnnos <- renderText({paste(c(input$go_select_CC,input$go_select_MF,input$go_select_BP),collapse = " • ")})
   
   output$go_plotGenesSeriesSIZE <- renderUI({tagList(
     plotOutput("go_plotGenesSeries", 
@@ -1229,7 +1252,13 @@ observeEvent(
     filename = function(){paste0("GOterms summary data.csv")},
     content = function(file) {write_excel_csv(selectedGOdataSummary(), file, na = "")})
   
-
+  output$go_datatableGOAllAnnosGenes <- renderDataTable({
+    if(is.null(selectedGOdataAllGenesForAnnos())) return(NULL)
+    selectedGOdataAllGenesForAnnos()},options = list(pageLength = 10))
+  output$go_datatableGOAllAnnosGenes_download <- downloadHandler(
+    filename = function(){paste0("GOterms with all genes data.csv")},
+    content = function(file) {write_excel_csv(selectedGOdataAllGenesForAnnos(), file, na = "")})
+  
   ############################## Gene Lookup ###########
   assign("lookedupGenes",NULL, envir = .GlobalEnv)
   observeEvent({
@@ -1242,7 +1271,7 @@ observeEvent(
                                              TRUE # we always trim spaces input$checkboxGeneLookupStripSpaces
                                              ),
            envir = .GlobalEnv)
-    output$datatableGeneLookup <- renderDataTable({lookedupGenes})
+    output$datatableGeneLookup <- renderDataTable({lookedupGenes},options = list(pageLength = 10))
   })
   observeEvent({
     input$buttonGeneLookupNone
@@ -1336,18 +1365,18 @@ observeEvent(
   output$datatableEdgeListNet <- renderDataTable({
     if(is.null(networkFilteredEdgeListAndCount()[['edgeList']])) NULL
     else select(networkFilteredEdgeListAndCount()[['edgeList']],-c(revrank,MeanValueRound))
-  })
+  },options = list(pageLength = 10))
   
   output$datatableEdgeCountNet <- renderDataTable({
     if(is.null(networkFilteredEdgeListAndCount()[['edgeCount']])) NULL
     else arrange(networkFilteredEdgeListAndCount()[['edgeCount']],desc(Connections))
-  })
+  },options = list(pageLength = 10))
   
   vennVaccGenesList <- reactive({getVennVaccGenesList(networkFilteredEdgeListAndCount()[['edgeList']], isolate(input$selectVacDaysToNet))})
   
   output$datatableIntersectsNet <- renderDataTable({
     geneIntersectsFromVaccGenesList(vennVaccGenesList())
-  })
+  },options = list(pageLength = 10))
   
   filenameForNet <- function(netType,fileType,vaccdays){
     paste0(
@@ -1599,7 +1628,7 @@ observeEvent(
 )
 
 # output top genes
-output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()})
+output$mdatatableTopModulesUp <- renderDataTable({topModulesSelected()},options = list(pageLength = 10))
 output$buttonSaveTableTopModulesUpPlot <- downloadHandler(filename = function(){paste0("Selected By Modules.png")},
   content = function(file) {plotDataTable(topModulesSelected(),file,10.9,input$checkboxHiRes_mmodulesplot)})
 output$buttonSaveTableTopModulesUOnlypPlot <- downloadHandler(filename = function(){paste0("Selected By Modules.png")},
@@ -1635,7 +1664,7 @@ output$buttonPNGmplotSelectedModules <- downloadHandler(filename = function(){pa
 # calculate gene expressions for the module selected
 expressionsInModuleModule <- reactive({getGeneExpressionsInModule(input$mselectModuleForGenes,sortCol_Mods,allData$data,NULL)})
 # # redraw the table of gene expressions for the module selected
-output$mdatatableModuleGenes <- renderDataTable({select(expressionsInModuleModule(),-Selected)})
+output$mdatatableModuleGenes <- renderDataTable({select(expressionsInModuleModule(),-Selected)},options = list(pageLength = 10))
 output$buttonSaveTableModulesGenes <- downloadHandler(filename = function(){paste0("Genes in ",input$mselectModuleForGenes,".csv")},
                                                       content = function(file) {write_excel_csv(expressionsInModuleModule(), file, na = "")})
 
@@ -1687,7 +1716,7 @@ observeEvent({
                                                       click = "click_mplotModuleSeries",
                                                       brush = "brush_mplotModuleSeries"
                                                       ))})
-    output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]})
+    output$mdatatableModuleSeries <- renderDataTable({ggplotSelectedModulesSeries[['table']]},options = list(pageLength = 10))
     updatemplotModuleSeriesBRUSH(list(Table = NULL, ProbeName = NULL, Gene = NULL))
     
 })
@@ -1758,7 +1787,7 @@ observeEvent({
   # lookedupMods <<- lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy)
   assign("lookedupMods",lookupModules(input$mtextInputModLookup, allData$modulesMeans,input$radioArrangeModuleLookupBy,input$mcheckboxModuleLookupWholeWord), envir = .GlobalEnv)
 
-    output$mdatatableModuleLookup <- renderDataTable({lookedupMods})
+    output$mdatatableModuleLookup <- renderDataTable({lookedupMods},options = list(pageLength = 10))
 })
 
 observeEvent({
@@ -1835,7 +1864,7 @@ observeEvent({
   output$plotCellsSeries <- renderPlot({ggplotSelectedCellsSeries[['plot']]} ,res = 72)
   output$plotCellsSeriesSIZE <- renderUI({plotOutput("plotCellsSeries", height = isolate(input$numericPlotCellSeriesSIZEheight))})
 
-  output$datatableCellsSeries <- renderDataTable({ggplotSelectedCellsSeries[['table']]})
+  output$datatableCellsSeries <- renderDataTable({ggplotSelectedCellsSeries[['table']]},options = list(pageLength = 10))
   
 })
 
@@ -1881,7 +1910,7 @@ observeEvent(input$buttonPlotCytokines, {
   cytokinesDataAndPlot$data <- cdp$data
   cytokinesDataAndPlot$plot <- cdp$plot
     
-  output$cdatatableCytokines <- renderDataTable({cdp$data})
+  output$cdatatableCytokines <- renderDataTable({cdp$data},options = list(pageLength = 10))
   output$cplotCytokines <- renderPlot({cdp$plot} ,res = 72)
   output$cplotCytokinesSIZE <- renderUI({plotOutput("cplotCytokines", height = isolate(input$cnumberPlotCytokinesSIZEheight))})
 })
