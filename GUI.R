@@ -42,7 +42,7 @@ ui <-
      tabPanel('Transcriptomics',
               h3(style = "text-align: center;","Select a transcriptomics dataset to analyse"),
               fluidRow(
-                column(10, offset = 1,
+                column(6, offset = 3,
                        wellPanel(style = "background-color: #feffee;",
                                  fluidRow(
                                    column(8,pickerInput(inputId = 'selectDataFI', choices = NULL, options = list(`style` = "btn-success"))),
@@ -197,8 +197,9 @@ ui <-
                         ),# row
                         wellPanel(style = "background-color: #ffffff;",
                           fluidRow(
-                          column(2, downloadButton(class="btn-outline-primary","buttonSaveSearchGenes","Current filter settings")),
-                          column(4, fileInput('buttonLoadSavedSearchGenes', label = NULL, buttonLabel = "Import saved filter settings…", accept = c(".rds")))
+                          column(1, style = "margin-right: 0px; padding-right: 1px;", downloadButton(class="btn-outline-primary btn-block","buttonSaveSearchGenes","Filters")),
+                          column(2, style = "margin-left: 0px; padding-left: 1px;", textInput("textSavedSearchGeneName",label = NULL, placeholder = "Filters export filename")),
+                          column(4, fileInput('buttonLoadSavedSearchGenes', label = NULL, buttonLabel = "Import filters…", accept = c(".rds")))
                         ))
                ),
                          #################### Top Genes #######################

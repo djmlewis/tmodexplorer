@@ -170,6 +170,7 @@ server <- function(input, output, session) {
       }
     })
     shapeKinetics(defkins)
+    updateDayKineticsToDF(defkins[[input$selectShapeDay]])
   }
   
   observeEvent(
@@ -534,7 +535,8 @@ observeEvent(input$buttonLoadSavedSearchGenes,
  })
   
   output$buttonSaveSearchGenes <- downloadHandler(
-    filename = function(){paste0("Saved Search.rds")},
+    filename = function(){
+      paste0(if_else(nchar(input$textSavedSearchGeneName)==0,"Gene Filters",input$textSavedSearchGeneName),".rds")},
     content = function(file) {write_rds(makeSearchGenes(),file)})
   
 
