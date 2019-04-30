@@ -1,10 +1,28 @@
 
-plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
+plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg,medmin = NULL,medmax = NULL){
   plot <-  NULL
   if (!is.null(selmod) && nrow(selmod) > 0 && !is.null(moddata)) {
     
     data2plot <- moddata %>%
       filter(Module %in% unique(selmod$Module), Column %in% unique(selmod$Column))
+    
+    # take out the median filters - need to consider the effect or Module or Title and use that summary file to filter_at
+    filterSelMod <- if(grouper == "Module") selmod else {selmod %>% group_by(Title) %>% summarise(Median = mean(Median, na.rm = TRUE))}
+    # if(grouper == "Module"){
+      if(!is.null(medmin)) {
+        mods2keep <- filter(filterSelMod, Median >= medmin)[[grouper]]
+        data2plot <- data2plot %>%
+          filter_at(grouper, all_vars(. %in% mods2keep))
+      }
+      if(!is.null(medmax)) {
+        mods2keep <- filter(filterSelMod, Median <= medmax)[[grouper]]
+        data2plot <- data2plot %>%
+          filter_at(grouper, all_vars(. %in% mods2keep))
+      }
+    #}
+    # any rows left?
+    if(nrow(data2plot)<1) return(NULL)
+    
     data2plot[[grouper]] <- factor(data2plot[[grouper]], levels = unique(data2plot[[grouper]]))
     # we have to reorder as data is arranged alphabetically
     data2plot[[grouper]] <- fct_reorder(data2plot[[grouper]],data2plot$Value,median)
@@ -33,6 +51,7 @@ plotSelectedModules <- function(moddata,selmod,t,l,z,medians,grouper,gg){
       if(z == TRUE) {
         plot <-  plot + geom_hline(yintercept = 0.0, linetype = 2)
       }
+        
     }
   }
   return(plot)

@@ -65,21 +65,23 @@ ui <-
                                                             textOutput('textDataNameProbes')))),
               navbarPage(span(style = 'color: #000000;','Gene'), id = 'navProbe',
                          header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #ae6500;padding-top: 10px; padding-bottom: 10px;",
-                                        textOutput('textFiltersProbes'))))),
+                                        textOutput('textFiltersProbes'),
+                                        span(style = "color: #fefc78;", textOutput('textFiltersProbesFound'))
+                                        )))),
                #################### Selecting  ################
                tabPanel('Select Genes',
                         conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                          fluidRow(style = "margin-bottom:10px;",
-                                           column(4, awesomeCheckbox(status = 'danger', 'checkboxExcludeLINC', label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE)),
-                                           bsTooltip("checkboxExcludeLINC", "lincRNA and lncRNA probes will be excluded from ALL searches", placement = 'bottom'),
-                                            column(4, style = "margin-top: 4px; color: black ", 
-                                                  actionBttn('buttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
-                                                  bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting", placement = "top")),
-                                            column(2, offset = 2,
-                                                  numericInput("rowsLimitNumeric", NULL, value = 100, min = 50, step = 50),
-                                                  bsTooltip("rowsLimitNumeric", "Limit to number of Probes / Genes returned. Suggest set to ~ 100 to avoid a very slow response", placement = 'top')
-                                                  )
-                                         )),
+                          fluidRow(style = "margin-bottom:10px;",
+                            column(2, awesomeCheckbox(status = 'danger', 'checkboxExcludeLINC', label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE),
+                              bsTooltip("checkboxExcludeLINC", "lincRNA and lncRNA probes will be excluded from ALL searches", placement = 'bottom')),
+                            column(4, offset = 2, style = "margin-top: 4px; color: black ", 
+                              actionBttn('buttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
+                              bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting", placement = "top")),
+                            column(2, offset = 2,
+                                numericInput("rowsLimitNumeric", NULL, value = 100, min = 50, step = 50),
+                                bsTooltip("rowsLimitNumeric", "Limit to number of Probes / Genes returned. Suggest set to ~ 100 to avoid a very slow response", placement = 'top')
+                            )
+                            )),
                         fluidRow(
                           column(2,# keywrd column
                             wellPanel(style = "background-color: #feffee;",
@@ -192,7 +194,12 @@ ui <-
                                                ) # Searches 1 & 2
                                  )
                           )#column
-                        )# row
+                        ),# row
+                        wellPanel(style = "background-color: #ffffff;",
+                          fluidRow(
+                          column(2, downloadButton(class="btn-outline-primary","buttonSaveSearchGenes","Current filter settings")),
+                          column(4, fileInput('buttonLoadSavedSearchGenes', label = NULL, buttonLabel = "Import saved filter settings…", accept = c(".rds")))
+                        ))
                ),
                          #################### Top Genes #######################
                          tabPanel('Selected Genes',
@@ -324,6 +331,18 @@ ui <-
                                               column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotGenesModules', 'ggplot2', value = FALSE)),
                                               column(2, offset = 1, style = "margin-top: -10px;", sliderInput("numberPlotGenesModulesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotGenesModulesSIZEheight", "Plot height"))
                                             ),
+                                            fluidRow(
+                                              column(1, style = "margin-right: 0px; padding-right: 2px;",
+                                                     conditionalPanel(condition = "input.checkboxModMedianMin == true",
+                                                                        numericInput("numericModulesMedianMin",label = NULL, value = 0, step = 0.1, width = "100%"))),
+                                              column(2, style = "margin-left: 0px; padding-left: 0px;",
+                                                     awesomeCheckbox(status = 'warning', 'checkboxModMedianMin', 'Median Min', value = FALSE)),
+                                              column(1, style = "margin-right: 0px; padding-right: 2px;",
+                                                     conditionalPanel(condition = "input.checkboxModMedianMax == true",
+                                                                        numericInput("numericModulesMedianMax",label = NULL, value = 0, step = 0.1, width = "100%"))),
+                                              column(2, style = "margin-left: 0px; padding-left: 0px;",
+                                                     awesomeCheckbox(status = 'warning', 'checkboxModMedianMax', 'Median Max', value = FALSE))
+                                            ),
                                             wellPanel(style = "background-color: #FFFFFF;",
                                                       uiOutput("plotGenesModulesSIZE")
                                             ),
@@ -342,7 +361,7 @@ ui <-
                                            bsTooltip("buttonSaveTableModulesSummaryPlot","Use HiRes checkbox to set 300 or 72 dpi"),
                                            bsTooltip("buttonSaveTableModulesSummaryListPlot","Use HiRes checkbox to set 300 or 72 dpi")),
                                     column(2,downloadButton(class="btn-danger btn-block",'buttonSaveTableModulesSummaryList', 'Modules & Titles Text File'),
-                                           bsTooltip("buttonSaveTableModulesSummaryList", "Modules & Titles Text File To Paste Into regex Keyword Search"))
+                                             bsTooltip("buttonSaveTableModulesSummaryList", "Modules & Titles Text File To Paste Into regex Keyword Search"))
                                   ),
                                   hr(),
                                   dataTableOutput('datatableSelModulesOnly')),
@@ -725,7 +744,9 @@ ui <-
               navbarPage(span(style = 'color: #000000;','Module'), id = 'navModule',
                          header = hidden(tagList(div(id = "navModuleHeader",
                                                      h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #ae6500; padding-top: 10px; padding-bottom: 10px;",
-                                                        textOutput('textFiltersMods'))))),
+                                                        textOutput('textFiltersMods'),
+                                                        span(style = "color: #fefc78;", textOutput('textFiltersModsFound'))
+                                                     )))),
                          #################### Selecting Modules ################
                          tabPanel('Select Modules',
                                   fluidRow(column(4,offset = 4,conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
@@ -799,6 +820,18 @@ ui <-
                                                      bsTooltip("mradioGroupTitleName", "Group by Modules or Module Titles (may be fewer)")),
                                               column(3,awesomeCheckbox(status = 'success', 'mcheckboxGGplotGenesModules', 'ggplot2', value = FALSE)),
                                               column(2, offset = 2, style = "margin-top: -10px;", sliderInput("numbermplotSelectedModulesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numbermplotSelectedModulesSIZEheight", "Plot height"))
+                                            ),
+                                            fluidRow(
+                                              column(1, style = "margin-right: 0px; padding-right: 2px;",
+                                                     conditionalPanel(condition = "input.mcheckboxModMedianMin == true",
+                                                                      numericInput("mnumericModulesMedianMin",label = NULL, value = 0, step = 0.1, width = "100%"))),
+                                              column(2,  style = "margin-left: 0px; padding-left: 0px;",
+                                                     awesomeCheckbox(status = 'warning', 'mcheckboxModMedianMin', 'Median Min:', value = FALSE)),
+                                              column(1, style = "margin-right: 0px; padding-right: 2px;",
+                                                     conditionalPanel(condition = "input.mcheckboxModMedianMax == true",
+                                                                      numericInput("mnumericModulesMedianMax",label = NULL, value = 0, step = 0.1, width = "100%"))),
+                                              column(2, style = "margin-left: 0px; padding-left: 0px;",
+                                                     awesomeCheckbox(status = 'warning', 'mcheckboxModMedianMax', 'Median Max:', value = FALSE))
                                             ),
                                             wellPanel(style = "background-color: #FFFFFF;",
                                                       uiOutput("mplotSelectedModulesSIZE")

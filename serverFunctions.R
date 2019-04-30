@@ -654,26 +654,39 @@ getExpressionsForModules <- function(topgenesmods, actarmcdDay, allExpressionDat
       }
       
       modsSummStats <- modsExprns %>%
-        group_by(Module, Title) %>%
+        group_by(Module) %>%
         summarise(
           Median = median(Value, na.rm = TRUE),
           Mean = mean(Value, na.rm = TRUE),
           SD = sd(Value, na.rm = TRUE),
           N = n()
         ) %>%
-        select(Module, Title, everything()) %>%
+        select(Module, everything()) %>%
         arrange(desc(Median)) %>%
         ungroup() %>%
         as.data.frame()
 
+    TitsSummStats <- modsExprns %>%
+        group_by( Title) %>%
+        summarise(
+          Median = median(Value, na.rm = TRUE),
+          Mean = mean(Value, na.rm = TRUE),
+          SD = sd(Value, na.rm = TRUE),
+          N = n()
+        ) %>%
+        select(Title, everything()) %>%
+        arrange(desc(Median)) %>%
+        ungroup() %>%
+        as.data.frame()
+      
       # rearrange modsExprns so they Module names are in the same order
       modsExprns <- modsExprns %>%
         mutate(Module = factor(Module, levels = rev(modsSummStats$Module))) # rev as we flip_coords()
-      result <- list(expressions = modsExprns, summStats = modsSummStats)
+      result <- list(expressions = modsExprns, Module = modsSummStats, Title = TitsSummStats)
 
       return(result)
     }
-    return(list(expressions = NULL, summStats = NULL))
+    return(list(expressions = NULL, Module = NULL, Title = NULL))
   }
 
 

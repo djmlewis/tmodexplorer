@@ -3,7 +3,6 @@ server <- function(input, output, session) {
   
 #   #################### Initial Setup #########################
   is_local <- Sys.getenv('SHINY_PORT') == ""
-  
   # initial hidden setup
   # hide the explores until load
   hideTab(inputId = "navbarTop", target = "Explore By Gene")
@@ -21,6 +20,7 @@ server <- function(input, output, session) {
   }
   
   
+  assign("selectedVaccineDayFromSavedSearchGene",NULL, envir = .GlobalEnv)
   assign("sortCol_Probes",NULL, envir = .GlobalEnv)
   assign("expressionValueRangeVaccDay",list(Max = 0, Min = 0), envir = .GlobalEnv)
   expressionValueRangeVaccAllDays <- reactiveVal(list(Max = 0, Min = 0))
@@ -156,6 +156,22 @@ server <- function(input, output, session) {
     updateNumericInput(session,"numberShapeDayMax",value = df$Max[[1]])
   }
   
+  makeNewKineticsFromFile <- function(kinsfile){
+    # get a default kinetics first as we may have different days and can keep the defaults in
+    newkins <- kinsfile[["Kinetics"]]
+    defkins <- defaultKineticsForDataset(dataValueRange)
+    
+    defnames <- names(defkins)
+    # amend the kinetics with the new one where days match, dont add irrelevant ones
+    
+    walk(names(newkins), function(name) {
+      if (name %in% defnames) {
+        defkins[[name]] <<- newkins[[name]]
+      }
+    })
+    shapeKinetics(defkins)
+  }
+  
   observeEvent(
     input$selectShapeDay,
     {
@@ -263,29 +279,17 @@ server <- function(input, output, session) {
     return(paste0(allData$folder,kineticsString(shapeKinetics()), ".rds"))},
     content = function(file) {write_rds(list(FileName = allData$folder, KinsType = "actual", Kinetics = shapeKinetics()), file)})
   
+  
   observeEvent(input$buttonLoadShapeKinetics,
    {
      # check its a valid kinetics file
      if (!is.null(input$buttonLoadShapeKinetics)) {
        kinsfile <- read_rds(input$buttonLoadShapeKinetics$datapath)
        if (!is.null(kinsfile) && !is.null(kinsfile[["KinsType"]])) {
-         # get a default kinetics first as we may have different days and can keep the defaults in
-         newkins <- kinsfile[["Kinetics"]]
-         defkins <- defaultKineticsForDataset(dataValueRange)
-
-         defnames <- names(defkins)
-         # amend the kinetics with the new one where days match, dont add irrelevant ones
-
-         walk(names(newkins), function(name) {
-           if (name %in% defnames) {
-             defkins[[name]] <<- newkins[[name]]
-           }
-         })
-         shapeKinetics(defkins)
-
+         makeNewKineticsFromFile(kinsfile)
          #input$buttonLoadShapeKinetics$name is the filename
-         if(identical(defnames,names(newkins))) showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name),type = "message")
-         else showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name," - however they seem to be from a different dataset and so may be incorrect"),type = "warning")
+         # if(identical(defnames,names(newkins))) showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name),type = "message")
+         # else showNotification(paste0("Imported shape kinetics from ",input$buttonLoadShapeKinetics$name," - however they seem to be from a different dataset and so may be incorrect"),type = "warning")
        } else {showNotification(paste0(input$buttonLoadShapeKinetics$name, " appears not to contain valid kinetics"),type = "error")}
      } else {showNotification(paste0("There was noting to import from ",input$buttonLoadShapeKinetics$name),type = "error")}
    })
@@ -384,6 +388,7 @@ server <- function(input, output, session) {
     assign("dataValueRange",expressionValueRangeVaccDay, envir = .GlobalEnv)
     # setup kinetics
     setupKineticsFromDataset(vaccDays$days,"data")
+    
   }
 
   # these do resopnd OK outside this scope but put here for neatness
@@ -415,9 +420,12 @@ makeSelectColumnDayStyleGrey <- function(makeGrey){
 ### selecting events - probes
 respondToChangeColumn <- function(picker) {
   assign("sortCol_Probes",columnsFromVaccinesDays(input$selectColumnVaccine,input$selectColumnDay), envir = .GlobalEnv)
-  updateExpressionValueRangeVaccDay(sortCol_Probes)
-  if(picker == 'vacc') {
-    resetShapeNumericsToVaccine()
+  # dont reset things if we are reloading a saved search
+  if(is.null(get("selectedVaccineDayFromSavedSearchGene", envir = .GlobalEnv))) {
+    updateExpressionValueRangeVaccDay(sortCol_Probes)
+    if(picker == 'vacc') {
+      resetShapeNumericsToVaccine()
+    }
   }
 }
 
@@ -440,9 +448,16 @@ observeEvent(
   },
   {
     if(is.null(dayPatterns[[input$selectColumnVaccine]])) {showNotification(type = 'error', ui = paste0("There is a problem with data formatting - no day numbers could be found for ",input$selectColumnVaccine))}
-    updatePickerInput(session, 'selectColumnDay', choices = dayPatterns[[input$selectColumnVaccine]])
+    updatePickerInput(session, 'selectColumnDay', 
+                      choices = dayPatterns[[input$selectColumnVaccine]], 
+                      # we may be trying to set a specific day from a saved search so check if one is available
+                      selected = get("selectedVaccineDayFromSavedSearchGene", envir = .GlobalEnv)
+                      )
     updatePickerInput(session, 'selectShapeDay', choices = dayPatterns[[input$selectColumnVaccine]])
     respondToChangeColumn("vacc")
+    # reset the selectedVaccineDayFromSavedSearchGene as we dont want it persisting
+    assign("selectedVaccineDayFromSavedSearchGene",NULL, envir = .GlobalEnv)
+    
   })
 
 
@@ -471,8 +486,58 @@ observeEvent(
   
   
 ############### Apply Selection ### ####
+  topGenesFoundString <- reactiveVal(NULL)
+  output$textFiltersProbesFound <- renderText({topGenesFoundString()})
   topGenesAndModules <- reactiveVal()
   topGenesAndModules(NULL)
+  
+  source("searches.R")
+  makeSearchGenes <- function(){
+    return(
+      list(
+        savedSearchType = "gene",
+        timestamp = format(Sys.time()),
+        name = "Saved Gene Search",
+        inputVals = map(geneinputs,~input[[.]]),
+        inputFuns = geneinputFuns,
+        kinetics = list(FileName = allData$folder, KinsType = "actual", Kinetics = shapeKinetics()),
+        selectColumnDay = input$selectColumnDay
+      )
+    )
+  }
+  
+loadSavedSearchGenes <- function(savedsearch){
+    if(!is.null(savedsearch))
+    {
+      assign("selectedVaccineDayFromSavedSearchGene",savedsearch$selectColumnDay, envir = .GlobalEnv)
+      walk(names(savedsearch$inputVals),
+       function(inpt){
+         do.call(
+           what = savedsearch$inputFuns[[inpt]],
+           args = set_names(c(session,inpt,savedsearch$inputVals[[inpt]]),
+                            c("session","inputId",argNameForInputFun(savedsearch$inputFuns[[inpt]])))
+         )
+       })
+      makeNewKineticsFromFile(savedsearch$kinetics)
+    }
+  }
+  
+observeEvent(input$buttonLoadSavedSearchGenes,
+ {
+   # check its a valid  file
+   if (!is.null(input$buttonLoadSavedSearchGenes)) {
+     searchfile <- read_rds(input$buttonLoadSavedSearchGenes$datapath)
+     if (!is.null(searchfile) && ("savedSearchType" %in% names(searchfile)) && searchfile$savedSearchType == "gene") {
+       loadSavedSearchGenes(searchfile)
+     }
+   }
+ })
+  
+  output$buttonSaveSearchGenes <- downloadHandler(
+    filename = function(){paste0("Saved Search.rds")},
+    content = function(file) {write_rds(makeSearchGenes(),file)})
+  
+
   observeEvent(
     input$buttonApplySelection,
     {
@@ -599,12 +664,14 @@ observeEvent(
                 topGenesAndModules(selectedGenesAndModules(geneslist))
                   removeNotification(id = "buttonApplySelection")
                   nModules <- ifelse(nrow(topGenesAndModules()[['modules']]) == 0,"0",length(unique(topGenesAndModules()[['modules']][["Module"]])))
-                  showNotification(paste0("Found: ",nrow(topGenesAndModules()[['genes']]),
-                    ifelse(input$checkboxProbesGenes == TRUE, ' genes', ' probes'), " and ",
-                    nModules, " modules",
-                    " using filter: ", filtersText()), type = 'message')
+                  foundStr <- paste0("Found: ",nrow(topGenesAndModules()[['genes']]),
+                                     ifelse(input$checkboxProbesGenes == TRUE, ' genes', ' probes'), " and ",
+                                     nModules, " modules")
+                  topGenesFoundString(foundStr)
+                  showNotification(paste0(foundStr," using filter: ", filtersText()), type = 'message')
               } else {
                 topGenesAndModules(list(genes = NULL, modules = NULL, modsOnly = NULL))
+                topGenesFoundString(NULL)
                 removeNotification(id = "buttonApplySelection")
                 showNotification(paste0("Found 0 Probes and 0 Modules"," using filter: ", filtersText()), type = 'warning')
               }
@@ -782,31 +849,34 @@ observeEvent(
   geneExpressionsForModules <- reactive({
     getExpressionsForModules(topGenesAndModules(),sortCol_Probes,allData$data, input$checkboxShowPsuedoModuleGenesModules,filtersText())})
   # draw / save table
-  output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['summStats']]},options = list(pageLength = 10))
+  output$datatableSelModulesOnly <- renderDataTable({geneExpressionsForModules()[['Module']]},options = list(pageLength = 10))
   output$buttonSaveTableModulesSummary <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Summary.csv")},
-    content = function(file) {write_excel_csv(geneExpressionsForModules()[['summStats']], file, na = "")})
+    content = function(file) {write_excel_csv(geneExpressionsForModules()[['Module']], file, na = "")})
   output$buttonSaveTableModulesRaw <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Raw.csv")},
     content = function(file) {write_excel_csv(geneExpressionsForModules()[['expressions']], file, na = "")})
   
   output$buttonSaveTableModulesSummaryPlot <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Table.png")},
-    content = function(file) {plotDataTable(geneExpressionsForModules()[['summStats']],file,10.9,input$checkboxHiRes_modulessummary)})
+    content = function(file) {plotDataTable(geneExpressionsForModules()[['Module']],file,10.9,input$checkboxHiRes_modulessummary)})
   output$buttonSaveTableModulesSummaryListPlot <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes-Table.png")},
-    content = function(file) {plotDataTable(select(geneExpressionsForModules()[['summStats']],Module,Title),file,20,input$checkboxHiRes_modulessummary)})
+    content = function(file) {plotDataTable(select(geneExpressionsForModules()[['Module']],Module),file,20,input$checkboxHiRes_modulessummary)})
   
   output$buttonSaveTableModulesSummaryList <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes.txt")},
     content = function(file) {write_lines(
       paste0(
-      paste(unique(filter(geneExpressionsForModules()[['summStats']], Module != "Selected")[['Module']]), collapse = ','),'\n\n',
-      paste(unique(filter(geneExpressionsForModules()[['summStats']], Title != "Selected")[['Title']]), collapse = ','),'\n\n# ',
+      paste(unique(filter(geneExpressionsForModules()[['Module']], Module != "Selected")[['Module']]), collapse = ','),'\n\n',
+      paste(unique(filter(geneExpressionsForModules()[['Title']], Title != "Selected")[['Title']]), collapse = ','),'\n\n# ',
       dataFilterStr('g')
       ), file)})
   
   
   # draw / save plot
   ggplotGenesModules <-
-    reactive({plotGenesModules(geneExpressionsForModules()[['expressions']],dataAndFiltersText(),
+    reactive({plotGenesModules(geneExpressionsForModules(),dataAndFiltersText(),
                 input$checkboxShowLegendGenesModules, input$checkboxShowZeroGenesModules,input$checkboxGGplotGenesModules,
-                input$radioGroupProbeModulesBy)})
+                input$radioGroupProbeModulesBy,
+                if(input$checkboxModMedianMin == TRUE) input$numericModulesMedianMin else NULL,
+                if(input$checkboxModMedianMax == TRUE) input$numericModulesMedianMax else NULL
+                )})
   output$plotGenesModules <- renderPlot({ggplotGenesModules()} ,res = 72)
   output$plotGenesModulesSIZE <- renderUI({plotOutput("plotGenesModules", height = input$numberPlotGenesModulesSIZEheight)})
   output$buttonPNGplotGenesModules <- downloadHandler(filename = function(){paste0("Modules Of Selected Genes.png")},
@@ -817,7 +887,7 @@ observeEvent(
   
   #################### Modules->Genes #########################
   # link the module select to the modules for top genes topGenesAndModules()[['modsOnly']]
-  mods4Genes <- reactive({moduleDescriptionsForGenes(geneExpressionsForModules()[['summStats']])})
+  mods4Genes <- reactive({moduleDescriptionsForGenes(geneExpressionsForModules()[['Module']])})
   # change choices in the Genes In Module select based on selected modules
   observeEvent(mods4Genes(),{
     updatePickerInput(session, 'selectModuleForGenes', choices = mods4Genes())
@@ -1488,6 +1558,9 @@ observeEvent(
   # sortCol_Mods <- NULL
   assign("sortCol_Mods",NULL, envir = .GlobalEnv)
   
+  topModsFoundString <- reactiveVal(NULL)
+  output$textFiltersModsFound <- renderText({topModsFoundString()})
+  
   #################### Selecting Modules ####
 
   respondToChangeColumnModules <- function(){
@@ -1592,14 +1665,17 @@ observeEvent(
             topModulesSelected(mods)
             show(id = "navModuleHeader")
             removeNotification(id = "mbuttonApplySelection")
-            showNotification(paste0("Found: ",length(unique(mods[["Module"]])), " modules"), type = 'message')
+            foundModsStr <- paste0("Found: ",length(unique(mods[["Module"]])), " modules")
+            topModsFoundString(foundModsStr)
+            showNotification(foundModsStr, type = 'message')
             
           } else {
             modulesAndFiltersText("")
+            topModsFoundString(NULL)
             topModulesSelected(NULL)
             hide(id = "navModuleHeader")
             removeNotification(id = "mbuttonApplySelection")
-            showNotification(paste0("Found: 0 modules"), type = 'warning')
+            showNotification(paste0("No modules found"), type = 'warning')
           }
         }
       } else {
@@ -1647,8 +1723,14 @@ output$mbuttonSaveListTopModules <- downloadHandler(filename = function(){paste0
 
   # Plot Modules Selected #
 ggplotSelectedModules <-
-  reactive({plotSelectedModules(allData$modules,topModulesSelected(),modulesAndFiltersText(), 
-    input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,input$mcheckboxModuleMedians,input$mradioGroupTitleName,input$mcheckboxGGplotGenesModules)})
+  reactive({
+    plotSelectedModules(allData$modules,topModulesSelected(),modulesAndFiltersText(),
+                        input$mcheckboxShowLegendGenesModules, input$mcheckboxShowZeroGenesModules,
+                        input$mcheckboxModuleMedians,input$mradioGroupTitleName,
+                        input$mcheckboxGGplotGenesModules,
+                        if(input$mcheckboxModMedianMin == TRUE) input$mnumericModulesMedianMin else NULL,
+                        if(input$mcheckboxModMedianMax == TRUE) input$mnumericModulesMedianMax else NULL
+                        )})
 output$mplotSelectedModules <- renderPlot({ggplotSelectedModules()} ,res = 72)
 output$mplotSelectedModulesSIZE <- renderUI({plotOutput("mplotSelectedModules", height = input$numbermplotSelectedModulesSIZEheight)})
 output$buttonPNGmplotSelectedModules <- downloadHandler(filename = function(){paste0("Selected Modules.png")},

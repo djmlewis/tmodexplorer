@@ -51,9 +51,25 @@ plotBaseBoxplot <- function(x,y,s,t,z,l,xmax,xmin,naGenes){
   return(plot)
 }
 
-plotGenesModules <- function(d,t,l,z,gg,grouper){
+plotGenesModules <- function(datalist,t,l,z,gg,grouper,medmin = NULL,medmax = NULL){
   plot <-  NULL
-  if (!is.null(d) && nrow(d) > 0) {
+  if (!is.null(datalist) && !is.null(datalist[['expressions']]) && nrow(datalist[['expressions']]) > 0) {
+     d <- datalist[['expressions']]
+     
+     # take out the median filters - need to consider the effect or Module or Title and use that summary file to filter_at
+     if(!is.null(medmin)) {
+       mods2keep <- filter(datalist[[grouper]], Median >= medmin)[[grouper]]
+       d <- d %>%
+         filter_at(c(grouper), all_vars(. %in% mods2keep))
+     }
+     if(!is.null(medmax)) {
+       mods2keep <- filter(datalist[[grouper]], Median <= medmax)[[grouper]]
+       d <- d %>%
+         filter_at(c(grouper), all_vars(. %in% mods2keep))
+     }
+     # any rows left?
+     if(nrow(d)<1) return(NULL)
+     
      d <- d %>%
       filter(!is.na(Value)) %>%
       mutate(Module = droplevels(Module), 
