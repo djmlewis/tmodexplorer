@@ -448,6 +448,7 @@ getGenesForKinetics <- function(data2Match,kinetics,vacc,asGenes) {
 }
 
 getSearchItemsFromCommaList <- function(search,wholeWord,stripSpaces, makeUpper = FALSE){
+  # !!! returns a string with regex metacharacters when wholeWord == TRUE so NEVER use %in% to match that!!!
   if(is.null(search)) return(NULL)
   if(makeUpper) search <- toupper(search)
   # unlist and stringsplit does not affect a single string, but turns comma separated searches into a vector

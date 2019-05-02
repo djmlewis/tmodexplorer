@@ -72,9 +72,10 @@ ui <-
                tabPanel('Select Genes',
                         wellPanel(style = "background-color: #ffffff;",
                           conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                            fluidRow(style = "margin-bottom: 2px; padding-bottom: 2px;",
-                              column(2, wellPanel(style = "background-color: #feffee; margin-bottom: 1px; padding-bottom: 1px;",
-                                awesomeCheckbox(status = 'danger', 'checkboxExcludeLINC', label = h4(style = "margin-top: 0px; margin-bottom: 1px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE),
+                            fluidRow(
+                              column(2, wellPanel(style = "background-color: #feffee; margin-bottom: 0px; padding-bottom: 0px; margin-top: 0px;  padding-top: 0px;",
+                                awesomeCheckbox(status = 'danger', 'checkboxExcludeLINC', 
+                                                label = h4(style = "margin-top: 0px; padding-top: 0px;  margin-bottom: -10px; padding-bottom: 0px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE),
                                 bsTooltip("checkboxExcludeLINC", "lincRNA and lncRNA probes will be excluded from ALL searches", placement = 'bottom'))),
                               column(4, offset = 2, style = "margin-top: 4px; color: black ", 
                                 actionBttn('buttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
@@ -88,7 +89,8 @@ ui <-
                             column(2,# keywrd column
                               wellPanel(style = "margin-top: 0px;  padding-top: 0px; background-color: #feffee;",
                                   conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                  awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
+                                  awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', 
+                                                  label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
                                   conditionalPanel(condition = "input.checkboxSelectKeyword == true",
                                   radioGroupButtons('radioKeywordIncludeExclude', NULL,
                                    choiceValues = list('in', 'ex'),choiceNames = list('Include', 'Exclude'), selected = 'in',
@@ -119,10 +121,12 @@ ui <-
                                                  fluidRow(
                                                   column(10,
                                                         conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                        wellPanel(style = "background-color: #faffcc; margin-top: 0px;  padding-top: 0px;",
+                                                        # By VALUE
+                                                        wellPanel(style = "margin-top: 0px;  padding-top: 0px; background-color: #faffcc;",
                                                           fluidRow(
                                                             column(4,
-                                                              awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)
+                                                              awesomeCheckbox(status = 'success', 'checkboxSelectValues', 
+                                                                              label = h4(style = "margin-top: 0px;  padding-top: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)
                                                             ),
                                                             conditionalPanel(condition = "input.checkboxSelectValues == true",
                                                             column(8,radioGroupButtons('radioFilterByRowKinetics', NULL,
@@ -182,12 +186,14 @@ ui <-
                                                             column(6,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
                                                           )
                                                         )
-                                                   ))) # well conpan pickers
+                                                   ))) # 
                                                    ),
                                                    column(2,
+                                                    # BY ROWS
                                                     conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                                      wellPanel(style = "margin-top: 0px;  padding-top: 0px; background-color: #faffcc;",
-                                                               awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px; margin-bottom: 0px;  color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
+                                                               awesomeCheckbox(status = 'success', 'checkboxSelectRows', 
+                                                                               label = h4(style = "margin-top: 0px;  padding-top: 0px; color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
                                                                conditionalPanel(condition = "input.checkboxSelectRows == true",
                                                                 numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5),
                                                                 numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5)
@@ -1028,16 +1034,28 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                    fluidRow(
                      column(2,pickerInput('selectVaccNet', choices = NULL, options = list(`style` = "btn-success"))),
                      column(1,pickerInput('selectDayNet', choices = NULL, options = list(`style` = "btn-success"))),
-                     column(1,actionButton('buttonAddVacDayNet','Add', class = 'btn-warning')),
-                     column(3, selectInput('selectVacDaysToNet',label = NULL,
+                     column(2,style = "margin-top: 10px;", awesomeRadio('radioGenesRankNet',label = NULL, selected = 'Ranks', status = 'success', inline = TRUE, choices = c("Ranks","Genes"))),
+                     column(6,
+                        conditionalPanel(condition = "input.radioGenesRankNet == 'Genes'",
+                          textInput("textSpecifiedGenesNet", label = NULL, width = "100%")
+                        ),
+                        conditionalPanel(condition = "input.radioGenesRankNet == 'Ranks'",
+                          fluidRow(
+                           column(4, numericInput("numericNumRowsNet",NULL,value = 10, min = 1, step = 1),
+                                  bsTooltip("numericNumRowsNet","Number of rows to match", placement = 'top')),
+                           column(8, awesomeCheckbox('checkboxDescNet', "Descending", value = TRUE, status = "success")))
+                        )
+                     ),
+                     column(1,conditionalPanel(condition = "input.radioGenesRankNet == 'Ranks' || (input.radioGenesRankNet == 'Genes' && input.textSpecifiedGenesNet.length >0)",
+                            actionButton('buttonAddVacDayNet','Add', class = 'btn-warning')))
+                   ),
+                   fluidRow(
+                     column(10, selectInput('selectVacDaysToNet',label = NULL,
                                            choices = character(0),
                                            multiple = TRUE)),
                      column(1,actionButton('buttonClearNet','Clear')),
-                     column(1, numericInput("numericNumRowsNet",NULL,value = 10, min = 1, step = 1),
-                            bsTooltip("numericNumRowsNet","Number of rows to match", placement = 'top')),
-                     column(2, awesomeCheckbox('checkboxDescNet', "Descending", value = TRUE, status = "success")),
                      column(1,conditionalPanel(condition = "input.selectVacDaysToNet != null",
-                                               actionBttn('buttonPlotNet','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
+                                               actionBttn('buttonPlotNet','Plot',style = 'simple', size = 'md', color = 'warning', block = TRUE)
                      ))
                    )
          ),

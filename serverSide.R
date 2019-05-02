@@ -1356,8 +1356,8 @@ output$buttonSaveSearchGenes <- downloadHandler(
   
   
   ############################## Network ###########
-  assign("vaccDaysToNet",NULL, envir = .GlobalEnv)
-  
+  assign("vaccDaysToNet",tibble(srch = character(),dsply= character()), envir = .GlobalEnv)
+
   
   observeEvent(
     {
@@ -1368,16 +1368,6 @@ output$buttonSaveSearchGenes <- downloadHandler(
       updatePickerInput(session, 'selectDayNet', choices = dayPatterns[[input$selectVaccNet]])
     })
   
-  observeEvent(
-    {
-      input$selectVacDaysToNet
-    },
-    {
-      # if we remove an item we must realign the list or it gets added again when we click add
-      assign("vaccDaysToNet",input$selectVacDaysToNet, envir = .GlobalEnv)
-      updatePickerInput(session, 'selectVacDaysToNet', choices = vaccDaysToNet, selected = vaccDaysToNet)
-    })
-  
   
   observeEvent(
     {
@@ -1385,8 +1375,25 @@ output$buttonSaveSearchGenes <- downloadHandler(
     },
     {
       vacDy <- paste0(input$selectVaccNet,"_",input$selectDayNet)
-      assign("vaccDaysToNet",unique(c(vaccDaysToNet,vacDy)), envir = .GlobalEnv)
-      updatePickerInput(session, 'selectVacDaysToNet', choices = vaccDaysToNet, selected = vaccDaysToNet)
+      if(input$radioGenesRankNet == "Genes") {
+        newsrch <- tibble(
+          srch = paste0(vacDy,"†",input$textSpecifiedGenesNet),
+          dsply = paste(gsub("_", " ",vacDy),str_trunc(input$textSpecifiedGenesNet,15,"right"),
+                        # need an unique tag as truncated genes may not be unique
+                        " «",input$buttonAddVacDayNet,"»")
+        )
+      } else {
+        s <- paste0(if_else(input$checkboxDescNet == TRUE,"↓","↑"),input$numericNumRowsNet)
+        newsrch <- tibble(
+          srch = paste0(vacDy,"†",s),
+          dsply = paste0(gsub("_", " ",vacDy)," ",s) # dont need an unique tag as they are always unique
+        )
+      }
+      df <- get("vaccDaysToNet", envir = .GlobalEnv) %>%
+        bind_rows(newsrch) %>%
+        distinct(srch, .keep_all = TRUE)
+      assign("vaccDaysToNet",df, envir = .GlobalEnv)
+      updatePickerInput(session, 'selectVacDaysToNet', choices = df[['dsply']], selected = df[['dsply']])
     })
   
   observeEvent(
@@ -1394,9 +1401,25 @@ output$buttonSaveSearchGenes <- downloadHandler(
       input$buttonClearNet
     },
     {
-      assign("vaccDaysToNet",NULL, envir = .GlobalEnv)
+      assign("vaccDaysToNet",tibble(srch = character(),dsply= character()), envir = .GlobalEnv)
       updatePickerInput(session, 'selectVacDaysToNet', choices = character(0), selected = character(0))
     })
+  
+  observeEvent(
+    {
+      input$selectVacDaysToNet
+    },
+    {
+      if(is.null(input$selectVacDaysToNet)) {
+        updatePickerInput(session, 'selectVacDaysToNet', choices = character(0), selected = character(0))
+      } else {
+        # take out the missing row
+        assign("vaccDaysToNet",
+               filter(get("vaccDaysToNet", envir = .GlobalEnv), dsply %in% input$selectVacDaysToNet), 
+               envir = .GlobalEnv)
+        updatePickerInput(session, 'selectVacDaysToNet', choices = input$selectVacDaysToNet, selected = input$selectVacDaysToNet)
+      }
+    }, ignoreNULL = FALSE)
   
   numRowsNet <- reactiveVal(NULL)
   networkEdgeListAndCount <- reactiveValues(edgeCount = NULL, edgeList = NULL)
@@ -1404,7 +1427,8 @@ output$buttonSaveSearchGenes <- downloadHandler(
   plotNetworkGraph <- function(){
     networkEdgeListAndCount$edgeCount <- NULL
     networkEdgeListAndCount$edgeList <- NULL
-    networkEListAndCount <- getNetworkEdgeListAndCount(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
+    networkEListAndCount <- getNetworkEdgeListAndCount(allData$data,get("vaccDaysToNet", envir = .GlobalEnv))
+    # networkEListAndCount <- getNetworkEdgeListAndCount(allData$data,input$selectVacDaysToNet,input$numericNumRowsNet,input$checkboxDescNet)
     networkEdgeListAndCount$edgeCount <- networkEListAndCount[['edgeCount']]
     networkEdgeListAndCount$edgeList <- networkEListAndCount[['edgeList']]
     numRowsNet(paste(input$numericNumRowsNet,"rows", ifelse(input$checkboxDescNet == TRUE, "descending ", "ascending ")))

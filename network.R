@@ -155,8 +155,67 @@ upSetRPNG <- function(upsetrdata,orderby, emptyintersections, file, h, w,highRes
   }
 }
 
+getNetworkEdgeListAndCount <- function(GEdata, searchesDF) {
+  if(is.null(GEdata) || is.null(searchesDF) || nrow(searchesDF) == 0) return(NULL)
+  sortedGEdata <- map_dfr(searchesDF$srch, function(s){
+    vd <- str_split(s,"†", simplify = TRUE)
+    
+    GEdata2Sort <- select(GEdata, GE = one_of(vd[1]),Gene) %>%
+      group_by(Gene) %>%
+      summarise(
+        MeanValue = mean(GE, na.rm = TRUE)
+      ) %>%
+      ungroup()
 
-getNetworkEdgeListAndCount <- function(data, vaccs_day, numRows, descend) {
+    # is srch rows based?
+    if(grepl("[↓↑]",vd[2])) {
+      descend = grepl("↓",vd[2])
+      numRows = as.numeric(gsub("[↓↑]","",vd[2]))
+      if(descend) GEdata2Sort <- arrange(GEdata2Sort,desc(MeanValue))
+      else GEdata2Sort <- arrange(GEdata2Sort,MeanValue)
+      GEdata2Sort <- GEdata2Sort[1:numRows,]
+    } else {
+      # genes based. it assumes that the gene order is not relevant.
+      # set wholeWord = FALSE to avid having metacharacters added as we use %in% which is whole word specific
+      genes2find <- getSearchItemsFromCommaList(vd[2], wholeWord = FALSE, stripSpaces = TRUE, makeUpper = FALSE)
+      GEdata2Sort <- GEdata2Sort %>% 
+        filter(Gene %in% genes2find) %>%
+        # long winded way to order the genes according to the original list not the df order
+        mutate(Gene = factor(Gene, levels = genes2find)) %>%
+        arrange(Gene) %>%
+        mutate(Gene = as.character(Gene))
+    }
+    
+
+    GEdata2Sort <- GEdata2Sort %>%
+      mutate(
+        MeanValueRound = round(MeanValue,2),
+        Vaccine.Day = vd[1], 
+        Rank = row_number(),
+        revrank = rev(row_number()),
+      ) %>%
+      select(Gene, Vaccine.Day, Rank, revrank, MeanValue, MeanValueRound)
+    
+    # genes <- data.frame(Gene = GEdata2Sort[["Gene"]],
+    #                     Vaccine.Day = vd[1], 
+    #                     Rank = 1:numRows,
+    #                     revrank = numRows:1,
+    #                     MeanValue = GEdata2Sort[["MeanValue"]],
+    #                     MeanValueRound = GEdata2Sort[["MeanValueRound"]],
+    #                     stringsAsFactors = FALSE)
+    return(GEdata2Sort)
+  }) %>%
+    # we must arrange because summarise in edgeCount does arrange, whereas unique does not
+    arrange(Gene)
+  
+  edgecount <- sortedGEdata %>%
+    group_by(Gene) %>%
+    summarise(Connections = n())
+  
+  return(list(edgeList = sortedGEdata, edgeCount = edgecount))
+}
+
+OLDgetNetworkEdgeListAndCount <- function(data, vaccs_day, numRows, descend) {
   if(is.null(data)) return(NULL)
   
   sortedData <- map_dfr(vaccs_day, function(vd){
