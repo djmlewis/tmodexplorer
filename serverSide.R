@@ -508,7 +508,7 @@ observeEvent(
   }
   
 loadSavedSearchGenes <- function(savedsearch){
-    if(!is.null(savedsearch))
+  if (!is.null(savedsearch) && ("savedSearchType" %in% names(savedsearch)) && savedsearch$savedSearchType == "gene") {
     {
       assign("selectedVaccineDayFromSavedSearchGene",savedsearch$selectColumnDay, envir = .GlobalEnv)
       walk(names(savedsearch$inputVals),
@@ -521,23 +521,22 @@ loadSavedSearchGenes <- function(savedsearch){
        })
       makeNewKineticsFromFile(savedsearch$kinetics)
     }
-  }
-  
+  } else showNotification("There was a problem loading the saved search", type = 'error')
+}
+
+observeEvent(input$buttonResetFiltersGene,
+  {
+    loadSavedSearchGenes(read_rds("blankgene.rds"))
+  })
+
 observeEvent(input$buttonLoadSavedSearchGenes,
- {
-   # check its a valid  file
-   if (!is.null(input$buttonLoadSavedSearchGenes)) {
-     searchfile <- read_rds(input$buttonLoadSavedSearchGenes$datapath)
-     if (!is.null(searchfile) && ("savedSearchType" %in% names(searchfile)) && searchfile$savedSearchType == "gene") {
-       loadSavedSearchGenes(searchfile)
-     }
-   }
+ {if (!is.null(input$buttonLoadSavedSearchGenes)) loadSavedSearchGenes(read_rds(input$buttonLoadSavedSearchGenes$datapath))
  })
   
-  output$buttonSaveSearchGenes <- downloadHandler(
-    filename = function(){
-      paste0(if_else(nchar(input$textSavedSearchGeneName)==0,"Gene Filters",input$textSavedSearchGeneName),".rds")},
-    content = function(file) {write_rds(makeSearchGenes(),file)})
+output$buttonSaveSearchGenes <- downloadHandler(
+  filename = function(){
+    paste0(if_else(nchar(input$textSavedSearchGeneName)==0,"Gene Filters",input$textSavedSearchGeneName),".rds")},
+  content = function(file) {write_rds(makeSearchGenes(),file)})
   
 
   observeEvent(

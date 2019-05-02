@@ -70,141 +70,144 @@ ui <-
                                         )))),
                #################### Selecting  ################
                tabPanel('Select Genes',
-                        conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                          fluidRow(style = "margin-bottom:10px;",
-                            column(2, awesomeCheckbox(status = 'danger', 'checkboxExcludeLINC', label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE),
-                              bsTooltip("checkboxExcludeLINC", "lincRNA and lncRNA probes will be excluded from ALL searches", placement = 'bottom')),
-                            column(4, offset = 2, style = "margin-top: 4px; color: black ", 
-                              actionBttn('buttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
-                              bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting", placement = "top")),
-                            column(2, offset = 2,
-                                numericInput("rowsLimitNumeric", NULL, value = 100, min = 50, step = 50),
-                                bsTooltip("rowsLimitNumeric", "Limit to number of Probes / Genes returned. Suggest set to ~ 100 to avoid a very slow response", placement = 'top')
-                            )
-                            )),
-                        fluidRow(
-                          column(2,# keywrd column
-                            wellPanel(style = "background-color: #feffee;",
-                                conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
-                                conditionalPanel(condition = "input.checkboxSelectKeyword == true",
-                                radioGroupButtons('radioKeywordIncludeExclude', NULL,
-                                 choiceValues = list('in', 'ex'),choiceNames = list('Include', 'Exclude'), selected = 'in',
-                                 individual = FALSE, justified = TRUE, status = "primary"),
-                                bsTooltip('radioKeywordIncludeExclude',"Use to include or exclude matched values from subsequent filters", placement = "top"),
-                                textInput('textInputKeyword',NULL),
-                                h4(style = "margin-top: 0px;","Search:"),
-                                pickerInput('selectKeywordColumn',label = NULL,
-                                            choices = NULL,
-                                            options = list(`style` = "btn-success")),
-                                awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger")
-                                )))),
-                          column(10, # other searches
-                                 wellPanel(style = "background-color: #ffffff;",
-                                           fluidRow( # vacc - day pickers
-                                             column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
-                                             column(2,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                             column(7,
-                                              fluidRow(
+                        wellPanel(style = "background-color: #ffffff;",
+                          conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                            fluidRow(style = "margin-bottom: 2px; padding-bottom: 2px;",
+                              column(2, wellPanel(style = "background-color: #feffee; margin-bottom: 1px; padding-bottom: 1px;",
+                                awesomeCheckbox(status = 'danger', 'checkboxExcludeLINC', label = h4(style = "margin-top: 0px; margin-bottom: 1px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE),
+                                bsTooltip("checkboxExcludeLINC", "lincRNA and lncRNA probes will be excluded from ALL searches", placement = 'bottom'))),
+                              column(4, offset = 2, style = "margin-top: 4px; color: black ", 
+                                actionBttn('buttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
+                                bsTooltip('buttonApplySelection',"Apply filters (in order 1-2-3 left → right) to select probes or genes for plotting", placement = "top")),
+                              column(2, offset = 2,
+                                  numericInput("rowsLimitNumeric", NULL, value = 100, min = 50, step = 50),
+                                  bsTooltip("rowsLimitNumeric", "Limit to number of Probes / Genes returned. Suggest set to ~ 100 to avoid a very slow response", placement = 'top')
+                              )
+                              )),
+                          fluidRow(
+                            column(2,# keywrd column
+                              wellPanel(style = "margin-top: 0px;  padding-top: 0px; background-color: #feffee;",
+                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                  awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
+                                  conditionalPanel(condition = "input.checkboxSelectKeyword == true",
+                                  radioGroupButtons('radioKeywordIncludeExclude', NULL,
+                                   choiceValues = list('in', 'ex'),choiceNames = list('Include', 'Exclude'), selected = 'in',
+                                   individual = FALSE, justified = TRUE, status = "primary"),
+                                  bsTooltip('radioKeywordIncludeExclude',"Use to include or exclude matched values from subsequent filters", placement = "top"),
+                                  textInput('textInputKeyword',NULL),
+                                  h4(style = "margin-top: 0px;","Search:"),
+                                  pickerInput('selectKeywordColumn',label = NULL,
+                                              choices = NULL,
+                                              options = list(`style` = "btn-success")),
+                                  awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger")
+                                  )))),
+                            column(10, # other searches
+                                   wellPanel(style = "background-color: #feffee;",
+                                             fluidRow( # vacc - day pickers
+                                               column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
+                                               column(2,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                               column(7,
                                                 fluidRow(
-                                                  column(4, awesomeCheckbox("checkboxRowsAnyDay",label = h4(style = "margin-top: 0px;font-weight: bold;",'All Times'), value = FALSE,status = 'success'),
-                                                         bsTooltip("checkboxRowsAnyDay","Sort rows by value for selected Treatment on all days")),
-                                                  column(4, awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'Gene Averages'), value = FALSE)),
-                                                  column(4,awesomeCheckbox(status = 'success', 'checkboxDescending', label = h4(style = "margin-top: 0px;font-weight: bold;",'Sort Descending'), value = TRUE))
-                                                  )))
-                                           ),# vacc day
-                                           ### searches VALUE and ROWS
-                                               fluidRow(
-                                                column(10,
-                                                      conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                      wellPanel(style = "background-color: #feffee;",
-                                                        fluidRow(
-                                                          column(4,
-                                                            awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)
+                                                  fluidRow(
+                                                    column(4, awesomeCheckbox("checkboxRowsAnyDay",label = h4(style = "margin-top: 0px;font-weight: bold; color: #929292;",'All Times'), value = FALSE,status = 'primary'),
+                                                           bsTooltip("checkboxRowsAnyDay","Sort rows by value for selected Treatment on all days")),
+                                                    column(4, awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'Gene Averages'), value = FALSE)),
+                                                    column(4,awesomeCheckbox(status = 'success', 'checkboxDescending', label = h4(style = "margin-top: 0px;font-weight: bold;",'Sort Descending'), value = TRUE))
+                                                    )))
+                                             ),# vacc day
+                                             ### searches VALUE and ROWS
+                                                 fluidRow(
+                                                  column(10,
+                                                        conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                                        wellPanel(style = "background-color: #faffcc; margin-top: 0px;  padding-top: 0px;",
+                                                          fluidRow(
+                                                            column(4,
+                                                              awesomeCheckbox(status = 'success', 'checkboxSelectValues', label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)
+                                                            ),
+                                                            conditionalPanel(condition = "input.checkboxSelectValues == true",
+                                                            column(8,radioGroupButtons('radioFilterByRowKinetics', NULL,
+                                                                     choiceValues = list('row', 'kinetics'),choiceNames = list('Treat~Time', 'Treat~Kinetics'),
+                                                                     individual = FALSE, justified = TRUE, status = "primary")
+                                                            ))
                                                           ),
                                                           conditionalPanel(condition = "input.checkboxSelectValues == true",
-                                                          column(8,radioGroupButtons('radioFilterByRowKinetics', NULL,
-                                                                   choiceValues = list('row', 'kinetics'),choiceNames = list('Treat~Time', 'Treat~Kinetics'),
-                                                                   individual = FALSE, justified = TRUE, status = "primary")
-                                                          ))
-                                                        ),
-                                                        conditionalPanel(condition = "input.checkboxSelectValues == true",
-                                                        conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
-                                                        fluidRow(
-                                                            column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)),
-                                                            column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
-                                                        ),
-                                                         fluidRow(
-                                                            column(6,
-                                                              actionButton('buttonResetValuesRangeCol',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
-                                                              actionButton('buttonResetValuesRangeData',NULL, icon = icon("folder-open"), class = 'btn-outline-primary'))
-                                                         )
-                                                        ),
-                                                        conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
-                                                        # KINETICS
-                                                        fluidRow(
-                                                          column(5,
-                                                            conditionalPanel(condition = "input.checkboxRowsAnyDay == true",
-                                                            p(style = "margin-top: 0px; margin-bottom: 0px; text-align: center; color: #b90600; font-size: 0.9em","All Times checkbox will be ignored")),
-                                                            plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
-                                                            bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top')
+                                                          conditionalPanel(condition = "input.radioFilterByRowKinetics == 'row'",
+                                                          fluidRow(
+                                                              column(6,numericInput("numberExpressionMin", "Lowest:", value = 0)),
+                                                              column(6,numericInput("numberExpressionMax", "Highest:", value = 0))
                                                           ),
-                                                          column(7, 
-                                                            fluidRow(
-                                                              column(2, actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
-                                                              column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
-                                                               column(5,conditionalPanel(condition = "output.vaccineHasDay",awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE)))
+                                                           fluidRow(
+                                                              column(6,
+                                                                actionButton('buttonResetValuesRangeCol',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
+                                                                actionButton('buttonResetValuesRangeData',NULL, icon = icon("folder-open"), class = 'btn-outline-primary'))
+                                                           )
+                                                          ),
+                                                          conditionalPanel(condition = "input.radioFilterByRowKinetics == 'kinetics'",
+                                                          # KINETICS
+                                                          fluidRow(
+                                                            column(5,
+                                                              conditionalPanel(condition = "input.checkboxRowsAnyDay == true",
+                                                              p(style = "margin-top: 0px; margin-bottom: 0px; text-align: center; color: #b90600; font-size: 0.9em","All Times checkbox will be ignored")),
+                                                              plotOutput("plotShapeMiniplot", height = "150px", click = "click_plotShapeMiniplot", dblclick = "dblclick_plotShapeMiniplot"),
+                                                              bsTooltip("plotShapeMiniplot","Click * to select day, double-click to toggle Ignore", placement = 'top')
                                                             ),
-                                                            conditionalPanel(condition = "output.vaccineHasDay == false",h4(textOutput("textVaccineHasDay"))),
-                                                            conditionalPanel(condition = "output.vaccineHasDay",
-                                                              fluidRow(  
-                                                                conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                                                                 column(6,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
-                                                                                 column(6,numericInput("numberShapeDayMax", "Highest:", value = 0)))
-                                                              ),
+                                                            column(7, 
                                                               fluidRow(
-                                                                column(6, 
-                                                                       actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-warning'),
-                                                                       actionButton('buttonPasteValuesShapeData',NULL, icon = icon("paste"), class = 'btn-warning')),
-                                                                conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
-                                                                column(6, 
-                                                                  actionButton('buttonResetValuesShapeVaccine',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
-                                                                  actionButton('buttonResetValuesShapeData',NULL, icon = icon("folder-open"),class = 'btn-outline-primary')))
+                                                                column(2, actionButton('buttonShapeSaveDay','Set', class = 'btn-warning')),
+                                                                column(5,pickerInput('selectShapeDay', choices = NULL, options = list(`style` = "btn-success"))),
+                                                                 column(5,conditionalPanel(condition = "output.vaccineHasDay",awesomeCheckbox(status = 'success', 'checkboxShapeSkipDay', label = "Ignore", value = TRUE)))
+                                                              ),
+                                                              conditionalPanel(condition = "output.vaccineHasDay == false",h4(textOutput("textVaccineHasDay"))),
+                                                              conditionalPanel(condition = "output.vaccineHasDay",
+                                                                fluidRow(  
+                                                                  conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                                                   column(6,numericInput("numberShapeDayMin", "Lowest:", value = 0)),
+                                                                                   column(6,numericInput("numberShapeDayMax", "Highest:", value = 0)))
+                                                                ),
+                                                                fluidRow(
+                                                                  column(6, 
+                                                                         actionButton('buttonCopyValuesShapeData',NULL, icon = icon("copy"), class = 'btn-warning'),
+                                                                         actionButton('buttonPasteValuesShapeData',NULL, icon = icon("paste"), class = 'btn-warning')),
+                                                                  conditionalPanel(condition = "input.checkboxShapeSkipDay == false",
+                                                                  column(6, 
+                                                                    actionButton('buttonResetValuesShapeVaccine',NULL,icon = icon("tag"), class = 'btn-outline-primary'),
+                                                                    actionButton('buttonResetValuesShapeData',NULL, icon = icon("folder-open"),class = 'btn-outline-primary')))
+                                                                )
                                                               )
-                                                            )
-                                                          )),
-                                                        fluidRow(style = "margin-top: 10px;",
-                                                          column(2, actionBttn('buttonResetKineticsData',"Reset",style = 'stretch', icon = icon("folder-open"), color = "warning", size = 'sm')),bsTooltip("buttonResetKineticsData","Reset To Dataset Max Min"),
-                                                          column(2, actionBttn('buttonResetKineticsTreat',"Reset",style = 'stretch',  icon = icon("tag"), color = "warning", size = 'sm')),bsTooltip("buttonResetKineticsTreat","Reset To Treatment Max Min"),
-                                                          column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
-                                                          column(6,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
+                                                            )),
+                                                          fluidRow(style = "margin-top: 10px;",
+                                                            column(2, actionBttn('buttonResetKineticsData',"Reset",style = 'stretch', icon = icon("folder-open"), color = "warning", size = 'sm')),bsTooltip("buttonResetKineticsData","Reset To Dataset Max Min"),
+                                                            column(2, actionBttn('buttonResetKineticsTreat',"Reset",style = 'stretch',  icon = icon("tag"), color = "warning", size = 'sm')),bsTooltip("buttonResetKineticsTreat","Reset To Treatment Max Min"),
+                                                            column(2,downloadButton(class="btn-outline-primary",'buttonSaveShapeKinetics', "Export")),
+                                                            column(6,fileInput('buttonLoadShapeKinetics', label = NULL, buttonLabel = "Import…", accept = c(".rds")))
+                                                          )
                                                         )
-                                                      )
-                                                 ))) # well conpan pickers
-                                                 ),
-                                                 column(2,
-                                                  conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
-                                                   wellPanel(style = "background-color: #feffee;",
-                                                             awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
-                                                             conditionalPanel(condition = "input.checkboxSelectRows == true",
-                                                              numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5),
-                                                              numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5)
-                                                   )))
-                                                 )
-                                               ) # Searches 1 & 2
-                                 )
-                          )#column
-                        ),# row
-                        wellPanel(style = "background-color: #ffffff;",
-                          fluidRow(
+                                                   ))) # well conpan pickers
+                                                   ),
+                                                   column(2,
+                                                    conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
+                                                     wellPanel(style = "margin-top: 0px;  padding-top: 0px; background-color: #faffcc;",
+                                                               awesomeCheckbox(status = 'success', 'checkboxSelectRows', label = h4(style = "margin-top: 0px; margin-bottom: 0px;  color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
+                                                               conditionalPanel(condition = "input.checkboxSelectRows == true",
+                                                                numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5),
+                                                                numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5)
+                                                     )))
+                                                   )
+                                                 ) # Searches 1 & 2
+                                   )
+                            )#column
+                          ) # row
+                        ), # searches well panel enclosing
+                        wellPanel(style = "background-color: #f5fdf5; margin-bottom: 1px; padding-bottom: 1px;",
+                          fluidRow(style = "margin-bottom: 1px; padding-bottom: 1px;",
                           column(1, style = "margin-right: 0px; padding-right: 1px;", downloadButton(class="btn-outline-primary btn-block","buttonSaveSearchGenes","Filters")),
                           column(2, style = "margin-left: 0px; padding-left: 1px;", textInput("textSavedSearchGeneName",label = NULL, placeholder = "Filters export filename")),
-                          column(4, fileInput('buttonLoadSavedSearchGenes', label = NULL, buttonLabel = "Import filters…", accept = c(".rds")))
+                          column(4, span(style = "margin-bottom: 1px; padding-bottom: 1px;",fileInput('buttonLoadSavedSearchGenes', label = NULL, buttonLabel = "Import filters…", accept = c(".rds")))),
+                          column(2, offset = 3, actionBttn('buttonResetFiltersGene',"Reset Filters",style = 'stretch', icon = icon("times-circle"), color = "warning", size = 'md'))
                         ))
                ),
                          #################### Top Genes #######################
                          tabPanel('Selected Genes',
-                                  
                                   h4(style = "margin-top: 0px;",'Probes Or Genes Meeting The Filters, Sorted By Values In Selected Treatment-Time Combination'),
                                   fluidRow(
                                     column(2,downloadButton(class="btn-outline-primary btn-block",'buttonSaveTableProbes', 'Table')),
