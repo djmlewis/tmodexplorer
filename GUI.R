@@ -29,7 +29,7 @@ ui <-
               h4(style = "text-align: center; margin-top: 0px;",'Please enter the password you have been given to access tmodExplorer and click Enter'),
               fluidRow(
                 column(6, offset = 3,
-                       wellPanel(style = "background-color: #feffee;",
+                       wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                  fluidRow(
                                    column(9,passwordInput('password', NULL)),
                                    column(3,actionButton('buttonPassword','Enter',class = "btn-success"))
@@ -43,7 +43,7 @@ ui <-
               h3(style = "text-align: center;","Select a transcriptomics dataset to analyse"),
               fluidRow(
                 column(6, offset = 3,
-                       wellPanel(style = "background-color: #feffee;",
+                       wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #feffee;",
                                  fluidRow(
                                    column(8,pickerInput(inputId = 'selectDataFI', choices = NULL, options = list(`style` = "btn-success"))),
                                    column(4,
@@ -61,21 +61,22 @@ ui <-
      ),
      # ############## PROBES #################
      tabPanel('Explore By Gene',
-              hidden(h4(id = "textDataNameProbesHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:0px;  margin-left: 0px; margin-right: 0px; background-color: #b59800; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;", 
+              hidden(h4(id = "textDataNameProbesHeader", h4(style = "text-align: center; margin-top: 0px;  margin-left: 0px; margin-right: 0px; background-color: #b59800; color: #FFFFFF;padding-top: 10px; padding-bottom: 10px;", 
                                                             textOutput('textDataNameProbes')))),
               navbarPage(span(style = 'color: #000000;','Gene'), id = 'navProbe',
-                         header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px; margin-bottom:5px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #ae6500;padding-top: 10px; padding-bottom: 10px;",
+                         header = hidden(tagList(div(id = "navProbeHeader", h4(style = "text-align: center; margin-top: 0px;  margin-left: 0px; margin-right: 0px; color: #FFFFFF; background-color: #ae6500;padding-top: 10px; padding-bottom: 10px;",
                                         textOutput('textFiltersProbes'),
                                         span(style = "color: #fefc78;", textOutput('textFiltersProbesFound'))
                                         )))),
                #################### Selecting  ################
                tabPanel('Select Genes',
-                        wellPanel(style = "background-color: #ffffff;",
+                        wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #ffffff;",
                           conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                             fluidRow(
-                              column(2, wellPanel(style = "background-color: #feffee; margin-bottom: 0px; padding-bottom: 0px; margin-top: 0px;  padding-top: 0px;",
+                              column(2, 
+                                wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                 awesomeCheckbox(status = 'danger', 'checkboxExcludeLINC', 
-                                                label = h4(style = "margin-top: 0px; padding-top: 0px;  margin-bottom: -10px; padding-bottom: 0px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE),
+                                                label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'exclude lincRNA'), value = FALSE),
                                 bsTooltip("checkboxExcludeLINC", "lincRNA and lncRNA probes will be excluded from ALL searches", placement = 'bottom'))),
                               column(4, offset = 2, style = "margin-top: 4px; color: black ", 
                                 actionBttn('buttonApplySelection','Apply Filters',style = 'simple', size = 'sm', color = 'warning', block = TRUE),
@@ -90,7 +91,7 @@ ui <-
                               wellPanel(style = "margin-top: 0px;  padding-top: 0px; background-color: #feffee;",
                                   conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                   awesomeCheckbox(status = 'success', 'checkboxSelectKeyword', 
-                                                  label = h4(style = "margin-top: 0px; margin-bottom: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
+                                                  label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'1. Keyword regex search'), value = FALSE),
                                   conditionalPanel(condition = "input.checkboxSelectKeyword == true",
                                   radioGroupButtons('radioKeywordIncludeExclude', NULL,
                                    choiceValues = list('in', 'ex'),choiceNames = list('Include', 'Exclude'), selected = 'in',
@@ -104,14 +105,14 @@ ui <-
                                   awesomeCheckbox("checkboxGeneSearchWholeWord","Whole Word", TRUE,status = "danger")
                                   )))),
                             column(10, # other searches
-                                   wellPanel(style = "background-color: #feffee;",
+                                   wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #feffee;",
                                              fluidRow( # vacc - day pickers
                                                column(3,pickerInput('selectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
                                                column(2,pickerInput('selectColumnDay', choices = NULL, options = list(`style` = "btn-success"))),
                                                column(7,
                                                 fluidRow(
                                                   fluidRow(
-                                                    column(4, awesomeCheckbox("checkboxRowsAnyDay",label = h4(style = "margin-top: 0px;font-weight: bold; color: #929292;",'All Times'), value = FALSE,status = 'primary'),
+                                                    column(4, awesomeCheckbox("checkboxRowsAnyDay",label = h4(style = "margin-top: 0px; font-weight: bold; color: #929292;",'All Times'), value = FALSE,status = 'primary'),
                                                            bsTooltip("checkboxRowsAnyDay","Sort rows by value for selected Treatment on all days")),
                                                     column(4, awesomeCheckbox(status = 'danger', 'checkboxProbesGenes', label = h4(style = "margin-top: 0px; color: #b90600;font-weight: bold;",'Gene Averages'), value = FALSE)),
                                                     column(4,awesomeCheckbox(status = 'success', 'checkboxDescending', label = h4(style = "margin-top: 0px;font-weight: bold;",'Sort Descending'), value = TRUE))
@@ -126,7 +127,7 @@ ui <-
                                                           fluidRow(
                                                             column(4,
                                                               awesomeCheckbox(status = 'success', 'checkboxSelectValues', 
-                                                                              label = h4(style = "margin-top: 0px;  padding-top: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)
+                                                                              label = h4(style = "margin-top: 0px; color: #728f17;font-weight: bold;",'2. Values In Range:'), value = FALSE)
                                                             ),
                                                             conditionalPanel(condition = "input.checkboxSelectValues == true",
                                                             column(8,radioGroupButtons('radioFilterByRowKinetics', NULL,
@@ -193,7 +194,7 @@ ui <-
                                                     conditionalPanel(condition = "input.selectColumnDay != null && input.selectColumnVaccine != null",
                                                      wellPanel(style = "margin-top: 0px;  padding-top: 0px; background-color: #faffcc;",
                                                                awesomeCheckbox(status = 'success', 'checkboxSelectRows', 
-                                                                               label = h4(style = "margin-top: 0px;  padding-top: 0px; color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
+                                                                               label = h4(style = "margin-top: 0px;  color: #728f17;font-weight: bold;",'3. Rows In Range:'), value = TRUE),
                                                                conditionalPanel(condition = "input.checkboxSelectRows == true",
                                                                 numericInput("numberGenesStart", "From:", 0, min = 0, max = NA, step = 5),
                                                                 numericInput("numberGenesEnd", "To:", 10, min = 0, max = NA, step = 5)
@@ -204,7 +205,7 @@ ui <-
                             )#column
                           ) # row
                         ), # searches well panel enclosing
-                        wellPanel(style = "background-color: #f5fdf5; margin-bottom: 1px; padding-bottom: 1px;",
+                        wellPanel(style = "background-color: #f5fdf5; padding-bottom: 0px; padding-top: 10px; ",
                           fluidRow(style = "margin-bottom: 1px; padding-bottom: 1px;",
                           column(1, style = "margin-right: 0px; padding-right: 1px;", downloadButton(class="btn-outline-primary btn-block","buttonSaveSearchGenes","Filters")),
                           column(2, style = "margin-left: 0px; padding-left: 1px;", textInput("textSavedSearchGeneName",label = NULL, placeholder = "Filters export filename")),
@@ -227,11 +228,11 @@ ui <-
                          ),
                          #################### Top Spots Series ################
                          tabPanel('Genes:Series',
-                                  wellPanel(style = "background-color: #FFFFFF",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #FFFFFF",
                                             h4(style = "margin-top: 0px;",'Time Course Of Probes Or Genes Meeting The Filters, By Treatment~Time'),
                                             fluidRow(
                                               column(4,
-                                                     wellPanel(style = "background-color: #feffee;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #feffee;",
                                                                conditionalPanel(condition = "input.selectVaccinesForSeries != null && input.selectDaysForSeries != null && input.selectGenesProbesForSeries != null",
                                                                                 actionBttn('buttonPlotSeries','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
                                                                                 ),
@@ -262,7 +263,7 @@ ui <-
                                                                  ))
                                                      )),
                                               column(8,
-                                                     wellPanel(style = "background-color: #feffee;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                                                fluidRow(
                                                                  column(4,selectInput('selectVaccinesForSeries', label = "Treatment", choices = character(0), multiple = TRUE)),
                                                                  column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllVaccinesSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllVaccinesSeries','Clear'))),
@@ -270,8 +271,7 @@ ui <-
                                                                  column(2,div(style = "margin-top: 20px;",actionButton('buttonAddAllDaysSeries','All', class="btn-outline-primary"),actionButton('buttonRemoveAllDaysSeries','Clear')))
                                                                )
                                                      ),
-                                                     wellPanel(
-                                                       style = "background-color: #feffee;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                                        fluidRow(
                                                          column(9,selectInput('selectGenesProbesForSeries', label = "Probes / Genes", choices = character(0), multiple = TRUE)),
                                                          column(3,div(style = "margin-top: 20px;",
@@ -281,7 +281,7 @@ ui <-
                                                      )
                                               )
                                             ),
-                                            wellPanel(style = "background-color: #FFFFFF;",
+                                            wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                                       p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select"),
                                                       uiOutput("plotTopGenesSeriesSIZE")),
                                             conditionalPanel(condition = "output.plotTopGenesSeries != null",
@@ -329,7 +329,7 @@ ui <-
                                   dataTableOutput('datatableGenesModules')),
                          #################### Modules #########################
                          tabPanel('Modules',
-                                  wellPanel(style = "background-color: #FFFFFF",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #FFFFFF",
                                             h4(style = "margin-top: 0px;",'Expression Values Of Modules Associated With Selected Probes / Genes'),
                                             fluidRow(
                                               column(3,awesomeCheckbox(status = 'success', 'checkboxShowPsuedoModuleGenesModules', 'Include Selected As Module', value = TRUE)),
@@ -353,7 +353,7 @@ ui <-
                                               column(2, style = "margin-left: 0px; padding-left: 0px;",
                                                      awesomeCheckbox(status = 'warning', 'checkboxModMedianMax', 'Median Max', value = FALSE))
                                             ),
-                                            wellPanel(style = "background-color: #FFFFFF;",
+                                            wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                                       uiOutput("plotGenesModulesSIZE")
                                             ),
                                             fluidRow(
@@ -377,7 +377,7 @@ ui <-
                                   dataTableOutput('datatableSelModulesOnly')),
                          #################### Modules->Genes ###################
                          tabPanel('Module->Genes',
-                                  wellPanel(style = "background-color: #FFFFFF;",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #FFFFFF;",
                                             h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Modules Associated With Selected Probes / Genes'),
                                             fluidRow(
                                               column(5,pickerInput(inputId = 'selectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
@@ -387,7 +387,7 @@ ui <-
                                               column(1,awesomeCheckbox(status = 'success', 'checkboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
                                               column(2, style = "margin-top: -10px;", sliderInput("numberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))
                                             ),
-                                            wellPanel(style = "background-color: #FFFFFF;",
+                                            wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                                       uiOutput("plotModuleGenesSIZE")
                                             ),
                                             fluidRow(
@@ -409,7 +409,7 @@ ui <-
                                             h4(style = "margin-top: 0px;",'Time Course Of Modules Associated With Selected Probes / Genes'),
                                             fluidRow(
                                               column(3,
-                                                     wellPanel(style = "background-color: #feffee;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #feffee;",
                                                                conditionalPanel(condition = "input.selectColumnForModuleSeriesVaccines != null && input.selectColumnForModuleSeriesDays != null && input.selectModuleForSeries != null",
                                                                                 actionBttn('buttonPlotModuleSeries','Plot',style = 'simple', size = 'sm', color = 'warning', block = TRUE)
                                                                ),
@@ -437,7 +437,7 @@ ui <-
                                                      )
                                               ),
                                               column(9,
-                                                     wellPanel(style = "background-color: #feffee;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                                                fluidRow(
                                                                  column(6,
                                                                         fluidRow(
@@ -456,7 +456,7 @@ ui <-
                                                                  )
                                                                )
                                                      ),
-                                                     wellPanel(style = "background-color: #feffee;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                                                fluidRow(
                                                                  column(9, selectInput('selectModuleForSeries', label = 'Modules', character(0), multiple = TRUE),
                                                                         awesomeCheckbox(status = 'success', 'checkboxShowPseudoModuleModuleSeries', 'Include Selected As Module', value = TRUE)),
@@ -466,7 +466,7 @@ ui <-
                                                                ))
                                               )
                                             ),
-                                            wellPanel(style = "background-color: #FFFFFF;",
+                                            wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                                       p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select"),
                                                       uiOutput("plotModuleSeriesSIZE")
                                             ),
@@ -497,7 +497,7 @@ ui <-
                          #################### Muscle Individuals ###################
                          tabPanel(value = 'muscleExplorer', title = span(style = "color: #520000;", "CRC305E"),
                                   h4(style = "margin-top: 10px;",'Expression Values Of Probes Mapping Selected Genes In Individual CRC305E Participants For Specified Vaccine ~ Tissue ~ Time'),
-                                  wellPanel(style = "background-color: #fff1f7;",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 10px; background-color: #fff1f7;",
                                       fluidRow(
                                         column(11, textInput('muscle_textInputKeyword', "Genes To Plot (ProbeName and other gene identifiers are not recognised)")),
                                         column(1,style = "margin-top: 25px;",actionButton('muscle_buttonRemoveAllGenes','Clear'))
@@ -532,7 +532,7 @@ ui <-
                                                ))
                                       )
                             ),
-                            wellPanel(style = "background-color: #ffffff;",
+                            wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #ffffff;",
                                 uiOutput("muscleplotIndividualsFilteredSortedProbesIndividualsSIZE"),
                                 conditionalPanel(condition = "output.muscle_filteredSortedProbesTidyMuscle != null",
                                   fluidRow(
@@ -553,7 +553,7 @@ ui <-
                     tabPanel(value = 'GOA Plot', title = span(style = "color: #FFFFFF;", "GOA Plot"),
                       navbarPage(title = span(style = "color: #007b52;", "GOA Plot"),
                         tabPanel(value = 'Select Annotations', title = "Select Annotations",
-                                 wellPanel(style = "background-color: #eefff9;",
+                                 wellPanel(style = "padding-bottom: 0px; padding-top: 10px; background-color: #eefff9;",
                                            fluidRow(
                                              column(8, textInput(inputId ='go_textInputKeyword', label = span(style = 'color: #007b52;',"Enter Genes to annotate (other gene identifiers may not be recognised)"))),
                                              column(2,style = "margin-top: 25px;",actionBttn('go_buttonGO','GO',style = 'simple', size = 'md', color = 'warning', block = TRUE)),
@@ -598,7 +598,7 @@ ui <-
                                             )
                                           )
                                   ),
-                                 wellPanel(style = "background-color: #fefdca;",
+                                 wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #fefdca;",
                                            h3(style = 'color: #007b52; text-align: center; margin-top: -5px;',"Select GO Annotations to Plot"),
                                            fluidRow(
                                              column(4,checkboxGroupInput(inputId = 'go_select_BP', label = h4(style = 'color: #007b52;',"Biological Processes"), choices = NULL, selected = character(0))),
@@ -631,7 +631,7 @@ ui <-
                                  
                         ),
                         tabPanel(value = 'Plot Annotations', title = "Plot Annotations",
-                           wellPanel(style = "background-color: #fefdca;",
+                           wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #fefdca;",
                               fluidRow(
                                 column(2,h4(style = 'color: #007b52; margin-bottom: 20px; margin-top: 1px; ',"Selected GOAs:")),
                                 column(10,
@@ -673,7 +673,7 @@ ui <-
                               )
                            ),
                             conditionalPanel(condition = "output.go_datatablePlotDataGOtermMeans != null",
-                              wellPanel(style = "background-color: #ffffff;",
+                              wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #ffffff;",
                                 uiOutput("go_plotGenesSeriesSIZE"),
                                 fluidRow(
                                   column(2,sliderInput("go_plotGenesSeriesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 2500),
@@ -764,11 +764,11 @@ ui <-
                                                                                 bsTooltip('mbuttonApplySelection',"Apply filters to select modules for plotting. Selected filters are applied in order left → right", placement = "top")
                                   ))),
                                   br(),
-                                  wellPanel(style = "background-color: #FFFFFF;",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 10px; background-color: #FFFFFF;",
                                             fluidRow(
                                               column(4,
                                                      conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
-                                                                      wellPanel(style = "background-color: #feffee;",
+                                                                      wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                                                                 awesomeCheckbox(status = 'success',inputId = 'mcheckboxSelectKeyword',label =  h4(style = "margin-top: 0px;",'1. Using regex keyword search'), value = FALSE),
                                                                                 textInput('mtextInputKeyword',NULL),
                                                                                 h4(style = "margin-top: 0px;","Search:"),
@@ -778,7 +778,7 @@ ui <-
                                                                       ))
                                               ),
                                               column(8,
-                                                     wellPanel(style = "background-color: #FFFFFF;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 10px; background-color: #FFFFFF;",
                                                                h4(style = "text-align: center; margin-top: 0px;", "Select a treatment~time column to filter by value and sort modules by value"),
                                                                fluidRow(
                                                                  column(3,pickerInput('mselectColumnVaccine', choices = NULL, options = list(`style` = "btn-success"))),
@@ -790,7 +790,7 @@ ui <-
                                                                  fluidRow(
                                                                    column(6,
                                                                           conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
-                                                                                           wellPanel(style = "background-color: #feffee;",
+                                                                                           wellPanel(style = "padding-bottom: 10px; padding-top: 0px; background-color: #feffee;",
                                                                                                      awesomeCheckbox(status = 'success', inputId = 'mcheckboxSelectValues', label =  h4(style = "margin-top: 0px;",'2. Values Within Range:'), value = FALSE),
                                                                                                      fluidRow(
                                                                                                        column(6,numericInput("mnumberExpressionMin", "Lowest:", value = 0)),
@@ -803,7 +803,7 @@ ui <-
                                                                                            ))),
                                                                    column(6,
                                                                           conditionalPanel(condition = "input.mselectColumnVaccine != null && input.mselectColumnDay != null",
-                                                                                           wellPanel(style = "background-color: #feffee;",
+                                                                                           wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                                                                                      awesomeCheckbox(status = 'success', inputId = 'mcheckboxSelectRows', label =  h4(style = "margin-top: 0px;",'3. Row Numbers Within Range:'), value = TRUE),
                                                                                                      fluidRow(
                                                                                                        column(6,numericInput("mnumberModsStart", "From Row:", 0, min = 0, max = NA, step = 5)),
@@ -820,7 +820,7 @@ ui <-
                          ), #tab
                          #     #################### Top Modules #######################
                          tabPanel('Selected Modules',
-                                  wellPanel(style = "background-color: #FFFFFF;",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #FFFFFF;",
                                             h4(style = "margin-top: 0px;",'Expression Values Of Selected Modules'),
                                             fluidRow(
                                               column(1,awesomeCheckbox(status = 'success', 'mcheckboxShowLegendGenesModules', 'Legend', value = FALSE)),
@@ -843,7 +843,7 @@ ui <-
                                               column(2, style = "margin-left: 0px; padding-left: 0px;",
                                                      awesomeCheckbox(status = 'warning', 'mcheckboxModMedianMax', 'Median Max:', value = FALSE))
                                             ),
-                                            wellPanel(style = "background-color: #FFFFFF;",
+                                            wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                                       uiOutput("mplotSelectedModulesSIZE")
                                             ),
                                             fluidRow(
@@ -867,7 +867,7 @@ ui <-
                          ),
                          #################### Top Modules->Genes ###################
                          tabPanel('Module->Genes',
-                                  wellPanel(style = "background-color: #FFFFFF;",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #FFFFFF;",
                                     h4(style = "margin-top: 0px;",'Expression Values Of Genes Within Selected Modules'),
                                     fluidRow(
                                       column(5,pickerInput(inputId = 'mselectModuleForGenes', label = NULL, choices = NULL, inline = TRUE,options = list(`style` = "btn-success"))),
@@ -877,7 +877,7 @@ ui <-
                                       column(1,awesomeCheckbox(status = 'success', 'mcheckboxGGplotModuleGenes', 'ggplot2', value = FALSE)),
                                       column(2, style = "margin-top: -10px;", sliderInput("mnumberPlotModuleGenesSIZEheight", NULL, value = 400, min = 300, step = 50, ticks = FALSE, max = 2500), bsTooltip("numberPlotModuleGenesSIZEheight", "Plot height"))
                                     ),
-                                    wellPanel(style = "background-color: #FFFFFF;",
+                                    wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                               uiOutput("mplotModuleGenesSIZE")
                                     ),
                                     fluidRow(
@@ -896,12 +896,12 @@ ui <-
                                   dataTableOutput('mdatatableModuleGenes')),
                          #################### Top Modules Series #######################
                          tabPanel('Modules:Series',
-                                  wellPanel(style = "background-color: #FFFFFF;",
+                                  wellPanel(style = "padding-bottom:0px; padding-top-15px; background-color: #FFFFFF;",
                                             fluidRow(column(3, h4(style = "margin-top: 0px; text-align: center;","Plot Time Course Of Modules")),
                                                      column(9,p(style = "color: #44b84b; text-align: center;", "You cannot paste into the boxes below. Paste any saved lists into the Select Modules regex filter instead"))),
                                             fluidRow(
                                               column(3,
-                                                     wellPanel(style = "background-color: #feffee;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #feffee;",
                                                                conditionalPanel(condition = "input.mselectColumnForModuleSeriesVaccines != null && input.mselectColumnForModuleSeriesDays != null &&
                                                                                 ((input.radioModulesModulesSeries == 'Filters' && input.mselectPlotModulesInSeries != null) ||
                                                                                 (input.radioModulesModulesSeries == 'Titles' && input.mselectModuleTitles != null) ||
@@ -936,7 +936,7 @@ ui <-
                                                      )
                                               ),
                                               column(9,
-                                                     wellPanel(style = "background-color: #feffee;",
+                                                     wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                                                fluidRow(
                                                                  column(6,
                                                                         fluidRow(
@@ -966,7 +966,7 @@ ui <-
                                                                                                       style = "color: white"))
                                                        ),
                                                        conditionalPanel(condition = "input.radioModulesModulesSeries == 'Filters'",
-                                                                        wellPanel(style = "background-color: #feffee;",
+                                                                        wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                                                                                   fluidRow(
                                                                                     column(8, selectInput('mselectPlotModulesInSeries', label = 'Modules Selected By Filters', character(0), multiple = TRUE)),
                                                                                     column(4, style = "margin-top: 20px;", actionButton('mbuttonAddAllModuleSeries','All', class="btn-outline-primary"),
@@ -974,7 +974,7 @@ ui <-
                                                                                   )
                                                                         )),
                                                        conditionalPanel(condition = "input.radioModulesModulesSeries == 'Modules'",
-                                                                        wellPanel(style = "background-color: #dcefa0;",
+                                                                        wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #dcefa0;",
                                                                                   fluidRow(
                                                                                     column(9,selectInput('mselectModuleAllModules', label = 'Modules In Dataset', character(0), multiple = TRUE)),
                                                                                     column(1,style = "margin-top: 20px;",  actionButton('mbuttonRemoveAllModulesModuleSeries','Clear')),
@@ -984,7 +984,7 @@ ui <-
                                                                                   )
                                                                         )),
                                                        conditionalPanel(condition = "input.radioModulesModulesSeries == 'Titles'",
-                                                                        wellPanel(style = "background-color: #dcefa0;",
+                                                                        wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #dcefa0;",
                                                                                   fluidRow(
                                                                                     column(9, selectInput('mselectModuleTitles', label = 'Titles In Dataset', character(0), multiple = TRUE)),
                                                                                     column(1,style = "margin-top: 20px;", actionButton('mbuttonRemoveAllModuleTitles','Clear')),
@@ -997,7 +997,7 @@ ui <-
                                                      )
                                               )
                                   ),
-                                  wellPanel(style = "background-color: #FFFFFF;",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                             p(style = "text-align: center; color:#b1cd46;","Click points to identify, drag to select"),
                                             uiOutput("mplotModuleSeriesSIZE"),
                                     fluidRow(conditionalPanel(condition = "output.mplotModuleSeries != null",
@@ -1029,7 +1029,7 @@ ui <-
      )), #explore by module
 ###########   Network  ##########
 tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Genes"),
-         wellPanel(style = "background-color: #feffee;",
+         wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #feffee;",
                    h4("Select Vaccine~Day combinations to plot"),
                    fluidRow(
                      column(2,pickerInput('selectVaccNet', choices = NULL, options = list(`style` = "btn-success"))),
@@ -1059,7 +1059,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                      ))
                    )
          ),
-         wellPanel(style = "background-color: #ffffff;",
+         wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #ffffff;",
                    fluidRow(
                      column(1,
                             radioGroupButtons('radioVennNetworkeNet', NULL,
@@ -1177,7 +1177,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
               navbarPage(span(style = 'color: #000000;','Lookup'), id = 'navLookup',
                          #################### Gene Lookup ###################
                          tabPanel('Probe-Gene Lookup',
-                                  wellPanel(style = "background-color: #feffee;",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #feffee;",
                                             h4(style = "margin-top: 0px;","Enter a probe or gene name or partial name and click Lookup"),
                                             h5("Use commas to separate multiple names. Alternatively, leave box empty and click Lookup to return all probes & genes, then use search boxes above/below table to search"),
                                             fluidRow(
@@ -1197,7 +1197,7 @@ tabPanel('Network Genes', #title = span(style = "color: #e1feff;", "Network Gene
                          ),
                          #################### Module Lookup #######################
                          tabPanel('Module Lookup',
-                                  wellPanel(style = "background-color: #feffee;",
+                                  wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #feffee;",
                                             h4(style = "margin-top: 0px;","Enter a module name or partial name and click Lookup"),
                                             h5("Use commas to separate multiple modules. Alternatively, leave box empty and click Lookup to return all modules, then use search boxes above/below table to search."),
                                             fluidRow(
@@ -1222,7 +1222,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
              h4(style = "text-align: center; margin-top: 0px;",'Cells Data Are Not Loaded Automatically. Click The Button To Load White Blood Cells Data'),
              fluidRow(
                column(8, offset = 2,
-                      wellPanel(style = "background-color: #fff4e5;",
+                      wellPanel(style = "padding-bottom: 10px; padding-top: 10px; background-color: #fff4e5;",
                                 fluidRow(
                                   column(8,offset = 2, 
                                          actionBttn('buttonLoadCells','Load Cells Data',style = 'unite', size = 'sm', color = 'success', block = TRUE)
@@ -1232,11 +1232,11 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
          ),
          
          hidden(div(id = "divCells",
-                    wellPanel(style = "background-color: #FFFFFF;",
+                    wellPanel(style = "padding-bottom: 0px; padding-top: 15px; background-color: #FFFFFF;",
                               h4(style = "margin-top: 0px;",'Time Course Of White Blood Cell Populations'),
                               fluidRow(
                                 column(4,
-                                       wellPanel(style = "background-color: #fff4e5;",
+                                       wellPanel(style = "padding-bottom: 10px; padding-top: 10px; background-color: #fff4e5;",
                                                  fluidRow(
                                                    column(6,
                                                           awesomeRadio(status = 'warning', 'radioRibbonBoxCellsSeries'," ",choices = c(Lines = 'Mean',Boxplot = 'Value')),
@@ -1277,7 +1277,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                                        )
                                 ),
                                 column(8,
-                                       wellPanel(style = "background-color: #fff4e5;",
+                                       wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #fff4e5;",
                                                  fluidRow(
                                                    column(6,
                                                           fluidRow(
@@ -1296,7 +1296,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                                                    )
                                                  )
                                        ),
-                                       wellPanel(style = "background-color: #fff4e5;",
+                                       wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #fff4e5;",
                                                  fluidRow(
                                                    column(9, selectInput('selectCellsForSeries', label = 'Cell Types', character(0), multiple = TRUE)),
                                                    column(3, div(style = "margin-top: 20px;",
@@ -1304,7 +1304,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                                                                  actionButton('buttonRemoveAllCellsCellsSeries','Clear'))
                                                    )
                                                  )),
-                                       wellPanel(style = "background-color: #fff4e5;",
+                                       wellPanel(style = "padding-bottom: 0px; padding-top: 10px; background-color: #fff4e5;",
                                                  fluidRow(
                                                    column(4,awesomeCheckbox(status = 'danger', 'checkboxOverrideVaccineNamesCells', 'Override Group Names', value = FALSE)),
                                                    column(8, textInput('textVaccineNamesCells', label = NULL),
@@ -1321,7 +1321,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                                        )
                                 )
                               ),
-                              wellPanel(style = "background-color: #FFFFFF;",
+                              wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                         uiOutput("plotCellsSeriesSIZE")
                               ),
                               fluidRow(conditionalPanel(condition = "output.plotCellsSeries != null",
@@ -1342,7 +1342,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
           h4(style = "text-align: center; margin-top: 0px;",'Cytokines Data Are Not Loaded Automatically. Click The Button To Load.'),
           fluidRow(
             column(8, offset = 2,
-                   wellPanel(style = "background-color: #f3fbe0;",
+                   wellPanel(style = "padding-bottom: 10px; padding-top: 10px; background-color: #f3fbe0;",
                              fluidRow(
                                column(8,offset = 2, 
                                       actionBttn('buttonLoadCytokines','Load Cytokines Data',style = 'unite', size = 'sm', color = 'success', block = TRUE)
@@ -1354,7 +1354,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
        # navbarPage(span(style = 'color: #000000;','Cytokines'), id = 'navCytokines',
        # tabPanel('Plot',
                 h4(style = "margin-top: 0px;",'Time Course Of Cytokines'),
-                wellPanel(style = "background-color: #f3fbe0;",
+                wellPanel(style = "padding-bottom: 0px; padding-top: 5px; background-color: #f3fbe0;",
                           fluidRow(
                             column(1,style = "margin-top: 20px;",
                                    conditionalPanel(condition = "input.cselectCytokines != null && input.cselectTreatments != null && input.cselectDays != null",
@@ -1400,7 +1400,7 @@ tabPanel(value = 'Cells', title = span(style = "color: #ffb44d;", "Cells"),
                             column(1, style = "margin-top: 10px;",numericInput("cnumericNumPanels",NULL,value = 3, min = 1, step = 1), bsTooltip("cnumericNumPanels", "Maximum number of panels per plot row")),
                             column(1,sliderInput("cnumberPlotCytokinesSIZEheight", NULL, value = 600, min = 300, step = 50, ticks = FALSE, max = 4000), bsTooltip("cnumberPlotCytokinesSIZEheight", "Plot height"))
                           ),
-                          wellPanel(style = "background-color: #FFFFFF;",
+                          wellPanel(style = "padding-bottom: 0px; padding-top: 0px; background-color: #FFFFFF;",
                                     uiOutput("cplotCytokinesSIZE")
                           ),
                           conditionalPanel(condition = "output.cplotCytokines != null",

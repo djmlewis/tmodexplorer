@@ -541,9 +541,13 @@ modules4GeneList <- function(genes2map,genes2mapRanks) {
 
 moduleDescriptionsForGenes <- function(modsOnly){
   if (length(modsOnly) > 0) {
-    # remove the row with Selected as module as it has no genes! Its a pseudo module
     modsOnly <- modsOnly %>%
-      filter(Module != 'Selected')
+      # remove the row with Selected as module as it has no genes! Its a pseudo module
+      filter(Module != 'Selected') %>%
+      # keep just Module and Title
+      select(Module,Title) %>%
+      # we have to remove replicate genes
+      distinct()
 
     return(modsNameTitle(modsOnly[['Module']],modsOnly[['Title']]))
   } 
@@ -684,9 +688,8 @@ getExpressionsForModules <- function(topgenesmods, actarmcdDay, allExpressionDat
       modsExprns <- modsExprns %>%
         mutate(Module = factor(Module, levels = rev(modsSummStats$Module))) # rev as we flip_coords()
       result <- list(expressions = modsExprns, Module = modsSummStats, Title = TitsSummStats)
-
       return(result)
-    }
+  }
     return(list(expressions = NULL, Module = NULL, Title = NULL))
   }
 

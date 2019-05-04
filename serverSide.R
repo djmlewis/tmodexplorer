@@ -888,7 +888,7 @@ output$buttonSaveSearchGenes <- downloadHandler(
   
   #################### Modules->Genes #########################
   # link the module select to the modules for top genes topGenesAndModules()[['modsOnly']]
-  mods4Genes <- reactive({moduleDescriptionsForGenes(geneExpressionsForModules()[['Module']])})
+  mods4Genes <- reactive({moduleDescriptionsForGenes(geneExpressionsForModules()[['expressions']])})
   # change choices in the Genes In Module select based on selected modules
   observeEvent(mods4Genes(),{
     updatePickerInput(session, 'selectModuleForGenes', choices = mods4Genes())
